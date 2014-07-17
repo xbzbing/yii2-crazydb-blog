@@ -28,3 +28,6 @@ phpunit.phar
 
 # tests 目录
 /tests
+
+# composer.lock 文件
+composer.lock
