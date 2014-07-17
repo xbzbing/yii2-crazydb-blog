@@ -1,25 +1,29 @@
 Yii2-crazydb-blog
 =================
-使用Yii2重写了我的blog。
+
+使用Yii2重写了我的博客程序。
 
 由于不想再背着那沉重的笔记本上下班，于是又买了一块SSD开始使用公司配的电脑。
 
 为了方便多地工作以及督促自己好好写代码，故建立公开仓库存放该代码，欢迎交流。
 
-项目基于 Yii 2 Basic Application 模板
+项目基于 Yii 2 Basic Application 模板。
+
+参考地址：[https://github.com/yiisoft/yii2-app-basic](https://github.com/yiisoft/yii2-app-basic)
 
 Yii 2 Basic Application Template
 ================================
 
-Yii 2 Basic Application Template is a skeleton Yii 2 application best for
-rapidly creating small projects.
+Yii2基本应用模板包含了Yii2的基本特性，适用于创建较小的项目。
 
-The template contains the basic features including user login/logout and a contact page.
-It includes all commonly used configurations that would allow you to focus on adding new
-features to your application.
+Yii1采用.htaccess文件来保护系统文件，而Yii2做的更为彻底，直接从路径上分离web目录和资源目录，架构上讲更科学点。
+
+同时Yii2采用Composer作为包管理工具，使得第三方应用与组件依赖在「网络正常」的情况下更方便安装与更新。
+
+Yii2的高级模板采用了前台和后台分离的方案，更适合大型应用。对于个人blog来说，基本应用模板已经够用。
 
 
-DIRECTORY STRUCTURE
+目录结构
 -------------------
 
       assets/             contains assets definition
@@ -36,52 +40,25 @@ DIRECTORY STRUCTURE
 
 
 
-REQUIREMENTS
+环境要求
 ------------
 
-The minimum requirement by this application template that your Web server supports PHP 5.4.0.
+PHP最低版本要求为5.4.0。
 
 
-INSTALLATION
+安装
 ------------
 
-### Install from an Archive File
+只要注意一点，web/目录是网站根目录。
 
-Extract the archive file downloaded from [yiiframework.com](http://www.yiiframework.com/download/) to
-a directory named `basic` that is directly under the Web root.
+使用composer来安装第三方包。
 
-You can then access the application through the following URL:
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-### Install via Composer
-
-If you do not have [Composer](http://getcomposer.org/), you may install it by following the instructions
-at [getcomposer.org](http://getcomposer.org/doc/00-intro.md#installation-nix).
-
-You can then install this application template using the following command:
-
-~~~
-php composer.phar create-project --prefer-dist --stability=dev yiisoft/yii2-app-basic basic
-~~~
-
-Now you should be able to access the application through the following URL, assuming `basic` is the directory
-directly under the Web root.
-
-~~~
-http://localhost/basic/web/
-~~~
-
-
-CONFIGURATION
+配置
 -------------
 
-### Database
+### 数据库
 
-Edit the file `config/db.php` with real data, for example:
+编辑 `config/db.php` ，使用当前真实运行环境配置，例如：
 
 ```php
 return [
@@ -93,6 +70,6 @@ return [
 ];
 ```
 
-**NOTE:** Yii won't create the database for you, this has to be done manually before you can access it.
+**注意:** 数据表暂时没有上传，因为结构还不是特别稳定，可以根据model恢复数据库。
 
-Also check and edit the other files in the `config/` directory to customize your application.
+同时也可以修改`config/` 文件夹下的其他文件来自定义你的应用。
