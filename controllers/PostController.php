@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\models\Comment;
 use Yii;
 use app\models\Post;
-use app\models\PostSearch;
+use app\models\search\PostSearch;
 use app\components\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

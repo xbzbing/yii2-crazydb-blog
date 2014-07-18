@@ -6,7 +6,6 @@ use Yii;
 
 use \yii\base\NotSupportedException;
 use \yii\db\ActiveRecord;
-use \yii\helpers\Security;
 use \yii\web\IdentityInterface;
 
 use app\components\XUtils;
@@ -49,12 +48,12 @@ class User extends ActiveRecord implements IdentityInterface {
     public function rules(){
         return [
             [['nickname', 'name', 'password', 'email'], 'required'],
-            [['ret_time, update_time', 'status'], 'integer'],
+            [['reg_time', 'update_time', 'status'], 'integer'],
             [['info', 'ext'], 'string'],
             [['nickname', 'name'], 'string', 'max' => 80],
             [['password'], 'string', 'max' => 32],
             [['email', 'url', 'acl'], 'string', 'max' => 100],
-            [['ret_ip'], 'string', 'max' => 15],
+            [['reg_ip'], 'string', 'max' => 15],
             [['salt'], 'string', 'max' => 60]
         ];
     }
@@ -72,8 +71,9 @@ class User extends ActiveRecord implements IdentityInterface {
             'email' => '电子邮箱',
             'url' => 'Blog URL',
             'acl' => '访问权限控制',
-            'ret_ip' => '注册IP',
-            'ret_time' => '注册时间',
+            'reg_ip' => '注册IP',
+            'reg_time' => '注册时间',
+            'update_time' => '更新时间',
             'salt' => '带盐',
             'auth_key'=>'授权代码',
             'status' => '用户状态',
@@ -97,9 +97,10 @@ class User extends ActiveRecord implements IdentityInterface {
         }
 
         if(in_array($this->scenario, array('register','modifyPassword'))){
-            $this->salt = $this->generateSalt();
-            $this->password = $this->hashPassword($this->password, $this->salt);
+//            $this->salt = 20;
+            $this->password = $this->hashPassword($this->password);
         }
+        return true;
     }
 
     /**
@@ -123,7 +124,7 @@ class User extends ActiveRecord implements IdentityInterface {
      * @return static|null
      */
     public static function findByUsername($username){
-        return static::findOne(['username' => $username, 'status' => self::STATUS_NORMAL]);
+        return static::findOne(['name' => $username, 'status' => self::STATUS_NORMAL]);
     }
 
     /**
@@ -174,23 +175,23 @@ class User extends ActiveRecord implements IdentityInterface {
      * @return boolean if password provided is valid for current user
      */
     public function validatePassword($password){
-        return Security::validatePassword($password, $this->password);
+        return Yii::$app->security->validatePassword($password, $this->password);
     }
 
     /**
-     * Generates password hash from password and sets it to the model
-     *
+     * 加密密码
      * @param string $password
+     * @return string
      */
-    public function setPassword($password){
-        $this->password = Security::generatePasswordHash($password,20);
+    public function hashPassword($password){
+        return Yii::$app->security->generatePasswordHash($password);
     }
 
     /**
      * Generates "remember me" authentication key
      */
     public function generateAuthKey(){
-        $this->auth_key = Security::generateRandomKey();
+        $this->auth_key = Yii::$app->security->generateRandomKey();
     }
 
 }

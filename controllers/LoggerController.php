@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Logger;
-use app\models\LoggerSearch;
+use app\models\search\LoggerSearch;
 use app\components\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

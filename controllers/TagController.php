@@ -4,7 +4,8 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Tag;
-use app\models\TagSearch;
+use app\models\search\TagSearch;
+use app\models\User;
 use app\components\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -25,6 +26,7 @@ class TagController extends BaseController
             ],
         ];
     }
+
 
     /**
      * Lists all Tag models.
