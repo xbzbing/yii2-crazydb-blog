@@ -37,7 +37,7 @@ class Module extends \yii\base\Module
         $route=Yii::$app->controller->id.'/'.$action->id;
         
         if(!$this->checkAccess($route)){
-            throw new ForbiddenHttpException('You are not allowed to access this page.');
+            throw new ForbiddenHttpException('需要登录');
         }
 
         if(!$this->checkRole()){
@@ -73,7 +73,7 @@ class Module extends \yii\base\Module
         if(in_array('*',$this->roles))
             return true;
 
-        $userAcl = Yii::$app->user->isGuest ? ['Guest'] : Yii::$app->user->identityClass->alc;
+        $userAcl = Yii::$app->user->isGuest ? 'Guest' : Yii::$app->user->identityClass->alc;
         $userAcl = explode(',',$userAcl);
         $acl = AclUtils::getAllAcl();
         $currentRole = '';
