@@ -37,7 +37,7 @@ class Module extends \yii\base\Module
         $route=Yii::$app->controller->id.'/'.$action->id;
         
         if(!$this->checkAccess($route)){
-            throw new ForbiddenHttpException(Yii::t('app', 'You are not allowed to access this page.'));
+            throw new ForbiddenHttpException('You are not allowed to access this page.');
         }
 
         if(!$this->checkRole()){

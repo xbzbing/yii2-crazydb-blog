@@ -21,7 +21,7 @@ class TestController extends Controller{
     }
     public function actionAdd(){
         $user = new User();
-        $user->setScenario('xxxx');
+        $user->setScenario('modifyPassword');
         $user->password = '123';
         $user->name = 'xxxxx';
         $user->nickname = 'xxxxx';

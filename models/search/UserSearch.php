@@ -15,8 +15,8 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['id', 'regtime', 'status'], 'integer'],
-            [['nickname', 'name', 'password', 'email', 'url', 'acl', 'regip', 'salt', 'info', 'ext'], 'safe'],
+            [['id', 'reg_time', 'status'], 'integer'],
+            [['nickname', 'username', 'password', 'email', 'url', 'acl', 'reg_ip', 'salt', 'info', 'ext'], 'safe'],
         ];
     }
 
@@ -40,17 +40,17 @@ class UserSearch extends User
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'regtime' => $this->regtime,
+            'reg_time' => $this->reg_time,
             'status' => $this->status,
         ]);
 
         $query->andFilterWhere(['like', 'nickname', $this->nickname])
-            ->andFilterWhere(['like', 'name', $this->name])
+            ->andFilterWhere(['like', 'name', $this->username])
             ->andFilterWhere(['like', 'password', $this->password])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'url', $this->url])
             ->andFilterWhere(['like', 'acl', $this->acl])
-            ->andFilterWhere(['like', 'regip', $this->regip])
+            ->andFilterWhere(['like', 'reg_ip', $this->reg_ip])
             ->andFilterWhere(['like', 'salt', $this->salt])
             ->andFilterWhere(['like', 'info', $this->info])
             ->andFilterWhere(['like', 'ext', $this->ext]);

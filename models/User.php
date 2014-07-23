@@ -15,7 +15,7 @@ use app\components\XUtils;
  *
  * @property string $id
  * @property string $nickname
- * @property string $name
+ * @property string $username
  * @property string $password
  * @property string $email
  * @property string $url
@@ -36,6 +36,12 @@ class User extends ActiveRecord implements IdentityInterface {
     const STATUS_DELETED = 8;
 
     /**
+     * 黑名单
+     * @var string[]
+     */
+    public $nameBlackList = ['admin'];
+
+    /**
      * @inheritdoc
      */
     public static function tableName(){
@@ -47,18 +53,52 @@ class User extends ActiveRecord implements IdentityInterface {
      */
     public function rules(){
         return [
-            [['nickname', 'name', 'password', 'email'], 'required'],
+            [['username', 'password', 'email'], 'required'],
             [['reg_time', 'update_time', 'status'], 'integer'],
+            [['status'], 'default', self::STATUS_NORMAL],
+            [['status'], 'in', 'range'=>self::getAvailableStatus()],
             [['info', 'ext'], 'string'],
-            [['nickname', 'name'], 'string', 'max' => 80],
-            [['password'], 'string', 'max' => 32],
+            [['nickname'], 'string', 'max' => 80],
+            [['username'], 'string', 'max' => 20],
+            [['password'], 'string', 'max' => 60],
+            [['password'], 'string', 'max' => 20, 'on'=>['register','modifyPassword']],
             [['email', 'url', 'acl'], 'string', 'max' => 100],
+            [['email'], 'email'],
             [['reg_ip'], 'string', 'max' => 15],
-            [['salt'], 'string', 'max' => 60]
+            [['salt'], 'string', 'max' => 60],
+            [['username', 'nickname', 'email'], 'unique']
         ];
     }
 
     /**
+     * 获得可能的状态值
+     * @return string[]
+     */
+    public function getAvailableStatus(){
+        return [self::STATUS_NORMAL,self::STATUS_INACTIVE,self::STATUS_BANED,self::STATUS_DELETED];
+    }
+
+    /**
+     * 获得可能的状态值的名称
+     * @return string[]
+     */
+    public function getAvailableStatusName(){
+        return [
+            self::STATUS_NORMAL=>'正常',
+            self::STATUS_INACTIVE=>'未激活',
+            self::STATUS_BANED=>'账号被禁用',
+            self::STATUS_DELETED=>'已删除'
+        ];
+    }
+
+    public function getUserStatus(){
+        $status = self::getAvailableStatus();
+        if(array_key_exists($this->status,$status))
+            return $status[$this->status];
+        else
+            return '未设置';
+    }
+    /**asfdsdfas
      * @inheritdoc
      */
     public function attributeLabels(){
@@ -66,7 +106,7 @@ class User extends ActiveRecord implements IdentityInterface {
         return [
             'id' => '用户ID',
             'nickname' => '昵称',
-            'name' => '用户名',
+            'username' => '用户名',
             'password' => '密码',
             'email' => '电子邮箱',
             'url' => 'Blog URL',
@@ -85,17 +125,17 @@ class User extends ActiveRecord implements IdentityInterface {
     public function beforeSave($insert){
         if(!parent::beforeSave($insert))
             return false;
-        if($insert){
+        if ($this->isNewRecord) {
             $this->reg_time = time();
             $this->reg_ip = XUtils::getClientIP();
-            //注册黑名单
-            if($this->name=='admin' || $this->nickname == 'admin'){
-                $this->addError('name','用户名已被注册！');
-            }
+            $this->auth_key = Yii::$app->security->generateRandomKey();
         }else{
             $this->update_time = time();
         }
-
+        //注册黑名单
+        if(in_array($this->username,$this->nameBlackList)||in_array($this->nickname,$this->nameBlackList)){
+            $this->$this->addError('username','该用户名不能被注册！');
+        }
         if(in_array($this->scenario, array('register','modifyPassword'))){
 //            $this->salt = 20;
             $this->password = $this->hashPassword($this->password);
@@ -120,11 +160,11 @@ class User extends ActiveRecord implements IdentityInterface {
     /**
      * Finds user by username
      *
-     * @param  string      $username
+     * @param  string  $username
      * @return static|null
      */
     public static function findByUsername($username){
-        return static::findOne(['name' => $username, 'status' => self::STATUS_NORMAL]);
+        return static::findOne(['username' => $username, 'status' => self::STATUS_NORMAL]);
     }
 
     /**
@@ -147,11 +187,14 @@ class User extends ActiveRecord implements IdentityInterface {
         ]);
     }
 
+    public function getUsername(){
+        return $this->nickname;
+    }
     /**
      * @inheritdoc
      */
     public function getId(){
-        return $this->getPrimaryKey();
+        return $this->id;
     }
 
     /**

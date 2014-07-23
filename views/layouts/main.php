@@ -25,7 +25,7 @@ AppAsset::register($this);
 <?php $this->beginBody() ?>
     <header class="index-header">
         <div class="col-md-4 index-logo">
-            <img src="/cms/assets/22bff416/images/xbzbing.jpg" class="img-circle">
+            <img src="<?=Yii::$app->request->baseUrl?>/static/site/xbzbing.jpg" class="img-circle">
         </div>
         <?php
             NavBar::begin([
