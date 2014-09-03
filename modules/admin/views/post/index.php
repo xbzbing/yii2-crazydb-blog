@@ -10,8 +10,11 @@ use app\models\Lookup;
  * @var app\models\search\PostSearch $searchModel
  */
 
+use \app\components\CMSUtils;
+
 $this->title = Yii::t('app', 'Posts');
 $this->params['breadcrumbs'][] = $this->title;
+$categories = CMSUtils::getAllCategories(true);
 ?>
 <div class="post-index">
     
@@ -25,49 +28,19 @@ $this->params['breadcrumbs'][] = $this->title;
 ]), ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?= GridView::widget([
+    <?=
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
-            'category_id',
             'title',
-            // 'url:url',
-            // 'thumbnail',
-            [
-                'attribute'=>'type',
-                'value' => function ($data) {
-                    return Lookup::item("{{post}}type",$data->type);
-                },
-                'filter' => Lookup::items("{{post}}type"),
-            ],
-            // 'summary',
-            // 'source',
-            // 'writer',
-            // 'content:ntext',
-            // 'tags',
-            // 'seo_title',
-            // 'seo_keywords',
-            // 'seo_description',
-            'published_at:date',
-            'views',
-            'likes',
-            'comment_count',
-            // 'disallow_comment',
-            [
-                'attribute'=>'status',
-                'value' => function ($data) {
-                    return Lookup::item("{{post}}status",$data->type);
-                },
-                'filter' => Lookup::items("{{post}}status"),
-            ],
-            // 'created_by',
-            // 'updated_by',
-            // 'created_at',
-            // 'updated_at',
-
+            ['label'=>'类别','value'=>function($data)use($categories){
+                    return isset($categories[$data->cid])?$categories[$data->cid]:'未设置分类';
+                }],
+            'post_time:datetime',
+            'update_time:datetime',
+            'view_count',
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

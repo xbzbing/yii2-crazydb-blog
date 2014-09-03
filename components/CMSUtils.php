@@ -23,11 +23,12 @@ class CMSUtils{
             $categories = Yii::$app->cache->get('__categories');
 
         if(empty($categories)){
-            $post_cate = Category::findAll([]);
+            $category_array = Category::find()->select('id,name')->asArray()->all();
+            foreach($category_array as $category){
+                $categories[$category['id']] = $category['name'];
+            }
             $dp = new DbDependency();
             $dp->sql = 'select MAX(id) from '.Category::tableName();
-            foreach($post_cate as $cate)
-                $categories[$cate->id] = $cate->name;
             Yii::$app->cache->set(
                 '__categories',
                 $categories,

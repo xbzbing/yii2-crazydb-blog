@@ -3,38 +3,20 @@
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\bootstrap\ActiveForm;
-use app\models\Lookup;
-use yii\imagine\image;
-use app\components\Common;
-use yii\jui\AutoCompleteAsset;
+use app\components\CMSUtils;
 use app\models\Category;
+use app\models\Post;
 /**
  * @var yii\web\View $this
- * @var app\models\Post $model
+ * @var Post $model
  * @var yii\widgets\ActiveForm $form
  */
 $category = new Category;
-$Categories = $category->roots()->all();
+$Categories = $category->find()->all();
 $level = 0;
 
 $arr[0] = Yii::t('app', 'Please select the Category');
-foreach ($Categories as $key => $value){
-    
-    $arr[$value->attributes['id']]=$value->attributes['name'];
-    $children = $value->descendants()->all();
-    foreach ($children as $child){
-        $string = '  ';
-        $string .= str_repeat('│  ', $child->level - $level - 1);
-        if ($child->isLeaf() && !$child->next()->one()) {
-            $string .= '└';
-        } else {
-
-            $string .= '├';
-        }
-        $string .= '─' . $child->name;
-        $arr[$child->id]=$string;
-    }
-}
+$categories = CMSUtils::getAllCategories();
 ?>
 
 <div class="post-form">
@@ -52,25 +34,15 @@ foreach ($Categories as $key => $value){
             <div class="tab-pane active" id="home">
 
                 <?= $form->field($model, 'title')->textInput() ?>
-                <?= $form->field($model, 'type')->inline()->radioList(Lookup::items("{{post}}type"))->label(false) ?>
+                <?= $form->field($model, 'type')->inline()->radioList(\app\models\Post::getAvailableStatus())->label(false) ?>
 
                 <?= $form->field($model, 'url')->textInput() ?>
 
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-md-4">
-                            <?= Html::activeLabel($model, 'source') ?>
-                            <?= Html::activeTextInput($model, 'source', ['class' => 'form-control']) ?>
-                            <p class="help-block"></p>
-                        </div>
                         <div class="col-md-2">
                             <label for="">&nbsp;</label>
                             <button type="button" class="btn btn-default form-control" data-toggle="modal" data-target="#choose-source"><?= Yii::t('app', 'Choose') ?></button>
-                            <p class="help-block"></p>
-                        </div>
-                        <div class="col-md-4">
-                            <?= Html::activeLabel($model, 'writer') ?>
-                            <?= Html::activeTextInput($model, 'writer', ['class' => 'form-control']) ?>
                             <p class="help-block"></p>
                         </div>
                         <div class="col-md-2">
@@ -82,7 +54,7 @@ foreach ($Categories as $key => $value){
                     </div>
                 </div>
 
-                <?= $form->field($model, 'category_id')->dropDownList($arr) ?>
+                <?= $form->field($model, 'cid')->dropDownList($categories) ?>
 
                 <?= $form->field($model, 'tags')->textInput() ?>
                 
@@ -135,8 +107,8 @@ foreach ($Categories as $key => $value){
         </div>
         <div class="panel panel-default">
             <div class="panel-body">
-            <?= $form->field($model, 'status')->dropDownList(Lookup::items("{{post}}status")) ?>
-            <?php $model->isNewRecord?$model->published_at=date("Y-m-d H:i:s"):$model->published_at=date("Y-m-d H:i:s", $model->published_at);?>
+            <?= $form->field($model, 'status')->dropDownList(Post::getAvailableStatus()) ?>
+            <?php $model->isNewRecord?$model->post_time=date("Y-m-d H:i:s"):$model->post_time=date("Y-m-d H:i:s", $model->post_time);?>
             <?= $form->field($model, 'published_at')->textInput(['maxlength' => 255]) ?>
             <button id="set-it-now" type="button" class="btn btn-default form-control"><?= Yii::t('app', 'Set It Now') ?></button>
             </div>
@@ -151,8 +123,6 @@ foreach ($Categories as $key => $value){
 </div>
 
 <?php 
-echo $this->render('_source');
-echo $this->render('_writer');
 $this->registerJs('
 jQuery(".post-form").on("click", "#thumbnail-delete",function(){
     $.get("'.Url::to(['post/thumbnail-delete', 'id' => $model->id]).'", function(data){jQuery("#thumbnail").attr("src", "");})
@@ -184,88 +154,4 @@ KindEditor.ready(function(K) {
 });
 ');
 
-// for tags
-AutoCompleteAsset::register($this);
-$this->registerJs('
-  $(function() {
-    function split( val ) {
-      return val.split( /,\s*/ );
-    }
-    function extractLast( term ) {
-      return split( term ).pop();
-    }
- 
-    $( "#post-tags" )
-      // do not navigate away from the field on tab when selecting an item
-      .bind( "keydown", function( event ) {
-        if ( event.keyCode === $.ui.keyCode.TAB &&
-            $( this ).data( "ui-autocomplete" ).menu.active ) {
-          event.preventDefault();
-        }
-      })
-      .autocomplete({
-        source: function( request, response ) {
-          $.getJSON( "'.Url::toRoute(['suggest-tags']).'", {
-            term: extractLast( request.term )
-          }, response );
-        },
-        search: function() {
-          // custom minLength
-          var term = extractLast( this.value );
-          if ( term.length < 1 ) {
-            return false;
-          }
-        },
-        focus: function() {
-          // prevent value inserted on focus
-          return false;
-        },
-        select: function( event, ui ) {
-          var terms = split( this.value );
-          // remove the current input
-          terms.pop();
-          // add the selected item
-          terms.push( ui.item.value );
-          // add placeholder to get the comma-and-space at the end
-          terms.push( "" );
-          this.value = terms.join( ", " );
-          return false;
-        }
-      });
-  });
-');
-
-$this->registerCss("
-.ui-autocomplete {
-position: absolute;
-top: 100%;
-left: 0;
-z-index: 1000;
-display: none;
-float: left;
-min-width: 160px;
-padding: 5px 0;
-margin: 2px 0 0;
-list-style: none;
-font-size: 14px;
-background-color: #fff;
-border: 1px solid #ccc;
-border: 1px solid rgba(0,0,0,.15);
-border-radius: 4px;
--webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-background-clip: padding-box;}
- 
-.ui-menu-item > a.ui-corner-all {
-display: block;
-padding: 3px 20px;
-clear: both;
-font-weight: 400;
-line-height: 1.42857143;
-color: #333;
-white-space: nowrap;}
-.ui-menu-item > a.ui-corner-all:hover {
-text-decoration: none;
-color: #262626;
-background-color: #f5f5f5;}
-");?>
+?>

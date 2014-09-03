@@ -25,7 +25,7 @@ AppAsset::register($this);
 	<div class="wrap">
 		<?php
 			NavBar::begin([
-				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> DCMS <small class="text-muted">v2.0</small>',
+				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> xbzbing\'s BLOG',
 				'brandUrl' => ['/admin/default/index'],
 				'options' => [
 					'class' => 'navbar-default',
@@ -33,14 +33,13 @@ AppAsset::register($this);
 			]);
 			
 			$menuItems = [
-				['label' => \Yii::t('app', 'Site Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
-				['label' => \Yii::t('app', 'Hello,welcome to use DCMS!'), 'url' => '#'],
+				['label' => \Yii::t('app', 'Frontend Hom'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 			];
 			if (Yii::$app->user->isGuest) {
 				$menuItems[] = ['label' => \Yii::t('app', 'Login'), 'url' => ['/site/login']];
 			} else {
 				$menuItems[] = [
-					'label' => \Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->username . ')',
+					'label' => \Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->nickname . ')',
 					'url' => ['/site/logout'],
 					'linkOptions' => ['data-method' => 'post']
 				];

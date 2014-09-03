@@ -58,7 +58,7 @@ class Module extends \yii\base\Module
         if(Yii::$app->user->isGuest)
             return false;
         else
-            return false;
+            return true;
     }
 
     /**
@@ -73,10 +73,11 @@ class Module extends \yii\base\Module
         if(in_array('*',$this->roles))
             return true;
 
-        $userAcl = Yii::$app->user->isGuest ? 'Guest' : Yii::$app->user->identityClass->alc;
+        $userAcl = Yii::$app->user->isGuest ? 'Guest' : Yii::$app->user->identity->acl;
         $userAcl = explode(',',$userAcl);
-        $acl = AclUtils::getAllAcl();
+        $acl = AclUtils::getAllAcl(true);
         $currentRole = '';
+
         foreach($userAcl as $id){
             if(!isset($acl[$id]))
                 break;
