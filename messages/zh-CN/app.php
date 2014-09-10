@@ -52,6 +52,7 @@ return array (
   'Hello, {username}!' => '你好, {username}!',
   'Home' => '主页',
   'Frontend Home' => '前台首页',
+  'Admin Home'=>'后台首页',
   'Dashboards' => '控制面板',
   'Login' => '登录',
   'Logout' => '退出',
@@ -71,7 +72,7 @@ return array (
   'Articles' => '文章',
   'Posts' => '文章',
   'Page' => '单页',
-  'Navs' => '导航',
+  'Nav' => '导航',
 
   //Site
   'Site name' => '网站名称',
@@ -108,7 +109,7 @@ return array (
   'Update Category: ' => '更新分类：',
   'Summary' => '简介',
   'Parent' => '父分类',
-  'uncategorized' => '未分类',
+  'Uncategorized' => '未分类',
 
   //lookup
   'Code' => '代码',
@@ -142,7 +143,6 @@ return array (
 
   //post
   'Article' => '文章',
-  'Category' => '分类',
   'Title' => '标题',
   'Content' => '内容',
   'Status' => '状态',
@@ -158,9 +158,7 @@ return array (
   'Views' => '浏览次数',
   'Comment Count' => '评论次数',
   'Thumbnail' => '缩略图',
-  'Type' => '类型',
   'Choose' => '选择',
-  'Content' => '内容',
 
   // Comment
   'Author'=>'作者',
@@ -173,6 +171,6 @@ return array (
   'This email address has already been taken.'=>'这个邮箱地址已被占用',
 
   //
-  'Navs Tree' => '导航树',
+  'Nav Tree' => '导航树',
   'Create Nav' => '创建导航',
 );

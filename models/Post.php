@@ -209,7 +209,7 @@ class Post extends BaseModel{
 
         if(!$this->alias)
             $this->alias = $this->title;
-        $this->alias = str_replace([' ','%'],['-',''],trim($this->alias));
+        $this->alias = str_replace([' ','%'],['-'],trim($this->alias));
         $this->alias = strip_tags($this->alias);
         $this->alias = htmlspecialchars($this->alias);
 
@@ -224,7 +224,7 @@ class Post extends BaseModel{
 
         //处理封面图片
         if($this->cover){
-            //验证cover
+            //TODO 验证cover
         }else{
             $this->cover = $this->getCoverImage();
         }
@@ -295,9 +295,9 @@ class Post extends BaseModel{
             ->orderBy(['post_time'=>$orders[$relation]]);
         if($simple)
             $post->select('id,title,alias,status');
-        if($category){
+        if($category)
             $post->andWhere(['cid'=>$this->cid]);
-        }
+
         $one = $post->one();
         Yii::$app->cache->set("post_{$relation}_".$this->id,$one,3600);
         return $one;

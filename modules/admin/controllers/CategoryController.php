@@ -15,28 +15,6 @@ use app\modules\admin\components\Controller;
  */
 class CategoryController extends Controller
 {
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'actions' => ['error'],
-                        'allow' => true,
-                    ],
-                    [
-                        'actions' => ['tree', 'index', 'view', 'create', 'update', 'move', 'delete'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return in_array(Yii::$app->user->identity->username, Yii::$app->params['admin']);
-                        }
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Lists all Category models.

@@ -8,7 +8,17 @@ use app\components\Common;
 class Controller extends \yii\web\Controller
 {
 	public $layout = 'column2';
-
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
 	public function beforeAction($action) 
 	{
 		if (parent::beforeAction($action)) {

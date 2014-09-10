@@ -9,8 +9,20 @@ use app\modules\admin\components\Controller;
 /**
  * Default controller
  */
-class DefaultController extends Controller
+class ConfigController extends Controller
 {
+
+	/**
+	 * @inheritdoc
+	 */
+	public function actions()
+	{
+		return [
+			'error' => [
+				'class' => 'yii\web\ErrorAction',
+			],
+		];
+	}
 
 	public function actionIndex()
 	{

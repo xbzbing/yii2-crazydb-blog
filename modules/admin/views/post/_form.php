@@ -66,7 +66,7 @@ $categories = CMSUtils::getAllCategories();
                         'langType' => Yii::$app->language=="zh-CN"?"zh_CN":Yii::$app->language,
                         'height' => '350px',
                         'themeType' => 'simple',
-                        'pagebreakHtml' => Yii::$app->params['pagebreakHtml'],
+                        'pagebreakHtml' => '#p# pagebreak #e#',
                         'allowImageUpload' => true,
                         'allowFileManager' => true,
                         'uploadJson' => Url::toRoute('create-img-ajax'),
@@ -77,16 +77,9 @@ $categories = CMSUtils::getAllCategories();
                 
                 <?= $form->field($model, 'content')->textArea(['rows' => 10]) ?>
 
-                <?= $form->field($model, 'summary')->textArea(['rows' => 5]) ?>
+                <?= $form->field($model, 'excerpt')->textArea(['rows' => 5]) ?>
             </div>
 
-            <div class="tab-pane" id="seo">
-                <?= $form->field($model, 'seo_title')->textInput(['maxlength' => 255]) ?>
-
-                <?= $form->field($model, 'seo_keywords')->textInput(['maxlength' => 255]) ?>
-
-                <?= $form->field($model, 'seo_description')->textArea(['rows' => 5]) ?>
-            </div>
 
         </div>
         <div class="form-group">
@@ -100,22 +93,17 @@ $categories = CMSUtils::getAllCategories();
                 <?php if (!empty($model->thumbnail)): ?>
                 <button type="button" class="close" aria-hidden="true" id="thumbnail-delete">&times;</button>    
                 <?php endif ?>
-                <img id="thumbnail" class="media-object" data-src="holder.js/194x194" alt="thumbnail" title="thumbnail" src="<?= (isset($model->thumbnail) && !empty($model->thumbnail))?$model->thumbnail:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTMiIGhlaWdodD0iMTkzIj48cmVjdCB3aWR0aD0iMTkzIiBoZWlnaHQ9IjE5MyIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9Ijk2IiB5PSI5NiIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxOHB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPnRodW1ibmFpbDwvdGV4dD48L3N2Zz4=" ?>" class="img-rounded" style="max-width:194px;max-height:194px;">
+                <img id="thumbnail" class="media-object" data-src="holder.js/194x194" alt="thumbnail" title="thumbnail" src="<?= !empty($model->cover)?$model->cover:"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTMiIGhlaWdodD0iMTkzIj48cmVjdCB3aWR0aD0iMTkzIiBoZWlnaHQ9IjE5MyIgZmlsbD0iI2VlZSI+PC9yZWN0Pjx0ZXh0IHRleHQtYW5jaG9yPSJtaWRkbGUiIHg9Ijk2IiB5PSI5NiIgc3R5bGU9ImZpbGw6I2FhYTtmb250LXdlaWdodDpib2xkO2ZvbnQtc2l6ZToxOHB4O2ZvbnQtZmFtaWx5OkFyaWFsLEhlbHZldGljYSxzYW5zLXNlcmlmO2RvbWluYW50LWJhc2VsaW5lOmNlbnRyYWwiPnRodW1ibmFpbDwvdGV4dD48L3N2Zz4=" ?>" class="img-rounded" style="max-width:194px;max-height:194px;">
                 <input class="ke-input-text" type="text" id="url" value="" readonly="readonly" /> <input type="button" id="uploadButton" value="<?= Yii::t('app', 'Upload') ?>" />
-                <?= Html::activeHiddenInput($model, 'thumbnail') ?>
+                <?= Html::activeHiddenInput($model, 'cover') ?>
             </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-body">
             <?= $form->field($model, 'status')->dropDownList(Post::getAvailableStatus()) ?>
             <?php $model->isNewRecord?$model->post_time=date("Y-m-d H:i:s"):$model->post_time=date("Y-m-d H:i:s", $model->post_time);?>
-            <?= $form->field($model, 'published_at')->textInput(['maxlength' => 255]) ?>
+            <?= $form->field($model, 'post_time')->textInput(['maxlength' => 255]) ?>
             <button id="set-it-now" type="button" class="btn btn-default form-control"><?= Yii::t('app', 'Set It Now') ?></button>
-            </div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-body">
-            <?= $form->field($model, 'disallow_comment')->checkBox() ?>
             </div>
         </div>
     </div>
