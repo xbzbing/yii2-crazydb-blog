@@ -31,3 +31,7 @@ phpunit.phar
 
 # composer.lock 文件
 composer.lock
+
+
+# .htaccess 文件
+.htaccess
