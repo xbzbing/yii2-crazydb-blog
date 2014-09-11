@@ -30,14 +30,14 @@ class AclUtils{
      * @return array
      */
     public static function getAllAcl($refresh=false){
-
+        /* @var Acl[] $roles */
         if($refresh)
             $acl = null;
         else
             $acl = Yii::$app->cache->get('__allAcl');
 
         if(empty($acl)){
-            $roles = Acl::findAll([]);
+            $roles = Acl::find()->all();
             foreach($roles as $role){
                 $role->action = explode(',',$role->action);
                 $role->action = array_filter($role->action);

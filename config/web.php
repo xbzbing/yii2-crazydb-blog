@@ -14,6 +14,9 @@ $config = [
         ]
     ],
     'components' => [
+        'request'=>[
+            'cookieValidationKey'=>'cookieValidateKey'
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

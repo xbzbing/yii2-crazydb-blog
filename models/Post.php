@@ -29,6 +29,12 @@ use \app\components\XUtils;
  * @property integer $view_count 点击数量
  * @property string $options 配置信息
  * @property string $ext_info 附加信息
+ *
+ * #利用魔术方法获取的属性
+ * @property array $availableStatus
+ * @property string $postStatus
+ * @property array $availableType
+ * @property string $postType
  */
 class Post extends BaseModel{
     /**
@@ -73,8 +79,8 @@ class Post extends BaseModel{
             [['password'], 'string', 'max' => 32],
             [['status'], 'string', 'max' => 50],
             [['options'], 'string', 'max' => 8],
-            [['status'], 'in', 'range'=>self::getStatuses(), 'message'=>'文章的「状态」错误！'],
-            [['type'], 'in' , 'range'=>self::getTypes(), 'message'=>'文章的「类型」错误！'],
+            [['status'], 'in', 'range'=>array_keys(self::getAvailableStatus()), 'message'=>'文章的「状态」错误！'],
+            [['type'], 'in' , 'range'=>array_keys(self::getAvailableType()), 'message'=>'文章的「类型」错误！'],
         ];
     }
 
@@ -104,6 +110,8 @@ class Post extends BaseModel{
             'view_count' => '浏览数',
             'options' => '配置信息',
             'ext_info' => '附加数据',
+            'postType' => '类型',
+            'postStatus' => '状态'
         ];
     }
 
@@ -111,12 +119,12 @@ class Post extends BaseModel{
      * 获得支持的文章状态
      * @return array
      */
-    public static function getStatuses(){
+    public static function getAvailableStatus(){
         return [
-            self::STATUS_DELETED,
-            self::STATUS_DRAFT,
-            self::STATUS_DELETED,
-            self::STATUS_HIDDEN
+            self::STATUS_DELETED => '已删除',
+            self::STATUS_DRAFT => '草稿',
+            self::STATUS_PUBLISHED => '已发布',
+            self::STATUS_HIDDEN => '隐藏'
         ];
     }
     /**
@@ -125,27 +133,24 @@ class Post extends BaseModel{
      * @return string|null
      */
     public static function getStatusName($status){
-        $statuses = [
-            self::STATUS_DELETED => '已删除',
-            self::STATUS_DRAFT => '草稿',
-            self::STATUS_PUBLISHED => '已发布',
-            self::STATUS_HIDDEN => '隐藏'
-        ];
+        $statuses = self::getAvailableStatus();
         if(isset($statuses[$status]))
             return $statuses[$status];
         else
             return null;
     }
+    public function getPostStatus(){
+        return self::getStatusName($this->status);
+    }
     /**
      * 获得支持的文章状态
      * @return array
      */
-    public static function getTypes(){
+    public static function getAvailableType(){
         return [
-            self::STATUS_DELETED,
-            self::STATUS_DRAFT,
-            self::STATUS_DELETED,
-            self::STATUS_HIDDEN
+            self::TYPE_POST => '文章',
+            self::TYPE_ALBUM => '相册',
+            self::TYPE_PRODUCT => '产品'
         ];
     }
     /**
@@ -154,17 +159,16 @@ class Post extends BaseModel{
      * @return string|null
      */
     public static function getTypeName($type){
-        $types = [
-            self::TYPE_POST => '文章',
-            self::TYPE_ALBUM => '相册',
-            self::TYPE_PRODUCT => '产品'
-        ];
+        $types = self::getAvailableType();
         if(isset($types[$type]))
             return $types[$type];
         else
             return null;
     }
 
+    public function getPostType(){
+        return self::getTypeName($this->type);
+    }
     /**
      * 自动填写create_time、post_time、update_time
      * 新 Post 自动填写作者ID和作者的昵称
@@ -205,7 +209,7 @@ class Post extends BaseModel{
 
         if(!$this->alias)
             $this->alias = $this->title;
-        $this->alias = str_replace([' ','%'],['-',''],trim($this->alias));
+        $this->alias = str_replace([' ','%'],['-'],trim($this->alias));
         $this->alias = strip_tags($this->alias);
         $this->alias = htmlspecialchars($this->alias);
 
@@ -220,7 +224,7 @@ class Post extends BaseModel{
 
         //处理封面图片
         if($this->cover){
-            //验证cover
+            //TODO 验证cover
         }else{
             $this->cover = $this->getCoverImage();
         }
@@ -291,24 +295,24 @@ class Post extends BaseModel{
             ->orderBy(['post_time'=>$orders[$relation]]);
         if($simple)
             $post->select('id,title,alias,status');
-        if($category){
+        if($category)
             $post->andWhere(['cid'=>$this->cid]);
-        }
+
         $one = $post->one();
         Yii::$app->cache->set("post_{$relation}_".$this->id,$one,3600);
         return $one;
     }
 
     public function getAuthor(){
-        return $this->hasOne(User::className(),['id'=>'author_id']);
+        return $this->hasOne('User',['id'=>'author_id']);
     }
     public function getCategory(){
-        return $this->hasOne(Category::className(),['id'=>'cid']);
+        return $this->hasOne('Category',['id'=>'cid']);
     }
     public function getComments(){
-        return $this->hasMany(Comment::className(),['pid'=>'id']);
+        return $this->hasMany('Comment',['pid'=>'id']);
     }
     public function getTags(){
-        return $this->hasMany(Tag::className(),['pid'=>'id']);
+        return $this->hasMany('Tag',['pid'=>'id']);
     }
 }

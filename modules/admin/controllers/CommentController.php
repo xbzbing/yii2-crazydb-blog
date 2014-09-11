@@ -16,28 +16,6 @@ use app\modules\admin\components\Controller;
  */
 class CommentController extends Controller
 {
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'actions' => ['error'],
-                        'allow' => true,
-                    ],
-                    [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                        'matchCallback' => function ($rule, $action) {
-                            return in_array(Yii::$app->user->identity->username, Yii::$app->params['admin']);
-                        }
-                    ],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Lists all Comment models.

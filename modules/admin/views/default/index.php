@@ -1,49 +1,38 @@
 <?php
-/**
- * @var yii\web\View $this
- */
-use yii\helpers\Html;
-use yii\helpers\Url;
-use app\models\Post;
-use app\models\Comment;
-use app\models\Category;
-use app\models\Page;
-use app\models\User;
-
-$this->title = 'Overview - DCMS2.0 - backend';
+use app\modules\admin\components\Controller;
+/* @var Controller $this */
+/* @var array $server */
 ?>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title"><?= Yii::t('app', 'Overview') ?></h3>
-  </div>
-  <div class="panel-body">
-    文章数量：<?= Post::find()->count()?>  评论数量：<?= Comment::find()->count()?> 分类数量：<?= Category::find()->count()?> 单页数量：<?= Page::find()->count()?> 用户：<?= User::find()->count()?>
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">最新评论！</h3>
-  </div>
-  <div class="panel-body">
-  <ul class="list-unstyled">
-  	<?php foreach ($comments as $key => $value): ?>
-  	<li><a href="<?= Url::to(['comment/view', 'id' => $value->id]) ?>"><?= Html::encode($value->content) ?></a></li>
-  	<?php endforeach ?>
-  </ul>
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">system</h3>
-  </div>
-  <div class="panel-body">
-    
-    powerby: DCMS v2.0 <br>
-	author: ff <br>
-	official: <a href="http://www.cmsboom.com/" target="_blank">website</a><br>
-  </div>
-</div>
-
+<table class="table table-bordered table-hover">
+    <caption><h2>系统信息</h2></caption>
+    <tbody>
+        <tr>
+            <td >操作系统软件</td>
+            <td ><?=$server['serverOs']?> - <?=$server['serverSoft']?></td>
+        </tr>
+        <tr>
+            <td >数据库及大小</td>
+            <td ><?=$server['mysqlVersion']?> (<?=$server['dbsize']?>)</td>
+        </tr>
+        <tr>
+            <td >上传许可</td>
+            <td ><?=$server['fileupload']?></td>
+        </tr>
+        <tr>
+            <td >主机名</td>
+            <td ><?=$server['serverUri']?></td>
+        </tr>
+        <tr>
+            <td >当前使用内存</td>
+            <td ><?=$server['excuteUseMemory']?></td>
+        </tr>
+        <tr>
+            <td >PHP环境</td>
+            <td >
+                <p>版本：<?=$server['phpVersion']?></p>
+                <p>magic_quote_gpc：<?=$server['magic_quote_gpc']?></p>
+                <p>allow_url_fopen：<?=$server['allow_url_fopen']?></p>
+            </td>
+        </tr>
+    </tbody>
+</table>

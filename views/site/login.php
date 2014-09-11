@@ -24,9 +24,9 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]); ?>
 
-    <?= $form->field($model, 'username') ?>
+    <?= $form->field($model, 'username',['inputOptions'=>['tabIndex'=>1,'class'=>'form-control']]) ?>
 
-    <?= $form->field($model, 'password')->passwordInput() ?>
+    <?= $form->field($model, 'password',['inputOptions'=>['tabIndex'=>1,'class'=>'form-control']])->passwordInput() ?>
 
     <?= $form->field($model, 'rememberMe', [
         'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input}</div>\n<div class=\"col-lg-8\">{error}</div>",
@@ -41,7 +41,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php ActiveForm::end(); ?>
 
     <div class="col-lg-offset-1" style="color:#999;">
-        You may login with <strong>admin/admin</strong> or <strong>demo/demo</strong>.<br>
-        To modify the username/password, please check out the code <code>app\models\User::$users</code>.
+        <p>xbzbing/admin</p>
     </div>
 </div>

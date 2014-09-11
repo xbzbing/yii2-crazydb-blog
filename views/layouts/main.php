@@ -12,13 +12,13 @@ AppAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>">
+<html lang="<?=Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>"/>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= Html::encode($this->title) ?></title>
+    <title><?=Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 <body>
@@ -46,7 +46,7 @@ AppAsset::register($this);
                     ['label' => 'Contact', 'url' => ['/site/contact']],
                     Yii::$app->user->isGuest ?
                         ['label' => 'Login', 'url' => ['/site/login']] :
-                        ['label' => 'Logout (' . Yii::$app->user->identity->username . ')',
+                        ['label' => 'Logout (' . Yii::$app->user->identity->nickname . ')',
                             'url' => ['/site/logout'],
                             'linkOptions' => ['data-method' => 'post']],
                 ],

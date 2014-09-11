@@ -187,9 +187,6 @@ class User extends ActiveRecord implements IdentityInterface {
         ]);
     }
 
-    public function getUsername(){
-        return $this->nickname;
-    }
     /**
      * @inheritdoc
      */

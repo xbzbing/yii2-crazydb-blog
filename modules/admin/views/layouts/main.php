@@ -1,6 +1,5 @@
 <?php
 use app\modules\admin\assets\AppAsset;
-use yii\helpers\Html;
 use yii\bootstrap\Nav;
 use yii\bootstrap\NavBar;
 use app\components\Common;
@@ -13,11 +12,11 @@ AppAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
-<html lang="<?= Yii::$app->language ?>">
+<html lang="<?=Yii::$app->language?>">
 <head>
-	<meta charset="<?= Yii::$app->charset ?>"/>
+	<meta charset="<?=Yii::$app->charset?>"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= Html::encode($this->title) ?></title>
+	<title><?=$this->title?></title>
 	<?php $this->head() ?>
 </head>
 <body>
@@ -25,7 +24,7 @@ AppAsset::register($this);
 	<div class="wrap">
 		<?php
 			NavBar::begin([
-				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> DCMS <small class="text-muted">v2.0</small>',
+				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> xbzbing\'s BLOG',
 				'brandUrl' => ['/admin/default/index'],
 				'options' => [
 					'class' => 'navbar-default',
@@ -33,14 +32,13 @@ AppAsset::register($this);
 			]);
 			
 			$menuItems = [
-				['label' => \Yii::t('app', 'Site Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
-				['label' => \Yii::t('app', 'Hello,welcome to use DCMS!'), 'url' => '#'],
+				['label' => \Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 			];
 			if (Yii::$app->user->isGuest) {
 				$menuItems[] = ['label' => \Yii::t('app', 'Login'), 'url' => ['/site/login']];
 			} else {
 				$menuItems[] = [
-					'label' => \Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->username . ')',
+					'label' => \Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->nickname . ')',
 					'url' => ['/site/logout'],
 					'linkOptions' => ['data-method' => 'post']
 				];
@@ -48,23 +46,23 @@ AppAsset::register($this);
 			if (Common::getLanguage()) {
 				switch (Common::getLanguage()) {
 					case 'en':
-						$languageLable='<i class="ficon-flag-GB"></i> English';
+						$languageLabel='English';
 						break;
 					case 'zh-CN':
-						$languageLable='<i class="ficon-flag-CN"></i> 简体中文';
+						$languageLabel='简体中文';
 						break;
 					default:
-						$languageLable='<i class="ficon-flag-GB"></i> English';
+						$languageLabel='English';
 						break;
 				}
 				
 			}
 			$menuItems[] = [
-				'label' => Common::getLanguage()?$languageLable:\Yii::t('app', 'choose language'), 
+				'label' => Common::getLanguage()?$languageLabel:\Yii::t('app', 'choose language'),
 				'url' => '#', 
 		        'items' => [
-		        	['label' => '<i class="ficon-flag-GB"></i> English', 'url' => ['default/locale', 'language' => 'en']],
-		        	['label' => '<i class="ficon-flag-CN"></i> 简体中文', 'url' => ['default/locale', 'language' => 'zh-CN']],
+		        	['label' => ' English', 'url' => ['default/locale', 'language' => 'en']],
+		        	['label' => ' 简体中文', 'url' => ['default/locale', 'language' => 'zh-CN']],
 		    	]
 		    ];
 			echo Nav::widget([
