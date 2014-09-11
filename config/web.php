@@ -15,7 +15,7 @@ $config = [
     ],
     'components' => [
         'request'=>[
-            'cookieValidationKey'=>'cookieValidateKey'
+            'cookieValidationKey'=>'xx'
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -23,6 +23,10 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            'defaultRoles' => ['guest']
         ],
         'assetManager' => [
             'bundles' => [
@@ -47,9 +51,6 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
         'log' => [

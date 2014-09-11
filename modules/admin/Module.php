@@ -91,7 +91,7 @@ class Module extends \yii\base\Module
         Logger::record(
             Yii::$app->user->id,
             '越权访问',
-            '用户[ '.Yii::$app->user->name." ]以[ $currentRole ]权限访问「{$this->name}」模块被拒绝。",
+            '用户[ '.Yii::$app->user->username." ]以[ $currentRole ]权限访问「{$this->name}」模块被拒绝。",
             '失败'
         );
         return false;
