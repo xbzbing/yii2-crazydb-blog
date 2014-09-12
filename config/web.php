@@ -15,7 +15,7 @@ $config = [
     ],
     'components' => [
         'request'=>[
-            'cookieValidationKey'=>'cookieValidateKey'
+            'cookieValidationKey'=>'cookieValidateKey!'
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -33,7 +33,7 @@ $config = [
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => true,
+            'showScriptName' => false,
             'rules'=>[
                 '<controller:(post|comment)>/<id:\d+>/<action:(create|update|delete)>' => '<controller>/<action>',
                 '<controller:(post|comment)>/<id:\d+>' => '<controller>/read',
@@ -47,9 +47,6 @@ $config = [
         ],
         'mailer' => [
             'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
         'log' => [
@@ -67,7 +64,6 @@ $config = [
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = 'yii\debug\Module';
 
