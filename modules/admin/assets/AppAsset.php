@@ -15,15 +15,14 @@ use yii\web\AssetBundle;
  */
 class AppAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
-    public $baseUrl = '@web';
+    public $sourcePath = '@app/modules/admin/assets/resources';
     public $css = [
-        'css/site.css','css/bootstrap-formhelpers-countries.flags.css',
+        'css/admin.css',
     ];
     public $js = [
     ];
     public $depends = [
-        'yii\web\YiiAsset',
+//        'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
     ];
 }
