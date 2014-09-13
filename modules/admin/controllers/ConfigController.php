@@ -12,12 +12,13 @@ use app\modules\admin\components\Controller;
 class ConfigController extends Controller
 {
 
-
     /**
      * Base Setting
      * 基本设置
      */
     public function actionSetting(){
+
+        return $this->render('setting');
 	}
 
     /**

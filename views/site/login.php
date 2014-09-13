@@ -11,9 +11,7 @@ $this->title = 'Login';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-login">
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>Please fill out the following fields to login:</p>
+    <h1><?=Yii::t('app','Login')?></h1>
 
     <?php $form = ActiveForm::begin([
         'id' => 'login-form',
@@ -26,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $form->field($model, 'username',['inputOptions'=>['tabIndex'=>1,'class'=>'form-control']]) ?>
 
-    <?= $form->field($model, 'password',['inputOptions'=>['tabIndex'=>1,'class'=>'form-control']])->passwordInput() ?>
+    <?= $form->field($model, 'password',['inputOptions'=>['tabIndex'=>2,'class'=>'form-control']])->passwordInput() ?>
 
     <?= $form->field($model, 'rememberMe', [
         'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input}</div>\n<div class=\"col-lg-8\">{error}</div>",
@@ -34,7 +32,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
-            <?= Html::submitButton('Login', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
+            <?= Html::submitButton(Yii::t('app','Login'), ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
         </div>
     </div>
 

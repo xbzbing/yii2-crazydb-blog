@@ -25,7 +25,7 @@ AppAsset::register($this);
 		<?php
 			NavBar::begin([
 				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> xbzbing\'s BLOG',
-				'brandUrl' => ['/admin/default/index'],
+				'brandUrl' => ['admin/default/index'],
 				'options' => [
 					'class' => 'navbar-default',
 				],
@@ -35,10 +35,10 @@ AppAsset::register($this);
 				['label' => \Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 			];
 			if (Yii::$app->user->isGuest) {
-				$menuItems[] = ['label' => \Yii::t('app', 'Login'), 'url' => ['/site/login']];
+				$menuItems[] = ['label' => Yii::t('app', 'Login'), 'url' => ['site/login']];
 			} else {
 				$menuItems[] = [
-					'label' => \Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->nickname . ')',
+					'label' => Yii::t('app', 'Logout').' (' . Yii::$app->user->identity->nickname . ')',
 					'url' => ['/site/logout'],
 					'linkOptions' => ['data-method' => 'post']
 				];
@@ -58,7 +58,7 @@ AppAsset::register($this);
 				
 			}
 			$menuItems[] = [
-				'label' => Common::getLanguage()?$languageLabel:\Yii::t('app', 'choose language'),
+				'label' => Common::getLanguage()?$languageLabel:Yii::t('app', 'choose language'),
 				'url' => '#', 
 		        'items' => [
 		        	['label' => ' English', 'url' => ['default/locale', 'language' => 'en']],

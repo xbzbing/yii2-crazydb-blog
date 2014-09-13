@@ -29,12 +29,12 @@ AppAsset::register($this);
         </div>
         <?php
             NavBar::begin([
-                'brandLabel' => '疯狂的dabing',
+                'brandLabel' => Yii::t('app',Yii::$app->name),
                 'options' => [
                     'class' => 'container',
                 ],
                 'innerContainerOptions'=>[
-                    'class'=>'navbar navbar-default col-md-6'
+                    'class'=>'navbar navbar-default col-md-7'
                 ],
             ]);
 3        ?>
