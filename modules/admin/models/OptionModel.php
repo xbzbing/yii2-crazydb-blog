@@ -3,10 +3,12 @@
  * @author xbzbing<xbzbing@gmail.com>
  * 这是后台Config的model基类
  */
-use Yii;
-use yii\db\ActiveRecord;
+namespace app\modules\admin\models;
 
-class OptionFormModel extends ActiveRecord{
+use Yii;
+use yii\base\Model;
+
+class OptionModel extends Model{
     protected $type;
     /**
      * 简单处理输入字符串
@@ -33,24 +35,20 @@ class OptionFormModel extends ActiveRecord{
      */
     public function replace($type){
         $row = 0;
-        if($this->beforeSave(false)){
-            $command = Yii::$app->db->createCommand("REPLACE INTO {{option}} (type, name, value) VALUES(:type,:name,:value)");
-            foreach($this->attributes as $name => $value){
-                $row += $command->execute(array('type'=>$type,'name'=>$name,'value'=>$value));
-            }
+        $command = Yii::$app->db->createCommand("REPLACE INTO {{option}} (type, name, value) VALUES(:type,:name,:value)");
+        foreach($this->attributes as $name => $value){
+            $row += $command->execute(array(':type'=>$type,':name'=>$name,':value'=>$value));
         }
         return $row/2;
     }
-
     /**
      * 进行自动验证并保存
-     * @param bool $runValidation
-     * @param null $attributeNames
-     * @return bool
+     * @param $type
+     * @return bool|int
      */
-    public function save($runValidation = true, $attributeNames = null){
+    public function save($type){
         if($this->validate())
-            return $this->replace($this->type);
+            return $this->replace($type);
         else
             return false;
     }

@@ -106,4 +106,17 @@ class XUtils{
         $ip = $ip ? $ip : '0.0.0.0';
         return $ip;
     }
+
+    /**
+     * 获取themes文件夹下的文件
+     * @return array
+     */
+    public static function getThemeList(){
+        $paths =  Yii::$app->controller->view->theme;
+        foreach($paths as $key => $path){
+            unset($paths[$key]);
+            $paths[$path] = $path;
+        }
+        return $paths;
+    }
 }
