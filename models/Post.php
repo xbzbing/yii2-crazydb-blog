@@ -3,8 +3,9 @@
 namespace app\models;
 
 use Yii;
-use \app\components\BaseModel;
-use \app\components\XUtils;
+use yii\helpers\Url;
+use app\components\BaseModel;
+use app\components\XUtils;
 
 /**
  * This is the model class for table "{{%post}}".
@@ -35,6 +36,7 @@ use \app\components\XUtils;
  * @property string $postStatus
  * @property array $availableType
  * @property string $postType
+ * @property string $url
  */
 class Post extends BaseModel{
     /**
@@ -134,10 +136,7 @@ class Post extends BaseModel{
      */
     public static function getStatusName($status){
         $statuses = self::getAvailableStatus();
-        if(isset($statuses[$status]))
-            return $statuses[$status];
-        else
-            return null;
+        return isset($statuses[$status])?$statuses[$status]:null;
     }
     public function getPostStatus(){
         return self::getStatusName($this->status);
@@ -249,9 +248,9 @@ class Post extends BaseModel{
         if($this->isNewRecord)
             return null;
         if($this->alias)
-            return Yii::$app->urlManager->createAbsoluteUrl(['post/alias','name'=>$this->alias]);
+            return Url::to(['post/alias','name'=>$this->alias]);
         else
-            return Yii::$app->urlManager->createAbsoluteUrl(['post/view','id'=>$this->id]);
+            return Url::to(['post/view','id'=>$this->id],true);
     }
 
     /**
