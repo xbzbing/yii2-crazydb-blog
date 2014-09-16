@@ -55,14 +55,14 @@ class CMSUtils{
 
 
         if(empty($config)){
-            $options = Option::findAll("type=:type",array('type'=>$type));
-
+            $options = Option::find()->where(['type'=>$type])->asArray()->all();
             foreach($options as $op){
-                $config[$op->name] = $op->value;
+                $config[$op['name']] = $op['value'];
             }
-            Yii::app()->cache->set("config_{$type}",$config,3600);
+            Yii::$app->cache->set("config_{$type}",$config,3600);
 
         }
+        var_dump($config);
         return $config;
     }
 }

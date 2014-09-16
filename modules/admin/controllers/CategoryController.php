@@ -2,13 +2,14 @@
 
 namespace app\modules\admin\controllers;
 
+
 use Yii;
 use app\models\Category;
-use app\models\search\CategorySearch;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
+use yii\data\ActiveDataProvider;
 use app\modules\admin\components\Controller;
+
+use app\components\CMSUtils;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -22,22 +23,12 @@ class CategoryController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new CategorySearch;
-        $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
-
+        $dataProvider = new ActiveDataProvider([
+            'query' => Category::find()->where(['parent'=>0]),
+        ]);
         return $this->render('index', [
             'dataProvider' => $dataProvider,
-            'searchModel' => $searchModel,
         ]);
-    }
-
-    /**
-     * Lists all Category models via tree.
-     * @return mixed
-     */
-    public function actionTree()
-    {
-        return $this->render('tree');
     }
 
     /**
@@ -60,20 +51,16 @@ class CategoryController extends Controller
     public function actionCreate()
     {
         $model = new Category;
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->parent == 0){
-                $model->saveNode();
-            } else if ($model->parent){
-                $root = $this->findModel($model->parent);
-                $model->appendTo($root);
-            }
-            return $this->render('tree');
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        $category_array = CMSUtils::getAllCategories();
+        $category_array += ['0'=>'顶级分类'];
+        if ($model->load($_POST)) {
+            $model->save();
         }
+
+        return $this->render('create', [
+            'model' => $model,
+            'category_array' => $category_array
+        ]);
     }
 
     /**

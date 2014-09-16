@@ -112,7 +112,7 @@ class XUtils{
      * @return array
      */
     public static function getThemeList(){
-        $paths =  Yii::$app->controller->view->theme;
+        $paths =  array();
         foreach($paths as $key => $path){
             unset($paths[$key]);
             $paths[$path] = $path;

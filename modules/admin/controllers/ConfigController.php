@@ -7,7 +7,7 @@ use app\components\CMSUtils;
 use app\components\XUtils;
 use app\modules\admin\components\Controller;
 use app\modules\admin\models\SettingForm;
-use app\models\Logger;
+use app\modules\admin\models\SeoForm;
 
 /**
  * Default controller
@@ -15,29 +15,41 @@ use app\models\Logger;
 class ConfigController extends Controller
 {
 
+    public function actionIndex(){
+        
+    }
+
     /**
      * Base Setting
      * 基本设置
      */
     public function actionSetting(){
         $setting = new SettingForm();
-        $setting->attributes = CMSUtils::getSiteConfig( 'sys' );
+        $setting->setAttributes(CMSUtils::getSiteConfig( 'sys'));
+        $setting->setOldAttributes($setting->attributes);
         $themes = array('[none]'=>'不使用主题');
         $themes += XUtils::getThemeList();
-        if( isset( $_POST['OptionForm'] ) ){
-            $setting->attributes = $_POST['SettingForm'];
-            if( $row = $setting->save( 'sys' ) ){
+        if($setting->load($_POST)){
+            if( $row = $setting->save('sys') ){
                 Yii::$app->cache->set( 'config_sys', $setting->attributes );
-                Logger::record( Yii::app()->user->id, 'config', "修改网站配置({$row}项)" );
             }
         }
-        return $this->render('setting',['model'=>$setting]);
+        return $this->render('setting',['model'=>$setting,'themes'=>$themes]);
 	}
 
     /**
      * 系统SEO设置
      */
-    public function actionSEO(){
+    public function actionSeo(){
+        $seo = new SeoForm();
+        $seo->setAttributes(CMSUtils::getSiteConfig('seo'));
+        $seo->setOldAttributes($seo->attributes);
+        if($seo->load($_POST)){
+            if( $row = $seo->save('seo') ){
+                Yii::$app->cache->set( 'config_seo', $seo->attributes );
+            }
+        }
+        return $this->render( 'seo', array( 'model' => $seo ) );
 	}
 
     /**
