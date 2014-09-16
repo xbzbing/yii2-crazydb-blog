@@ -32,7 +32,7 @@ AppAsset::register($this);
 			]);
 			
 			$menuItems = [
-				['label' => \Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
+				['label' => Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 			];
 			if (Yii::$app->user->isGuest) {
 				$menuItems[] = ['label' => Yii::t('app', 'Login'), 'url' => ['site/login']];
