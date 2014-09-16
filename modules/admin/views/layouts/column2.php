@@ -7,12 +7,6 @@ use app\widgets\SideNav;
 
 ?>
 <?php $this->beginContent('@app/modules/admin/views/layouts/main.php'); ?>
-<style>
-    .affix-aside{
-        min-width:280px;
-    }
-
-</style>
 <div class="col-md-2">
     <div data-spy="affix"  data-offset-top="60" data-offset-bottom="200" class="affix-aside">
 	<?php
@@ -38,12 +32,7 @@ use app\widgets\SideNav;
         [
             'label' => Yii::t('app', 'Category'),
             'icon' => 'leaf',
-            'items' =>
-                [
-                    ['label' => Yii::t('app', 'Categories'), 'url' => ['category/index'], 'icon' => 'leaf'],
-
-                    ['label' => Yii::t('app', 'Categories Tree'), 'url' => ['category/tree'], 'icon' => 'tree-conifer'],
-                ],
+            'url' => ['category/index']
         ],
         [
             'label' => Yii::t('app', 'Nav'),

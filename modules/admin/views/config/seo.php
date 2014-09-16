@@ -6,7 +6,6 @@ use yii\helpers\Html;
  * @var yii\web\View $this
  * @var yii\widgets\ActiveForm $form
  * @var app\modules\admin\models\SeoForm $model
- * @var array $themes
  */
 ?>
 <div class="col-md-8">
@@ -23,7 +22,7 @@ $form = ActiveForm::begin([
     <div class="col-md-12">
         <?= $form->field($model, 'seo_title',['inputOptions'=>['class'=>'form-control']]) ?>
         <?= $form->field($model, 'seo_keywords',['inputOptions'=>['class'=>'form-control']]) ?>
-        <?= $form->field($model, 'seo_description',['inputOptions'=>['class'=>'form-control']])->textarea() ?>
+        <?= $form->field($model, 'seo_description')->textarea(['rows' => 6]) ?>
     </div>
 
     <div class="form-group">

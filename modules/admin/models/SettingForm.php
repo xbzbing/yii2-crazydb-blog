@@ -7,6 +7,11 @@
  */
 namespace app\modules\admin\models;
 
+/**
+ * Class SettingForm
+ * @package app\modules\admin\models
+ */
+
 class SettingForm extends OptionModel{
     /**
      * @var string 网站名称
@@ -54,6 +59,8 @@ class SettingForm extends OptionModel{
      */
     public $send_mail_on_comment;
 
+
+
     /**
      * 网站分析代码，包含<script></script>
      * @var string 网站分析代码
@@ -69,8 +76,8 @@ class SettingForm extends OptionModel{
             ['site_name','required'],
             ['admin_email','email'],
             ['site_analyzer','safe'],//这个地方可能是唯一的XSS。。
-            ['site_status, allow_register, need_approve, allow_comment,send_mail_on_comment','in','range'=>['open','closed']],
-            ['site_icp, copyright, closed_summary, theme','simplePurify']
+            [['site_status', 'allow_register', 'need_approve', 'allow_comment', 'send_mail_on_comment'],'in','range'=>['open','closed']],
+            [['site_icp', 'copyright', 'closed_summary', 'theme'],'simplePurify']
         ];
     }
 

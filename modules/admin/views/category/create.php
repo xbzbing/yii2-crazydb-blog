@@ -4,7 +4,8 @@ use yii\helpers\Html;
 
 /**
  * @var yii\web\View $this
- * @var common\models\Category $model
+ * @var app\models\Category $model
+ * @var array $category_array
  */
 
 $this->title = Yii::t('app', 'Create {modelClass}', [
@@ -19,6 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
+        'category_array' => $category_array
     ]) ?>
 
 </div>
