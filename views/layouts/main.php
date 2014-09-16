@@ -29,26 +29,27 @@ AppAsset::register($this);
         </div>
         <?php
             NavBar::begin([
-                'brandLabel' => '疯狂的dabing',
+                'brandLabel' => Yii::t('app',Yii::$app->name),
                 'options' => [
                     'class' => 'container',
                 ],
                 'innerContainerOptions'=>[
-                    'class'=>'navbar navbar-default col-md-6'
+                    'class'=>'navbar navbar-default col-md-7'
                 ],
             ]);
 3        ?>
         <?= Nav::widget([
                 'options' => ['class' => 'navbar-nav'],
                 'items' => [
-                    ['label' => 'Home', 'url' => ['/site/index']],
-                    ['label' => 'About', 'url' => ['/site/about']],
-                    ['label' => 'Contact', 'url' => ['/site/contact']],
+                    ['label' => 'Home', 'url' => ['site/index']],
+                    ['label' => 'About', 'url' => ['site/about']],
+                    ['label' => 'Contact', 'url' => ['site/contact']],
                     Yii::$app->user->isGuest ?
-                        ['label' => 'Login', 'url' => ['/site/login']] :
+                        ['label' => 'Login', 'url' => ['site/login']] :
                         ['label' => 'Logout (' . Yii::$app->user->identity->nickname . ')',
-                            'url' => ['/site/logout'],
-                            'linkOptions' => ['data-method' => 'post']],
+                            'url' => ['site/logout'],
+//                            'linkOptions' => ['data-method' => 'post']
+                        ],
                 ],
             ]);
             NavBar::end();

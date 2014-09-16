@@ -15,7 +15,7 @@ $config = [
     ],
     'components' => [
         'request'=>[
-            'cookieValidationKey'=>'xx'
+            'cookieValidationKey'=>'cookieValidateKey!'
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -23,10 +23,6 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
-        ],
-        'authManager' => [
-            'class' => 'yii\rbac\DbManager',
-            'defaultRoles' => ['guest']
         ],
         'assetManager' => [
             'bundles' => [
@@ -37,7 +33,7 @@ $config = [
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => true,
+            'showScriptName' => false,
             'rules'=>[
                 '<controller:(post|comment)>/<id:\d+>/<action:(create|update|delete)>' => '<controller>/<action>',
                 '<controller:(post|comment)>/<id:\d+>' => '<controller>/read',
@@ -68,7 +64,6 @@ $config = [
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = 'yii\debug\Module';
 
