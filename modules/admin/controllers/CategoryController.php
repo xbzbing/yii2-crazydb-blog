@@ -75,51 +75,18 @@ class CategoryController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $parent = $model->parent()->One();
-
+        $category_array = CMSUtils::getAllCategories();
+        $category_array = ['0'=>'顶级分类'] + $category_array;
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->saveNode();
-            if ($model->parent == 0 && !$model->isRoot()){
-                $model->moveAsRoot();
-            } elseif ($model->parent != 0 && $model->parent != $parent->id){
-                $root = $this->findModel($model->parent);
-                $model->moveAsLast($root);
-            }
-            return $this->render('tree');
+            $this->redirect(['view','id'=>$id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
+                'category_array'=>$category_array
             ]);
         }
     }
 
-    /**
-     * Updates an existing Category model.
-     * @param string $id
-     * @param string $updown
-     * @return mixed
-     */
-    public function actionMove($id,$updown)
-    {
-        $model=$this->findModel($id);
-
-        if($updown=="down") {
-            $sibling=$model->next()->one();
-            if (isset($sibling)) {
-                $model->moveAfter($sibling);
-                return $this->redirect(array('tree'));
-            }
-            return $this->redirect(array('tree'));
-        }
-        if($updown=="up"){
-            $sibling=$model->prev()->one();
-            if (isset($sibling)) {
-                $model->moveBefore($sibling);
-                return $this->redirect(array('tree'));
-            }
-            return $this->redirect(array('tree'));
-        }
-    }
 
     /**
      * Deletes an existing Category model.
@@ -129,7 +96,7 @@ class CategoryController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->deleteNode();
+        $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
     }

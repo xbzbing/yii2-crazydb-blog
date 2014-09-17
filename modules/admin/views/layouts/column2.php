@@ -4,11 +4,15 @@
 use \yii\web\View;
 use app\widgets\Alert;
 use app\widgets\SideNav;
-
 ?>
 <?php $this->beginContent('@app/modules/admin/views/layouts/main.php'); ?>
+<style>
+    .affix-aside{
+        min-width:187px;
+    }
+</style>
 <div class="col-md-2">
-    <div data-spy="affix"  data-offset-top="60" data-offset-bottom="200" class="affix-aside">
+    <div data-spy="affix"  data-offset-top="20" data-offset-bottom="-900" class="affix-aside">
 	<?php
 	$nav = [
         [
@@ -61,7 +65,7 @@ use app\widgets\SideNav;
     </div>
 </div>
 <div class="col-md-10">
-	<?= \yii\widgets\Breadcrumbs::widget([
+	<?= yii\widgets\Breadcrumbs::widget([
 		'homeLink' => ['label' => 'Home', 'url' => ['/admin/default/index']],
 		'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 	]) ?>
