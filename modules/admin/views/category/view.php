@@ -35,7 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'name',
             'alias',
             'desc',
-            'parent',
+            'parentCategory.name',
             'display',
             'sort_order',
             'seo_title',

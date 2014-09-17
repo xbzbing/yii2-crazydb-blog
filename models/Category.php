@@ -4,7 +4,6 @@ namespace app\models;
 
 use Yii;
 use \app\components\BaseModel;
-use \app\components\XUtils;
 use yii\helpers\Url;
 
 /**
@@ -27,9 +26,9 @@ use yii\helpers\Url;
  * @property array $availableDisplay
  *
  * #relations
- * @property Category parentCategory
- * @property Post[] posts
- * @property Post[] allPosts
+ * @property Category $parentCategory
+ * @property Post[] $posts
+ * @property Post[] $allPosts
  */
 class Category extends BaseModel
 {
@@ -65,15 +64,16 @@ class Category extends BaseModel
      * @return self
      */
     public function getParentCategory(){
-        return $this->hasOne('Category',['id'=>'parent']);
+        return $this->parent>0?$this->hasOne(self::className(),['id'=>'parent']):null;
     }
 
+
     public function getAllPosts(){
-        return $this->hasMany('Post',['cid'=>'id']);
+        return $this->hasMany(Post::className(),['cid'=>'id']);
     }
 
     public function getPosts(){
-        return $this->hasMany('Post',['cid'=>'id','status'=>[Post::STATUS_PUBLISHED,Post::STATUS_HIDDEN]]);
+        return $this->hasMany(Post::className(),['cid'=>'id','status'=>[Post::STATUS_PUBLISHED,Post::STATUS_HIDDEN]]);
     }
 
     public static function getAvailableDisplay(){

@@ -308,15 +308,15 @@ class Post extends BaseModel{
     }
 
     public function getAuthor(){
-        return $this->hasOne('User',['id'=>'author_id']);
+        return $this->hasOne(User::className(),['id'=>'author_id']);
     }
     public function getCategory(){
-        return $this->hasOne('Category',['id'=>'cid']);
+        return $this->hasOne(Category::className(),['id'=>'cid']);
     }
     public function getComments(){
-        return $this->hasMany('Comment',['pid'=>'id']);
+        return $this->hasMany(Comment::className(),['pid'=>'id']);
     }
     public function getPostTags(){
-        return $this->hasMany('Tag',['pid'=>'id']);
+        return $this->hasMany(Tag::className(),['pid'=>'id']);
     }
 }
