@@ -36,7 +36,12 @@ use app\components\XUtils;
  * @property string $postStatus
  * @property array $availableType
  * @property string $postType
- * @property string $url
+ *
+ * #relations
+ * @property User $author
+ * @property Category $category
+ * @property Comment[] $comments
+ * @property Tag[] $postTags
  */
 class Post extends BaseModel{
     /**
@@ -311,7 +316,7 @@ class Post extends BaseModel{
     public function getComments(){
         return $this->hasMany('Comment',['pid'=>'id']);
     }
-    public function getTags(){
+    public function getPostTags(){
         return $this->hasMany('Tag',['pid'=>'id']);
     }
 }

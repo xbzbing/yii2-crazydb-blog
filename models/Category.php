@@ -25,6 +25,11 @@ use yii\helpers\Url;
  * @property string $url
  * @property string $displayType
  * @property array $availableDisplay
+ *
+ * #relations
+ * @property Category parentCategory
+ * @property Post[] posts
+ * @property Post[] allPosts
  */
 class Category extends BaseModel
 {
@@ -52,6 +57,23 @@ class Category extends BaseModel
             [['name', 'seo_keywords'], 'string', 'max' => 255],
             [['alias', 'seo_title'], 'string', 'max' => 100],
         ];
+    }
+
+
+    /**
+     * 父类
+     * @return self
+     */
+    public function getParentCategory(){
+        return $this->hasOne('Category',['id'=>'parent']);
+    }
+
+    public function getAllPosts(){
+        return $this->hasMany('Post',['cid'=>'id']);
+    }
+
+    public function getPosts(){
+        return $this->hasMany('Post',['cid'=>'id','status'=>[Post::STATUS_PUBLISHED,Post::STATUS_HIDDEN]]);
     }
 
     public static function getAvailableDisplay(){
@@ -117,6 +139,14 @@ class Category extends BaseModel
                 $this->parent = 0;
             }
         }
+
+        //分类名称name，并生成URL别名
+        $this->name = htmlspecialchars(strip_tags($this->name));
+
+        if(!$this->alias)
+            $this->alias = $this->name;
+        else
+            $this->alias = htmlspecialchars(strip_tags($this->alias));
 
         return true;
     }

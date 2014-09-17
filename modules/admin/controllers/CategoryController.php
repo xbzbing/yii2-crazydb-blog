@@ -52,9 +52,12 @@ class CategoryController extends Controller
     {
         $model = new Category;
         $category_array = CMSUtils::getAllCategories();
-        $category_array += ['0'=>'顶级分类'];
+        $category_array = ['0'=>'顶级分类'] + $category_array;
+        if(isset($category_array[1])&&$category_array[1]=='未分类')
+            unset($category_array[1]);
         if ($model->load($_POST)) {
-            $model->save();
+            if($model->save())
+                $this->redirect(['category/view','id'=>$model->id]);
         }
 
         return $this->render('create', [
