@@ -5,7 +5,7 @@ use yii\widgets\DetailView;
 
 /**
  * @var yii\web\View $this
- * @var common\models\Category $model
+ * @var app\models\Category $model
  */
 
 $this->title = $model->name;
@@ -25,20 +25,23 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+        <?= Html::a(Yii::t('app', 'Back'), ['index'], ['class' => 'btn btn-default']) ?>
     </p>
 
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
             'id',
-            'root',
-            'lft',
-            'rgt',
-            'level',
             'name',
-            'summary',
-            'created_at',
-            'updated_at',
+            'alias',
+            'desc',
+            'parentCategory.name',
+            'display',
+            'sort_order',
+            'seo_title',
+            'seo_keywords',
+            'seo_description',
+            'displayType'
         ],
     ]) ?>
 
