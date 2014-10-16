@@ -9,6 +9,20 @@ use app\assets\AppAsset;
  * @var string $content
  */
 AppAsset::register($this);
+$menu_items = [
+    ['label' => 'Home', 'url' => ['site/index']],
+    ['label' => 'About', 'url' => ['site/about']],
+    ['label' => 'Contact', 'url' => ['site/contact']],
+];
+if(Yii::$app->user->isGuest){
+    $menu_items[] = ['label' => 'Login', 'url' => ['site/login']];
+}else{
+    $menu_items[] = ['label' => Yii::$app->user->identity->nickname, 'items' => [
+            ['label' => 'Admin Page','url' => ['admin/']],
+            ['label' => 'Logout','url' => ['site/logout']],
+        ],
+    ];
+}
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -25,7 +39,7 @@ AppAsset::register($this);
 <?php $this->beginBody() ?>
     <header class="index-header">
         <div class="col-md-4 index-logo">
-            <img src="<?=Yii::$app->request->baseUrl?>/static/site/xbzbing.jpg" class="img-circle">
+            <img src="<?=Yii::getAlias('@web')?>/static/site/xbzbing.jpg" class="img-circle">
         </div>
         <?php
             NavBar::begin([
@@ -40,17 +54,7 @@ AppAsset::register($this);
 3        ?>
         <?= Nav::widget([
                 'options' => ['class' => 'navbar-nav'],
-                'items' => [
-                    ['label' => 'Home', 'url' => ['site/index']],
-                    ['label' => 'About', 'url' => ['site/about']],
-                    ['label' => 'Contact', 'url' => ['site/contact']],
-                    Yii::$app->user->isGuest ?
-                        ['label' => 'Login', 'url' => ['site/login']] :
-                        ['label' => 'Logout (' . Yii::$app->user->identity->nickname . ')',
-                            'url' => ['site/logout'],
-//                            'linkOptions' => ['data-method' => 'post']
-                        ],
-                ],
+                'items' => $menu_items,
             ]);
             NavBar::end();
         ?>
@@ -58,7 +62,7 @@ AppAsset::register($this);
     <?= $content ?>
     <footer class="footer">
         <div class="container">
-            <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+            <p class="pull-left">&copy; X-CMS <?= date('Y') ?></p>
             <p class="pull-right"><?= Yii::powered() ?></p>
         </div>
     </footer>

@@ -8,6 +8,7 @@ $config = [
     'timeZone'=>'PRC',
     'language' => 'zh-CN',
     'bootstrap' => ['log'],
+    'name'=>'X-CMS',
     'modules'=>[
         'admin'=>[
             'class'=>'app\modules\admin\Module'
