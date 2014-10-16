@@ -7,7 +7,6 @@
     "license": "BSD-3-Clause",
     "support": {
         "issues": "https://github.com/xbzbing/yii2-crazydb-blog/issues?state=open",
-        "forum": "http://www.crazydb.com/",
         "source": "https://github.com/xbzbing/yii2-crazydb-blog"
     },
     "minimum-stability": "dev",
@@ -23,7 +22,8 @@
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
         "yiisoft/yii2-debug": "*",
-        "yiisoft/yii2-gii": "*"
+        "yiisoft/yii2-gii": "*",
+        "yiisoft/yii2-faker": "*"
     },
     "scripts": {
         "post-create-project-cmd": [
