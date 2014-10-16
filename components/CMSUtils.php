@@ -62,7 +62,6 @@ class CMSUtils{
             Yii::$app->cache->set("config_{$type}",$config,3600);
 
         }
-        var_dump($config);
         return $config;
     }
 }

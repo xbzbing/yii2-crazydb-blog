@@ -13,11 +13,11 @@ $form = ActiveForm::begin([
     'id' => 'setting-form',
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
-        'template' => "{label}<div class=\"col-lg-11\">{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
-        'labelOptions' => ['class' => 'col-lg-1 control-label'],
+        'template' => "<div class=\"form-group\">{label}{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
+        'labelOptions' => ['class' => ''],
     ],
 ]); ?>
-<div class="col-md-6">
+<div class="col-md-5">
     <?= $form->field($model, 'site_name',['inputOptions'=>['class'=>'form-control']]) ?>
     <?= $form->field($model, 'site_icp',['inputOptions'=>['class'=>'form-control']]) ?>
     <?= $form->field($model, 'admin_email',['inputOptions'=>['class'=>'form-control']]) ?>
@@ -26,7 +26,7 @@ $form = ActiveForm::begin([
     <?= $form->field($model, 'copyright',['inputOptions'=>['class'=>'form-control']]) ?>
     <?= $form->field($model, 'site_analyzer',['inputOptions'=>['class'=>'form-control']]) ?>
 </div>
-<div class="col-md-6">
+<div class="col-md-offset-1 col-md-5">
     <?= $form->field($model, 'allow_comment',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'开启评论功能','closed'=>'关闭评论功能']) ?>
     <?= $form->field($model, 'need_approve',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'需要审核','closed'=>'不需要审核']) ?>
     <?= $form->field($model, 'send_mail_on_comment',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'发送邮件','closed'=>'不发送邮件']) ?>
