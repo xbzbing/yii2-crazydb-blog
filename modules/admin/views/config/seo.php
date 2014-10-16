@@ -8,14 +8,14 @@ use yii\helpers\Html;
  * @var app\modules\admin\models\SeoForm $model
  */
 ?>
-<div class="col-md-8">
+<div class="col-md-7">
 <?php
 $form = ActiveForm::begin([
     'id' => 'setting-form',
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
-        'template' => "{label}<div class=\"col-lg-11\">{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
-        'labelOptions' => ['class' => 'col-lg-1 control-label'],
+        'template' => "<div class=\"form-group\">{label}{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
+        'labelOptions' => ['class' => ''],
     ],
 ]); ?>
 
@@ -34,7 +34,7 @@ $form = ActiveForm::begin([
 <?php ActiveForm::end(); ?>
 </div>
 
-<div class="col-md-4 alert alert-info">
+<div class="col-md-offset-1 col-md-4 alert alert-info">
     <h2>SEO 设置说明</h2>
     <p>1、SEO 标题为描述性质，如“专业的XX网站”、“官方网站”等词语，而不是填写网站名称。</p>
     <p>2、SEO 关键字应该为搜索关键字格式应该为 “电脑,网站” ，关键字之间用英文逗号,分隔开。</p>
