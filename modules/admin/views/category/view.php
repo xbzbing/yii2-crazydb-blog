@@ -28,20 +28,24 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a(Yii::t('app', 'Back'), ['index'], ['class' => 'btn btn-default']) ?>
     </p>
 
-    <?= DetailView::widget([
+    <?php
+    $cate_info = $model->parent?
+	    ['attribute'=>'上级分类','value'=>$model->parentCategory?$model->parentCategory->name:'无(待修复)']
+	    :['attribute'=>'分类类型','value'=>'顶级分类'];
+    echo DetailView::widget([
         'model' => $model,
         'attributes' => [
             'id',
             'name',
             'alias',
+            'displayType',
             'desc',
-            'parentCategory.name',
+            $cate_info,
             'display',
             'sort_order',
             'seo_title',
             'seo_keywords',
             'seo_description',
-            'displayType'
         ],
     ]) ?>
 

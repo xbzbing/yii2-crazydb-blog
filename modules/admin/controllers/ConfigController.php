@@ -29,7 +29,7 @@ class ConfigController extends Controller
 	    $setting->setOldAttributes($setting->attributes);
         $themes = array('[none]'=>'不使用主题');
         $themes += XUtils::getThemeList();
-        if($setting->load($_POST)){
+        if($setting->load(Yii::$app->request->post())){
 	        if(!array_key_exists($setting->theme,$themes)){
 				$setting->theme = '[none]';
 		        $setting->addError('theme','指定主题不存在！');
@@ -47,7 +47,7 @@ class ConfigController extends Controller
         $seo = new SeoForm();
         $seo->setAttributes(CMSUtils::getSiteConfig('seo'));
         $seo->setOldAttributes($seo->attributes);
-        if($seo->load($_POST)){
+        if($seo->load(Yii::$app->request->post())){
             if( $row = $seo->save('seo') ){
                 Yii::$app->cache->set( 'config_seo', $seo->attributes );
             }

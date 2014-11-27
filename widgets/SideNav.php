@@ -7,7 +7,7 @@
 
 namespace app\widgets;
 
-use Yii;
+use yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -47,7 +47,7 @@ use yii\helpers\Html;
  * @author Antonio Ramirez <amigo.cobos@gmail.com>
  * @since 2.0
  */
-class SideNav extends \yii\bootstrap\Widget
+class SideNav extends yii\bootstrap\Widget
 {
     /**
      * @var array list of items in the nav widget. Each array element represents a single
@@ -131,7 +131,7 @@ class SideNav extends \yii\bootstrap\Widget
      * Renders a widget's item.
      * @param  string|array                     $item      the item to render.
      * @param  boolean                          $collapsed whether to collapse item if not active
-     * @throws \yii\base\InvalidConfigException
+     * @throws yii\base\InvalidConfigException
      * @return string                           the rendering result.
      * @throws InvalidConfigException           if label is not defined
      */

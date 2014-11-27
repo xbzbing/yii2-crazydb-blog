@@ -77,7 +77,7 @@ class CategoryController extends Controller
         $model = $this->findModel($id);
         $category_array = CMSUtils::getAllCategories();
         $category_array = ['0'=>'顶级分类'] + $category_array;
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $this->redirect(['view','id'=>$id]);
         } else {
             return $this->render('update', [
@@ -113,7 +113,7 @@ class CategoryController extends Controller
         if (($model = Category::findOne($id)) !== null) {
             return $model;
         } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
+            throw new NotFoundHttpException('404 未找到.');
         }
     }
 }

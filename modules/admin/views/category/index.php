@@ -32,9 +32,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'parent',
             'displayType',
             'sort_order',
-            'seo_title',
             'seo_keywords',
-            'seo_description',
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

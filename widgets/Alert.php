@@ -7,6 +7,7 @@
 
 namespace app\widgets;
 
+use Yii;
 use yii\bootstrap\Widget;
 /**
  * Alert widget renders a message from session flash. All flash messages are displayed
@@ -44,7 +45,7 @@ class Alert extends Widget
     {
         parent::init();
 
-        $session = \Yii::$app->getSession();
+        $session = Yii::$app->getSession();
         $flashes = $session->getAllFlashes();
         $appendCss = isset($this->options['class']) ? ' ' . $this->options['class'] : '';
 
@@ -56,7 +57,7 @@ class Alert extends Widget
                 /* assign unique id to each alert box */
                 $this->options['id'] = $this->getId() . '-' . $type;
 
-                echo yii\bootstrap\Alert::widget([
+                echo Yii\bootstrap\Alert::widget([
                     'body' => $message,
                     'closeButton' => $this->closeButton,
                     'options' => $this->options,
