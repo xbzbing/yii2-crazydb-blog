@@ -25,12 +25,15 @@ class ConfigController extends Controller
      */
     public function actionSetting(){
         $setting = new SettingForm();
-        $setting->setAttributes(CMSUtils::getSiteConfig( 'sys'));
-        $setting->setOldAttributes($setting->attributes);
+	    $setting->load(CMSUtils::getSiteConfig('sys'),'');
+	    $setting->setOldAttributes($setting->attributes);
         $themes = array('[none]'=>'不使用主题');
         $themes += XUtils::getThemeList();
         if($setting->load($_POST)){
-            if( $row = $setting->save('sys') ){
+	        if(!array_key_exists($setting->theme,$themes)){
+				$setting->theme = '[none]';
+		        $setting->addError('theme','指定主题不存在！');
+	        }elseif( $setting->save('sys') ){
                 Yii::$app->cache->set( 'config_sys', $setting->attributes );
             }
         }

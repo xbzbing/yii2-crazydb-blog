@@ -21,17 +21,16 @@ $form = ActiveForm::begin([
     <?= $form->field($model, 'site_name',['inputOptions'=>['class'=>'form-control']]) ?>
     <?= $form->field($model, 'site_icp',['inputOptions'=>['class'=>'form-control']]) ?>
     <?= $form->field($model, 'admin_email',['inputOptions'=>['class'=>'form-control']]) ?>
-    <?= $form->field($model, 'allow_register',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'允许注册','closed'=>'不允许注册']) ?>
     <?= $form->field($model, 'theme',['inputOptions'=>['class'=>'form-control']])->dropDownList($themes) ?>
     <?= $form->field($model, 'copyright',['inputOptions'=>['class'=>'form-control']]) ?>
-    <?= $form->field($model, 'site_analyzer',['inputOptions'=>['class'=>'form-control']]) ?>
+    <?= $form->field($model, 'site_analyzer',['inputOptions'=>['class'=>'form-control']])->textarea(['rows'=>6]) ?>
 </div>
 <div class="col-md-offset-1 col-md-5">
-    <?= $form->field($model, 'allow_comment',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'开启评论功能','closed'=>'关闭评论功能']) ?>
+	<?= $form->field($model, 'allow_register',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'允许注册','closed'=>'不允许注册']) ?>
+	<?= $form->field($model, 'allow_comment',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'开启评论功能','closed'=>'关闭评论功能']) ?>
     <?= $form->field($model, 'need_approve',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'需要审核','closed'=>'不需要审核']) ?>
     <?= $form->field($model, 'send_mail_on_comment',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'发送邮件','closed'=>'不发送邮件']) ?>
-    <?= $form->field($model, 'site_name',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'正常运行','closed'=>'维护中，暂时关闭']) ?>
-    <?= $form->field($model, 'site_name',['inputOptions'=>['class'=>'form-control']]) ?>
+    <?= $form->field($model, 'site_status',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'正常运行','closed'=>'维护中，暂时关闭']) ?>
     <?= $form->field($model, 'closed_summary',['inputOptions'=>['class'=>'form-control autogrow']])->textarea(['rows'=>6]) ?>
 </div>
 <div class="form-group">

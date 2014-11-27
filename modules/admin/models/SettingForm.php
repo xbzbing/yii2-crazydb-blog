@@ -59,8 +59,6 @@ class SettingForm extends OptionModel{
      */
     public $send_mail_on_comment;
 
-
-
     /**
      * 网站分析代码，包含<script></script>
      * @var string 网站分析代码
