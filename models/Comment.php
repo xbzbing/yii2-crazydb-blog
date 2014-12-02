@@ -83,13 +83,13 @@ class Comment extends BaseModel
 	 */
 	public static function getAvailableType(){
 		return [
-			self::STATUS_UNAPPROVED => '评论',
+			self::TYPE_REPLY => '评论',
 			self::TYPE_REPLYTO => '回复'
 		];
 	}
 	/**
 	 * 获得评论状态所对应的名称
-	 * @param $status string
+	 * @param string $status
 	 * @return string|null
 	 */
 	public static function getStatusName($status){
@@ -101,15 +101,15 @@ class Comment extends BaseModel
 	}
 	/**
 	 * 获得评论状态所对应的名称
-	 * @param $status string
+	 * @param string $type
 	 * @return string|null
 	 */
-	public static function getTypeName($status){
-		$statuses = self::getAvailableStatus();
-		return isset($statuses[$status])?$statuses[$status]:null;
+	public static function getTypeName($type){
+		$types = self::getAvailableType();
+		return isset($types[$type])?$types[$type]:$types[self::TYPE_REPLY];
 	}
 	public function getCommentType(){
-		return self::getStatusName($this->status);
+		return self::getTypeName($this->type);
 	}
     /**
      * @inheritdoc
@@ -149,6 +149,8 @@ class Comment extends BaseModel
             'content' => '评论内容',
             'status' => '评论审核状态',
             'ext' => '保留字段',
+            'commentType' =>  '回复类型',
+            'commentStatus' => '回复状态'
         ];
     }
 

@@ -23,13 +23,11 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
-            'id',
             'pid',
+            'post.title',
             'commentType',
-            'replyto',
             'content:html',
-            'status',
+            'commentStatus',
             'create_time:datetime',
             ['class' => 'yii\grid\ActionColumn'],
         ],
