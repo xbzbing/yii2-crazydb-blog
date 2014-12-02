@@ -5,7 +5,9 @@
  */
 
 namespace app\components;
+use yii;
 use yii\db\ActiveRecord;
+use yii\helpers\HtmlPurifier;
 
 class BaseModel extends ActiveRecord{
 
@@ -19,7 +21,7 @@ class BaseModel extends ActiveRecord{
      * @param string $attribute
      * @param array $params
      */
-    public function regString($attribute,$params = array()){
+    public function regString($attribute, $params = array()){
         $type = isset($params['type'])?$params['type']:'normal';
 
         if($type == 'blank'){
@@ -37,4 +39,17 @@ class BaseModel extends ActiveRecord{
             $this->addError($attribute,$this->getAttributeLabel($attribute).$message);
         }
     }
+
+	/**
+	 * 富文本过滤
+	 * @param $attribute
+	 * @param array $params
+	 */
+	public function purify($attribute, $params = array()){
+		//不做进一步判断params的合法性
+		if(isset($params['Attr.AllowedFrameTargets'])){
+			$params['Attr.AllowedFrameTargets']  = array('_blank');
+		}
+		$this->{$attribute} = HTMLPurifier::process($this->{$attribute}, $params);
+	}
 }

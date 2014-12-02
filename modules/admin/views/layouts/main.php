@@ -25,7 +25,7 @@ AppAsset::register($this);
 		<?php
 			NavBar::begin([
 				'brandLabel' => '<span class="glyphicon glyphicon-glass"></span> xbzbing\'s BLOG',
-				'brandUrl' => ['admin/default/index'],
+				'brandUrl' => ['/site/index'],
 				'options' => [
 					'class' => 'navbar-default',
 				],

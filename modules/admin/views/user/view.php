@@ -2,10 +2,10 @@
 
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-
+use app\models\User;
 /**
  * @var yii\web\View $this
- * @var common\models\User $model
+ * @var User $model
  */
 
 $this->title = $model->username;
