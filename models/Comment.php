@@ -30,6 +30,8 @@ use app\components\XUtils;
  * @property array $availableType 支持的评论类型
  * @property string $commentType 回复类型
  * @property string $commentStatus 回复状态
+ *
+ * @property Post $post 所评论文章
  */
 class Comment extends BaseModel
 {

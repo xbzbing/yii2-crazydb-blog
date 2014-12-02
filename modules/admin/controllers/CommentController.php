@@ -45,24 +45,6 @@ class CommentController extends Controller
     }
 
     /**
-     * Creates a new Comment model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Comment;
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
      * Updates an existing Comment model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
@@ -82,18 +64,16 @@ class CommentController extends Controller
     }
 
     /**
-     * Deletes an existing Comment model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
+     * 删除评论
+     * 同时删除其他对留言的回复
      * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
     {
         $mode=$this->findModel($id);
-        $post=Post::findOne($mode->post_id);
-        $post->updateCounters(['comment_count' => -1]);
         $mode->delete();
-        Comment::deleteAll('parent_id = '.$id);
+        Comment::deleteAll('replyto=:cid',['cid'=>$id]);
         return $this->redirect(['index']);
     }
 

@@ -8,7 +8,7 @@ use yii\widgets\DetailView;
  * @var app\models\Comment $model
  */
 
-$this->title = $model->id;
+$this->title = $model->post->title;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Comments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -31,19 +31,16 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'parent_id',
-            'type',
-            'content:ntext',
-            'up',
-            'down',
-            'status',
+            'content:html',
+            'commentStatus',
+            'commentType',
             'create_time:datetime',
+            'update_time:datetime',
             'author',
-            'email:email',
-            'url:url',
+            'email',
+            'url',
             'ip',
-            'post_id',
-            'user_id',
+            'user_agent'
         ],
     ]) ?>
 
