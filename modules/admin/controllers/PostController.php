@@ -5,7 +5,6 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\Post;
 use app\models\Tag;
-use app\models\Comment;
 use app\models\search\PostSearch;
 use yii\web\NotFoundHttpException;
 use yii\helpers\Json;

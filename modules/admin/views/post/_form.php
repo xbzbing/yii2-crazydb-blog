@@ -34,9 +34,9 @@ $categories = CMSUtils::getAllCategories();
             <div class="tab-pane active" id="home">
 
                 <?= $form->field($model, 'title')->textInput() ?>
-                <?= $form->field($model, 'type')->inline()->radioList(\app\models\Post::getAvailableStatus())->label(false) ?>
+                <?= $form->field($model, 'type')->inline()->radioList(Post::getAvailableStatus())->label(false) ?>
 
-                <?= $form->field($model, 'url')->textInput() ?>
+                <?= $form->field($model, 'alias')->textInput() ?>
 
                 <div class="form-group">
                     <div class="row">
