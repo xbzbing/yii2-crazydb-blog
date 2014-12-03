@@ -2,11 +2,12 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use app\models\User;
 
 /**
  * @var yii\web\View $this
  * @var yii\data\ActiveDataProvider $dataProvider
- * @var common\models\search\UserSearch $searchModel
+ * @var app\models\search\UserSearch $searchModel
  */
 
 $this->title = Yii::t('app', 'Users');
@@ -31,16 +32,10 @@ $this->params['breadcrumbs'][] = $this->title;
 			['class' => 'yii\grid\SerialColumn'],
 
 			'id',
-			'avatar:image',
 			'username',
-			// 'auth_key',
-			// 'password_hash',
-			// 'password_reset_token',
-			'email:email',
-			'role',
-			'status',
-			'created_at',
-			'updated_at',
+			'email',
+			'userStatus',
+			'reg_time:datetime',
 
 			['class' => 'yii\grid\ActionColumn'],
 		],

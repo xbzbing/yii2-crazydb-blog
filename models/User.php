@@ -28,8 +28,12 @@ use app\components\XUtils;
  * @property integer $status
  * @property string $info
  * @property string $ext
+ *
+ * #getter
+ * @property string $userStatus
  */
 class User extends ActiveRecord implements IdentityInterface {
+
     const STATUS_NORMAL = 1;
     const STATUS_INACTIVE = 2;
     const STATUS_BANED = 4;
@@ -56,7 +60,7 @@ class User extends ActiveRecord implements IdentityInterface {
             [['username', 'password', 'email'], 'required'],
             [['reg_time', 'update_time', 'status'], 'integer'],
             [['status'], 'default', 'value'=>self::STATUS_NORMAL],
-            [['status'], 'in', 'range'=>self::getAvailableStatus()],
+            [['status'], 'in', 'range'=>array_keys(self::getAvailableStatus())],
             [['info', 'ext'], 'string'],
             [['nickname'], 'string', 'max' => 80],
             [['username'], 'string', 'max' => 20],
@@ -75,14 +79,6 @@ class User extends ActiveRecord implements IdentityInterface {
      * @return string[]
      */
     public function getAvailableStatus(){
-        return [self::STATUS_NORMAL,self::STATUS_INACTIVE,self::STATUS_BANED,self::STATUS_DELETED];
-    }
-
-    /**
-     * 获得可能的状态值的名称
-     * @return string[]
-     */
-    public function getAvailableStatusName(){
         return [
             self::STATUS_NORMAL=>'正常',
             self::STATUS_INACTIVE=>'未激活',
@@ -93,7 +89,7 @@ class User extends ActiveRecord implements IdentityInterface {
 
     public function getUserStatus(){
         $status = self::getAvailableStatus();
-        if(array_key_exists($this->status,$status))
+        if(isset($status[$this->status]))
             return $status[$this->status];
         else
             return '未设置';
@@ -119,6 +115,7 @@ class User extends ActiveRecord implements IdentityInterface {
             'status' => '用户状态',
             'info' => '个人简介',
             'ext' => '保留字段',
+            'userStatus' => '用户状态'
         ];
     }
 

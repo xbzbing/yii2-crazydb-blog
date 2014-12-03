@@ -6,8 +6,6 @@ use Yii;
 use app\models\User;
 use app\models\search\UserSearch;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 use app\modules\admin\components\Controller;
 
 /**
