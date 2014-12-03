@@ -86,7 +86,7 @@ class Post extends BaseModel{
             [['password'], 'string', 'max' => 32],
             [['status'], 'string', 'max' => 50],
             [['options'], 'string', 'max' => 8],
-            [['content','purify']],
+            [['content'], 'purify'],
             [['status'], 'in', 'range'=>array_keys(self::getAvailableStatus()), 'message'=>'文章的「状态」错误！'],
             [['type'], 'in' , 'range'=>array_keys(self::getAvailableType()), 'message'=>'文章的「类型」错误！'],
         ];
