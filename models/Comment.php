@@ -121,12 +121,14 @@ class Comment extends BaseModel
         return [
             [['pid', 'author', 'email', 'content'], 'required'],
             [['pid', 'uid', 'replyto', 'create_time', 'update_time'], 'integer'],
-            [['content','purify']],
-            [['status'],'in','range'=>array_keys(self::getAvailableStatus()),'message'=>'评论状态异常','default'=>self::STATUS_UNAPPROVED],
-            [['type'],'in','range'=>array_keys(self::getAvailableType()),'message'=>'评论状态异常','default'=>self::TYPE_REPLY],
+            [['content'], 'purify'],
+            [['status'],'default', 'value' => self::STATUS_UNAPPROVED ],
+            [['status'],'in','range'=>array_keys(self::getAvailableStatus()),'message'=>'评论状态异常'],
+            [['type'],'default', 'value' => self::TYPE_REPLY ],
+            [['type'],'in','range'=>array_keys(self::getAvailableType()),'message'=>'评论类型异常'],
             [['author'], 'string', 'max' => 80],
             [['email'], 'email', 'message'=>'不是有效的E-mail地址。'],
-            [['url'], 'url', 'max' => 255, 'message'=>'URL地址不合法，需要以http或https开头']
+            [['url'], 'url', 'message'=>'URL地址不合法，需要以http或https开头']
         ];
     }
 
@@ -139,7 +141,7 @@ class Comment extends BaseModel
             'id' => '评论ID',
             'pid' => '文章ID',
             'uid' => '用户ID',
-            'author' => '评论用户姓名',
+            'author' => '用户名称',
             'email' => '电子邮箱',
             'type' => '回复的类型',
             'replyto' => '回复目标ID',

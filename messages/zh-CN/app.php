@@ -24,6 +24,7 @@ return array (
   'Name' => '名称',
   'Create' => '创建',
   'Save' => '保存',
+  'Back' => '返回',
   'Position' => '排序',
   'Type' => '类型',
   'Create {modelClass}' => '创建 {modelClass}',

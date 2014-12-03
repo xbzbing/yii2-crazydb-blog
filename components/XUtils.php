@@ -13,6 +13,7 @@ use yii;
 use yii\helpers\HtmlPurifier;
 
 
+
 class XUtils{
 
     /**
@@ -119,4 +120,22 @@ class XUtils{
         }
         return $paths;
     }
+
+	/**
+	 * 富文本过滤
+	 * @param $content
+	 * @param array $params
+	 *
+	 * @return string
+	 * @throws CMSException
+	 */
+	public static function HTMLPurify($content, $params = array()) {
+		if(!is_array($params))
+			throw new CMSException('params 参数类型错误！', -1);
+
+		if ( isset( $params['Attr.AllowedFrameTargets'] ) ) {
+			$params['Attr.AllowedFrameTargets'] = array( '_blank' );
+		}
+		return HTMLPurifier::process( $content, $params );
+	}
 }
