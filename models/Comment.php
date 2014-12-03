@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\CMSException;
 use Yii;
 use app\components\BaseModel;
 use app\components\XUtils;
@@ -30,6 +31,8 @@ use app\components\XUtils;
  * @property array $availableType 支持的评论类型
  * @property string $commentType 回复类型
  * @property string $commentStatus 回复状态
+ * @property array $extInfo 扩展信息
+ *
  *
  * @property Post $post 所评论文章
  */
@@ -166,14 +169,32 @@ class Comment extends BaseModel
         return $this->hasOne(User::className(),['id'=>'uid']);
     }
 
+	/**
+	 * 获得 message 信息
+	 * @return array|bool
+	 */
+	public function getExtInfo(){
+		try{
+			if(is_array($this->ext))
+				return $this->ext;
+
+			$this->ext = unserialize($this->ext);
+		}catch (CMSException $cms){
+			return false;
+		}
+	}
 	public function beforeSave($insert){
 		if( $this->isNewRecord ){
 			$this->ip = XUtils::getClientIP();
 			$this->create_time = time();
 			$this->user_agent = htmlspecialchars( Yii::$app->request->getUserAgent() );
-		}else
+		}else{
 			$this->update_time = time();
-
+			$this->ext = serialize([
+				'ip'=>XUtils::getClientIP(),
+				'username'=>Yii::$app->user->isGuest?'Guest':Yii::$app->user->username,
+			]);
+		}
 		return parent::beforeSave($insert);
 	}
 }
