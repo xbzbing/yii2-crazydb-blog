@@ -7,7 +7,7 @@ use \yii\widgets\LinkPager;
 use \app\widgets\CategoryWidget;
 use \app\components\CMSUtils;
 
-$this->title = 'My Yii Application';
+$this->title = Yii::$app->name;
 $posts = $dataProvider->getModels();
 ?>
 <div class="site-index">

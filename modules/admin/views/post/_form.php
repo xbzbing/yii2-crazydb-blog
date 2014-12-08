@@ -58,24 +58,10 @@ $categories = CMSUtils::getAllCategories();
 
                 <?= $form->field($model, 'tags')->textInput() ?>
 
-                <?=\djfly\kindeditor\KindEditor::widget([
-                    'id' => 'post-content',
+                <?=\crazydb\ueditor\UEditor::widget([
                     'model' => $model,
                     'attribute' => 'content',
-                    'items' => [
-                        'langType' => Yii::$app->language=="zh-CN"?"zh_CN":Yii::$app->language,
-                        'height' => '350px',
-                        'themeType' => 'simple',
-                        'pagebreakHtml' => '#p# pagebreak #e#',
-                        'allowImageUpload' => true,
-                        'allowFileManager' => true,
-                        'uploadJson' => Url::toRoute('create-img-ajax'),
-                        'fileManagerJson' => Url::toRoute('post/filemanager'),
-
-                    ],
                 ])?>
-
-                <?= $form->field($model, 'content')->textArea(['rows' => 10]) ?>
 
                 <?= $form->field($model, 'excerpt')->textArea(['rows' => 5]) ?>
             </div>
@@ -116,30 +102,5 @@ jQuery(".post-form").on("click", "#thumbnail-delete",function(){
     $.get("'.Url::to(['post/thumbnail-delete', 'id' => $model->id]).'", function(data){jQuery("#thumbnail").attr("src", "");})
 });
 jQuery(".post-form").on("click", "#set-it-now",function(){ jQuery("#post-published_at").prop("value","'.date('Y-m-d H:i:s').'") });
-
-KindEditor.ready(function(K) {
-    var uploadbutton = K.uploadbutton({
-        button : K("#uploadButton")[0],
-        fieldName : "imgFile",
-        url : "'.Url::toRoute('create-img-ajax').'",
-        afterUpload : function(data) {
-            if (data.error === 0) {
-                var url = K.formatUrl(data.url, "absolute");
-                K("#url").val(url);
-                K("#thumbnail").attr("src",url);
-                K("#post-thumbnail").val(url);
-            } else {
-                alert(data.message);
-            }
-        },
-        afterError : function(str) {
-            alert("自定义错误信息: " + str);
-        }
-    });
-    uploadbutton.fileBox.change(function(e) {
-        uploadbutton.submit();
-    });
-});
 ');
-
 ?>

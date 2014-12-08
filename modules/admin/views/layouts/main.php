@@ -15,7 +15,6 @@ AppAsset::register($this);
 <html lang="<?=Yii::$app->language?>">
 <head>
 	<meta charset="<?=Yii::$app->charset?>"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title><?=$this->title?></title>
 	<?php $this->head() ?>
 </head>
@@ -30,7 +29,7 @@ AppAsset::register($this);
 					'class' => 'navbar-default',
 				],
 			]);
-			
+
 			$menuItems = [
 				['label' => Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 			];
@@ -55,11 +54,11 @@ AppAsset::register($this);
 						$languageLabel='English';
 						break;
 				}
-				
+
 			}
 			$menuItems[] = [
 				'label' => Common::getLanguage()?$languageLabel:Yii::t('app', 'choose language'),
-				'url' => '#', 
+				'url' => '#',
 		        'items' => [
 		        	['label' => ' English', 'url' => ['default/locale', 'language' => 'en']],
 		        	['label' => ' 简体中文', 'url' => ['default/locale', 'language' => 'zh-CN']],
@@ -72,10 +71,7 @@ AppAsset::register($this);
 			]);
 			NavBar::end();
 		?>
-	
-		<!-- <div class="container"> -->
 		<?= $content ?>
-		<!-- </div> -->
 	</div>
 	<?php $this->endBody() ?>
 </body>
