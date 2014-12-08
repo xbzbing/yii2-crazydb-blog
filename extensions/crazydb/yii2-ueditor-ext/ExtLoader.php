@@ -15,5 +15,5 @@ class ExtLoader
         }
     }
 }
-spl_autoload_register(array('ExtLoader', 'loadClass'));
+spl_autoload_register(['ExtLoader', 'loadClass']);
 

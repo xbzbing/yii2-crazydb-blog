@@ -1,7 +1,13 @@
 <?php
 
 /**
- * UEditor InputWidget.
+ * UEditor Widget扩展
+ *
+ * Usage:
+ * <?=\crazydb\ueditor\UEditor::widget([
+ * 'model' => $model,
+ * 'attribute' => 'content',
+ * ])?>
  */
 namespace crazydb\ueditor;
 
@@ -29,7 +35,8 @@ class UEditor extends yii\widgets\InputWidget
 
 
     /**
-     * Initializes the widget.
+     * 初始化一些配置。
+     * 由于不引入config.js文件，因此需要手动配置一些东西。
      */
     public function init(){
         parent::init();
@@ -58,20 +65,26 @@ class UEditor extends yii\widgets\InputWidget
         if (empty($this->config['initialFrameWidth']))
             $this->config['initialFrameWidth'] = '100%';
 
-        //扩展默认不直接引入config.js文件，因此需要自定义配置项
+        //扩展默认不直接引入config.js文件，因此需要自定义配置项.
         if (empty($this->config['toolbars'])) {
-            //这是一个丑陋的二维数组，得到的是一些常用的编辑器按钮。
+            //为了避免每次使用都输入乱七八糟的按钮，这里预先定义一些常用的编辑器按钮。
+            //这是一个丑陋的二维数组
             $this->config['toolbars'] = [
-                ['fullscreen', 'source', 'undo', 'redo', '|', 'customstyle', 'paragraph', 'fontfamily', 'fontsize'],
-                ['bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat',
+                [
+                    'fullscreen', 'source', 'undo', 'redo', '|',
+                    'customstyle', 'paragraph', 'fontfamily', 'fontsize'
+                ],
+                [
+                    'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat',
                     'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|',
                     'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', '|',
                     'rowspacingtop', 'rowspacingbottom', 'lineheight', '|',
                     'directionalityltr', 'directionalityrtl', 'indent', '|'
                 ],
-                ['justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'link', 'unlink', '|',
-                    'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map',
-                    'insertcode', 'pagebreak', '|',
+                [
+                    'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|',
+                    'link', 'unlink', '|',
+                    'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map','insertcode', 'pagebreak', '|',
                     'horizontal', 'inserttable', '|',
                     'print', 'preview', 'searchreplace', 'help'
                 ]
@@ -80,13 +93,15 @@ class UEditor extends yii\widgets\InputWidget
     }
 
     /**
-     * Runs the widget.
+     * 输出widget页面，注册相关JS代码。
      */
     public function run(){
+
         $id = Html::getInputId($this->model, $this->attribute);
 
         $config = json_encode($this->config);
 
+        //ready部分代码，是为了缩略图管理。UEditor本身就很大，在后台直接加载大文件图片会很卡。
         $script = <<<UEDITOR
     var {$this->name} = UE.getEditor('{$id}',{$config});
     {$this->name}.ready(function(){
