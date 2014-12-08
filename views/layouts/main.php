@@ -66,7 +66,7 @@ if(Yii::$app->user->isGuest){
             <p class="pull-right"><?= Yii::powered() ?></p>
         </div>
     </footer>
-<?= \crazydb\ueditor\UEditor::widget()?>
+<?= \crazydb\ueditor\UEditor::widget(['name'=>'Article_content',])?>
 <?php $this->endBody() ?>
 </body>
 </html>

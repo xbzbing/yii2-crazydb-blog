@@ -40,7 +40,8 @@ class UEditor extends yii\widgets\InputWidget
 	public function init()
 	{
 		parent::init();
-		Yii::setAlias('@crazydb/ueditor','@app/extension/yii2-ueditor-ext');
+        Yii::setAlias('crazydb','@app/extensions/crazydb');
+		Yii::setAlias('@crazydb/ueditor','@crazydb/yii2-ueditor-ext');
 	}
 
 	/**
@@ -49,7 +50,7 @@ class UEditor extends yii\widgets\InputWidget
 	public function run()
 	{
 		$script = '';
-        $script .= 'alert(123)';
+        $script .= 'console.debug("hello world")';
 		$this->getView()->registerJs($script);
 		UEditorAsset::register($this->getView());
 	}
