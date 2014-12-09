@@ -54,7 +54,9 @@ class UEditor extends yii\widgets\InputWidget
             $this->config['UEDITOR_HOME_URL'] = $asset->baseUrl . '/';
 
         if (empty($this->config['serverUrl']))
-            $this->config['serverUrl'] = Url::to(['ueditor/index']);
+            $this->config['serverUrl'] = Url::to(['/ueditor']);
+        elseif (is_array($this->config['serverUrl']))
+            $this->config['serverUrl'] = Url::to($this->config['serverUrl']);
 
         if (empty($this->config['lang']))
             $this->config['lang'] = strtolower(Yii::$app->language);
