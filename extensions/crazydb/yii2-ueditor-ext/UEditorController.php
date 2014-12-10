@@ -2,7 +2,6 @@
 namespace crazydb\ueditor;
 
 use yii;
-use yii\base\Exception;
 use yii\imagine\Image;
 use yii\web\Controller;
 
@@ -11,7 +10,42 @@ class UEditorController extends Controller{
     public $access;
     public $config;
 
+    /**
+     * 列出文件/图片时需要忽略的文件夹
+     * 主要用于处理缩略图管理，兼容比如elFinder之类的程序
+     * @var array
+     */
+    public $ignoreDir = [
+        '.thumbnails'
+    ];
+
+    /**
+     * 是否自动生成缩略图
+     * 默认为true
+     * @var bool
+     */
+    public $thumbnail = true;
+    /**
+     * 缩略图大小
+     * @var array
+     */
+    public $size = ['height'=>'200','width'=>'200'];
+
+    /**
+     * 水印图片的地址
+     * @var string
+     */
+    public $watermark;
+    /**
+     * 水印位置
+     * 1-9，默认9，水印在原图的右下角。具体参考tpImage类。
+     * @var int
+     */
+    public $locate = 9;
+
     public $defaultAction = 'index';
+
+    protected $webroot;
 
     public function init(){
         parent::init();
@@ -26,19 +60,19 @@ class UEditorController extends Controller{
         //请求config（配置信息）不需要登录权限
         $action = Yii::$app->request->get('action');
         if($action != 'config' && Yii::$app->user->isGuest){
-            echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
-            Yii::$app->end(-1);
+            #echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
+            #Yii::$app->end(-1);
         }
 
         //保留UE默认的配置引入方式
-        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__.'/assets/php/config.json')), true);
+        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__.'/config.json')), true);
 
         if(!is_array($this->config))
             $this->config = array();
         if(!is_array($CONFIG))
             $CONFIG = array();
         $web_root = Yii::$app->request->baseUrl;
-        $default = array(
+        $default = [
             'imagePathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
             'scrawlPathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
             'snapscreenPathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
@@ -47,36 +81,34 @@ class UEditorController extends Controller{
             'filePathFormat'=>$web_root.'/upload/file/{yyyy}{mm}{dd}/{rand:4}_{filename}',
             'imageManagerListPath'=>$web_root.'/upload/image/',
             'fileManagerListPath'=>$web_root.'/upload/file/',
-        );
+        ];
         $this->config = $this->config + $default + $CONFIG;
-        if(file_exists(__DIR__.'/assets/php/Uploader.class.php'))
-            require(__DIR__.'/assets/php/Uploader.class.php');
-        else
-            throw new Exception('缺少上传类php/Uploader.class.php文件');
+        $this->webroot = Yii::getAlias('@webroot');
     }
 
     /**
      * 蛋疼的统一后台入口
      */
     public function actionIndex(){
-        $actions = array(
-            'uploadimage'=>'uploadImage',
-            'uploadscrawl'=>'uploadScrawl',
-            'uploadvideo'=>'uploadVideo',
-            'uploadfile'=>'uploadFile',
-            'listimage'=>'listImage',
-            'listfile'=>'listFile',
-            'catchimage'=>'catchImage',
-            'config'=>'config'
-        );
+        $actions = [
+            'uploadimage'=>'upload-image',
+            'uploadscrawl'=>'upload-scrawl',
+            'uploadvideo'=>'upload-video',
+            'uploadfile'=>'upload-file',
+            'listimage'=>'list-image',
+            'listfile'=>'list-file',
+            'catchimage'=>'catch-image',
+            'config'=>'config',
+            'listinfo'=>'list-info'
+        ];
         $action = Yii::$app->request->get('action');
 
         if(isset($actions[$action])){
             $this->run($actions[$action]);
         }else{
-            $this->show(json_encode(array(
+            $this->show(json_encode([
                 'state'=> '请求地址出错'
-            )));
+            ]));
         }
     }
 
@@ -103,11 +135,11 @@ class UEditorController extends Controller{
      * 上传图片
      */
     public function actionUploadImage(){
-        $config = array(
+        $config = [
             "pathFormat" => $this->config['imagePathFormat'],
             "maxSize" => $this->config['imageMaxSize'],
             "allowFiles" => $this->config['imageAllowFiles']
-        );
+        ];
         $fieldName = $this->config['imageFieldName'];
         $this->upload($fieldName, $config);
     }
@@ -116,12 +148,12 @@ class UEditorController extends Controller{
      * 上传涂鸦
      */
     public function actionUploadScrawl(){
-        $config = array(
+        $config = [
             "pathFormat" => $this->config['scrawlPathFormat'],
             "maxSize" => $this->config['scrawlMaxSize'],
             "allowFiles" => $this->config['scrawlAllowFiles'],
             "oriName" => "scrawl.png"
-        );
+        ];
         $fieldName = $this->config['scrawlFieldName'];
         $this->upload($fieldName, $config, 'base64');
     }
@@ -129,11 +161,11 @@ class UEditorController extends Controller{
      * 上传视频
      */
     public function actionUploadVideo(){
-        $config = array(
+        $config = [
             "pathFormat" => $this->config['videoPathFormat'],
             "maxSize" => $this->config['videoMaxSize'],
             "allowFiles" => $this->config['videoAllowFiles']
-        );
+        ];
         $fieldName = $this->config['videoFieldName'];
         $this->upload($fieldName, $config);
     }
@@ -141,11 +173,11 @@ class UEditorController extends Controller{
      * 上传文件
      */
     public function actionUploadFile(){
-        $config = array(
+        $config = [
             "pathFormat" => $this->config['filePathFormat'],
             "maxSize" => $this->config['fileMaxSize'],
             "allowFiles" => $this->config['fileAllowFiles']
-        );
+        ];
         $fieldName = $this->config['fileFieldName'];
         $this->upload($fieldName, $config);
     }
@@ -176,15 +208,15 @@ class UEditorController extends Controller{
     public function actionCatchImage(){
         set_time_limit(0);
         /* 上传配置 */
-        $config = array(
+        $config = [
             "pathFormat" => $this->config['catcherPathFormat'],
             "maxSize" => $this->config['catcherMaxSize'],
             "allowFiles" => $this->config['catcherAllowFiles'],
             "oriName" => "remote.png"
-        );
+        ];
         $fieldName = $this->config['catcherFieldName'];
         /* 抓取远程图片 */
-        $list = array();
+        $list = [];
         if (isset($_POST[$fieldName])) {
             $source = $_POST[$fieldName];
         } else {
@@ -201,10 +233,10 @@ class UEditorController extends Controller{
             );
         }
         /* 返回抓取数据 */
-        $result = json_encode(array(
+        $result = json_encode([
             'state'=> count($list) ? 'SUCCESS':'ERROR',
             'list'=> $list
-        ));
+        ]);
         $this->show($result);
     }
 
@@ -231,16 +263,21 @@ class UEditorController extends Controller{
      * @return mixed|string
      */
     protected function imageHandle($fullName){
-        $thumbnail = $fullName;
-        $path = $_SERVER['DOCUMENT_ROOT'];
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
-        $path = $path.$fullName;
+        $file = $thumbnail = $this->webroot.'/'.$fullName;
 
-        //@see https://github.com/yiisoft/yii2/tree/master/extensions/imagine
+        if($this->thumbnail){
+            $thumbnail = pathinfo($file);
+            $thumbnail = $thumbnail['dirname'].'/'.$thumbnail['filename'].'.thumbnail.'.$thumbnail['extension'];
+            Image::thumbnail($file,$this->size['width'],$this->size['height'])->save($thumbnail);
+        }
+        //生成水印
+        if($this->watermark && file_exists($this->watermark))
+            Image::watermark($file,$this->watermark)->save($file);
 
-        return $path;
+        return $this->thumbnail?$thumbnail:$file;
     }
 
     /**
@@ -257,29 +294,29 @@ class UEditorController extends Controller{
         $end = $start + $size;
 
         /* 获取文件列表 */
-        $path = $_SERVER['DOCUMENT_ROOT'] . (substr($path, 0, 1) == "/" ? "":"/") . $path;
+        $path = $this->webroot . (substr($path, 0, 1) == "/" ? "":"/") . $path;
         $files = $this->getfiles($path, $allowFiles);
         if (!count($files)) {
-            $result =  json_encode(array(
+            $result =  json_encode([
                 "state" => "no match file",
-                "list" => array(),
+                "list" => [],
                 "start" => $start,
                 "total" => count($files),
-            ));
+            ]);
             $this->show($result);
         }
         /* 获取指定范围的列表 */
         $len = count($files);
-        for ($i = min($end, $len) - 1, $list = array(); $i < $len && $i >= 0 && $i >= $start; $i--){
+        for ($i = min($end, $len) - 1, $list = []; $i < $len && $i >= 0 && $i >= $start; $i--){
             $list[] = $files[$i];
         }
         /* 返回数据 */
-        $result = json_encode(array(
+        $result = json_encode([
             "state" => "SUCCESS",
             "list" => $list,
             "start" => $start,
             "total" => count($files),
-        ));
+        ]);
         $this->show($result);
     }
 
@@ -289,9 +326,8 @@ class UEditorController extends Controller{
      * @param $allowFiles
      * @param array $files
      * @return array|null
-     *
      */
-    protected function getfiles($path, $allowFiles, &$files = array()){
+    protected function getfiles($path, $allowFiles, &$files = []){
         if (!is_dir($path)) return null;
         if(in_array(basename($path),$this->ignoreDir)) return null;
         if(substr($path, strlen($path) - 1) != '/') $path .= '/';
@@ -308,10 +344,10 @@ class UEditorController extends Controller{
                         $pat = "/\.(".$allowFiles.")$/i";
                     }
                     if (preg_match($pat, $file)) {
-                        $files[] = array(
-                            'url'=> substr($path2, strlen($_SERVER['DOCUMENT_ROOT'])),
+                        $files[] = [
+                            'url'=> substr($path2, strlen($this->webroot)),
                             'mtime'=> filemtime($path2)
-                        );
+                        ];
                     }
                 }
             }

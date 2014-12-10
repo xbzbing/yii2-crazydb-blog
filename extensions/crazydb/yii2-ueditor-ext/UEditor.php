@@ -31,7 +31,7 @@ class UEditor extends yii\widgets\InputWidget
      * UEditor配置
      * @var array
      */
-    public $config = array();
+    public $config = [];
 
 
     /**
