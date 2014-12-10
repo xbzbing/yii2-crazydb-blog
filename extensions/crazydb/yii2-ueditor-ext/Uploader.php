@@ -208,6 +208,7 @@ class Uploader
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/", $imgUrl, $m);
 
         $this->oriName = $m ? $m[1]:"";
+
         $this->fileSize = strlen($img);
         $this->fileType = $this->getFileExt();
         $this->fullName = $this->getFullName();
@@ -251,6 +252,7 @@ class Uploader
 
     /**
      * 获取文件扩展名
+     * @todo .tar.gz 扩展名
      * @return string
      */
     private function getFileExt()
@@ -281,7 +283,6 @@ class Uploader
         $oriName = substr($this->oriName, 0, strrpos($this->oriName, '.'));
         $oriName = preg_replace("/[\|\?\"\<\>\/\*\\\\]+/", '', $oriName);
         $format = str_replace("{filename}", $oriName, $format);
-
         //替换随机字符串
         $randNum = rand(1, 10000000000) . rand(1, 10000000000);
         if (preg_match("/\{rand\:([\d]*)\}/i", $format, $matches)) {
@@ -313,7 +314,6 @@ class Uploader
         if (substr($fullname, 0, 1) != '/') {
             $fullname = '/' . $fullname;
         }
-
         return $rootPath . $fullname;
     }
 

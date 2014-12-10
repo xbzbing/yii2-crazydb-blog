@@ -29,7 +29,7 @@ class UEditorController extends Controller{
      * 缩略图大小
      * @var array
      */
-    public $size = ['height'=>'200','width'=>'200'];
+    public $size = ['height'=>200,'width'=>200];
 
     /**
      * 水印图片的地址
@@ -50,6 +50,8 @@ class UEditorController extends Controller{
     public function init(){
         parent::init();
         error_reporting(0);
+        //csrf基于post验证，UEditor没法自定义post数据，同时由于这里不会产生安全问题，故取消csrf验证。
+        Yii::$app->request->enableCsrfValidation = false;
         date_default_timezone_set( 'PRC' );
         header( "Content-Type: text/html; charset=utf-8" );
         //权限判断
@@ -68,19 +70,20 @@ class UEditorController extends Controller{
         $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__.'/config.json')), true);
 
         if(!is_array($this->config))
-            $this->config = array();
+            $this->config = [];
+
         if(!is_array($CONFIG))
-            $CONFIG = array();
-        $web_root = Yii::$app->request->baseUrl;
+            $CONFIG = [];
+
         $default = [
-            'imagePathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'scrawlPathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'snapscreenPathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'catcherPathFormat'=>$web_root.'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'videoPathFormat'=>$web_root.'/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'filePathFormat'=>$web_root.'/upload/file/{yyyy}{mm}{dd}/{rand:4}_{filename}',
-            'imageManagerListPath'=>$web_root.'/upload/image/',
-            'fileManagerListPath'=>$web_root.'/upload/file/',
+            'imagePathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'scrawlPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'snapscreenPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'catcherPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'videoPathFormat'=>'/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'filePathFormat'=>'/upload/file/{yyyy}{mm}{dd}/{rand:4}_{filename}',
+            'imageManagerListPath'=>'/upload/image/',
+            'fileManagerListPath'=>'/upload/file/',
         ];
         $this->config = $this->config + $default + $CONFIG;
         $this->webroot = Yii::getAlias('@webroot');
@@ -250,10 +253,13 @@ class UEditorController extends Controller{
 
         $up = new Uploader($fieldName, $config, $base64);
         $info = $up->getFileInfo();
-        if( $this->thumbnail&&$info['state']=='SUCCESS'&&in_array($info['type'],array('.png','.jpg','.bmp','.gif'))){
-            $info['thumbnail'] = $this->imageHandle($info['url']);
+        if( $this->thumbnail&&$info['state']=='SUCCESS'&&in_array($info['type'],['.png','.jpg','.bmp','.gif'])){
+            $info['thumbnail'] = Yii::$app->request->baseUrl . $this->imageHandle($info['url']);
         }
-        $result =  json_encode($info);
+        $info['url'] = Yii::$app->request->baseUrl . $info['url'];
+        $info['original'] = htmlspecialchars($info['original']);
+        $info['width'] = $info['height'] = 500;
+        $result = json_encode($info);
         $this->show($result);
     }
 
@@ -266,18 +272,21 @@ class UEditorController extends Controller{
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
-        $file = $thumbnail = $this->webroot.'/'.$fullName;
+
+        $file = $fullName;
 
         if($this->thumbnail){
-            $thumbnail = pathinfo($file);
-            $thumbnail = $thumbnail['dirname'].'/'.$thumbnail['filename'].'.thumbnail.'.$thumbnail['extension'];
-            Image::thumbnail($file,$this->size['width'],$this->size['height'])->save($thumbnail);
+            $file = pathinfo($file);
+            $file = $file['dirname'].'/'.$file['filename'].'.thumbnail.'.$file['extension'];
+            Image::thumbnail($this->webroot . $fullName,$this->size['width'], $this->size['height'])
+                ->save($this->webroot . $file);
         }
+
         //生成水印
         if($this->watermark && file_exists($this->watermark))
             Image::watermark($file,$this->watermark)->save($file);
 
-        return $this->thumbnail?$thumbnail:$file;
+        return $file;
     }
 
     /**
