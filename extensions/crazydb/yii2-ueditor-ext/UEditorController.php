@@ -60,8 +60,8 @@ class UEditorController extends Controller{
         //请求config（配置信息）不需要登录权限
         $action = Yii::$app->request->get('action');
         if($action != 'config' && Yii::$app->user->isGuest){
-            #echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
-            #Yii::$app->end(-1);
+            echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
+            Yii::$app->end(-1);
         }
 
         //保留UE默认的配置引入方式
