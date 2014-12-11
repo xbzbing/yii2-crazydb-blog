@@ -1,13 +1,19 @@
 <?php
 namespace crazydb\ueditor;
 
+use Imagine\Image\ManipulatorInterface;
 use yii;
 use yii\imagine\Image;
 use yii\web\Controller;
 
-class UEditorController extends Controller{
+class UEditorController extends Controller
+{
 
-    public $access;
+    /**
+     * UEditor的配置
+     * @see http://fex-team.github.io/ueditor/#start-config
+     * @var array
+     */
     public $config;
 
     /**
@@ -20,40 +26,43 @@ class UEditorController extends Controller{
     ];
 
     /**
-     * 是否自动生成缩略图
-     * 默认为true
-     * @var bool
-     */
-    public $thumbnail = true;
-    /**
-     * 缩略图大小
+     * 缩略图设置
+     * 默认为200*200，如果设置为空数组则不生成缩略图
      * @var array
      */
-    public $size = ['height'=>200,'width'=>200];
+    public $thumbnail = ['height' => 200, 'width' => 200];
 
     /**
-     * 水印图片的地址
-     * @var string
+     * 图片缩放设置
+     * 默认不缩放。
+     * 配置如 ['height'=>200,'width'=>200]
+     * @var array
      */
-    public $watermark;
+    public $zoom = [];
+
     /**
-     * 水印位置
-     * 1-9，默认9，水印在原图的右下角。具体参考tpImage类。
-     * @var int
+     * 水印设置
+     * 参考配置如下：
+     * ['path'=>'水印图片位置','start'=>[0, 0]]
+     * 默认位置为[0, 0]，可不配置
+     * @var array
      */
-    public $locate = 9;
+    public $watermark = [];
 
     public $defaultAction = 'index';
 
+    /**
+     * Web根目录
+     * @var string
+     */
     protected $webroot;
 
-    public function init(){
+    public function init()
+    {
         parent::init();
-        error_reporting(0);
         //csrf基于post验证，UEditor没法自定义post数据，同时由于这里不会产生安全问题，故取消csrf验证。
         Yii::$app->request->enableCsrfValidation = false;
-        date_default_timezone_set( 'PRC' );
-        header( "Content-Type: text/html; charset=utf-8" );
+        header('Content-Type: text/html; charset=utf-8');
         //权限判断
         //这里仅判断是否登录
         //更多的权限判断需自行扩展
@@ -61,29 +70,29 @@ class UEditorController extends Controller{
         //http://fex.baidu.com/ueditor/#server-server_param
         //请求config（配置信息）不需要登录权限
         $action = Yii::$app->request->get('action');
-        if($action != 'config' && Yii::$app->user->isGuest){
+        if ($action != 'config' && Yii::$app->user->isGuest) {
             echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
             Yii::$app->end(-1);
         }
 
         //保留UE默认的配置引入方式
-        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__.'/config.json')), true);
+        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__ . '/config.json')), true);
 
-        if(!is_array($this->config))
+        if (!is_array($this->config))
             $this->config = [];
 
-        if(!is_array($CONFIG))
+        if (!is_array($CONFIG))
             $CONFIG = [];
 
         $default = [
-            'imagePathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'scrawlPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'snapscreenPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'catcherPathFormat'=>'/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'videoPathFormat'=>'/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}',
-            'filePathFormat'=>'/upload/file/{yyyy}{mm}{dd}/{rand:4}_{filename}',
-            'imageManagerListPath'=>'/upload/image/',
-            'fileManagerListPath'=>'/upload/file/',
+            'imagePathFormat' => '/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'scrawlPathFormat' => '/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'snapscreenPathFormat' => '/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'catcherPathFormat' => '/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'videoPathFormat' => '/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}',
+            'filePathFormat' => '/upload/file/{yyyy}{mm}{dd}/{rand:4}_{filename}',
+            'imageManagerListPath' => '/upload/image/',
+            'fileManagerListPath' => '/upload/file/',
         ];
         $this->config = $this->config + $default + $CONFIG;
         $this->webroot = Yii::getAlias('@webroot');
@@ -92,52 +101,40 @@ class UEditorController extends Controller{
     /**
      * 蛋疼的统一后台入口
      */
-    public function actionIndex(){
+    public function actionIndex()
+    {
+        $action = strtolower(Yii::$app->request->get('action'));
         $actions = [
-            'uploadimage'=>'upload-image',
-            'uploadscrawl'=>'upload-scrawl',
-            'uploadvideo'=>'upload-video',
-            'uploadfile'=>'upload-file',
-            'listimage'=>'list-image',
-            'listfile'=>'list-file',
-            'catchimage'=>'catch-image',
-            'config'=>'config',
-            'listinfo'=>'list-info'
+            'uploadimage' => 'upload-image',
+            'uploadscrawl' => 'upload-scrawl',
+            'uploadvideo' => 'upload-video',
+            'uploadfile' => 'upload-file',
+            'listimage' => 'list-image',
+            'listfile' => 'list-file',
+            'catchimage' => 'catch-image',
+            'config' => 'config',
+            'listinfo' => 'list-info'
         ];
-        $action = Yii::$app->request->get('action');
 
-        if(isset($actions[$action])){
+        if (isset($actions[$action]))
             $this->run($actions[$action]);
-        }else{
-            $this->show(json_encode([
-                'state'=> '请求地址出错'
-            ]));
-        }
+        else
+            $this->show(['state' => '请求地址出错']);
     }
 
     /**
      * 显示配置信息
      */
-    public function actionConfig(){
-        $this->show(json_encode($this->config));
+    public function actionConfig()
+    {
+        $this->show($this->config);
     }
 
     /**
-     * 显示最终结果，并终止运行
-     * @param $result
-     */
-    protected function show($result){
-        $callback = Yii::$app->request->get('callback');
-        if($callback)
-            echo "$callback($result)";
-        else
-            echo $result;
-        Yii::$app->end();
-    }
-    /**
      * 上传图片
      */
-    public function actionUploadImage(){
+    public function actionUploadImage()
+    {
         $config = [
             "pathFormat" => $this->config['imagePathFormat'],
             "maxSize" => $this->config['imageMaxSize'],
@@ -150,7 +147,8 @@ class UEditorController extends Controller{
     /**
      * 上传涂鸦
      */
-    public function actionUploadScrawl(){
+    public function actionUploadScrawl()
+    {
         $config = [
             "pathFormat" => $this->config['scrawlPathFormat'],
             "maxSize" => $this->config['scrawlMaxSize'],
@@ -160,10 +158,12 @@ class UEditorController extends Controller{
         $fieldName = $this->config['scrawlFieldName'];
         $this->upload($fieldName, $config, 'base64');
     }
+
     /**
      * 上传视频
      */
-    public function actionUploadVideo(){
+    public function actionUploadVideo()
+    {
         $config = [
             "pathFormat" => $this->config['videoPathFormat'],
             "maxSize" => $this->config['videoMaxSize'],
@@ -172,10 +172,12 @@ class UEditorController extends Controller{
         $fieldName = $this->config['videoFieldName'];
         $this->upload($fieldName, $config);
     }
+
     /**
      * 上传文件
      */
-    public function actionUploadFile(){
+    public function actionUploadFile()
+    {
         $config = [
             "pathFormat" => $this->config['filePathFormat'],
             "maxSize" => $this->config['fileMaxSize'],
@@ -188,27 +190,30 @@ class UEditorController extends Controller{
     /**
      * 文件列表
      */
-    public function actionListFile(){
+    public function actionListFile()
+    {
         $allowFiles = $this->config['fileManagerAllowFiles'];
         $listSize = $this->config['fileManagerListSize'];
         $path = $this->config['fileManagerListPath'];
-        $this->manage($allowFiles,$listSize,$path);
+        $this->manage($allowFiles, $listSize, $path);
     }
 
     /**
      *  图片列表
      */
-    public function actionListImage(){
+    public function actionListImage()
+    {
         $allowFiles = $this->config['imageManagerAllowFiles'];
         $listSize = $this->config['imageManagerListSize'];
         $path = $this->config['imageManagerListPath'];
-        $this->manage($allowFiles,$listSize,$path);
+        $this->manage($allowFiles, $listSize, $path);
     }
 
     /**
      * 获取远程图片
      */
-    public function actionCatchImage(){
+    public function actionCatchImage()
+    {
         set_time_limit(0);
         /* 上传配置 */
         $config = [
@@ -229,17 +234,17 @@ class UEditorController extends Controller{
             $item = new Uploader($imgUrl, $config, "remote");
             $info = $item->getFileInfo();
             $info['thumbnail'] = $this->imageHandle($info['url']);
-            $list[] = array(
+            $list[] = [
                 "state" => $info["state"],
                 "url" => $info["url"],
                 "source" => $imgUrl
-            );
+            ];
         }
         /* 返回抓取数据 */
-        $result = json_encode([
-            'state'=> count($list) ? 'SUCCESS':'ERROR',
-            'list'=> $list
-        ]);
+        $result = [
+            'state' => count($list) ? 'SUCCESS' : 'ERROR',
+            'list' => $list
+        ];
         $this->show($result);
     }
 
@@ -249,18 +254,18 @@ class UEditorController extends Controller{
      * @param $config
      * @param $base64
      */
-    protected function upload($fieldName,$config, $base64 = 'upload'){
+    protected function upload($fieldName, $config, $base64 = 'upload')
+    {
 
         $up = new Uploader($fieldName, $config, $base64);
         $info = $up->getFileInfo();
-        if( $this->thumbnail&&$info['state']=='SUCCESS'&&in_array($info['type'],['.png','.jpg','.bmp','.gif'])){
+        if ($this->thumbnail && $info['state'] == 'SUCCESS' && in_array($info['type'], ['.png', '.jpg', '.bmp', '.gif'])) {
             $info['thumbnail'] = Yii::$app->request->baseUrl . $this->imageHandle($info['url']);
         }
         $info['url'] = Yii::$app->request->baseUrl . $info['url'];
         $info['original'] = htmlspecialchars($info['original']);
         $info['width'] = $info['height'] = 500;
-        $result = json_encode($info);
-        $this->show($result);
+        $this->show($info);
     }
 
     /**
@@ -268,23 +273,35 @@ class UEditorController extends Controller{
      * @param $fullName
      * @return mixed|string
      */
-    protected function imageHandle($fullName){
+    protected function imageHandle($fullName)
+    {
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
 
         $file = $fullName;
 
-        if($this->thumbnail){
+        //先处理缩略图
+        if (isset($this->thumbnail['height']) && isset($this->thumbnail['width'])) {
             $file = pathinfo($file);
-            $file = $file['dirname'].'/'.$file['filename'].'.thumbnail.'.$file['extension'];
-            Image::thumbnail($this->webroot . $fullName,$this->size['width'], $this->size['height'])
+            $file = $file['dirname'] . '/' . $file['filename'] . '.thumbnail.' . $file['extension'];
+            Image::thumbnail($this->webroot . $fullName, $this->thumbnail['width'], $this->thumbnail['height'])
                 ->save($this->webroot . $file);
         }
+        //再处理缩放，默认不缩放
+        if (isset($this->zoom['height']) && isset($this->zoom['width'])) {
 
-        //生成水印
-        if($this->watermark && file_exists($this->watermark))
-            Image::watermark($file,$this->watermark)->save($file);
+            $info = getimagesize($this->webroot . $fullName);
+            $image = Image::thumbnail($this->webroot . $fullName, $this->zoom['width'], $this->zoom['height']);
+            $image->save($this->webroot . $fullName);
+        }
+        //最后生成水印
+        if (isset($this->watermark['path']) && file_exists($this->watermark['path'])) {
+            if(!isset($this->watermark['start']))
+                $this->watermark['start'] = [0, 0];
+            Image::watermark($file, $this->watermark['path'], $this->watermark['start'])
+                ->save($file);
+        }
 
         return $file;
     }
@@ -295,7 +312,8 @@ class UEditorController extends Controller{
      * @param $listSize
      * @param $path
      */
-    protected function manage($allowFiles, $listSize, $path){
+    protected function manage($allowFiles, $listSize, $path)
+    {
         $allowFiles = substr(str_replace(".", "|", join("", $allowFiles)), 1);
         /* 获取参数 */
         $size = isset($_GET['size']) ? $_GET['size'] : $listSize;
@@ -303,29 +321,29 @@ class UEditorController extends Controller{
         $end = $start + $size;
 
         /* 获取文件列表 */
-        $path = $this->webroot . (substr($path, 0, 1) == "/" ? "":"/") . $path;
-        $files = $this->getfiles($path, $allowFiles);
+        $path = $this->webroot . (substr($path, 0, 1) == "/" ? "" : "/") . $path;
+        $files = $this->getFiles($path, $allowFiles);
         if (!count($files)) {
-            $result =  json_encode([
+            $result = [
                 "state" => "no match file",
                 "list" => [],
                 "start" => $start,
                 "total" => count($files),
-            ]);
+            ];
             $this->show($result);
         }
         /* 获取指定范围的列表 */
         $len = count($files);
-        for ($i = min($end, $len) - 1, $list = []; $i < $len && $i >= 0 && $i >= $start; $i--){
+        for ($i = min($end, $len) - 1, $list = []; $i < $len && $i >= 0 && $i >= $start; $i--) {
             $list[] = $files[$i];
         }
         /* 返回数据 */
-        $result = json_encode([
+        $result = [
             "state" => "SUCCESS",
             "list" => $list,
             "start" => $start,
             "total" => count($files),
-        ]);
+        ];
         $this->show($result);
     }
 
@@ -336,31 +354,49 @@ class UEditorController extends Controller{
      * @param array $files
      * @return array|null
      */
-    protected function getfiles($path, $allowFiles, &$files = []){
+    protected function getFiles($path, $allowFiles, &$files = [])
+    {
         if (!is_dir($path)) return null;
-        if(in_array(basename($path),$this->ignoreDir)) return null;
-        if(substr($path, strlen($path) - 1) != '/') $path .= '/';
+        if (in_array(basename($path), $this->ignoreDir)) return null;
+        if (substr($path, strlen($path) - 1) != '/') $path .= '/';
         $handle = opendir($path);
+        //baseUrl用于兼容使用alias的二级目录部署方式
+        $baseUrl = Yii::$app->request->baseUrl;
         while (false !== ($file = readdir($handle))) {
             if ($file != '.' && $file != '..') {
                 $path2 = $path . $file;
                 if (is_dir($path2)) {
-                    $this->getfiles($path2, $allowFiles, $files);
+                    $this->getFiles($path2, $allowFiles, $files);
                 } else {
-                    if($this->action->id == 'ListImage'&&$this->thumbnail){
-                        $pat = "/\.thumbnail\.(".$allowFiles.")$/i";
-                    }else{
-                        $pat = "/\.(".$allowFiles.")$/i";
+                    if ($this->action->id == 'list-image' && $this->thumbnail) {
+                        $pat = "/\.thumbnail\.(" . $allowFiles . ")$/i";
+                    } else {
+                        $pat = "/\.(" . $allowFiles . ")$/i";
                     }
                     if (preg_match($pat, $file)) {
                         $files[] = [
-                            'url'=> substr($path2, strlen($this->webroot)),
-                            'mtime'=> filemtime($path2)
+                            'url' => $baseUrl . substr($path2, strlen($this->webroot)),
+                            'mtime' => filemtime($path2)
                         ];
                     }
                 }
             }
         }
         return $files;
+    }
+
+    /**
+     * 显示最终结果，并终止运行
+     * @param $result
+     */
+    protected function show($result)
+    {
+        $callback = Yii::$app->request->get('callback');
+        $result = json_encode($result);
+        if ($callback)
+            echo "$callback($result)";
+        else
+            echo $result;
+        Yii::$app->end();
     }
 }

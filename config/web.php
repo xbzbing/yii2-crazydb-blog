@@ -18,7 +18,7 @@ $config = [
     'controllerMap' => [
         'ueditor' => [
             'class' => 'crazydb\ueditor\UEditorController',
-            'access' => ['*'],
+            'zoom' => ['height' => 500, 'width' => 500]
         ]
     ],
 

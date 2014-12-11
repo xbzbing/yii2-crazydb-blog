@@ -110,6 +110,7 @@ class UEditor extends yii\widgets\InputWidget
         this.addListener( "beforeInsertImage", function ( type, imgObjs ) {
             for(var i=0;i < imgObjs.length;i++){
                 imgObjs[i].src = imgObjs[i].src.replace(".thumbnail","");
+                console.debug(imgObjs[i]);
             }
         });
     });
