@@ -1,7 +1,11 @@
 <?php
-
 /**
  * UEditor Widget扩展
+ * @author xbzbing<xbzbing@gmail.com>
+ * @link www.crazydb.com
+ *
+ * UEditor版本v1.4.3
+ * Yii版本2.0
  *
  * Usage:
  * <?=\crazydb\ueditor\UEditor::widget([
@@ -17,6 +21,11 @@ use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
+/**
+ * Class UEditor
+ * UEditor Widget的主类，用于前端显示编辑器
+ * @package crazydb\ueditor
+ */
 class UEditor extends yii\widgets\InputWidget
 {
 
@@ -25,7 +34,7 @@ class UEditor extends yii\widgets\InputWidget
      * 主要用于同一个页面的多个editor实例的管理。
      * @var string
      */
-    public $name = 'editor';
+    public $name;
 
     /**
      * UEditor配置
@@ -48,6 +57,9 @@ class UEditor extends yii\widgets\InputWidget
         //注册资源文件
         $asset = UEditorAsset::register($this->getView());
 
+        //设置UEditor实例的名字
+        if(!$this->name)
+            $this->name = Html::getInputName($this->model, $this->attribute);
 
         //常用配置项
         if (empty($this->config['UEDITOR_HOME_URL']))

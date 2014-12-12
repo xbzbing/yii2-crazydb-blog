@@ -1,5 +1,4 @@
 <?php
-
 /**
  * User: taoqili
  * Date: 12-7-18
@@ -7,11 +6,18 @@
  * UEditor编辑器通用上传类
  * ==============================
  * Modify By xbzbing@gmail.com
+ * 增加Yii相关设置
  */
 namespace crazydb\ueditor;
 
 use yii;
 
+/**
+ * Class Uploader
+ * UEditor 通用上传类
+ * @todo 不再使用UEditor的这个upload类，将使用Yii封装的方法重写
+ * @package crazydb\ueditor
+ */
 class Uploader
 {
     private $fileField; //文件域名

@@ -6,6 +6,8 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use app\models\Category;
 use app\models\Post;
+
+use crazydb\ueditor\UEditor;
 /**
  * @var yii\web\View $this
  * @var Post $model
@@ -58,10 +60,8 @@ $categories = CMSUtils::getAllCategories();
 
                 <?= $form->field($model, 'tags')->textInput() ?>
 
-                <?=\crazydb\ueditor\UEditor::widget([
-                    'model' => $model,
-                    'attribute' => 'content',
-                ])?>
+
+                <?=$form->field($model, 'content')->widget(UEditor::className(),['model'=>$model])?>
 
                 <?= $form->field($model, 'excerpt')->textArea(['rows' => 5]) ?>
             </div>

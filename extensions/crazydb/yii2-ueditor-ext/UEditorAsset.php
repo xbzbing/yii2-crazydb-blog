@@ -1,10 +1,22 @@
 <?php
-
+/**
+ * UEditor Widget扩展
+ * @author xbzbing<xbzbing@gmail.com>
+ * @link www.crazydb.com
+ *
+ * UEditor版本v1.4.3
+ * Yii版本2.0
+ */
 namespace crazydb\ueditor;
 
 use Yii;
 use yii\web\AssetBundle;
 
+/**
+ * Class UEditorAsset
+ * 负责UEditor的资源文件引入，由于UEditor没有在bower注册包，因此扩展包含了UEditor的核心文件。
+ * @package crazydb\ueditor
+ */
 class UEditorAsset extends AssetBundle
 {
     public $sourcePath = '@crazydb/ueditor/assets';
@@ -25,5 +37,4 @@ class UEditorAsset extends AssetBundle
      */
     public $css = [
     ];
-
 }

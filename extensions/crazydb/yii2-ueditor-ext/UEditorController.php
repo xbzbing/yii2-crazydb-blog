@@ -1,11 +1,23 @@
 <?php
+/**
+ * UEditor Widget扩展
+ * @author xbzbing<xbzbing@gmail.com>
+ * @link www.crazydb.com
+ *
+ * UEditor版本v1.4.3
+ * Yii版本2.0
+ */
 namespace crazydb\ueditor;
 
-use Imagine\Image\ManipulatorInterface;
 use yii;
 use yii\imagine\Image;
 use yii\web\Controller;
 
+/**
+ * Class UEditorController
+ * 负责UEditor后台响应
+ * @package crazydb\ueditor
+ */
 class UEditorController extends Controller
 {
 
@@ -289,21 +301,57 @@ class UEditorController extends Controller
                 ->save($this->webroot . $file);
         }
         //再处理缩放，默认不缩放
+        //...缩放效果非常差劲-，-
         if (isset($this->zoom['height']) && isset($this->zoom['width'])) {
-
-            $info = getimagesize($this->webroot . $fullName);
-            $image = Image::thumbnail($this->webroot . $fullName, $this->zoom['width'], $this->zoom['height']);
-            $image->save($this->webroot . $fullName);
+            $size = $this->getSize($this->webroot . $fullName);
+            if ($size && $size[0] > 0 && $size[1] > 0) {
+                $ratio = min([$this->zoom['height'] / $size[0], $this->zoom['width'] / $size[1], 1]);
+                Image::thumbnail($this->webroot . $fullName, ceil($size[0] * $ratio), ceil($size[1] * $ratio))
+                    ->save($this->webroot . $fullName);
+            }
         }
         //最后生成水印
         if (isset($this->watermark['path']) && file_exists($this->watermark['path'])) {
-            if(!isset($this->watermark['start']))
+            if (!isset($this->watermark['start']))
                 $this->watermark['start'] = [0, 0];
             Image::watermark($file, $this->watermark['path'], $this->watermark['start'])
                 ->save($file);
         }
 
         return $file;
+    }
+
+    /**
+     * 获取图片的大小
+     * 主要用于获取图片大小并
+     * @param $file
+     * @return array
+     */
+    protected function getSize($file)
+    {
+        if (!file_exists($file))
+            return [];
+
+        $info = pathinfo($file);
+        $image = null;
+        switch (strtolower($info['extension'])) {
+            case 'gif':
+                $image = imagecreatefromgif($file);
+                break;
+            case 'jpg':
+            case 'jpeg':
+                $image = imagecreatefromjpeg($file);
+                break;
+            case 'png':
+                $image = imagecreatefrompng($file);
+                break;
+            default:
+                break;
+        }
+        if ($image == null)
+            return [];
+        else
+            return [imagesx($image), imagesy($image)];
     }
 
     /**
