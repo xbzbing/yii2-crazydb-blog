@@ -11,6 +11,7 @@ namespace crazydb\ueditor;
 
 use yii;
 use yii\imagine\Image;
+use yii\helpers\Json;
 use yii\web\Controller;
 
 /**
@@ -77,15 +78,14 @@ class UEditorController extends Controller
         header('Content-Type: text/html; charset=utf-8');
         //权限判断
         //这里仅判断是否登录
-        //更多的权限判断需自行扩展
+        //更多的权限判断需自行扩展，可以继承 UEditorController 并做自己的验证。
         //当客户使用低版本IE时，会使用swf上传插件，维持认证状态可以参考文档UEditor「自定义请求参数」部分。
         //http://fex.baidu.com/ueditor/#server-server_param
         //请求config（配置信息）不需要登录权限
         $action = Yii::$app->request->get('action');
-        if ($action != 'config' && Yii::$app->user->isGuest) {
-            echo '{"url":"null","fileType":"null","original":"null","state":"Failed:[需要登录]没有上传权限！"}';
-            Yii::$app->end(-1);
-        }
+
+        if ($action != 'config' && Yii::$app->user->isGuest)
+            $this->show(['url'=>null,'fileType'=>null,'original'=>null,'state'=>'Failed:[需要登录]没有上传权限！']);
 
         //保留UE默认的配置引入方式
         $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", '', file_get_contents(__DIR__ . '/config.json')), true);
@@ -440,7 +440,7 @@ class UEditorController extends Controller
     protected function show($result)
     {
         $callback = Yii::$app->request->get('callback');
-        $result = json_encode($result);
+        $result = Json::encode($result);
         if ($callback)
             echo "$callback($result)";
         else
