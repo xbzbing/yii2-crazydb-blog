@@ -59,7 +59,7 @@ class UEditor extends yii\widgets\InputWidget
 
         //设置UEditor实例的名字
         if(!$this->name)
-            $this->name = get_class($this->model).'_'.$this->attribute;
+            $this->name = $this->model->formName().'_'.$this->attribute;
 
         //常用配置项
         if (empty($this->config['UEDITOR_HOME_URL']))
