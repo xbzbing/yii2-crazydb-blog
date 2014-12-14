@@ -60,8 +60,7 @@ $categories = CMSUtils::getAllCategories();
 
                 <?= $form->field($model, 'tags')->textInput() ?>
 
-
-                <?=$form->field($model, 'content')->widget(UEditor::className(),['model'=>$model])?>
+                <?=$form->field($model, 'content')->widget(UEditor::className())?>
 
                 <?= $form->field($model, 'excerpt')->textArea(['rows' => 5]) ?>
             </div>

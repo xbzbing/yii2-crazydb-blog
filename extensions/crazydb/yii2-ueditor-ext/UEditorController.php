@@ -73,7 +73,8 @@ class UEditorController extends Controller
     public function init()
     {
         parent::init();
-        //csrf基于post验证，UEditor没法自定义post数据，同时由于这里不会产生安全问题，故取消csrf验证。
+        //csrf基于post验证，UEditor无法添加自定义post数据，同时由于这里不会产生安全问题，故简单粗暴地取消csrf验证。
+        //如需csrf防御，可以使用server_param方法，然后在这里将get的crsf添加到post的数组中。。。
         Yii::$app->request->enableCsrfValidation = false;
         header('Content-Type: text/html; charset=utf-8');
         //权限判断

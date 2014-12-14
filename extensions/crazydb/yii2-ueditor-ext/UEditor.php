@@ -7,19 +7,30 @@
  * UEditor版本v1.4.3
  * Yii版本2.0
  *
- * Usage:
+ * 使用方法:
+ * 1、AR
  * <?=\crazydb\ueditor\UEditor::widget([
  * 'model' => $model,
  * 'attribute' => 'content',
  * ])?>
+ *
+ * 或者
+ *
+ * <?=$form->field($model, 'content')->widget(UEditor::className())?>
+ *
+ * 2、普通表单
+ *
+ * <?\crazydb\ueditor\UEditor::widget([
+ * 'name'=>$name,
+ * 'value' => $value,
+ * ])>
  */
 namespace crazydb\ueditor;
 
 use yii;
-use yii\base\Exception;
-use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\helpers\Json;
 
 /**
  * Class UEditor
@@ -28,7 +39,6 @@ use yii\helpers\Url;
  */
 class UEditor extends yii\widgets\InputWidget
 {
-
     /**
      * 生成的ueditor对象的名称，默认为editor。
      * 主要用于同一个页面的多个editor实例的管理。
@@ -47,19 +57,20 @@ class UEditor extends yii\widgets\InputWidget
      * 初始化一些配置。
      * 由于不引入config.js文件，因此需要手动配置一些东西。
      */
-    public function init(){
+    public function init()
+    {
+
         parent::init();
+
         Yii::setAlias('crazydb', '@app/extensions/crazydb');
         Yii::setAlias('@crazydb/ueditor', '@crazydb/yii2-ueditor-ext');
-        if (!($this->model instanceof ActiveRecord))
-            throw new Exception('必须指定一个AR');
 
         //注册资源文件
         $asset = UEditorAsset::register($this->getView());
 
         //设置UEditor实例的名字
-        if(!$this->name)
-            $this->name = $this->model->formName().'_'.$this->attribute;
+        if (!$this->name)
+            $this->name = $this->model->formName() . '_' . $this->attribute;
 
         //常用配置项
         if (empty($this->config['UEDITOR_HOME_URL']))
@@ -98,7 +109,7 @@ class UEditor extends yii\widgets\InputWidget
                 [
                     'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|',
                     'link', 'unlink', '|',
-                    'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map','insertcode', 'pagebreak', '|',
+                    'insertimage', 'emotion', 'scrawl', 'insertvideo', 'music', 'attachment', 'map', 'insertcode', 'pagebreak', '|',
                     'horizontal', 'inserttable', '|',
                     'print', 'preview', 'searchreplace', 'help'
                 ]
@@ -109,11 +120,12 @@ class UEditor extends yii\widgets\InputWidget
     /**
      * 输出widget页面，注册相关JS代码。
      */
-    public function run(){
+    public function run()
+    {
 
-        $id = Html::getInputId($this->model, $this->attribute);
+        $id = $this->hasModel() ? Html::getInputId($this->model, $this->attribute) : $this->id;
 
-        $config = json_encode($this->config);
+        $config = Json::encode($this->config);
 
         //ready部分代码，是为了缩略图管理。UEditor本身就很大，在后台直接加载大文件图片会很卡。
         $script = <<<UEDITOR
@@ -122,7 +134,6 @@ class UEditor extends yii\widgets\InputWidget
         this.addListener( "beforeInsertImage", function ( type, imgObjs ) {
             for(var i=0;i < imgObjs.length;i++){
                 imgObjs[i].src = imgObjs[i].src.replace(".thumbnail","");
-                console.debug(imgObjs[i]);
             }
         });
     });
@@ -130,7 +141,10 @@ UEDITOR;
 
         $this->getView()->registerJs($script);
 
-        return Html::activeTextarea($this->model, $this->attribute);
+        if ($this->hasModel())
+            return Html::activeTextarea($this->model, $this->attribute);
+        else
+            return Html::textarea($this->name, $this->value, ['id' => $id]);
     }
 
 }
