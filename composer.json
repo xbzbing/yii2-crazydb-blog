@@ -23,7 +23,7 @@
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
         "yiisoft/yii2-faker": "*",
-        "crazydb/yii2-ueditor": "dev-master"
+        "crazydb/yii2-ueditor": "*"
     },
     "scripts": {
         "post-create-project-cmd": [
