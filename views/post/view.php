@@ -2,6 +2,7 @@
 
 use yii\helpers\Url;
 use yii\helpers\Html;
+use yii\web\View;
 use app\components\XUtils;
 use app\models\Post;
 
@@ -107,26 +108,24 @@ $this->params['breadcrumbs'][] = $this->title;
 //$this->renderPartial('//widget/comment',array('pid'=>$post->id,'comments'=>$comments));
 ?>
 <?php
-//优化加载速度
-$flag = empty($post->content) ? false : strpos($post->content,'<pre class=');
-if(!$flag===false):
-    $this->registerCssFile(Yii::$app->request->baseUrl.'/static/plugins/sh/styles/shCore.css',[]);
-    $this->registerCssFile(Yii::$app->request->baseUrl.'/static/plugins/sh/styles/shCoreRDark.css');
-    $this->registerJsFile(Yii::$app->request->baseUrl.'/static/plugins/sh/scripts/shCore.js');
-    $this->registerJsFile(Yii::$app->request->baseUrl.'/static/plugins/sh/scripts/shAutoloader.js');
-    ?>
-    <script>
-        $(function(){
-            SyntaxHighlighter.autoloader(
-                'java <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushJava.js',
-                'php <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushPhp.js',
-                'html xml <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushXml.js',
-                'css <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushCss.js',
-                'js jscript javascript <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushJScript.js',
-                'bash shell <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushBash.js',
-                'sql <?=Yii::$app->request->baseUrl.'/static/plugins'?>/sh/scripts/shBrushSql.js'
-            );
-            SyntaxHighlighter.all();
-        });
-    </script>
-<?php endif;?>
+//优化JS加载
+if(empty($post->content) ? false : strpos($post->content,'<pre class=')){
+    $baseUrl = Yii::$app->request->baseUrl;
+    $this->registerCssFile($baseUrl.'/static/plugins/sh/styles/shCore.css',[]);
+    $this->registerCssFile($baseUrl.'/static/plugins/sh/styles/shCoreRDark.css');
+    $this->registerJsFile($baseUrl.'/static/plugins/sh/scripts/shCore.js');
+    $this->registerJsFile($baseUrl.'/static/plugins/sh/scripts/shAutoloader.js');
+    $script = <<<SCRIPT
+    SyntaxHighlighter.autoloader(
+        'java {$baseUrl}/static/plugins/sh/scripts/shBrushJava.js',
+        'php {$baseUrl}/static/plugins/sh/scripts/shBrushPhp.js',
+        'html xml {$baseUrl}/static/plugins/sh/scripts/shBrushXml.js',
+        'css {$baseUrl}/static/plugins/sh/scripts/shBrushCss.js',
+        'js jscript javascript {$baseUrl}/static/plugins/sh/scripts/shBrushJScript.js',
+        'bash shell {$baseUrl}/static/plugins/sh/scripts/shBrushBash.js',
+        'sql {$baseUrl}/static/plugins/sh/scripts/shBrushSql.js'
+    );
+    SyntaxHighlighter.all();
+SCRIPT;
+    $this->registerJs($script,View::POS_READY);
+}

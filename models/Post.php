@@ -32,16 +32,17 @@ use app\components\XUtils;
  * @property string $ext_info 附加信息
  *
  * #利用魔术方法获取的属性
- * @property array $availableStatus
- * @property string $postStatus
- * @property array $availableType
- * @property string $postType
+ * @property array $availableStatus 支持的文章状态
+ * @property string $postStatus 文章状态
+ * @property array $availableType 支持的文章类型
+ * @property string $postType 文章类型
+ * @property string $url 访问地址
  *
  * #relations
- * @property User $author
- * @property Category $category
- * @property Comment[] $comments
- * @property Tag[] $postTags
+ * @property User $author 作者
+ * @property Category $category 分类
+ * @property Comment[] $comments 评论s
+ * @property Tag[] $postTags 标签s
  */
 class Post extends BaseModel{
     /**
