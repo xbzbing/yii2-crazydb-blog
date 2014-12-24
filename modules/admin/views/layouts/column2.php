@@ -1,6 +1,7 @@
 <?php
-/* @var View  $this */
+/* @var yii\web\View $this */
 /* @var string $content */
+
 use \yii\web\View;
 use app\widgets\Alert;
 use app\widgets\SideNav;

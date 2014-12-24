@@ -20,12 +20,8 @@ $categories = CMSUtils::getAllCategories(true);
     
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <p>
-        <?= Html::a(Yii::t('app', 'Create {modelClass}', [
-  'modelClass' => 'Post',
-]), ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a(Yii::t('app', 'Create'), ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?=
@@ -37,9 +33,8 @@ $categories = CMSUtils::getAllCategories(true);
             'title',
             ['label'=>'类别','value'=>function($data)use($categories){
                     return isset($categories[$data->cid])?$categories[$data->cid]:'未设置分类';
-                }],
+            }],
             'post_time:datetime',
-            'update_time:datetime',
             'view_count',
             ['class' => 'yii\grid\ActionColumn'],
         ],

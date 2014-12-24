@@ -33,6 +33,7 @@ class PostController extends Controller
         $searchModel = new PostSearch;
         $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
         $dataProvider->sort->defaultOrder = ['post_time'=>SORT_DESC];
+        $dataProvider->pagination->defaultPageSize = 10;
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'searchModel' => $searchModel,
