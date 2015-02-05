@@ -17,7 +17,7 @@ $this->params['breadcrumbs'][] = $this->title;
 $categories = CMSUtils::getAllCategories(true);
 ?>
 <div class="post-index">
-    
+
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
@@ -32,10 +32,10 @@ $categories = CMSUtils::getAllCategories(true);
             ['class' => 'yii\grid\SerialColumn'],
             'title',
             [
-                'attribute' =>'cid',
-                'label'=>'类别',
-                'value'=>'postCategory',
-                'filter' => Html::activeDropDownList($searchModel,'cid',[''=>'全部']+$categories)
+                'attribute' => 'cid',
+                'label' => '类别',
+                'value' => 'postCategory',
+                'filter' => Html::activeDropDownList($searchModel, 'cid', ['' => '全部'] + $categories, ['class' => 'form-control']),
             ],
             'post_time:datetime',
             'view_count',
