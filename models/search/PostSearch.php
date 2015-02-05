@@ -41,6 +41,8 @@ class PostSearch extends Post
         $query->andFilterWhere([
             'id' => $this->id,
             'cid' => $this->cid,
+            'type' => $this->type,
+            'status' => $this->status,
             'author_id' => $this->author_id,
             'create_time' => $this->create_time,
             'post_time' => $this->post_time,
@@ -50,17 +52,8 @@ class PostSearch extends Post
         ]);
 
         $query->andFilterWhere(['like', 'author_name', $this->author_name])
-            ->andFilterWhere(['like', 'type', $this->type])
             ->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'alias', $this->alias])
-            ->andFilterWhere(['like', 'excerpt', $this->excerpt])
-            ->andFilterWhere(['like', 'content', $this->content])
-            ->andFilterWhere(['like', 'cover', $this->cover])
-            ->andFilterWhere(['like', 'password', $this->password])
-            ->andFilterWhere(['like', 'status', $this->status])
-            ->andFilterWhere(['like', 'tags', $this->tags])
-            ->andFilterWhere(['like', 'options', $this->options])
-            ->andFilterWhere(['like', 'ext_info', $this->ext_info]);
+            ->andFilterWhere(['like', 'tags', $this->tags]);
 
         return $dataProvider;
     }

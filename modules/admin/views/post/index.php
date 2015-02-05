@@ -31,9 +31,12 @@ $categories = CMSUtils::getAllCategories(true);
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'title',
-            ['label'=>'类别','value'=>function($data)use($categories){
-                    return isset($categories[$data->cid])?$categories[$data->cid]:'未设置分类';
-            }],
+            [
+                'attribute' =>'cid',
+                'label'=>'类别',
+                'value'=>'postCategory',
+                'filter' => Html::activeDropDownList($searchModel,'cid',[''=>'全部']+$categories)
+            ],
             'post_time:datetime',
             'view_count',
             ['class' => 'yii\grid\ActionColumn'],

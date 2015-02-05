@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\components\CMSUtils;
 use Yii;
 use yii\helpers\Url;
 use app\components\BaseModel;
@@ -37,6 +38,7 @@ use app\components\XUtils;
  * @property array $availableType 支持的文章类型
  * @property string $postType 文章类型
  * @property string $url 访问地址
+ * @property string $postCategory 文章分类
  *
  * #relations
  * @property User $author 作者
@@ -44,7 +46,8 @@ use app\components\XUtils;
  * @property Comment[] $comments 评论s
  * @property Tag[] $postTags 标签s
  */
-class Post extends BaseModel{
+class Post extends BaseModel
+{
     /**
      * 文章状态
      * 共四类
@@ -88,8 +91,8 @@ class Post extends BaseModel{
             [['status'], 'string', 'max' => 50],
             [['options'], 'string', 'max' => 8],
             [['content'], 'purify'],
-            [['status'], 'in', 'range'=>array_keys(self::getAvailableStatus()), 'message'=>'文章的「状态」错误！'],
-            [['type'], 'in' , 'range'=>array_keys(self::getAvailableType()), 'message'=>'文章的「类型」错误！'],
+            [['status'], 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '文章的「状态」错误！'],
+            [['type'], 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '文章的「类型」错误！'],
         ];
     }
 
@@ -128,7 +131,8 @@ class Post extends BaseModel{
      * 获得支持的文章状态
      * @return array
      */
-    public static function getAvailableStatus(){
+    public static function getAvailableStatus()
+    {
         return [
             self::STATUS_DELETED => '已删除',
             self::STATUS_DRAFT => '草稿',
@@ -136,141 +140,172 @@ class Post extends BaseModel{
             self::STATUS_HIDDEN => '隐藏'
         ];
     }
+
     /**
      * 获得文章类型对应的名称
      * @param $status string
      * @return string|null
      */
-    public static function getStatusName($status){
+    public static function getStatusName($status)
+    {
         $statuses = self::getAvailableStatus();
-        return isset($statuses[$status])?$statuses[$status]:null;
+        return isset($statuses[$status]) ? $statuses[$status] : null;
     }
-    public function getPostStatus(){
+
+    public function getPostStatus()
+    {
         return self::getStatusName($this->status);
     }
+
     /**
      * 获得支持的文章状态
      * @return array
      */
-    public static function getAvailableType(){
+    public static function getAvailableType()
+    {
         return [
             self::TYPE_POST => '文章',
             self::TYPE_ALBUM => '相册',
             self::TYPE_PRODUCT => '产品'
         ];
     }
+
     /**
      * 获得文章类型对应的名称
      * @param $type string
      * @return string|null
      */
-    public static function getTypeName($type){
+    public static function getTypeName($type)
+    {
         $types = self::getAvailableType();
-        if(isset($types[$type]))
+        if (isset($types[$type]))
             return $types[$type];
         else
             return null;
     }
 
-    public function getPostType(){
+    /**
+     * 获取文章类型
+     * @return null|string
+     */
+    public function getPostType()
+    {
         return self::getTypeName($this->type);
     }
+
+    /**
+     * 获得文章所属分类
+     * @return string|null
+     */
+    public function getPostCategory()
+    {
+        $categories = CMSUtils::getAllCategories();
+        return isset($categories[$this->cid]) ? $categories[$this->cid] : null;
+    }
+
     /**
      * 自动填写create_time、post_time、update_time
      * 新 Post 自动填写作者ID和作者的昵称
      * 自动填写最终修改人（name和id）
      * @see CActiveRecord::beforeSave()
+     * @param bool $insert
+     * @return bool
      */
-    public function beforeSave($insert){
-        if(!parent::beforeSave($insert))
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert))
             return false;
 
         //创建新Post
-        if($insert){
+        if ($insert) {
             $this->create_time = $this->update_time = time();
             $this->ext_info = null;
         }
         //编辑状态记录信息
-        if($this->scenario=='edit'){
-            $this->ext_info = is_array($this->ext_info)?serialize($this->ext_info):null;
+        if ($this->scenario == 'edit') {
+            $this->ext_info = is_array($this->ext_info) ? serialize($this->ext_info) : null;
             $this->update_time = time();
         }
 
         //修改保存状态，处理发布时间
-        if($this->status!=self::STATUS_PUBLISHED && $this->status!=self::STATUS_HIDDEN)
+        if ($this->status != self::STATUS_PUBLISHED && $this->status != self::STATUS_HIDDEN)
             $this->post_time = null;
-        else{
-            if(empty($this->post_time))
+        else {
+            if (empty($this->post_time))
                 $this->post_time = time();
-            elseif(!is_numeric($this->post_time))
+            elseif (!is_numeric($this->post_time))
                 $this->post_time = strtotime($this->post_time);
         }
 
-        if($this->status != self::STATUS_HIDDEN){
+        if ($this->status != self::STATUS_HIDDEN) {
             $this->password = null;
         }
 
         //title安全修正，并生成文章URL别名
         $this->title = htmlspecialchars($this->title);
 
-        if(!$this->alias)
+        if (!$this->alias)
             $this->alias = $this->title;
-        $this->alias = str_replace([' ','%'],['-'],trim($this->alias));
+        $this->alias = str_replace([' ', '%'], ['-'], trim($this->alias));
         $this->alias = strip_tags($this->alias);
         $this->alias = htmlspecialchars($this->alias);
 
         //生成并处理excerpt
-        if(!$this->excerpt){
-            if($this->status == self::STATUS_PUBLISHED){
-                $this->excerpt = strip_tags($this->excerpt,'<p><ul><li><strong>');
-                $this->excerpt = XUtils::strimwidthWithTag($this->content,0,350,'...');
+        if (!$this->excerpt) {
+            if ($this->status == self::STATUS_PUBLISHED) {
+                $this->excerpt = strip_tags($this->excerpt, '<p><ul><li><strong>');
+                $this->excerpt = XUtils::strimwidthWithTag($this->content, 0, 350, '...');
             }
         }
-        $this->excerpt = str_replace(['<p></p>','<p><br /></p>'],'',$this->excerpt);
+        $this->excerpt = str_replace(['<p></p>', '<p><br /></p>'], '', $this->excerpt);
 
         //处理封面图片
-        if($this->cover){
+        if ($this->cover) {
             //TODO 验证cover
-        }else{
+        } else {
             $this->cover = $this->getCoverImage();
         }
 
         //处理并生成tags
         $tags_array = array_unique(explode(',', str_replace([' ', '，'], ',', $this->tags)));
-        foreach($tags_array as $key => $tag){
-            if(preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u',$tag))
+        foreach ($tags_array as $key => $tag) {
+            if (preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u', $tag))
                 $tags_array[$key] = $tag;
             else
                 unset($tags_array[$key]);
         }
-        $this->tags = implode(',',$tags_array);
+        $this->tags = implode(',', $tags_array);
 
         return true;
     }
+
     /**
      * 获取文章访问的URL
      * @return null|string
      */
-    public function getUrl(){
-        if($this->isNewRecord)
+    public function getUrl()
+    {
+        if ($this->isNewRecord)
             return null;
-        if($this->alias)
-            return Url::to(['post/alias','name'=>$this->alias]);
+        if ($this->alias)
+            return Url::to(['post/alias', 'name' => $this->alias]);
         else
-            return Url::to(['post/view','id'=>$this->id],true);
+            return Url::to(['post/view', 'id' => $this->id], true);
     }
 
     /**
      * 获取文章中第一张图片为封面图片。
      * @return string
      */
-    public function getCoverImage(){
+    public function getCoverImage()
+    {
         preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $this->content, $matches);
-        if(isset($matches[1][0]))
+        if (isset($matches[1][0]))
             return $matches[1][0];
         else
             return '';
     }
+
     /**
      * 获取关联的Post
      * 前一篇或者后一篇
@@ -280,45 +315,55 @@ class Post extends BaseModel{
      * @param bool $refresh 是否强制刷新缓存
      * @return Post
      */
-    public function getRelatedOne($relation, $category = false,$simple = true,$refresh = false){
-        $relations = ['before'=>'<','after'=>'>'];
-        $orders = ['before'=>SORT_DESC,'after'=>SORT_ASC];
+    public function getRelatedOne($relation, $category = false, $simple = true, $refresh = false)
+    {
+        $relations = ['before' => '<', 'after' => '>'];
+        $orders = ['before' => SORT_DESC, 'after' => SORT_ASC];
         $op = null;
-        if(isset($relations[$relation]))
+        if (isset($relations[$relation]))
             $op = $relations[$relation];
         else
             return null;
-        $one = Yii::$app->cache->get("post_{$relation}_".$this->id);
-        if($refresh)
+        $one = Yii::$app->cache->get("post_{$relation}_" . $this->id);
+        if ($refresh)
             $one = null;
-        if($one){
-            Yii::trace('从缓存中获取:'.$relation,'Post');
+        if ($one) {
+            Yii::trace('从缓存中获取:' . $relation, 'Post');
             return $one;
-        }else
-            Yii::trace('从数据库中查询'.$relation,'Post');
-        $post = self::find()->where("post_time{$op}:postTime",[':postTime'=>$this->post_time])
-            ->andWhere(['status'=>[self::STATUS_HIDDEN,self::STATUS_PUBLISHED]])
-            ->orderBy(['post_time'=>$orders[$relation]]);
-        if($simple)
+        } else
+            Yii::trace('从数据库中查询' . $relation, 'Post');
+        $post = self::find()->where("post_time{$op}:postTime", [':postTime' => $this->post_time])
+            ->andWhere(['status' => [self::STATUS_HIDDEN, self::STATUS_PUBLISHED]])
+            ->orderBy(['post_time' => $orders[$relation]]);
+        if ($simple)
             $post->select('id,title,alias,status');
-        if($category)
-            $post->andWhere(['cid'=>$this->cid]);
+        if ($category)
+            $post->andWhere(['cid' => $this->cid]);
 
         $one = $post->one();
-        Yii::$app->cache->set("post_{$relation}_".$this->id,$one,3600);
+        Yii::$app->cache->set("post_{$relation}_" . $this->id, $one, 3600);
         return $one;
     }
 
-    public function getAuthor(){
-        return $this->hasOne(User::className(),['id'=>'author_id']);
+    #relationships
+
+    public function getAuthor()
+    {
+        return $this->hasOne(User::className(), ['id' => 'author_id']);
     }
-    public function getCategory(){
-        return $this->hasOne(Category::className(),['id'=>'cid']);
+
+    public function getCategory()
+    {
+        return $this->hasOne(Category::className(), ['id' => 'cid']);
     }
-    public function getComments(){
-        return $this->hasMany(Comment::className(),['pid'=>'id']);
+
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['pid' => 'id']);
     }
-    public function getPostTags(){
-        return $this->hasMany(Tag::className(),['pid'=>'id']);
+
+    public function getPostTags()
+    {
+        return $this->hasMany(Tag::className(), ['pid' => 'id']);
     }
 }
