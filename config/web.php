@@ -5,14 +5,14 @@ $params = require(__DIR__ . '/params.php');
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-    'timeZone'=>'PRC',
+    'timeZone' => 'PRC',
     'language' => 'zh-CN',
     'bootstrap' => ['log'],
-    'name'=>'X-CMS',
-    'modules'=>[
-        'admin'=>[
-            'class'=>'app\modules\admin\Module'
-        ]
+    'name' => 'X-CMS',
+    'modules' => [
+        'admin' => [
+            'class' => 'app\modules\admin\Module'
+        ],
     ],
 
     'controllerMap' => [
@@ -22,8 +22,8 @@ $config = [
     ],
 
     'components' => [
-        'request'=>[
-            'cookieValidationKey'=>'cookieValidateKey!'
+        'request' => [
+            'cookieValidationKey' => 'cookieValidateKey!'
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -35,17 +35,17 @@ $config = [
         'assetManager' => [
             'bundles' => [
                 'yii\web\JqueryAsset' => [
-                    'jsOptions'=>['position'=>yii\web\View::POS_HEAD]
+                    'jsOptions' => ['position' => yii\web\View::POS_HEAD]
                 ],
             ],
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            'rules'=>[
-	            ''=>'site/index',//首页
-                'catalog/<name>'=>'category/alias',//分类
-                'archive/<name>'=>'post/alias',//文章
+            'rules' => [
+                '' => 'site/index',//首页
+                'catalog/<name>' => 'category/alias',//分类
+                'archive/<name>' => 'post/alias',//文章
                 '<controller:(post|comment)>/<id:\d+>/<action:(create|update|delete)>' => '<controller>/<action>',
                 '<controller:(post|comment)>/<id:\d+>' => '<controller>/read',
                 '<controller:(post|comment)>s' => '<controller>/list',
@@ -67,7 +67,7 @@ $config = [
                 ],
             ],
         ],
-        'db' => require(__DIR__.'/db.php'),
+        'db' => require(__DIR__ . '/db.php'),
     ],
     'params' => $params,
 ];
