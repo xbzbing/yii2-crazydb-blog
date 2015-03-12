@@ -7,9 +7,16 @@ use yii\web\ForbiddenHttpException;
 use app\components\AclUtils;
 use app\models\Logger;
 
+/**
+ * Class Module
+ * @package app\modules\admin
+ * @property string $version
+ */
+
 class Module extends \yii\base\Module
 {
     public $name = '管理后台';
+    public $_version = 'v0.8';
     public $controllerNamespace = 'app\modules\admin\controllers';
     public $allowedIPs;
     /**
@@ -96,5 +103,13 @@ class Module extends \yii\base\Module
             '失败'
         );
         return false;
+    }
+
+    /**
+     * 获得版本号
+     * @return string
+     */
+    public function getVersion(){
+        return $this->_version;
     }
 }

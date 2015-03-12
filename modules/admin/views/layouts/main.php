@@ -24,11 +24,11 @@ FontAwesomeAsset::register($this);
     <?= Html::csrfMetaTags() ?>
 	<title><?=$this->title?></title>
 	<?php $this->head() ?>
-</head>
+</head
 <body class="skin-blue">
 	<?php $this->beginBody() ?>
     <div class="wrapper">
-
+        <!--header-->
         <header class="main-header">
             <a href="javascript:void(0)" class="logo"><b><?=Yii::$app->name?></b></a>
             <nav class="navbar navbar-static-top" role="navigation">
@@ -266,6 +266,8 @@ FontAwesomeAsset::register($this);
                 </div>
             </nav>
         </header>
+        <!--/header-->
+        <!--sidebar-->
         <aside class="main-sidebar">
             <section class="sidebar">
                 <!-- Sidebar user panel -->
@@ -282,8 +284,10 @@ FontAwesomeAsset::register($this);
                 <?= $this->render('sidebar-menu') ?>
             </section>
         </aside>
+        <!--/sidebar-->
+        <!--content-->
         <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
+            <!--breadcrumb-->
             <section class="content-header">
                 <h1>
                     Simple Tables
@@ -295,25 +299,23 @@ FontAwesomeAsset::register($this);
                     <li class="active">Simple</li>
                 </ol>
             </section>
-
+            <!--/breadcrumb-->
             <!-- Main content -->
             <section class="content">
-                <div class="row">
-                    <?=$content?>
-                </div>
+                <?=$content?>
             </section>
         </div>
+        <!--/content-->
+        <!--footer-->
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b>Version</b> 2.0
+                <b>Version</b> <?=Yii::$app->version?>
             </div>
-            <strong>Copyright &copy; 2014-2015 <a href="http://almsaeedstudio.com">Almsaeed Studio</a>.</strong> All rights reserved.
+            <strong>Copyright &copy; 2014-<?=date('Y')?> <a href="http://www.crazydb.com">Crazy Dabing</a>.</strong> All rights reserved.
         </footer>
-    </div><!-- ./wrapper -->
-
+        <!--/footer-->
     </div>
     <?php $this->endBody() ?>
-    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.min.js" type="text/javascript"></script>
 </body>
 </html>
 <?php $this->endPage() ?>
