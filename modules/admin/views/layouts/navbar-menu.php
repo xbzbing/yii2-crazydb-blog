@@ -48,4 +48,3 @@ echo Nav::widget([
     'items' => $menuItems,
     'encodeLabels' => false
 ]);
-
