@@ -25,6 +25,7 @@ class Module extends \yii\base\Module
 
     public function init(){
         parent::init();
+        Yii::setAlias('@crazydbAdmin',__DIR__);
         if(!is_array($this->excludedRoute)){
             Yii::trace('AdminModule.excludedRoute配置错误','Config');
             $this->excludedRoute = [];

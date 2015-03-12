@@ -14,7 +14,6 @@ class DefaultController extends Controller
 
 	public function actionIndex()
 	{
-        $this->layout = 'column2';
         $server['serverSoft'] = $_SERVER['SERVER_SOFTWARE'];
         $server['serverOs'] = PHP_OS;
         $server['phpVersion'] = PHP_VERSION;

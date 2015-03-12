@@ -7,7 +7,7 @@ use app\components\Common;
 
 class Controller extends \yii\web\Controller
 {
-	public $layout = 'column2';
+	public $layout = 'column1';
     /**
      * @inheritdoc
      */

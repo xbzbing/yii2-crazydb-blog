@@ -6,7 +6,7 @@ use \yii\web\View;
 use app\widgets\Alert;
 use app\widgets\SideNav;
 ?>
-<?php $this->beginContent('@app/modules/admin/views/layouts/main.php'); ?>
+<?php $this->beginContent('@crazydbAdmin/views/layouts/main.php'); ?>
 <style>
     .affix-aside{
         min-width:187px;

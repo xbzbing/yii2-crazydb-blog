@@ -17,7 +17,9 @@
         "yiisoft/yii2-swiftmailer": "*",
         "yiisoft/yii2-elasticsearch": "*",
         "yiisoft/yii2-authclient": "*",
-        "crazydb/yii2-ueditor": "*"
+        "crazydb/yii2-ueditor": "*",
+        "bower-asset/adminlte": "*",
+        "FortAwesome/Font-Awesome": "*"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",
