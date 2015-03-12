@@ -142,7 +142,7 @@ class Post extends BaseModel
     }
 
     /**
-     * 获得文章类型对应的名称
+     * 获得文章状态对应的名称
      * @param $status string
      * @return string|null
      */

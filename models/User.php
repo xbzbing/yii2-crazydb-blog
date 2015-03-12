@@ -78,13 +78,24 @@ class User extends ActiveRecord implements IdentityInterface {
      * 获得可能的状态值
      * @return string[]
      */
-    public function getAvailableStatus(){
+    public static function getAvailableStatus(){
         return [
             self::STATUS_NORMAL=>'正常',
             self::STATUS_INACTIVE=>'未激活',
             self::STATUS_BANED=>'账号被禁用',
             self::STATUS_DELETED=>'已删除'
         ];
+    }
+
+    /**
+     * 获得用户状态对应的名称
+     * @param $status
+     * @return null|string
+     */
+    public static function getStatusName($status)
+    {
+        $statuses = self::getAvailableStatus();
+        return isset($statuses[$status]) ? $statuses[$status] : null;
     }
 
     public function getUserStatus(){
@@ -158,10 +169,11 @@ class User extends ActiveRecord implements IdentityInterface {
      * Finds user by username
      *
      * @param  string  $username
+     * @param int $status
      * @return static|null
      */
-    public static function findByUsername($username){
-        return static::findOne(['username' => $username, 'status' => self::STATUS_NORMAL]);
+    public static function findByUsername($username, $status = self::STATUS_NORMAL){
+        return static::findOne(['username' => $username, $status]);
     }
 
     /**
