@@ -13,8 +13,8 @@ use yii\widgets\Breadcrumbs;
  * @var string $content
  */
 //AdminAsset::register($this);
-AdminlteAsset::register($this);
-FontAwesomeAsset::register($this);
+$adminlte = AdminlteAsset::register($this);
+$fontAwesome = FontAwesomeAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -24,7 +24,7 @@ FontAwesomeAsset::register($this);
     <?= Html::csrfMetaTags() ?>
 	<title><?=$this->title?></title>
 	<?php $this->head() ?>
-</head
+</head>
 <body class="skin-blue">
 	<?php $this->beginBody() ?>
     <div class="wrapper">
@@ -50,7 +50,7 @@ FontAwesomeAsset::register($this);
                                         <li><!-- start message -->
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image"/>
+                                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image"/>
                                                 </div>
                                                 <h4>
                                                     Support Team
@@ -62,7 +62,7 @@ FontAwesomeAsset::register($this);
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="dist/img/user3-128x128.jpg" class="img-circle" alt="user image"/>
+                                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user3-128x128.jpg" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     AdminLTE Design Team
@@ -74,7 +74,7 @@ FontAwesomeAsset::register($this);
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="dist/img/user4-128x128.jpg" class="img-circle" alt="user image"/>
+                                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user4-128x128.jpg" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Developers
@@ -86,7 +86,7 @@ FontAwesomeAsset::register($this);
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="dist/img/user3-128x128.jpg" class="img-circle" alt="user image"/>
+                                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user3-128x128.jpg" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Sales Department
@@ -98,7 +98,7 @@ FontAwesomeAsset::register($this);
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="dist/img/user4-128x128.jpg" class="img-circle" alt="user image"/>
+                                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user4-128x128.jpg" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Reviewers
@@ -227,13 +227,13 @@ FontAwesomeAsset::register($this);
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
+                                <img src="<?=$adminlte->baseUrl?>/dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                                 <span class="hidden-xs">Alexander Pierce</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
                                 <li class="user-header">
-                                    <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
+                                    <img src="<?=$adminlte->baseUrl?>/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                                     <p>
                                         Alexander Pierce - Web Developer
                                         <small>Member since Nov. 2012</small>

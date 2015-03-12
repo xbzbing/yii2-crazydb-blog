@@ -12,7 +12,6 @@ use yii\web\AssetBundle;
 class AdminlteAsset extends AssetBundle
 {
     public $sourcePath = '@bower/adminlte';
-    public $baseUrl = '@web';
     public $css = [
         'dist/css/skins/skin-blue.min.css',
         'dist/css/AdminLTE.min.css'
@@ -37,8 +36,7 @@ class AdminlteAsset extends AssetBundle
     public $depends = [
         'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
-        'yii\bootstrap\BootstrapPluginAsset',
-
+        'yii\bootstrap\BootstrapPluginAsset'
     ];
 
 }
