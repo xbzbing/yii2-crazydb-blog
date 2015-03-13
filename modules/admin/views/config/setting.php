@@ -8,12 +8,14 @@ use yii\helpers\Html;
  * @var app\modules\admin\models\SettingForm $model
  * @var array $themes
  */
-
+$this->title = Yii::t('app', 'Base Setting');
+$this->params['breadcrumbs'][] = ['label'=>Yii::t('app','System Setting'),'url'=>'#'];
+$this->params['breadcrumbs'][] = $this->title;
 $form = ActiveForm::begin([
     'id' => 'setting-form',
     'options' => ['class' => 'form-horizontal'],
     'fieldConfig' => [
-        'template' => "<div class=\"form-group\">{label}{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
+        'template' => "<div>{label}{input}</div>\n<div class=\"col-lg-12\">{error}</div>",
         'labelOptions' => ['class' => ''],
     ],
 ]); ?>

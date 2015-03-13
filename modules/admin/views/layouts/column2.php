@@ -3,8 +3,6 @@
 /* @var string $content */
 
 use \yii\web\View;
-use app\widgets\Alert;
-use app\widgets\SideNav;
 ?>
 <?php $this->beginContent('@crazydbAdmin/views/layouts/main.php'); ?>
 <style>
@@ -57,7 +55,7 @@ use app\widgets\SideNav;
         ['label' => Yii::t('app', 'Tags'), 'icon' => 'tag', 'url' => ['tag/index']],
         ['label' => Yii::t('app', 'Lookup'), 'icon' => 'asterisk', 'url' => ['lookup/index']],
     ];
-	echo SideNav::widget([
+	echo \yii\widgets\Menu::widget([
         'id' => 'navigation',
         'items' => $nav,
         'view' => $this
@@ -70,7 +68,6 @@ use app\widgets\SideNav;
 		'homeLink' => ['label' => 'Home', 'url' => ['/admin/default/index']],
 		'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
 	]) ?>
-	<?= Alert::widget() ?>
 	<?= $content ?>
 </div>
 <?php $this->endContent(); ?>

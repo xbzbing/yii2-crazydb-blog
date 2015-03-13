@@ -1,4 +1,13 @@
 @charset "utf-8";
-#navigation .submenu .list-group-item{
-    padding-left: 2em;
+.content-header>.breadcrumb {
+    float: left;
+    background: transparent;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 12px;
+    padding: 7px 5px;
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    border-radius: 2px;
 }

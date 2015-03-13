@@ -3,18 +3,17 @@ use app\modules\admin\assets\AdminAsset;
 use app\modules\admin\assets\AdminlteAsset;
 use app\modules\admin\assets\FontAwesomeAsset;
 use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
 use yii\widgets\Breadcrumbs;
-
 
 /**
  * @var \yii\web\View $this
  * @var string $content
  */
-//AdminAsset::register($this);
+AdminAsset::register($this);
 $adminlte = AdminlteAsset::register($this);
 $fontAwesome = FontAwesomeAsset::register($this);
+if(empty($this->title))
+    $this->title = Yii::$app->controller->module->name;
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -63,20 +62,22 @@ $fontAwesome = FontAwesomeAsset::register($this);
         <div class="content-wrapper">
             <!--breadcrumb-->
             <section class="content-header">
-                <h1>
-                    Simple Tables
-                    <small>preview of simple tables</small>
+                <?=Breadcrumbs::widget([
+                    'tag' => 'ol',
+                    'encodeLabels'=>false,
+                    'homeLink' => ['label' => '<i class="fa fa-dashboard"> </i>'.Yii::t('app','Dashboard'), 'url' => ['/admin/default/index']],
+                    'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [$this->title],
+                ]) ?>
+                <h1 class="pull-right">
+                    <?=$this->title?>
                 </h1>
-                <ol class="breadcrumb">
-                    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-                    <li><a href="#">Tables</a></li>
-                    <li class="active">Simple</li>
-                </ol>
+                <br clear="both">
             </section>
             <!--/breadcrumb-->
             <!-- Main content -->
             <section class="content">
                 <?=$content?>
+                <br clear="both">
             </section>
         </div>
         <!--/content-->
