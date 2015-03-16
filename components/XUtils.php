@@ -108,19 +108,6 @@ class XUtils{
         return $ip;
     }
 
-    /**
-     * 获取themes文件夹下的文件
-     * @return array
-     */
-    public static function getThemeList(){
-        $paths =  array();
-        foreach($paths as $key => $path){
-            unset($paths[$key]);
-            $paths[$path] = $path;
-        }
-        return $paths;
-    }
-
 	/**
 	 * 富文本过滤
 	 * @param $content

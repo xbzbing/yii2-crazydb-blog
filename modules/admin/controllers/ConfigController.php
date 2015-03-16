@@ -4,7 +4,6 @@ namespace app\modules\admin\controllers;
 use Yii;
 
 use app\components\CMSUtils;
-use app\components\XUtils;
 use app\modules\admin\components\Controller;
 use app\modules\admin\models\SettingForm;
 use app\modules\admin\models\SeoForm;
@@ -30,13 +29,14 @@ class ConfigController extends Controller
         $setting->load(CMSUtils::getSiteConfig('sys'), '');
         $setting->setOldAttributes($setting->attributes);
         $themes = array('[none]' => '不使用主题');
-        $themes += XUtils::getThemeList();
+        $themes += CMSUtils::getThemeList();
         if ($setting->load(Yii::$app->request->post())) {
-            if (!array_key_exists($setting->theme, $themes)) {
-                $setting->theme = '[none]';
+            if (!isset($themes[$setting->theme])) {
                 $setting->addError('theme', '指定主题不存在！');
-            } elseif ($setting->save('sys')) {
-                Yii::$app->cache->set('config_sys', $setting->attributes);
+                $setting->theme = '[none]';
+            }else{
+                if ($setting->save('sys'))
+                    Yii::$app->cache->set('config_sys', $setting->attributes);
             }
         }
         return $this->render('setting', ['model' => $setting, 'themes' => $themes]);

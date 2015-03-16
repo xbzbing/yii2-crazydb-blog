@@ -64,4 +64,24 @@ class CMSUtils{
         }
         return $config;
     }
+
+    /**
+     * 获取themes文件夹下的文件
+     * @return array
+     */
+    public static function getThemeList(){
+        $themes = [];
+        $basePath = Yii::getAlias('@app/themes');
+
+        $folder = @opendir($basePath);
+        //TODO 主题部分支持开xml或者其他格式的自定义
+        while(($file = @readdir($folder))!==false){
+            if(substr($file,0,1) != '.' && is_dir($basePath.DIRECTORY_SEPARATOR.$file) && htmlspecialchars($file) == $file)
+                    $themes[$file] = $file;
+        }
+        closedir($folder);
+
+        ksort($themes);
+        return $themes;
+    }
 }
