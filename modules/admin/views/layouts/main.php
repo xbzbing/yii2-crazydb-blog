@@ -9,11 +9,9 @@ use yii\widgets\Breadcrumbs;
  * @var \yii\web\View $this
  * @var string $content
  */
-AdminAsset::register($this);
 $adminlte = AdminlteAsset::register($this);
 $fontAwesome = FontAwesomeAsset::register($this);
-if(empty($this->title))
-    $this->title = Yii::$app->controller->module->name;
+AdminAsset::register($this);
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
@@ -68,16 +66,11 @@ if(empty($this->title))
                     'homeLink' => ['label' => '<i class="fa fa-dashboard"> </i>'.Yii::t('app','Dashboard'), 'url' => ['/admin/default/index']],
                     'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [$this->title],
                 ]) ?>
-                <h1 class="pull-right">
-                    <?=$this->title?>
-                </h1>
-                <br clear="both">
             </section>
             <!--/breadcrumb-->
             <!-- Main content -->
             <section class="content">
                 <?=$content?>
-                <br clear="both">
             </section>
         </div>
         <!--/content-->

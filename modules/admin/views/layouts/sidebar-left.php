@@ -8,10 +8,9 @@ $current_url = Url::current();
 $current_parent = Url::to([Yii::$app->controller->id.'/index']);
 $nav_init = <<<SCRIPT
 $("a[href='{$current_url}']").parent("li").addClass("active");
-$("a[href='{$current_parent}']").parent("li.treeview").addClass("active");
+$("a[href='{$current_parent}']").parent("li").addClass("active");
 SCRIPT;
 $this->registerJs($nav_init, View::POS_READY,'sidebar_init');
-
 ?>
 <aside class="main-sidebar">
     <section class="sidebar">
