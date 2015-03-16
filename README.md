@@ -1,11 +1,7 @@
 Yii2-crazydb-blog
 =================
 
-使用Yii2重写了我的博客程序。
-
-由于不想再背着那沉重的笔记本上下班，于是又买了一块SSD开始使用公司配的电脑。
-
-为了方便多地工作以及督促自己好好写代码，故建立公开仓库存放该代码，欢迎交流。
+这个项目从Yii2还未正式发布就开始折腾，断断续续大概也有八个月了，最近感觉有时间了，在一周后开启疯狂模式，争取一月内搞定发布。
 
 项目基于 Yii 2 Basic Application 模板。
 
@@ -35,9 +31,9 @@ Yii2的高级模板采用了前台和后台分离的方案，更适合大型应�
       runtime/            contains files generated during runtime
       tests/              contains various tests for the basic application
       vendor/             contains dependent 3rd-party packages
-      views/              contains view files for the Web application
+      views/              contains view files for the Web application(It may be removed on next update)
+      themes/             contains view files for different themes
       web/                contains the entry script and Web resources
-
 
 
 环境要求
