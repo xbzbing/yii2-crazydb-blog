@@ -18,8 +18,6 @@ $categories = CMSUtils::getAllCategories(true);
 ?>
 <div class="post-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a(Yii::t('app', 'Create'), ['create'], ['class' => 'btn btn-success']) ?>
     </p>

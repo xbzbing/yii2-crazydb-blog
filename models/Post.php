@@ -75,6 +75,19 @@ class Post extends BaseModel
         return '{{%post}}';
     }
 
+
+    public function init(){
+        $this->reset();
+        parent::init();
+    }
+
+    /**
+     * 默认配置
+     */
+    public function reset(){
+        $this->status = self::STATUS_PUBLISHED;
+        $this->type = self::TYPE_POST;
+    }
     /**
      * @inheritdoc
      */
