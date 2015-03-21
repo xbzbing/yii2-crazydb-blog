@@ -13,7 +13,6 @@ class AdminAsset extends AssetBundle
 {
     public $sourcePath = '@crazydbAdmin/assets/resources';
     public $css = [
-        'css/admin.css',
     ];
     public $js = [
     ];

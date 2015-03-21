@@ -1,7 +1,9 @@
 <?php
-use app\modules\admin\components\Controller;
-/* @var Controller $this */
+use yii\web\View;
+/* @var View $this */
 /* @var array $server */
+
+$this->title = "控制台";
 ?>
 <table class="table table-bordered table-hover">
     <caption><h2>系统信息</h2></caption>

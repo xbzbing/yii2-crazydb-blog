@@ -60,6 +60,9 @@ AdminAsset::register($this);
         <div class="content-wrapper">
             <!--breadcrumb-->
             <section class="content-header">
+                <h1>
+                    <?=$this->title?>
+                </h1>
                 <?=Breadcrumbs::widget([
                     'tag' => 'ol',
                     'encodeLabels'=>false,
