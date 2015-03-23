@@ -12,6 +12,14 @@ use app\models\Post;
  */
 class PostSearch extends Post
 {
+
+    /**
+     * 覆盖Post中的新建类型
+     * @return bool
+     */
+    public function reset(){
+        return true;
+    }
     public function rules()
     {
         return [

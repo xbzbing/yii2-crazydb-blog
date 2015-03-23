@@ -9,14 +9,10 @@ use yii\grid\GridView;
  * @var app\models\search\CommentSearch $searchModel
  */
 
-$this->title = Yii::t('app', 'Comments');
+$this->title = Yii::t('app', 'Comments Manage');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="comment-index">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,

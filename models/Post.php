@@ -101,7 +101,6 @@ class Post extends BaseModel
             [['type'], 'string', 'max' => 20],
             [['title', 'alias', 'cover', 'tags'], 'string', 'max' => 255],
             [['password'], 'string', 'max' => 32],
-            [['status'], 'string', 'max' => 50],
             [['options'], 'string', 'max' => 8],
             [['content'], 'purify'],
             [['status'], 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '文章的「状态」错误！'],

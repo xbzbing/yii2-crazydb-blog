@@ -150,6 +150,7 @@ return array(
     'Not set' => '没有设置',
 
     //post
+    'Posts Manage' => '文章管理',
     'Article' => '文章',
     'Title' => '标题',
     'Content' => '内容',
@@ -169,6 +170,7 @@ return array(
     'Choose' => '选择',
 
     // Comment
+    'Comments Manage' => '评论管理',
     'Author' => '作者',
 
     //user
