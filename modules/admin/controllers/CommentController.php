@@ -4,11 +4,8 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use app\models\Comment;
-use app\models\Post;
 use app\models\search\CommentSearch;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 use app\modules\admin\components\Controller;
 
 /**
@@ -71,9 +68,9 @@ class CommentController extends Controller
      */
     public function actionDelete($id)
     {
-        $mode=$this->findModel($id);
+        $mode = $this->findModel($id);
         $mode->delete();
-        Comment::deleteAll('replyto=:cid',['cid'=>$id]);
+        Comment::deleteAll('replyto=:cid', ['cid' => $id]);
         return $this->redirect(['index']);
     }
 

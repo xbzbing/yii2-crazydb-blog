@@ -45,18 +45,18 @@ class CommentSearch extends Comment
             'replyto' => $this->replyto,
             'create_time' => $this->create_time,
             'update_time' => $this->update_time,
-            'user_agent' => $this->user_agent
+            'user_agent' => $this->user_agent,
+            'email' => $this->email,
+            'author' => $this->author,
+            'type' => $this->type,
+            'ip' => $this->ip,
+            'status' => $this->status,
         ]);
 
-        $query->andFilterWhere(['like', 'author', $this->author])
-            ->andFilterWhere(['like', 'email', $this->email])
-            ->andFilterWhere(['like', 'type', $this->type])
-            ->andFilterWhere(['like', 'url', $this->url])
-            ->andFilterWhere(['like', 'ip', $this->ip])
+        //TODO ext 属性的搜索
+        $query->andFilterWhere(['like', 'url', $this->url])
             ->andFilterWhere(['like', 'content', $this->content])
-            ->andFilterWhere(['like', 'status', $this->status])
-	        ->andFilterWhere('like', 'user_agent', $this->user_agent)
-            ->andFilterWhere(['like', 'ext', $this->ext]);
+	        ->andFilterWhere(['like', 'user_agent', $this->user_agent]);
 
         return $dataProvider;
     }

@@ -184,4 +184,8 @@ return array(
     //
     'Nav Tree' => '导航树',
     'Create Nav' => '创建导航',
+
+
+    //通用
+    'Are you sure you want to delete this item?' => '删除操作不可恢复，确定要删除？'
 );

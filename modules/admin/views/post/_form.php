@@ -40,8 +40,9 @@ $categories = CMSUtils::getAllCategories();
         <div class="col-md-4">
             <div class="panel panel-default">
                 <div class="panel-body">
+                    <label for="post-cover">文章封面图片</label>
                     <div class="input-group">
-                        <input type="text" id="post-cover" class="form-control" name="Post[cover]" value="<?=$model->cover?>">
+                        <input type="text" id="post-cover" class="form-control" name="Post[cover]" placeholder="封面图片地址" value="<?=$model->cover?>">
                         <span class="input-group-btn">
                             <button type="button" onclick="uploadFile()" class="btn btn-info">上传</button>
                         </span>

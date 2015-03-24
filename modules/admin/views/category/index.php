@@ -11,30 +11,28 @@ use yii\grid\GridView;
 $this->title = Yii::t('app', 'Categories');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="category-index">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-
-    <p>
-        <?= Html::a(Yii::t('app', 'Create {modelClass}', [
-  'modelClass' => 'Category',
-]), ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
-            'name',
-            'alias',
-            'desc',
-            'parent',
-            'displayType',
-            'sort_order',
-            'seo_keywords',
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
-
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <?= Html::a(Yii::t('app', 'Create {modelClass}', ['modelClass' => '分类',]), ['create'], ['class' => 'btn btn-success'])?>
+            </div>
+            <div class="box-body post-index">
+                <?= GridView::widget([
+                    'dataProvider' => $dataProvider,
+                    'columns' => [
+                        ['class' => 'yii\grid\SerialColumn'],
+                        'name',
+                        'alias',
+                        'desc',
+                        'parent',
+                        'displayType',
+                        'sort_order',
+                        'seo_keywords',
+                        ['class' => 'yii\grid\ActionColumn'],
+                    ],
+                ]); ?>
+            </div>
+        </div>
+    </div>
 </div>

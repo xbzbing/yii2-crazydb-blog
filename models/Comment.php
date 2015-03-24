@@ -35,6 +35,7 @@ use app\components\XUtils;
  *
  *
  * @property Post $post 所评论文章
+ * @property User $user 发表评论的用户
  */
 class Comment extends BaseModel
 {
@@ -183,6 +184,7 @@ class Comment extends BaseModel
 			return false;
 		}
 	}
+
 	public function beforeSave($insert){
 		if( $this->isNewRecord ){
 			$this->ip = XUtils::getClientIP();

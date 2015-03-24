@@ -4,6 +4,8 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\models\Category;
 
+use crazydb\ueditor\UEditor;
+
 /**
  * @var yii\web\View $this
  * @var app\models\Category $model
@@ -13,7 +15,6 @@ use app\models\Category;
 ?>
 
 <div class="category-form">
-
     <?php $form = ActiveForm::begin(); ?>
 
 	<h3>基本信息</h3>
@@ -21,7 +22,14 @@ use app\models\Category;
 
 	<?= $form->field($model, 'display')->dropDownList(Category::getAvailableDisplay()) ?>
 
-    <?= $form->field($model, 'desc')->textarea(['rows' => 6]) ?>
+    <?= $form->field($model, 'desc')->textarea(['rows' => 6])->widget(UEditor::className(),[
+        'config'=>[
+            'toolbars'=>[
+                ['source','link','bold','italic','underline','forecolor','superscript','insertimage','spechars','blockquote']
+            ],
+            'initialFrameHeight'=>'150',
+        ]
+    ]) ?>?>
 
 
     <?= $form->field($model, 'parent')->dropDownList($category_array) ?>
