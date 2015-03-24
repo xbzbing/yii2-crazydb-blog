@@ -168,6 +168,7 @@ return array(
     'Comment Count' => '评论次数',
     'Thumbnail' => '缩略图',
     'Choose' => '选择',
+    'Create New Post' => '发表新文章',
 
     // Comment
     'Comments Manage' => '评论管理',

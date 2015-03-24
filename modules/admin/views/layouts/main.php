@@ -19,7 +19,7 @@ AdminAsset::register($this);
 <head>
 	<meta charset="<?=Yii::$app->charset?>"/>
     <?= Html::csrfMetaTags() ?>
-	<title><?=$this->title?></title>
+        <title><?=$this->title.' | '.Yii::$app->controller->module->name?></title>
 	<?php $this->head() ?>
 </head>
 <body class="skin-blue">

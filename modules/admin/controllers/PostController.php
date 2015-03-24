@@ -22,8 +22,6 @@ class PostController extends Controller
         return parent::beforeAction($action);
     }
 
-
-
     /**
      * Lists all Posts.
      * @return mixed
@@ -99,22 +97,6 @@ class PostController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
-    }
-
-    /**
-     * Suggests tags based on the current user input.
-     * This is called via AJAX when the user is entering the tags input.
-     */
-    public function actionSuggestTags()
-    {
-        if(isset($_GET['term']) && ($keyword = trim($_GET['term'])) !== '')
-        {
-            $model = new Tag;
-            $tags = $model->suggestTags($keyword);
-            if($tags !== array()){
-                echo Json::encode($tags);
-            }
-        }
     }
 
     /**
