@@ -147,7 +147,7 @@ class Comment extends BaseModel
             'uid' => '用户ID',
             'author' => '用户名称',
             'email' => '电子邮箱',
-            'type' => '回复的类型',
+            'type' => '回复类型',
             'replyto' => '回复目标ID',
             'url' => 'URL',
             'ip' => '用户IP',
@@ -194,7 +194,7 @@ class Comment extends BaseModel
 			$this->update_time = time();
 			$this->ext = serialize([
 				'ip'=>XUtils::getClientIP(),
-				'username'=>Yii::$app->user->isGuest?'Guest':Yii::$app->user->username,
+				'username'=>Yii::$app->user->isGuest?'Guest':Yii::$app->user->identity->username,
 			]);
 		}
 		return parent::beforeSave($insert);

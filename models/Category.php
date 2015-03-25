@@ -174,8 +174,8 @@ class Category extends BaseModel
         if($this->isNewRecord)
             return false;
         if($this->alias){
-            return Url::to(['category/alias','name'=>str_replace(' ','-',$this->alias)],true);
+            return Url::to(['/category/alias','name'=>str_replace(' ','-',$this->alias)],true);
         }else
-            return Url::to(['category/view','id'=>$this->id],true);
+            return Url::to(['/category/view','id'=>$this->id],true);
     }
 }

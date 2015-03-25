@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'author',
                         'value' => function (Comment $model, $key, $index, $column){
-                            if($model->uid>0){
+                            if($model->uid > 0){
                                 return Html::a($model->author,['user/view','id'=>$model->uid]);
                             }else
                                 return $model->author;
@@ -48,10 +48,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
                     [
                         'attribute' => 'pid',
-                        'value' => 'post.title',
+                        'value' => function(Comment $model, $key, $index, $column){
+                            return Html::a($model->pid,$model->post->url,['title'=>$model->post->title, 'target'=>'_blank']);
+                        },
                         'filter' => false,
-                        'label' => '所属文章',
-                        'enableSorting' => true
+                        'label' => '文章 ID',
+                        'enableSorting' => true,
+                        'format' => 'raw'
                     ],
                     'email',
                     [

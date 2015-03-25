@@ -75,19 +75,6 @@ class Post extends BaseModel
         return '{{%post}}';
     }
 
-
-    public function init(){
-        $this->reset();
-        parent::init();
-    }
-
-    /**
-     * 默认配置
-     */
-    public function reset(){
-        $this->status = self::STATUS_PUBLISHED;
-        $this->type = self::TYPE_POST;
-    }
     /**
      * @inheritdoc
      */
@@ -102,8 +89,10 @@ class Post extends BaseModel
             [['title', 'alias', 'cover', 'tags'], 'string', 'max' => 255],
             [['password'], 'string', 'max' => 32],
             [['options'], 'string', 'max' => 8],
-            [['content'], 'purify'],
+            [['content', 'excerpt'], 'purify'],
+            [['status'],'default', 'value' => self::STATUS_PUBLISHED ],
             [['status'], 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '文章的「状态」错误！'],
+            [['type'],'default', 'value' => self::TYPE_POST ],
             [['type'], 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '文章的「类型」错误！'],
         ];
     }
@@ -300,9 +289,9 @@ class Post extends BaseModel
         if ($this->isNewRecord)
             return null;
         if ($this->alias)
-            return Url::to(['post/alias', 'name' => $this->alias]);
+            return Url::to(['/post/alias', 'name' => $this->alias]);
         else
-            return Url::to(['post/view', 'id' => $this->id], true);
+            return Url::to(['/post/view', 'id' => $this->id], true);
     }
 
     /**
