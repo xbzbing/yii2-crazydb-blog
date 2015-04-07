@@ -2,6 +2,7 @@
 /**
  * @author xbzbing<xbzbing@gmail.com>
  * 这是后台Config的model基类
+ * 封装
  */
 namespace app\modules\admin\models;
 

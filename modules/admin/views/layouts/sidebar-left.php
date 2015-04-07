@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Url;
 use yii\web\View;
+use app\components\XUtils;
 /**
  * @var View $this
  */
@@ -11,16 +12,18 @@ $("a[href='{$current_url}']").parent("li").addClass("active");
 $("a[href='{$current_parent}']").parent("li").addClass("active");
 SCRIPT;
 $this->registerJs($nav_init, View::POS_READY,'sidebar_init');
+$current_user = Yii::$app->user->identity->nickname;
 ?>
 <aside class="main-sidebar">
     <section class="sidebar">
         <div class="user-panel">
+            <div class="pull-left image">
+                <img src="<?=XUtils::getAvatar(Yii::$app->user->identity->email)?>" class="img-circle" alt="<?=$current_user?>">
+            </div>
             <div class="pull-left info">
-                <p>
-                    <strong>这里是主边栏显示区</strong>
-                </p>
-                <a>
-                    <i class="fa fa-circle text-success"></i> Online                        </a>
+                <p><?=$current_user?></p>
+
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
         <ul class="sidebar-menu">

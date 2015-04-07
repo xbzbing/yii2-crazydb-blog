@@ -11,6 +11,10 @@ use yii\helpers\HtmlPurifier;
 
 class BaseModel extends ActiveRecord{
 
+
+    const REG_BLANK = 'blank';
+    const REG_LETTER = 'letter';
+    const REG_OTHER = 'other';
     /**
      * 匹配指定字符串
      * params中存在type时

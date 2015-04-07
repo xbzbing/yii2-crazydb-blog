@@ -2,8 +2,9 @@
 
 namespace app\models;
 
+use app\components\BaseModel;
 use Yii;
-use \yii\db\ActiveRecord;
+use yii\helpers\Html;
 
 /**
  * This is the model class for table "{{%option}}".
@@ -13,8 +14,18 @@ use \yii\db\ActiveRecord;
  * @property string $value
  * @property string $description
  */
-class Option extends ActiveRecord
+class Option extends BaseModel
 {
+    /**
+     * sys类型，系统配置
+     */
+    const TYPE_SYS = 'sys';
+    /**
+     * seo类型，seo设置
+     */
+    const TYPE_SEO = 'seo';
+
+
     /**
      * @inheritdoc
      */
@@ -29,12 +40,23 @@ class Option extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            [['name', 'type'], 'required'],
             [['value'], 'string'],
             [['type'], 'string', 'max' => 20],
             [['name'], 'string', 'max' => 50],
-            [['description'], 'string', 'max' => 255]
+            [['name'], 'regString', 'type' => self::REG_BLANK],
+            [['type'], 'regString', 'type' => self::REG_LETTER],
+            [['description'], 'string', 'max' => 255],
         ];
+    }
+
+    function beforeSave($insert)
+    {
+        /**
+         * 这里制作encode，特殊点需要decode
+         */
+        $this->description = Html::encode($this->description);
+        return true;
     }
 
     /**

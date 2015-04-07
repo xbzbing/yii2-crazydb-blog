@@ -125,4 +125,31 @@ class XUtils{
 		}
 		return HTMLPurifier::process( $content, $params );
 	}
+
+    /**
+     * 获取头像
+     * @param $email
+     * @param int $size
+     * @return string
+     */
+    public static function getAvatar($email,$size=40){
+        //头像服务器/avatar/邮箱的md5值?s=头像尺寸&d=默认头像&r=头像等级
+        Yii::trace('获取头像:'.$email,__CLASS__);
+        $email = md5($email);
+        $filePath = Yii::getAlias('@webroot')."/static/avatar/{$email}-{$size}.png";
+        $return = Yii::getAlias('@web')."/static/avatar/{$email}-{$size}.png";
+
+        if(!file_exists($filePath)){
+            //头像不存在，远程获取图片
+            Yii::trace('获取头像:本地头像缓存不存在，远程获取图片',__CLASS__);
+            $img = @file_get_contents($return);
+            if($img && @file_put_contents($filePath,$img)){
+                return $return;
+            }else{
+                Yii::trace('远程获取图片失败:请检查服务器权限和网络连接状态。',__CLASS__);
+                return "http://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
+            }
+        }
+        return $return;
+    }
 }
