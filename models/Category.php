@@ -35,6 +35,7 @@ class Category extends BaseModel
 
     const DISPLAY_LIST = 'list';
     const DISPLAY_PAGE = 'page';
+
     /**
      * @inheritdoc
      */
@@ -49,9 +50,9 @@ class Category extends BaseModel
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            ['name', 'required'],
             [['desc', 'seo_description'], 'string'],
-            [['display'], 'in', 'range'=>array_keys(self::getAvailableDisplay()),'message'=>'分类「显示模式」错误！'],
+            ['display', 'in', 'range' => array_keys(self::getAvailableDisplay()), 'message' => '分类「显示模式」错误！'],
             [['parent', 'sort_order'], 'integer'],
             [['name', 'seo_keywords'], 'string', 'max' => 255],
             [['alias', 'seo_title'], 'string', 'max' => 100],
@@ -63,34 +64,41 @@ class Category extends BaseModel
      * 父类
      * @return self
      */
-    public function getParentCategory(){
-        return $this->parent>0?$this->hasOne(self::className(),['id'=>'parent']):null;
+    public function getParentCategory()
+    {
+        return $this->parent > 0 ? $this->hasOne(self::className(), ['id' => 'parent']) : null;
     }
 
 
-    public function getAllPosts(){
-        return $this->hasMany(Post::className(),['cid'=>'id']);
+    public function getAllPosts()
+    {
+        return $this->hasMany(Post::className(), ['cid' => 'id']);
     }
 
-    public function getPosts(){
-        return $this->hasMany(Post::className(),['cid'=>'id','status'=>[Post::STATUS_PUBLISHED,Post::STATUS_HIDDEN]]);
+    public function getPosts()
+    {
+        return $this->hasMany(Post::className(), ['cid' => 'id', 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]]);
     }
 
-    public static function getAvailableDisplay(){
+    public static function getAvailableDisplay()
+    {
         return [
             self::DISPLAY_LIST => '列表',
             self::DISPLAY_PAGE => '页面'
         ];
     }
 
-    public static function getDisplayName($display){
+    public static function getDisplayName($display)
+    {
         $type = self::getAvailableDisplay();
-        return isset($type[$display])?$type[$display]:null;
+        return isset($type[$display]) ? $type[$display] : null;
     }
 
-    public function getDisplayType(){
+    public function getDisplayType()
+    {
         return self::getDisplayName($this->display);
     }
+
     /**
      * @inheritdoc
      */
@@ -107,7 +115,7 @@ class Category extends BaseModel
             'seo_title' => 'SEO 标题',
             'seo_keywords' => 'SEO 关键字',
             'seo_description' => 'SEO 描述',
-            'displayType'=>'显示模式'
+            'displayType' => '显示模式'
         ];
     }
 
@@ -116,26 +124,27 @@ class Category extends BaseModel
      * @param bool $insert
      * @return bool
      */
-    public function beforeSave($insert){
-        if(!parent::beforeSave($insert)){
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
             return false;
         }
-        if($this->parent != 0){
+        if ($this->parent != 0) {
             //插入模式即已有id。且父id不为0
-            if(!$insert){
+            if (!$insert) {
                 //父类ID不能是自身
-                if($this->parent == $this->id){
+                if ($this->parent == $this->id) {
                     $this->parent = 0;
-                }else{
+                } else {
                     //父类ID不能是自己的子类
-                    if(self::find()->where(['id'=>$this->parent, 'parent'=>$this->id])->exists()){
-                        $this->addError('parent','不合法的父类ID！');
+                    if (self::find()->where(['id' => $this->parent, 'parent' => $this->id])->exists()) {
+                        $this->addError('parent', '不合法的父类ID！');
                         return false;
                     }
                 }
             }
             //父类ID不能不存在
-            if(self::find()->where(['parent'=>$this->id])->exists()){
+            if (self::find()->where(['parent' => $this->id])->exists()) {
                 $this->parent = 0;
             }
         }
@@ -143,7 +152,7 @@ class Category extends BaseModel
         //分类名称name，并生成URL别名
         $this->name = htmlspecialchars(strip_tags($this->name));
 
-        if(!$this->alias)
+        if (!$this->alias)
             $this->alias = $this->name;
         else
             $this->alias = htmlspecialchars(strip_tags($this->alias));
@@ -156,26 +165,28 @@ class Category extends BaseModel
      * @param bool $insert
      * @param array $changedAttributes
      */
-    public function afterSave($insert,$changedAttributes){
+    public function afterSave($insert, $changedAttributes)
+    {
 
         //防止预测ID插入脏数据
-        if($insert && $this->parent == $this->id){
+        if ($insert && $this->parent == $this->id) {
             $this->parent = 0;
             $this->save(false);
         }
-        parent::afterSave($insert,$changedAttributes);
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**
      * 获取访问URL
      * @return string
      */
-    public function getUrl(){
-        if($this->isNewRecord)
+    public function getUrl()
+    {
+        if ($this->isNewRecord)
             return false;
-        if($this->alias){
-            return Url::to(['/category/alias','name'=>str_replace(' ','-',$this->alias)],true);
-        }else
-            return Url::to(['/category/view','id'=>$this->id],true);
+        if ($this->alias) {
+            return Url::to(['/category/alias', 'name' => str_replace(' ', '-', $this->alias)], true);
+        } else
+            return Url::to(['/category/view', 'id' => $this->id], true);
     }
 }

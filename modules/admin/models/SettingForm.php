@@ -12,7 +12,8 @@ namespace app\modules\admin\models;
  * @package app\modules\admin\models
  */
 
-class SettingForm extends OptionModel{
+class SettingForm extends OptionModel
+{
     /**
      * @var string 网站名称
      */
@@ -71,11 +72,11 @@ class SettingForm extends OptionModel{
     public function rules()
     {
         return [
-            ['site_name','required'],
-            ['admin_email','email'],
-            ['site_analyzer','safe'],//这个地方可能是唯一的XSS。。
-            [['site_status', 'allow_register', 'need_approve', 'allow_comment', 'send_mail_on_comment'],'in','range'=>['open','closed']],
-            [['site_icp', 'copyright', 'closed_summary', 'theme'],'simplePurify']
+            ['site_name', 'required'],
+            ['admin_email', 'email'],
+            ['site_analyzer', 'safe'],//这个地方可能是唯一的XSS。。
+            [['site_status', 'allow_register', 'need_approve', 'allow_comment', 'send_mail_on_comment'], 'in', 'range' => ['open', 'closed']],
+            [['site_icp', 'copyright', 'closed_summary', 'theme'], 'simplePurify']
         ];
     }
 
@@ -88,18 +89,18 @@ class SettingForm extends OptionModel{
     public function attributeLabels()
     {
         return array(
-            'site_name'=>'网站名称',
-            'admin_email'=>'管理员邮箱',
-            'site_icp'=>'网站备案信息',
-            'theme'=>'主题',
-            'copyright'=>'版权信息',
-            'allow_register'=>'是否开放注册',
-            'site_status'=>'网站状态',
-            'closed_summary'=>'网站关闭时提示消息',
-            'allow_comment'=>'评论功能',
-            'need_approve'=>'评论审核',
-            'site_analyzer'=>'网站统计代码',
-            'send_mail_on_comment'=>'留言时发送邮件'
+            'site_name' => '网站名称',
+            'admin_email' => '管理员邮箱',
+            'site_icp' => '网站备案信息',
+            'theme' => '主题',
+            'copyright' => '版权信息',
+            'allow_register' => '是否开放注册',
+            'site_status' => '网站状态',
+            'closed_summary' => '网站关闭时提示消息',
+            'allow_comment' => '评论功能',
+            'need_approve' => '评论审核',
+            'site_analyzer' => '网站统计代码',
+            'send_mail_on_comment' => '留言时发送邮件'
         );
     }
 }

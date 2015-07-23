@@ -6,6 +6,7 @@ namespace app\models;
 use Yii;
 use \yii\db\ActiveRecord;
 use \app\components\XUtils;
+
 /**
  * This is the model class for table "{{%logger}}".
  *
@@ -59,13 +60,14 @@ class Logger extends ActiveRecord
         ];
     }
 
-    public function beforeSave($insert){
-        if(!parent::beforeSave($insert))
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert))
             return false;
-        if($insert){
+        if ($insert) {
             $this->create_time = time();
             $this->ip = XUtils::getClientIP();
-            $this->user_agent = isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:'Unknown';
+            $this->user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Unknown';
         }
         $this->ip = htmlspecialchars($this->ip);
         $this->user_agent = htmlspecialchars($this->user_agent);
@@ -73,6 +75,7 @@ class Logger extends ActiveRecord
         $this->optype = htmlspecialchars($this->optype);
         $this->info = htmlspecialchars($this->info);
     }
+
     /**
      * 记录一条日志
      * 会调用save()自动保存
@@ -81,7 +84,8 @@ class Logger extends ActiveRecord
      * @param string $info 具体信息
      * @param string $status 操作是否成功
      */
-    public static function record( $uid , $optype, $info, $status='None'){
+    public static function record($uid, $optype, $info, $status = 'None')
+    {
         $logger = new self();
         $logger->uid = intval($uid);
         $logger->optype = $optype;

@@ -41,12 +41,12 @@ class Option extends BaseModel
     {
         return [
             [['name', 'type'], 'required'],
-            [['value'], 'string'],
-            [['type'], 'string', 'max' => 20],
-            [['name'], 'string', 'max' => 50],
-            [['name'], 'regString', 'type' => self::REG_BLANK],
-            [['type'], 'regString', 'type' => self::REG_LETTER],
-            [['description'], 'string', 'max' => 255],
+            ['value', 'string'],
+            ['type', 'string', 'max' => 20],
+            ['name', 'string', 'max' => 50],
+            ['name', 'regString', 'type' => self::REG_BLANK],
+            ['type', 'regString', 'type' => self::REG_LETTER],
+            ['description', 'string', 'max' => 255],
         ];
     }
 

@@ -90,9 +90,9 @@ class Post extends BaseModel
             [['password'], 'string', 'max' => 32],
             [['options'], 'string', 'max' => 8],
             [['content', 'excerpt'], 'purify'],
-            [['status'],'default', 'value' => self::STATUS_PUBLISHED ],
+            [['status'], 'default', 'value' => self::STATUS_PUBLISHED],
             [['status'], 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '文章的「状态」错误！'],
-            [['type'],'default', 'value' => self::TYPE_POST ],
+            [['type'], 'default', 'value' => self::TYPE_POST],
             [['type'], 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '文章的「类型」错误！'],
         ];
     }

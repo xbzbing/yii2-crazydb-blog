@@ -6,11 +6,14 @@
  * Time: 下午5:07
  */
 namespace app\controllers;
+
 use Yii;
 use app\components\BaseController;
 
-class AclController extends BaseController{
-    public function actionInit(){
+class AclController extends BaseController
+{
+    public function actionInit()
+    {
         $auth = Yii::$app->authManager;
 
         // add "createPost" permission

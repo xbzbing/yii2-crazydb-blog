@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var app\models\CommentSearch $model
+ * @var app\models\search\CommentSearch $model
  * @var yii\widgets\ActiveForm $form
  */
 ?>

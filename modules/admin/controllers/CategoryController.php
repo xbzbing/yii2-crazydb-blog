@@ -24,7 +24,7 @@ class CategoryController extends Controller
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
-            'query' => Category::find()->where(['parent'=>0]),
+            'query' => Category::find()->where(['parent' => 0]),
         ]);
         return $this->render('index', [
             'dataProvider' => $dataProvider,
@@ -52,12 +52,12 @@ class CategoryController extends Controller
     {
         $model = new Category;
         $category_array = CMSUtils::getAllCategories();
-        $category_array = ['0'=>'顶级分类'] + $category_array;
-        if(isset($category_array[1])&&$category_array[1]=='未分类')
+        $category_array = ['0' => '顶级分类'] + $category_array;
+        if (isset($category_array[1]) && $category_array[1] == '未分类')
             unset($category_array[1]);
         if ($model->load($_POST)) {
-            if($model->save())
-                $this->redirect(['category/view','id'=>$model->id]);
+            if ($model->save())
+                $this->redirect(['category/view', 'id' => $model->id]);
         }
 
         return $this->render('create', [
@@ -76,13 +76,13 @@ class CategoryController extends Controller
     {
         $model = $this->findModel($id);
         $category_array = CMSUtils::getAllCategories();
-        $category_array = ['0'=>'顶级分类'] + $category_array;
+        $category_array = ['0' => '顶级分类'] + $category_array;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $this->redirect(['view','id'=>$id]);
+            $this->redirect(['view', 'id' => $id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
-                'category_array'=>$category_array
+                'category_array' => $category_array
             ]);
         }
     }

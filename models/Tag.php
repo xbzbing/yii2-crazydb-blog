@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use \yii\db\ActiveRecord;
+
 /**
  * This is the model class for table "{{%tag}}".
  *
@@ -31,7 +32,7 @@ class Tag extends ActiveRecord
         return [
             [['name', 'pid', 'create_time'], 'required'],
             [['pid', 'cid', 'create_time'], 'integer'],
-            [['name'], 'string', 'max' => 255]
+            ['name', 'string', 'max' => 255]
         ];
     }
 

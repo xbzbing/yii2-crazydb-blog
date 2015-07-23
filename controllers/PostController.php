@@ -17,6 +17,7 @@ class PostController extends BaseController
 {
 
     public $layout = 'column_post';
+
     public function behaviors()
     {
         return [
@@ -56,18 +57,19 @@ class PostController extends BaseController
         ]);
     }
 
-    public function actionAlias($name){
-        $post = Post::findOne(['alias'=>$name]);
-        if(!$post)
+    public function actionAlias($name)
+    {
+        $post = Post::findOne(['alias' => $name]);
+        if (!$post)
             throw new NotFoundHttpException('The requested page does not exist.');
         //按类型显示
-        $comments = Comment::findAll(['pid'=>$post->id]);
-        $post->updateCounters(['view_count'=>1,'comment_count'=>count($comments)-$post->comment_count]);
-        return $this->render('view',[
-            'post'=>$post,
-            'category'=>$post->getCategory()->one(),
-            'author'=>$post->getAuthor()->one(),
-            'comments'=>$comments
+        $comments = Comment::findAll(['pid' => $post->id]);
+        $post->updateCounters(['view_count' => 1, 'comment_count' => count($comments) - $post->comment_count]);
+        return $this->render('view', [
+            'post' => $post,
+            'category' => $post->getCategory()->one(),
+            'author' => $post->getAuthor()->one(),
+            'comments' => $comments
         ]);
     }
 

@@ -34,7 +34,7 @@ class ConfigController extends Controller
             if (!isset($themes[$setting->theme])) {
                 $setting->addError('theme', '指定主题不存在！');
                 $setting->theme = '[none]';
-            }else{
+            } else {
                 if ($setting->save('sys'))
                     Yii::$app->cache->set('config_sys', $setting->attributes);
             }

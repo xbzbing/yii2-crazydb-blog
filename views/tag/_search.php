@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var yii\web\View $this
- * @var app\models\TagSearch $model
+ * @var app\models\search\TagSearch $model
  * @var yii\widgets\ActiveForm $form
  */
 ?>

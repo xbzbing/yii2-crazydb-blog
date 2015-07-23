@@ -15,9 +15,10 @@ use app\modules\admin\components\Controller;
  */
 class PostController extends Controller
 {
-    public function beforeAction($action){
-        if ($action->id=="create-img-ajax") {
-            $this->enableCsrfValidation=false;
+    public function beforeAction($action)
+    {
+        if ($action->id == "create-img-ajax") {
+            $this->enableCsrfValidation = false;
         }
         return parent::beforeAction($action);
     }
@@ -30,7 +31,7 @@ class PostController extends Controller
     {
         $searchModel = new PostSearch;
         $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
-        $dataProvider->sort->defaultOrder = ['post_time'=>SORT_DESC];
+        $dataProvider->sort->defaultOrder = ['post_time' => SORT_DESC];
         $dataProvider->pagination->defaultPageSize = 10;
         return $this->render('index', [
             'dataProvider' => $dataProvider,

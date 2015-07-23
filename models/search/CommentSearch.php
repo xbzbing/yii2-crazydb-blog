@@ -56,7 +56,7 @@ class CommentSearch extends Comment
         //TODO ext 属性的搜索
         $query->andFilterWhere(['like', 'url', $this->url])
             ->andFilterWhere(['like', 'content', $this->content])
-	        ->andFilterWhere(['like', 'user_agent', $this->user_agent]);
+            ->andFilterWhere(['like', 'user_agent', $this->user_agent]);
 
         return $dataProvider;
     }

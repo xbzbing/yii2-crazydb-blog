@@ -9,12 +9,14 @@ namespace app\components;
 use yii;
 use yii\web\Controller;
 
-class BaseController extends Controller{
+class BaseController extends Controller
+{
 
     /**
      * 前端controller初始化
      */
-    public function init(){
+    public function init()
+    {
         $this->checkTheme();
     }
 
@@ -26,14 +28,15 @@ class BaseController extends Controller{
      *
      * @throws yii\base\InvalidConfigException
      */
-    public function checkTheme(){
+    public function checkTheme()
+    {
         $config = CMSUtils::getSiteConfig('sys');
         $themes = CMSUtils::getThemeList();
 
-        if($config['theme']!='[none]' && !in_array($config['theme'], $themes))
-            throw new yii\base\InvalidConfigException(Yii::t('app','Can\'t find any theme called "{theme}",please check the "Theme Config".',['theme'=>$config['theme']]));
+        if ($config['theme'] != '[none]' && !in_array($config['theme'], $themes))
+            throw new yii\base\InvalidConfigException(Yii::t('app', 'Can\'t find any theme called "{theme}",please check the "Theme Config".', ['theme' => $config['theme']]));
 
-        if($config['theme'] != '[none]'){
+        if ($config['theme'] != '[none]') {
             $this->view->theme = Yii::createObject([
                 'class' => '\yii\base\Theme',
                 'pathMap' => ['@app/views' => '@app/themes/' . $config['theme']],

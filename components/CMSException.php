@@ -9,6 +9,7 @@ namespace app\components;
 use yii;
 use yii\base\UserException;
 
-class CMSException extends UserException{
+class CMSException extends UserException
+{
 
 }

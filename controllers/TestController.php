@@ -7,19 +7,24 @@
  */
 
 namespace app\controllers;
+
 use Yii;
 use app\models\User;
 use yii\web\Controller;
 
-class TestController extends Controller{
-    public function actionIndex(){
+class TestController extends Controller
+{
+    public function actionIndex()
+    {
         $user = User::findByUsername('xbzbing');
         $user->setScenario('modifyPassword');
         $user->password = 'admin';
         $user->save();
-        return $this->render('test',['user'=>$user]);
+        return $this->render('test', ['user' => $user]);
     }
-    public function actionAdd(){
+
+    public function actionAdd()
+    {
         $user = new User();
         $user->setScenario('modifyPassword');
         $user->password = '123';
@@ -27,6 +32,6 @@ class TestController extends Controller{
         $user->nickname = 'xxxxx';
         $user->email = 'asdfasd';
         $user->save();
-        return $this->render('test',['user'=>$user]);
+        return $this->render('test', ['user' => $user]);
     }
 } 

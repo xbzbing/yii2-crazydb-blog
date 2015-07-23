@@ -12,8 +12,8 @@ use app\modules\admin\components\Controller;
 class DefaultController extends Controller
 {
 
-	public function actionIndex()
-	{
+    public function actionIndex()
+    {
         $server['serverSoft'] = $_SERVER['SERVER_SOFTWARE'];
         $server['serverOs'] = PHP_OS;
         $server['phpVersion'] = PHP_VERSION;
@@ -33,13 +33,13 @@ class DefaultController extends Controller
         $mysqlVersion = $connection->createCommand("SELECT version() AS version")->queryAll();
         $server['mysqlVersion'] = $mysqlVersion[0]['version'];
         $server['dbsize'] = $dbsize ? XUtils::dataFormat($dbsize) : '未知';
-		return $this->render('index',['server'=>$server]);
-	}
+        return $this->render('index', ['server' => $server]);
+    }
 
-	public function actionLocale($language)
-	{
-		Common::setLanguage($language);
-		return $this->redirect(['index']);
-	}
+    public function actionLocale($language)
+    {
+        Common::setLanguage($language);
+        return $this->redirect(['index']);
+    }
 
 }

@@ -7,7 +7,8 @@ use app\components\Common;
 
 class Controller extends \yii\web\Controller
 {
-	public $layout = 'column1';
+    public $layout = 'column1';
+
     /**
      * @inheritdoc
      */
@@ -19,16 +20,17 @@ class Controller extends \yii\web\Controller
             ],
         ];
     }
-	public function beforeAction($action) 
-	{
-		if (parent::beforeAction($action)) {
+
+    public function beforeAction($action)
+    {
+        if (parent::beforeAction($action)) {
 
             if (!Common::getLanguage()) {
                 preg_match('/^([a-z\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
                 Common::setLanguage($matches[1]);
-                Yii::$app->language=$matches[1]; 
-            }else{
-               Yii::$app->language=Common::getLanguage(); 
+                Yii::$app->language = $matches[1];
+            } else {
+                Yii::$app->language = Common::getLanguage();
             }
             return true;
         } else {

@@ -4,10 +4,12 @@
  * @date 14-6-13 上午11:05
  */
 namespace app\components;
+
 use yii;
 use app\models\Acl;
 
-class AclUtils{
+class AclUtils
+{
 
     const ADMIN = 'Administrator';
     const AUTHOR = 'Author';
@@ -29,21 +31,22 @@ class AclUtils{
      * @param bool $refresh
      * @return array
      */
-    public static function getAllAcl($refresh=false){
+    public static function getAllAcl($refresh = false)
+    {
         /* @var Acl[] $roles */
-        if($refresh)
+        if ($refresh)
             $acl = null;
         else
             $acl = Yii::$app->cache->get('__allAcl');
 
-        if(empty($acl)){
+        if (empty($acl)) {
             $roles = Acl::find()->all();
-            foreach($roles as $role){
-                $role->action = explode(',',$role->action);
+            foreach ($roles as $role) {
+                $role->action = explode(',', $role->action);
                 $role->action = array_filter($role->action);
-                $acl[$role->id] = ['id'=>$role->id,'name'=>$role->name,'action'=>$role->action];
+                $acl[$role->id] = ['id' => $role->id, 'name' => $role->name, 'action' => $role->action];
             }
-            Yii::$app->cache->set('__allAcl',$acl,3600);
+            Yii::$app->cache->set('__allAcl', $acl, 3600);
         }
         return $acl;
     }

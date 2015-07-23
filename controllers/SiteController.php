@@ -11,9 +11,11 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\Post;
 
-class SiteController extends BaseController{
+class SiteController extends BaseController
+{
 
     public $layout = 'site';
+
     public function behaviors()
     {
         return [
@@ -44,14 +46,15 @@ class SiteController extends BaseController{
         ];
     }
 
-    public function actionIndex(){
+    public function actionIndex()
+    {
         $dataProvider = new ActiveDataProvider([
-            'query'=>Post::find()
-                    ->where(['status'=>[Post::STATUS_HIDDEN,Post::STATUS_PUBLISHED]])
-                    ->orderBy('post_time DESC'),
-            'pagination'=>['pageSize'=>10]
+            'query' => Post::find()
+                ->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])
+                ->orderBy('post_time DESC'),
+            'pagination' => ['pageSize' => 10]
         ]);
-        return $this->render('index',['dataProvider'=>$dataProvider]);
+        return $this->render('index', ['dataProvider' => $dataProvider]);
     }
 
     public function actionLogin()
