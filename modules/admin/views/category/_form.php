@@ -29,7 +29,7 @@ use crazydb\ueditor\UEditor;
             ],
             'initialFrameHeight'=>'150',
         ]
-    ]) ?>?>
+    ]) ?>
 
 
     <?= $form->field($model, 'parent')->dropDownList($category_array) ?>

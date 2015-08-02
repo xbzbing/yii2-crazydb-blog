@@ -48,7 +48,7 @@ AdminAsset::register($this);
                             <strong>这里是主边栏显示区</strong>
                         </p>
                         <a>
-                            <i class="fa fa-circle text-success"></i> <?= Yii::t('app', 'Online') ?>
+                            <i class="fa fa-circle text-success"></i> <?= Yii::$app->user->identity->getId()?>
                         </a>
                     </div>
                 </div>

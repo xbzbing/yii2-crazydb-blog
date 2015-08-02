@@ -8,31 +8,108 @@ namespace app\components;
 use yii;
 use yii\caching\DbDependency;
 use app\models\Category;
+use app\models\Nav;
 use app\models\Option;
 
 class CMSUtils
 {
 
     /**
-     * 获取文章分类。
-     * 缓存时间1小时。
+     * 获取父类导航。
      * @param bool $refresh 强制刷新
-     * @return mixed
+     * @return array
+     */
+    public static function getParentNav($refresh = false)
+    {
+        if ($refresh)
+            $items = [];
+        else
+            $items = Yii::$app->cache->get('__parent_nav');
+
+        if (empty($items)) {
+            $item_array = Nav::find()->select('id,name')->where(['pid' => 0])->orderBy(['order' => SORT_DESC])->asArray()->all();
+            if(empty($item_array))
+                return [];
+            foreach ($item_array as $item) {
+                $items[$item['id']] = $item['name'];
+            }
+            $dp = new DbDependency();
+            $dp->sql = 'select MAX(update_time) from ' . Nav::tableName();
+            Yii::$app->cache->set(
+                '__categories',
+                $items,
+                0,
+                $dp
+            );
+        }
+        return $items;
+    }
+
+    /**
+     * 获取导航树。
+     * @param bool $refresh 强制刷新
+     * @return array
+     */
+    public static function getNavTree($refresh = false)
+    {
+        if ($refresh)
+            $items = [];
+        else
+            $items = Yii::$app->cache->get('__nav_tree');
+
+        if (empty($items)) {
+            /* @var Nav[] $parent */
+            $parent = Nav::find()->where(['pid' => 0])->orderBy(['order' => SORT_DESC])->all();;
+            if(empty($parent))
+                return $items;
+
+            foreach($parent as $node){
+                $items[$node->id] = [
+                    'label' => $node->name,
+                    'url' => $node->url,
+                    'items' => []
+                ];
+                $children = $node->children;
+                foreach($children as $child){
+                    $items[$node->id]['items'] = [
+                        'label' => $child->name,
+                        'url' => $node->url,
+                    ];
+                }
+            }
+            $dp = new DbDependency();
+            $dp->sql = 'select MAX(update_time) from ' . Nav::tableName();
+            Yii::$app->cache->set(
+                '__nav_tree',
+                $items,
+                0,
+                $dp
+            );
+        }
+        return $items;
+    }
+
+    /**
+     * 获取文章分类。
+     * @param bool $refresh 强制刷新
+     * @return array
      */
     public static function getAllCategories($refresh = false)
     {
         if ($refresh)
-            $categories = null;
+            $categories = [];
         else
             $categories = Yii::$app->cache->get('__categories');
 
         if (empty($categories)) {
             $category_array = Category::find()->select('id,name')->asArray()->all();
+            if(empty($category_array))
+                return [];
             foreach ($category_array as $category) {
                 $categories[$category['id']] = $category['name'];
             }
             $dp = new DbDependency();
-            $dp->sql = 'select MAX(id) from ' . Category::tableName();
+            $dp->sql = 'select MAX(update_time) from ' . Category::tableName();
             Yii::$app->cache->set(
                 '__categories',
                 $categories,
