@@ -1,46 +1,60 @@
 <?php
-/**
- * @author xbzbing<xbzbing@gmail.com>
- * @date 14-6-6 上午11:02
- */
-
 namespace app\components;
 
 use yii;
 use yii\web\Controller;
+use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
 
 class BaseController extends Controller
 {
+    public $layout = 'column1';
 
     /**
      * 前端controller初始化
      */
     public function init()
     {
-        $this->checkTheme();
-    }
+        parent::init();
+        $config = CMSUtils::getSiteConfig('sys');
+        if (!empty($config['theme']))
+            $this->setTheme($config['theme']);
+        $seoConfig = CMSUtils::getSiteConfig('seo');
 
+        if (!empty($seoConfig['seo_keywords']))
+            $this->view->registerMetaTag([
+                'name' => 'keywords',
+                'content' => $seoConfig['seo_keywords']
+            ]);
+        if (!empty($seoConfig['seo_description']))
+            $this->view->registerMetaTag([
+                'name' => 'description',
+                'content' => $seoConfig['seo_description']
+            ]);
+        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
+        Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+    }
 
     /**
      * 前端初始化之一：检测主题设置
      *
      * 独立出来的原因是不想在init中直接抛出异常。。。
      *
-     * @throws yii\base\InvalidConfigException
+     * @param string $theme
+     * @return bool
+     * @throws InvalidConfigException
      */
-    public function checkTheme()
+    public function setTheme($theme)
     {
-        $config = CMSUtils::getSiteConfig('sys');
         $themes = CMSUtils::getThemeList();
-
-        if ($config['theme'] != '[none]' && !in_array($config['theme'], $themes))
-            throw new yii\base\InvalidConfigException(Yii::t('app', 'Can\'t find any theme called "{theme}",please check the "Theme Config".', ['theme' => $config['theme']]));
-
-        if ($config['theme'] != '[none]') {
+        if ($theme != '[none]' && !in_array($theme, $themes))
+            throw new InvalidConfigException("错误的配置项，不支持的主题类型:「$theme」。");
+        if ($theme != '[none]') {
             $this->view->theme = Yii::createObject([
                 'class' => '\yii\base\Theme',
-                'pathMap' => ['@app/views' => '@app/themes/' . $config['theme']],
+                'pathMap' => ['@app/views' => "@app/themes/{$theme}/views"],
             ]);
         }
+        return true;
     }
 }

@@ -4,12 +4,11 @@
  * @date 14-6-6 下午2:34
  */
 /**
- * @var \yii\web\View $this
+ * @var yii\web\View $this
  * @var string $content
  */
 
 use yii\widgets\Breadcrumbs;
-use \yii\helpers\Url;
 $this->beginContent('@app/views/layouts/main.php');
 ?>
     <div class="main">

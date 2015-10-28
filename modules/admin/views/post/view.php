@@ -1,61 +1,74 @@
 <?php
 
-use yii\helpers\Url;
 use yii\helpers\Html;
-use app\components\XUtils;
+use yii\helpers\Url;
 
-/**
- * @var yii\web\View $this
- * @var app\models\Post $post
- * @var app\models\User $author
- * @var array $hide_post
- */
-$category = $post->category;
-$this->title = $post->title;
-$this->params['breadcrumbs'][] = ['label' => '文章', 'url' => ['index']];
+/* @var $this yii\web\View */
+/* @var $model app\models\Post */
+
+$this->title = $model->title;
+$this->params['breadcrumbs'][] = ['label' => '文章管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<article id="post-<?php echo $post->id;?>" class="post-view">
-    <header class="entry-header">
-        <h1>
-            <?php echo $post->title;?>
-        </h1>
-    </header>
-    <div class="entry-meta">
-        <a href="<?=Url::toRoute(['category/view','id'=>$post->cid])?>" class="pl-category"  title="<?=$category->name?>">
-            <span class="label label-info"><?=$category->name?></span>
-        </a>
-        <?php
-        //显示文章标签
-        if($post->tags){
-            $tags = explode(',',$post->tags);
-            $i = 1;
-            $c = count($tags);
-            echo '<span class="label label-primary">';
-            foreach($tags as $tag){
-                $tag_url = Url::toRoute(['tag/view','name'=>$tag]);
-                echo "<a href=\"{$tag_url}\" title=\"{$tag}\">{$tag}</a>";
-                if($i<$c)
-                    echo ' / ';
-                $i ++;
-            }
-            echo '</span>';
-        }
-        ?>
-        <span><i class="glyphicon glyphicon-user"></i>
-            <?=Html::a($post->author_name,['user/nickname','name'=>$post->author_name],['title'=>$post->author_name])?>
-		</span>
-		<span><i class="glyphicon glyphicon-time"></i>
-            <?=XUtils::XDateFormatter($post->post_time)?>
-		</span>
-		<span><i class="glyphicon glyphicon-eye-open"></i>
-            <?=$post->view_count?> 浏览
-		</span>
+<div class="box post-view">
+    <div class="box-header with-border">
+        <h3 class="box-title">文章详情</h3>
+        <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+            <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+        </div>
     </div>
-    <div class="entry-content">
-        <?=$post->content?>
+    <div class="box-body table-responsive no-padding">
+        <table class="table table-hover">
+            <tbody>
+            <tr>
+                <td width="120">文章标题</td>
+                <td><?=$model->title?></td>
+            </tr>
+            <tr>
+                <td>分类</td>
+                <td><?=$model->postCategory?></td>
+            </tr>
+            <tr>
+                <td>作者</td>
+                <td><?=Html::a($model->author->nickname, Url::to(['user/view', 'id'=>$model->author_id]))?></td>
+            </tr>
+            <tr>
+                <td>创建时间</td>
+                <td><?=date('Y-m-d H:i:s', $model->create_time)?></td>
+            </tr>
+            <tr>
+                <td>更新时间</td>
+                <td><?=date('Y-m-d H:i:s', $model->update_time)?></td>
+            </tr>
+            <tr>
+                <td>发表时间</td>
+                <td><?=date('Y-m-d H:i:s', $model->post_time)?></td>
+            </tr>
+            <tr>
+                <td>点击数量</td>
+                <td><?= $model->view_count ?></td>
+            </tr>
+            <tr>
+                <td>置顶</td>
+                <td><?=$model->is_top?'<span class="label label-success">置顶</span>':'否'?></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="content entry-content">
+            <?=$model->content?>
+        </div>
     </div>
-</article>
-<div class="form-group">
-    <?= Html::a('返回',['post/index'],['class'=>'btn btn-default'])?>
+    <div class="box-footer">
+        <?= Html::a('编辑', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('删除', ['delete', 'id' => $model->id], [
+            'class' => 'btn btn-danger',
+            'data' => [
+                'confirm' => '删除操作不可恢复，确定删除?',
+                'method' => 'post',
+            ],
+        ]) ?>
+        <?= Html::a('前台查看', $model->url, ['target' => '_blank', 'class' => 'btn btn-success'])?>
+        <?= Html::a('返回列表', ['post/index'], ['class' => 'btn btn-default']) ?>
+    </div>
 </div>

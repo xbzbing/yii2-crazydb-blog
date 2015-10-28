@@ -11,7 +11,7 @@ $config = [
     'name' => 'X-CMS',
     'modules' => [
         'admin' => [
-            'class' => 'app\modules\admin\Module'
+            'class' => 'app\modules\Admin\Module'
         ],
     ],
 

@@ -1,19 +1,24 @@
 <?php
 
-use yii\helpers\Html;
+/* @var $this yii\web\View */
+/* @var $model app\models\Post */
 
-/**
- * @var yii\web\View $this
- * @var app\models\Post $model
- */
-
-$this->title = Yii::t('app', 'Update {modelClass}', ['modelClass' => '文章']);
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Posts Manage'), 'url' => ['index']];
+$this->title = '编辑文章';
+$this->params['breadcrumbs'][] = ['label' => '所有文章', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->title, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = Yii::t('app', 'Update');
+$this->params['breadcrumbs'][] = '编辑';
 ?>
-<div class="post-update">
-    <?= $this->render('_form', [
-        'model' => $model,
-    ]) ?>
+<div class="box post-update">
+    <div class="box-header with-border">
+        <h3 class="box-title">编辑</h3>
+        <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+            <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        <?= $this->render('_form', [
+            'model' => $model,
+        ]) ?>
+    </div>
 </div>

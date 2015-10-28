@@ -36,8 +36,6 @@ $this->title = "控制台";
                 <td >PHP环境</td>
                 <td >
                     <p>版本：<?=$server['phpVersion']?></p>
-                    <p>magic_quote_gpc：<?=$server['magic_quote_gpc']?></p>
-                    <p>allow_url_fopen：<?=$server['allow_url_fopen']?></p>
                 </td>
             </tr>
         </tbody>

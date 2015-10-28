@@ -4,8 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Tag;
-use app\models\search\TagSearch;
-use app\models\User;
+use app\models\TagSearch;
 use app\components\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;

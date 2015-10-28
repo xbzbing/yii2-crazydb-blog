@@ -2,62 +2,75 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
-use app\models\Lookup;
-
-/**
- * @var yii\web\View $this
- * @var yii\data\ActiveDataProvider $dataProvider
- * @var app\models\search\PostSearch $searchModel
- */
 
 use app\components\CMSUtils;
 use app\models\Post;
 
-$this->title = Yii::t('app', 'Posts Manage');
+/* @var $this yii\web\View */
+/* @var $searchModel app\models\search/PostSearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
+$this->title = '文章管理';
 $this->params['breadcrumbs'][] = $this->title;
-$categories = CMSUtils::getAllCategories();
+
 ?>
-<div class="row">
-    <div class="col-xs-12">
-        <div class="box">
-            <div class="box-header">
-                <?= Html::a(Yii::t('app', 'Create New Post'), ['create'], ['class' => 'btn btn-success']) ?>
-            </div>
-            <div class="box-body post-index ">
-                <?=
-                GridView::widget([
-                    'dataProvider' => $dataProvider,
-                    'filterModel' => $searchModel,
-                    'columns' => [
-                        ['class' => 'yii\grid\SerialColumn'],
-                        'title',
-                        [
-                            'attribute' => 'status',
-                            'value' => 'postStatus',
-                            'filter' => Html::activeDropDownList($searchModel, 'status', ['' => '全部'] + Post::getAvailableStatus(), ['class' => 'form-control']),
-                        ],
-                        [
-                            'attribute' => 'cid',
-                            'value' => 'postCategory',
-                            'filter' => Html::activeDropDownList($searchModel, 'cid', ['' => '全部'] + $categories, ['class' => 'form-control']),
-                        ],
-                        [
-                            'attribute' => 'post_time',
-                            'value' => 'post_time',
-                            'format' => ['datetime','php:Y-m-d H:i:s'],
-                            'filter' => false,
-                        ],
-                        [
-                            'attribute' => 'view_count',
-                            'value' => 'view_count',
-                            'filter' => false,
-                        ],
-                        ['class' => 'yii\grid\ActionColumn'],
-                    ],
-                    'tableOptions' => ['class' => 'table table-hover table-bordered table-striped'],
-                    'summaryOptions' => ['class' => 'summary']
-                ]); ?>
-            </div>
-        </div>
+<div class="box post-index">
+    <div class="box-header with-border">
+        <h3 class="box-title">文章列表</h3>
+    </div>
+    <div class="box-body">
+        <p>
+            <?= Html::a('发表新文章', ['create'], ['class' => 'btn btn-success']) ?>
+        </p>
+        <?= GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'tableOptions' => ['class'=>'table table-bordered table-hover'],
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
+                'title',
+                [
+                    'attribute' => 'cid',
+                    'value' => 'postCategory',
+                    'filter' => Html::activeDropDownList($searchModel, 'cid', ['' => '全部'] + CMSUtils::getAllCategories(), ['class' => 'form-control']),
+                ],
+                [
+                    'attribute' => 'author_id',
+                    'value' => function ($model, $key, $index, $column) {
+                        return $model->author ? $model->author->nickname : null;
+                    }
+                ],
+                [
+                    'attribute' => 'is_top',
+                    'format' => 'html',
+                    'value' => function ($model, $key, $index, $column) {
+                        return $model->is_top ? '<span class="label label-success">置顶</span>' : '';
+                    },
+                    'filter' => Html::activeDropDownList($searchModel, 'is_top', ['' => '全部', '0' => '否', '1' => '是'], ['class' => 'form-control']),
+                ],
+                [
+                    'attribute' => 'status',
+                    'value' => 'postStatus',
+                    'filter' => Html::activeDropDownList($searchModel, 'status', ['' => '全部'] + Post::getAvailableStatus(), ['class' => 'form-control']),
+                ],
+                [
+                    'attribute' => 'comment_count',
+                    'filter' => false,
+                ],
+                [
+                    'attribute' => 'view_count',
+                    'filter' => false
+                ],
+                [
+                    'attribute' => 'post_time',
+                    'format' => ['date', 'php:Y-m-d H:i:s'],
+                    'filter' => false,
+                ],
+                [
+                    'class' => 'yii\grid\ActionColumn',
+                    'template' => '{view}&nbsp;&nbsp;{update}'
+                ],
+            ],
+        ]); ?>
     </div>
 </div>

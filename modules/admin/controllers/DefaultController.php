@@ -21,8 +21,6 @@ class DefaultController extends Controller
         $server['serverUri'] = $_SERVER['SERVER_NAME'];
         $server['maxExcuteTime'] = ini_get('max_execution_time') . ' 秒';
         $server['maxExcuteMemory'] = ini_get('memory_limit');
-        $server['magic_quote_gpc'] = get_magic_quotes_gpc() ? '开启' : '关闭';
-        $server['allow_url_fopen'] = ini_get('allow_url_fopen') ? '开启' : '关闭';
         $server['excuteUseMemory'] = function_exists('memory_get_usage') ? XUtils::dataFormat(memory_get_usage()) : '未知';
         $dbsize = 0;
         $connection = Yii::$app->db;

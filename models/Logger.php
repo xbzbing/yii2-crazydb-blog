@@ -4,8 +4,8 @@ namespace app\models;
 
 
 use Yii;
-use \yii\db\ActiveRecord;
-use \app\components\XUtils;
+use yii\db\ActiveRecord;
+use app\components\XUtils;
 
 /**
  * This is the model class for table "{{%logger}}".
@@ -74,6 +74,7 @@ class Logger extends ActiveRecord
         $this->status = htmlspecialchars($this->status);
         $this->optype = htmlspecialchars($this->optype);
         $this->info = htmlspecialchars($this->info);
+        return true;
     }
 
     /**

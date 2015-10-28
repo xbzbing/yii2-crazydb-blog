@@ -43,7 +43,7 @@ if(Yii::$app->user->isGuest){
         </div>
         <?php
             NavBar::begin([
-                'brandLabel' => Yii::t('app',Yii::$app->name),
+                'brandLabel' => Yii::$app->name,
                 'options' => [
                     'class' => 'container',
                 ],

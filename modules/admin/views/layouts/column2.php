@@ -4,7 +4,7 @@
 
 use \yii\web\View;
 ?>
-<?php $this->beginContent('@crazydbAdmin/views/layouts/main.php'); ?>
+<?php $this->beginContent('@CrazydbAdmin/views/layouts/main.php'); ?>
 <style>
     .affix-aside{
         min-width:187px;

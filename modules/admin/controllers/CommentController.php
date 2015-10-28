@@ -5,8 +5,9 @@ namespace app\modules\admin\controllers;
 use Yii;
 use app\models\Comment;
 use app\models\search\CommentSearch;
-use yii\web\NotFoundHttpException;
 use app\modules\admin\components\Controller;
+use yii\web\NotFoundHttpException;
+
 
 /**
  * CommentController implements the CRUD actions for Comment model.

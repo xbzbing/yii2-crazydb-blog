@@ -35,3 +35,5 @@ composer.lock
 
 # .htaccess 文件
 .htaccess
+
+*-local.php

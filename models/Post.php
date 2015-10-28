@@ -2,11 +2,12 @@
 
 namespace app\models;
 
-use app\components\CMSUtils;
 use Yii;
 use yii\helpers\Url;
 use app\components\BaseModel;
 use app\components\XUtils;
+use app\components\CMSUtils;
+
 
 /**
  * This is the model class for table "{{%post}}".

@@ -11,7 +11,7 @@ use yii\web\AssetBundle;
  */
 class AdminAsset extends AssetBundle
 {
-    public $sourcePath = '@crazydbAdmin/assets/resources';
+    public $sourcePath = '@CrazydbAdmin/assets/resources';
     public $css = [
         'css/common.css'
     ];

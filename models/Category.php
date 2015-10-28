@@ -3,8 +3,10 @@
 namespace app\models;
 
 use Yii;
-use \app\components\BaseModel;
+use app\components\BaseModel;
 use yii\helpers\Url;
+use yii\caching\DbDependency;
+use yii\db\Query;
 
 /**
  * This is the model class for table "{{%category}}".
@@ -19,6 +21,7 @@ use yii\helpers\Url;
  * @property string $seo_title
  * @property string $seo_keywords
  * @property string $seo_description
+ * @property integer $update_time
  *
  * #用魔术方法获取的属性
  * @property string $url
@@ -157,6 +160,7 @@ class Category extends BaseModel
         else
             $this->alias = htmlspecialchars(strip_tags($this->alias));
 
+        $this->update_time = time();
         return true;
     }
 
@@ -188,5 +192,40 @@ class Category extends BaseModel
             return Url::to(['/category/alias', 'name' => str_replace(' ', '-', $this->alias)], true);
         } else
             return Url::to(['/category/view', 'id' => $this->id], true);
+    }
+
+    /**
+     * 获取所有的文章分类。
+     * @param bool $refresh 强制刷新
+     * @return array
+     */
+    public static function getAllCategories($refresh = false)
+    {
+        $cache_key = '__categories';
+        if ($refresh)
+            $items = [];
+        else
+            $items = Yii::$app->cache->get($cache_key);
+
+        if (empty($items)) {
+            $item_array = self::find()->select('id,name')->asArray()->all();
+            if (empty($item_array))
+                return [];
+            foreach ($item_array as $item) {
+                $items[$item['id']] = $item['name'];
+            }
+            $dp = new DbDependency();
+            $dp->sql = (new Query())
+                ->select('MAX(update_time)')
+                ->from(self::tableName())
+                ->createCommand()->rawSql;
+            Yii::$app->cache->set(
+                $cache_key,
+                $items,
+                3600,
+                $dp
+            );
+        }
+        return $items;
     }
 }

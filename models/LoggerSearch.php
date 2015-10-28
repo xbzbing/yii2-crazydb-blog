@@ -1,22 +1,21 @@
 <?php
 
-namespace app\models\search;
+namespace app\models;
 
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Tag;
 
 /**
- * TagSearch represents the model behind the search form about `app\models\Tag`.
+ * LoggerSearch represents the model behind the search form about `app\models\Logger`.
  */
-class TagSearch extends Tag
+class LoggerSearch extends Logger
 {
     public function rules()
     {
         return [
-            [['id', 'pid', 'cid', 'create_time'], 'integer'],
-            [['name'], 'safe'],
+            [['id', 'uid', 'create_time'], 'integer'],
+            [['status', 'optype', 'info', 'ip', 'user_agent'], 'safe'],
         ];
     }
 
@@ -28,7 +27,7 @@ class TagSearch extends Tag
 
     public function search($params)
     {
-        $query = Tag::find();
+        $query = Logger::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -40,12 +39,15 @@ class TagSearch extends Tag
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'pid' => $this->pid,
-            'cid' => $this->cid,
+            'uid' => $this->uid,
             'create_time' => $this->create_time,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $query->andFilterWhere(['like', 'status', $this->status])
+            ->andFilterWhere(['like', 'optype', $this->optype])
+            ->andFilterWhere(['like', 'info', $this->info])
+            ->andFilterWhere(['like', 'ip', $this->ip])
+            ->andFilterWhere(['like', 'user_agent', $this->user_agent]);
 
         return $dataProvider;
     }

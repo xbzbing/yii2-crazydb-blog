@@ -12,10 +12,10 @@ use app\models\Logger;
  * @package app\modules\admin
  * @property string $version
  */
-class Module extends \yii\base\Module
+class Module extends Yii\base\Module
 {
     public $name = '管理后台';
-    public $_version = 'v0.8';
+    public $_version = 'v0.0.9';
     public $controllerNamespace = 'app\modules\admin\controllers';
     public $allowedIPs;
     /**
@@ -32,7 +32,7 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
-        Yii::setAlias('@crazydbAdmin', __DIR__);
+        Yii::setAlias('@CrazydbAdmin', __DIR__);
         if (!is_array($this->excludedRoute)) {
             Yii::trace('AdminModule.excludedRoute配置错误', 'Config');
             $this->excludedRoute = [];

@@ -3,11 +3,9 @@
 namespace app\models;
 
 use Yii;
-
-use \yii\base\NotSupportedException;
-use \yii\db\ActiveRecord;
-use \yii\web\IdentityInterface;
-
+use yii\base\NotSupportedException;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 use app\components\XUtils;
 
 /**

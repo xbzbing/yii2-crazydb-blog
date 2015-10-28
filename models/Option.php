@@ -2,9 +2,10 @@
 
 namespace app\models;
 
-use app\components\BaseModel;
 use Yii;
 use yii\helpers\Html;
+use app\components\BaseModel;
+
 
 /**
  * This is the model class for table "{{%option}}".

@@ -5,11 +5,9 @@ namespace app\modules\admin\controllers;
 
 use Yii;
 use app\models\Category;
+use app\modules\admin\components\Controller;
 use yii\web\NotFoundHttpException;
 use yii\data\ActiveDataProvider;
-use app\modules\admin\components\Controller;
-
-use app\components\CMSUtils;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -51,7 +49,7 @@ class CategoryController extends Controller
     public function actionCreate()
     {
         $model = new Category;
-        $category_array = CMSUtils::getAllCategories();
+        $category_array = Category::getAllCategories();
         $category_array = ['0' => '顶级分类'] + $category_array;
         if (isset($category_array[1]) && $category_array[1] == '未分类')
             unset($category_array[1]);
@@ -75,7 +73,7 @@ class CategoryController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $category_array = CMSUtils::getAllCategories();
+        $category_array = Category::getAllCategories();
         $category_array = ['0' => '顶级分类'] + $category_array;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             $this->redirect(['view', 'id' => $id]);
