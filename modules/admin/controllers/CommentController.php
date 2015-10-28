@@ -3,17 +3,28 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\Comment;
-use app\models\search\CommentSearch;
-use app\modules\admin\components\Controller;
 use yii\web\NotFoundHttpException;
-
+use yii\filters\VerbFilter;
+use app\models\Comment;
+use app\models\CommentSearch;
+use app\modules\admin\components\Controller;
 
 /**
  * CommentController implements the CRUD actions for Comment model.
  */
 class CommentController extends Controller
 {
+    public function behaviors()
+    {
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['post'],
+                ],
+            ],
+        ];
+    }
 
     /**
      * Lists all Comment models.
@@ -21,12 +32,12 @@ class CommentController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new CommentSearch;
-        $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
+        $searchModel = new CommentSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
             'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -40,6 +51,24 @@ class CommentController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
+    }
+
+    /**
+     * Creates a new Comment model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     * @return mixed
+     */
+    public function actionCreate()
+    {
+        $model = new Comment();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['view', 'id' => $model->id]);
+        } else {
+            return $this->render('create', [
+                'model' => $model,
+            ]);
+        }
     }
 
     /**
@@ -62,16 +91,15 @@ class CommentController extends Controller
     }
 
     /**
-     * 删除评论
-     * 同时删除其他对留言的回复
+     * Deletes an existing Comment model.
+     * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
      */
     public function actionDelete($id)
     {
-        $mode = $this->findModel($id);
-        $mode->delete();
-        Comment::deleteAll('replyto=:cid', ['cid' => $id]);
+        $this->findModel($id)->delete();
+
         return $this->redirect(['index']);
     }
 

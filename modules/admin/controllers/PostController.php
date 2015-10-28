@@ -3,39 +3,43 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\Post;
-use app\models\Tag;
-use app\models\search\PostSearch;
+use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
-use yii\helpers\Json;
+use app\models\Post;
+use app\models\PostSearch;
 use app\modules\admin\components\Controller;
 
 /**
- * PostController implements the CRUD actions for Post model.
+ * 文章管理
  */
 class PostController extends Controller
 {
-    public function beforeAction($action)
+    public function behaviors()
     {
-        if ($action->id == "create-img-ajax") {
-            $this->enableCsrfValidation = false;
-        }
-        return parent::beforeAction($action);
+        return [
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'delete' => ['post'],
+                ],
+            ],
+        ];
     }
 
     /**
-     * Lists all Posts.
+     * Lists all Post models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new PostSearch;
-        $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
-        $dataProvider->sort->defaultOrder = ['post_time' => SORT_DESC];
-        $dataProvider->pagination->defaultPageSize = 10;
+        $searchModel = new PostSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->sort->defaultOrder = ['is_top' => SORT_DESC, 'post_time' => SORT_DESC, 'update_time' => SORT_DESC];
+        $dataProvider->pagination->pageSize = 15;
+
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
             'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 
@@ -47,7 +51,7 @@ class PostController extends Controller
     public function actionView($id)
     {
         return $this->render('view', [
-            'post' => $this->findModel($id),
+            'model' => $this->findModel($id),
         ]);
     }
 
@@ -58,14 +62,17 @@ class PostController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Post;
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
+        $model = new Post();
+        $model->author_name = Yii::$app->user->identity->nickname;
+        if ($model->load(Yii::$app->request->post())) {
+            $model->author_id = Yii::$app->user->id;
+            if($model->save())
+                return $this->redirect(['view', 'id' => $model->id]);
         }
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -77,7 +84,7 @@ class PostController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
+        $model->setScenario(Post::SCENARIO_EDIT);
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {

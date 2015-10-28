@@ -1,13 +1,10 @@
 <?php
-
 namespace app\modules\admin\controllers;
-
 use Yii;
-use app\models\Nav;
-use app\models\search\NavSearch;
-use app\modules\admin\components\Controller;
-use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\NotFoundHttpException;
+use app\models\Nav;
+use app\modules\admin\components\Controller;
 
 /**
  * NavController implements the CRUD actions for Nav model.
@@ -25,22 +22,15 @@ class NavController extends Controller
             ],
         ];
     }
-
     /**
      * Lists all Nav models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new NavSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        $parent = Nav::find()->where(['pid' => 0])->orderBy(['order' => SORT_ASC, 'id' => SORT_ASC])->all();
+        return $this->render('index',['parent' => $parent]);
     }
-
     /**
      * Displays a single Nav model.
      * @param integer $id
@@ -52,7 +42,6 @@ class NavController extends Controller
             'model' => $this->findModel($id),
         ]);
     }
-
     /**
      * Creates a new Nav model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -61,16 +50,14 @@ class NavController extends Controller
     public function actionCreate()
     {
         $model = new Nav();
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['nav/index']);
         } else {
             return $this->render('create', [
                 'model' => $model,
             ]);
         }
     }
-
     /**
      * Updates an existing Nav model.
      * If update is successful, the browser will be redirected to the 'view' page.
@@ -80,16 +67,14 @@ class NavController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['nav/index']);
         } else {
             return $this->render('update', [
                 'model' => $model,
             ]);
         }
     }
-
     /**
      * Deletes an existing Nav model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -99,10 +84,8 @@ class NavController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
-
     /**
      * Finds the Nav model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.

@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /**
  * @var yii\web\View $this
  * @var yii\widgets\ActiveForm $form
- * @var app\modules\manager\models\SettingForm $model
+ * @var app\modules\admin\models\SettingForm $model
  * @var array $themes
  */
 $this->title = '基本设置';
@@ -30,24 +30,25 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]);?>
     <div class="box-body">
-        <div class="alert alert-success">
+        <div class="alert alert-success col-lg-12">
             <p>这里的配置将覆盖config/web的配置，比如网站名称，主题设置，管理员邮箱。</p>
         </div>
-        <div class="col-md-5">
+        <div class="col-md-12 col-lg-5">
             <?= $form->field($model, 'site_name',['inputOptions'=>['class'=>'form-control']]) ?>
             <?= $form->field($model, 'site_icp',['inputOptions'=>['class'=>'form-control']]) ?>
             <?= $form->field($model, 'admin_email',['inputOptions'=>['class'=>'form-control']]) ?>
             <?= $form->field($model, 'theme',['inputOptions'=>['class'=>'form-control']])->dropDownList($themes) ?>
             <?= $form->field($model, 'copyright',['inputOptions'=>['class'=>'form-control']]) ?>
         </div>
-        <div class="col-md-offset-1 col-md-5">
+        <div class="col-md-12 col-lg-offset-1 col-lg-5">
             <?= $form->field($model, 'site_status',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'正常运行','closed'=>'维护中，暂时关闭']) ?>
             <?= $form->field($model, 'closed_summary',['inputOptions'=>['class'=>'form-control autogrow']])->textarea(['rows'=>6]) ?>
         </div>
+        <div class="clearfix"></div>
     </div>
     <div class="box-footer">
         <?= Html::submitButton('保存', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
-        <?= Html::a('返回管理首页',['default/'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
+        <?= Html::a('返回管理首页',['default/index'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
     </div>
     <?php ActiveForm::end(); ?>
 </div>

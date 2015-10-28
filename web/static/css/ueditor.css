@@ -1,0 +1,7 @@
+@charset "UTF-8";
+body.view{
+    font-family: "Microsoft Yahei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+body.view > p{
+    line-height: 1.55em;
+}

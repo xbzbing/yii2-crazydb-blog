@@ -1,18 +1,14 @@
 <?php
-
 use yii\helpers\Html;
 use yii\grid\GridView;
-
-use app\components\CMSUtils;
+use app\models\Category;
 use app\models\Post;
-
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\search/PostSearch */
+/* @var $searchModel app\models\PostSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = '文章管理';
 $this->params['breadcrumbs'][] = $this->title;
-
 ?>
 <div class="box post-index">
     <div class="box-header with-border">
@@ -32,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 [
                     'attribute' => 'cid',
                     'value' => 'postCategory',
-                    'filter' => Html::activeDropDownList($searchModel, 'cid', ['' => '全部'] + CMSUtils::getAllCategories(), ['class' => 'form-control']),
+                    'filter' => Html::activeDropDownList($searchModel, 'cid', ['' => '全部'] + Category::getAllCategories(), ['class' => 'form-control']),
                 ],
                 [
                     'attribute' => 'author_id',

@@ -20,12 +20,12 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('清空所有缓存', ['config/cache', 'action' => 'clear_all'], [
             'class' => 'btn btn-success',
             'data' => [
-                'confirm' => 'Be careful of performing this operation if the cache is shared among multiple applications.',
+                'confirm' => '缓存可能共用,清空全部缓存可能会影响系统稳定.',
                 'method' => 'post',
             ],
         ]) ?>
     </div>
     <div class="box-footer">
-        <?= Html::a('返回',['config/index'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
+        <?= Html::a('返回',['default/index'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
     </div>
 </div>

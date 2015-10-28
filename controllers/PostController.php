@@ -5,7 +5,7 @@ namespace app\controllers;
 use app\models\Comment;
 use Yii;
 use app\models\Post;
-use app\models\search\PostSearch;
+use app\models\PostSearch;
 use app\components\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -59,17 +59,20 @@ class PostController extends BaseController
 
     public function actionAlias($name)
     {
-        $post = Post::findOne(['alias' => $name]);
-        if (!$post)
-            throw new NotFoundHttpException('The requested page does not exist.');
+        $post = $this->findModelByAlias($name);
+
         //按类型显示
         $comments = Comment::findAll(['pid' => $post->id]);
         $post->updateCounters(['view_count' => 1, 'comment_count' => count($comments) - $post->comment_count]);
         return $this->render('view', [
             'post' => $post,
-            'category' => $post->getCategory()->one(),
-            'author' => $post->getAuthor()->one(),
-            'comments' => $comments
+            'comments' => $comments,
+            'hide_post' => array(
+                'passed' => [],
+                'info' => '',
+                'captcha' => 'hide-captcha',
+                'pwd' => 'hide-pwd'
+            )
         ]);
     }
 
@@ -83,6 +86,22 @@ class PostController extends BaseController
     protected function findModel($id)
     {
         if (($model = Post::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    /**
+     * Finds the Post model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param string $alias
+     * @return Post the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModelByAlias($alias)
+    {
+        if (($model = $post = Post::findOne(['alias' => $alias])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

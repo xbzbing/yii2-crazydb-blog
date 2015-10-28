@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /**
  * @var yii\web\View $this
  * @var yii\widgets\ActiveForm $form
- * @var app\modules\manager\models\SeoForm $model
+ * @var app\modules\admin\models\SeoForm $model
  */
 $this->title = 'SEO设置';
 $this->params['breadcrumbs'][] = ['label'=>'系统设置','url'=>'#'];
@@ -42,10 +42,11 @@ $this->params['breadcrumbs'][] = $this->title;
             <p>3、SEO 描述应为本网站的基本信息描述。P.S. Post页面默认描述信息修改为Post的简介。</p>
         </div>
         <?=$form->errorSummary($model);?>
+        <div class="clearfix"></div>
     </div>
     <div class="box-footer">
         <?= Html::submitButton('保存', ['class' => 'btn btn-primary', 'name' => 'login-button']) ?>
-        <?= Html::a('返回',['config/index'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
+        <?= Html::a('返回管理首页',['default/index'], ['class' => 'btn btn-default', 'name' => 'login-button']) ?>
     </div>
     <?php ActiveForm::end(); ?>
 </div>

@@ -14,6 +14,8 @@ use app\models\Post;
  * @var array $comments
  * @var array $hide_post */
 
+$author = $post->author;
+$category = $post->category;
 $this->title = $post->title;
 $this->params['breadcrumbs'][] = ['label' => '文章', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label'=>$category->name,'url'=>$category->getUrl()];

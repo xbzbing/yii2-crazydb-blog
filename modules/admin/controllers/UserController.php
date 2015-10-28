@@ -3,9 +3,9 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\User;
-use app\models\search\UserSearch;
 use yii\web\NotFoundHttpException;
+use app\models\User;
+use app\models\UserSearch;
 use app\modules\admin\components\Controller;
 
 /**

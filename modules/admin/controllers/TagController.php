@@ -3,11 +3,11 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\Tag;
-use app\models\search\TagSearch;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use app\models\Tag;
+use app\models\TagSearch;
 use app\modules\admin\components\Controller;
 
 /**

@@ -1,9 +1,12 @@
 <?php
 use yii\bootstrap\Nav;
 use app\components\Common;
+use app\models\User;
+/* @var User $current_user */
+$current_user = Yii::$app->user->identity;
 
 $menuItems = [
-    ['label' => Yii::t('app', 'Frontend Home'), 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
+    ['label' => '前台首页', 'url' => ['/site/index'], 'linkOptions' => ['target' => '_blank']],
 ];
 
 switch (Common::getLanguage()) {
@@ -28,16 +31,16 @@ $menuItems[] = [
 ];
 
 $menuItems[] =  [
-    'label' => Yii::$app->user->identity->nickname,
+    'label' => $current_user->nickname,
     'url' => ['#'],
     'active' => false,
     'items' => [
         [
-            'label' => '<i class="fa fa-user"></i> ' . Yii::t('app', 'Profile'),
+            'label' => '<i class="fa fa-user"></i> ' . '个人资料',
             'url' => ['/user'],
         ],
         [
-            'label' => '<i class="fa fa-sign-out"></i> ' . Yii::t('app', 'Sign Out'),
+            'label' => '<i class="fa fa-sign-out"></i> ' . '注销',
             'url' => ['/role'],
         ],
     ],

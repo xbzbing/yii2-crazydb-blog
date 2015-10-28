@@ -2,11 +2,11 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
-
 use app\components\CMSUtils;
-use app\modules\admin\components\Controller;
 use app\modules\admin\models\SettingForm;
 use app\modules\admin\models\SeoForm;
+use app\modules\admin\components\Controller;
+
 
 /**
  * Default controller
@@ -34,7 +34,7 @@ class ConfigController extends Controller
             if (!isset($themes[$setting->theme])) {
                 $setting->addError('theme', '指定主题不存在！');
                 $setting->theme = '[none]';
-            } else {
+            }else{
                 if ($setting->save('sys'))
                     Yii::$app->cache->set('config_sys', $setting->attributes);
             }
@@ -71,7 +71,17 @@ class ConfigController extends Controller
      */
     public function actionCache()
     {
-
+        $actions = [
+            'clear_all'
+        ];
+        $action = Yii::$app->request->get('action');
+        if(Yii::$app->request->isPost && in_array($action, $actions)){
+            if($action === 'clear_all'){
+                Yii::$app->cache->flush();
+                Yii::$app->session->setFlash('admin-success', '操作成功，该漏洞已经通过审核。');
+            }
+        }
+        return $this->render('cache');
     }
 
 }

@@ -4,9 +4,10 @@ namespace app\models;
 
 use Yii;
 use yii\helpers\Url;
+use yii\caching\DbDependency;
+use yii\db\Query;
 use app\components\BaseModel;
 use app\components\XUtils;
-use app\components\CMSUtils;
 
 
 /**
@@ -30,8 +31,8 @@ use app\components\CMSUtils;
  * @property string $tags 标签
  * @property integer $comment_count 评论数量
  * @property integer $view_count 点击数量
- * @property string $options 配置信息
  * @property string $ext_info 附加信息
+ * @property integer $is_top 是否置顶
  *
  * #利用魔术方法获取的属性
  * @property array $availableStatus 支持的文章状态
@@ -49,6 +50,7 @@ use app\components\CMSUtils;
  */
 class Post extends BaseModel
 {
+    const SCENARIO_EDIT = 'edit';
     /**
      * 文章状态
      * 共四类
@@ -83,13 +85,12 @@ class Post extends BaseModel
     {
         return [
             [['cid', 'author_id', 'comment_count', 'view_count'], 'integer'],
-            [['author_id', 'author_name', 'title', 'content', 'create_time'], 'required'],
+            [['author_id', 'title', 'content'], 'required'],
             [['excerpt', 'content', 'ext_info'], 'string'],
             [['author_name'], 'string', 'max' => 80],
             [['type'], 'string', 'max' => 20],
             [['title', 'alias', 'cover', 'tags'], 'string', 'max' => 255],
             [['password'], 'string', 'max' => 32],
-            [['options'], 'string', 'max' => 8],
             [['content', 'excerpt'], 'purify'],
             [['status'], 'default', 'value' => self::STATUS_PUBLISHED],
             [['status'], 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '文章的「状态」错误！'],
@@ -105,9 +106,9 @@ class Post extends BaseModel
     {
         return [
             'id' => '文章ID',
-            'cid' => '分类ID',
-            'author_id' => '作者ID',
-            'author_name' => '作者昵称',
+            'cid' => '分类',
+            'author_id' => '作者',
+            'author_name' => '笔名',
             'type' => '类型',
             'title' => '标题',
             'alias' => '访问别名',
@@ -122,10 +123,10 @@ class Post extends BaseModel
             'tags' => '标签',
             'comment_count' => '评论数',
             'view_count' => '浏览数',
-            'options' => '配置信息',
             'ext_info' => '附加数据',
             'postType' => '类型',
-            'postStatus' => '状态'
+            'postStatus' => '状态',
+            'is_top' => '置顶'
         ];
     }
 
@@ -136,10 +137,10 @@ class Post extends BaseModel
     public static function getAvailableStatus()
     {
         return [
-            self::STATUS_DELETED => '已删除',
-            self::STATUS_DRAFT => '草稿',
             self::STATUS_PUBLISHED => '已发布',
-            self::STATUS_HIDDEN => '隐藏'
+            self::STATUS_DRAFT => '存草稿',
+            self::STATUS_HIDDEN => '加锁发布',
+            self::STATUS_DELETED => '已删除',
         ];
     }
 
@@ -195,13 +196,16 @@ class Post extends BaseModel
         return self::getTypeName($this->type);
     }
 
+    public function getIsTop(){
+        return $this->is_top > 0;
+    }
     /**
      * 获得文章所属分类
      * @return string|null
      */
     public function getPostCategory()
     {
-        $categories = CMSUtils::getAllCategories();
+        $categories = Category::getAllCategories();
         return isset($categories[$this->cid]) ? $categories[$this->cid] : null;
     }
 
@@ -224,7 +228,7 @@ class Post extends BaseModel
             $this->ext_info = null;
         }
         //编辑状态记录信息
-        if ($this->scenario == 'edit') {
+        if ($this->scenario == self::SCENARIO_EDIT) {
             $this->ext_info = is_array($this->ext_info) ? serialize($this->ext_info) : null;
             $this->update_time = time();
         }
@@ -321,12 +325,16 @@ class Post extends BaseModel
     {
         $relations = ['before' => '<', 'after' => '>'];
         $orders = ['before' => SORT_DESC, 'after' => SORT_ASC];
+        if($simple)
+            $cache_key = "simple_post_{$relation}_{$this->id}";
+        else
+            $cache_key = "all_post_{$relation}_{$this->id}";
         $op = null;
         if (isset($relations[$relation]))
             $op = $relations[$relation];
         else
             return null;
-        $one = Yii::$app->cache->get("post_{$relation}_" . $this->id);
+        $one = Yii::$app->cache->get($cache_key);
         if ($refresh)
             $one = null;
         if ($one) {
@@ -334,7 +342,7 @@ class Post extends BaseModel
             return $one;
         } else
             Yii::trace('从数据库中查询' . $relation, 'Post');
-        $post = self::find()->where("post_time{$op}:postTime", [':postTime' => $this->post_time])
+        $post = self::find()->where([$op, 'post_time', $this->post_time])
             ->andWhere(['status' => [self::STATUS_HIDDEN, self::STATUS_PUBLISHED]])
             ->orderBy(['post_time' => $orders[$relation]]);
         if ($simple)
@@ -343,11 +351,22 @@ class Post extends BaseModel
             $post->andWhere(['cid' => $this->cid]);
 
         $one = $post->one();
-        Yii::$app->cache->set("post_{$relation}_" . $this->id, $one, 3600);
+
+        $dp = new DbDependency();
+        $dp->sql = (new Query())
+            ->select('MAX(update_time)')
+            ->from(self::tableName())
+            ->createCommand()->rawSql;
+        Yii::$app->cache->set(
+            $cache_key,
+            $one,
+            3600,
+            $dp
+        );
         return $one;
     }
 
-    #relationships
+    # Relationships
 
     public function getAuthor()
     {

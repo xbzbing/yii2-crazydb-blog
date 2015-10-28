@@ -14,13 +14,6 @@ $config = [
             'class' => 'app\modules\Admin\Module'
         ],
     ],
-
-    'controllerMap' => [
-        'ueditor' => [
-            'class' => 'crazydb\ueditor\UEditorController',
-        ]
-    ],
-
     'components' => [
         'request' => [
             'cookieValidationKey' => 'cookieValidateKey!'

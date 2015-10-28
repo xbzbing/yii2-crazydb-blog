@@ -3,33 +3,47 @@
 use yii\web\View;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use app\components\CMSUtils;
+use yii\helpers\Url;
+use app\models\Category;
 use app\models\Post;
 use crazydb\ueditor\UEditor;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Post */
 /* @var $form yii\widgets\ActiveForm */
-$this->registerJsFile(\yii\helpers\Url::base(true).'/static/plugins/webuploader/webuploader.min.js')
+$this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.min.js')
 ?>
 
 <div class="post-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
+    <?=$form->errorSummary($model, ['class' => 'alert alert-warning'])?>
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'alias')->textInput(['maxlength' => true]) ?>
-
+    <div class="row">
+        <div class="col-md-12 col-lg-4">
+            <?= $form->field($model, 'alias')->textInput(['maxlength' => true]) ?>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            <?= $form->field($model, 'author_name')->textInput(['maxlength' => true]) ?>
+        </div>
+    </div>
     <?= $form->field($model, 'cover', ['template' => '{label}<div class="input-group"><span class="input-group-btn"><button id="cover-upload" type="button" class="btn btn-success">上传图片</button></span>{input}</div>'])->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'is_top')->dropDownList(['0' => '普通', '1' => '置顶']) ?>
-
-    <?= $form->field($model, 'cid')->dropDownList(CMSUtils::getAllCategories()) ?>
-
-    <?= $form->field($model, 'status')->dropDownList(Post::getAvailableStatus()) ?>
-
+    <div class="row">
+        <div class="col-md-12 col-lg-3">
+            <?= $form->field($model, 'cid')->dropDownList(Category::getAllCategories()) ?>
+        </div>
+        <div class="col-md-12 col-lg-3">
+            <?= $form->field($model, 'status')->dropDownList(Post::getAvailableStatus()) ?>
+        </div>
+        <div class="col-md-12 col-lg-3">
+            <?= $form->field($model, 'type')->dropDownList(Post::getAvailableType()) ?>
+        </div>
+        <div class="col-md-12 col-lg-3">
+            <?= $form->field($model, 'is_top')->dropDownList(['0' => '普通', '1' => '置顶']) ?>
+        </div>
+    </div>
     <?= $form->field($model, 'content')->textarea(['rows' => 6])->widget(UEditor::className(), [
         'config' => [
             'serverUrl' => ['editor/index'],
@@ -37,7 +51,7 @@ $this->registerJsFile(\yii\helpers\Url::base(true).'/static/plugins/webuploader/
         ]
     ]) ?>
 
-    <?= $form->field($model, 'abstract')->textarea(['rows' => 6])->widget(UEditor::className(),[
+    <?= $form->field($model, 'excerpt')->textarea(['rows' => 6])->widget(UEditor::className(),[
         'config'=>[
             'toolbars'=>[
                 ['source','link','bold','italic','underline','forecolor','superscript','insertimage','spechars','blockquote','removeformat','pasteplain']
@@ -64,7 +78,7 @@ $this->registerJsFile(\yii\helpers\Url::base(true).'/static/plugins/webuploader/
         formData: {
             _csrf: '<?=Yii::$app->request->csrfToken?>'
         },
-        server: '<?=\yii\helpers\Url::to(['/tool/image-upload'])?>',
+        server: '<?=Url::to(['/tool/image-upload'])?>',
         pick: '#cover-upload',
         accept: {
             title: '请选择图片',

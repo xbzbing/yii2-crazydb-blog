@@ -22,6 +22,8 @@ class Menu extends \yii\widgets\Menu
      */
     protected function renderItem($item)
     {
+        if(isset($item['type']) && $item['type'] === 'header')
+            return "<li class=\"header\">{$item['label']}</li>";
         if(isset($item['items']))
             $linkTemplate = '<a href="{url}">{icon} {label} <i class="fa fa-angle-left pull-right"></i></a>';
         else
@@ -31,7 +33,7 @@ class Menu extends \yii\widgets\Menu
             $replace = !empty($item['icon']) ? [
                 '{url}' => Url::to($item['url']),
                 '{label}' => $item['label'],
-                '{icon}' => '<i class="fa ' . $item['icon'] . '"></i> '
+                '{icon}' => '<i class="' . $item['icon'] . '"></i> '
             ] : [
                 '{url}' => Url::to($item['url']),
                 '{label}' => $item['label']
@@ -41,7 +43,7 @@ class Menu extends \yii\widgets\Menu
             $template = ArrayHelper::getValue($item, 'template', $this->labelTemplate);
             $replace = !empty($item['icon']) ? [
                 '{label}' => $item['label'],
-                '{icon}' => '<i class="fa ' . $item['icon'] . '"></i> '
+                '{icon}' => '<i class="' . $item['icon'] . '"></i> '
             ] : [
                 '{label}' => $item['label'],
             ];
@@ -144,11 +146,10 @@ class Menu extends \yii\widgets\Menu
             if ($route[0] !== '/' && Yii::$app->controller) {
                 $route = Yii::$app->controller->module->getUniqueId() . '/' . $route;
             }
-            $arrayRoute = explode('/', ltrim($route, '/'));
-            $arrayThisRoute = explode('/', $this->route);
-            if ($arrayRoute[0] !== $arrayThisRoute[0]) {
+
+            if($route !== $this->route)
                 return false;
-            }
+
             unset($item['url']['#']);
             if (count($item['url']) > 1) {
                 foreach (array_splice($item['url'], 1) as $name => $value) {

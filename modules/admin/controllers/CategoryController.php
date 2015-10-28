@@ -4,10 +4,11 @@ namespace app\modules\admin\controllers;
 
 
 use Yii;
-use app\models\Category;
-use app\modules\admin\components\Controller;
-use yii\web\NotFoundHttpException;
 use yii\data\ActiveDataProvider;
+use yii\web\NotFoundHttpException;
+use app\models\Category;
+use app\components\CMSUtils;
+use app\modules\admin\components\Controller;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -48,11 +49,17 @@ class CategoryController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Category;
-        $category_array = Category::getAllCategories();
-        $category_array = ['0' => '顶级分类'] + $category_array;
+        $model = new Category();
+        $category_array = CMSUtils::getAllCategories();
+
+        if($category_array)
+            $category_array = ['0' => '顶级分类'] + $category_array;
+        else
+            $category_array = ['0' => '顶级分类'];
+
         if (isset($category_array[1]) && $category_array[1] == '未分类')
             unset($category_array[1]);
+
         if ($model->load($_POST)) {
             if ($model->save())
                 $this->redirect(['category/view', 'id' => $model->id]);
@@ -73,10 +80,10 @@ class CategoryController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $category_array = Category::getAllCategories();
+        $category_array = CMSUtils::getAllCategories();
         $category_array = ['0' => '顶级分类'] + $category_array;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            $this->redirect(['view', 'id' => $id]);
+            return $this->redirect(['view', 'id' => $id]);
         } else {
             return $this->render('update', [
                 'model' => $model,

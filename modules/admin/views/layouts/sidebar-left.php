@@ -1,5 +1,6 @@
 <?php
 use yii\web\View;
+use yii\helpers\Url;
 use app\components\XUtils;
 use app\models\User;
 use app\modules\admin\widgets\Menu;
@@ -8,6 +9,7 @@ use app\modules\admin\widgets\Menu;
  * @var View $this
  * @var User $current_user
  */
+$current_url = Url::current();
 $current_user = Yii::$app->user->identity;
 
 ?>
@@ -29,50 +31,62 @@ $current_user = Yii::$app->user->identity;
                 ],
                 'items' => [
                     [
-                        'label' => Yii::t('app', 'Dashboard'),
-                        'url' => Yii::$app->homeUrl,
-                        'icon' => 'fa-dashboard',
-                        'active' => Yii::$app->request->url === Yii::$app->homeUrl
+                        'label' => '管理首页',
+                        'url' => ['default/index'],
+                        'icon' => 'fa fa-dashboard',
+                        'active' => $current_url === Url::to(['default/index'])
                     ],
                     [
-                        'label' => Yii::t('app', 'Settings'),
-                        'url' => ['#'],
-                        'icon' => 'fa fa-spinner',
+                        'label' => '文章管理',
+                        'url' => ['post/index'],
+                        'icon' => 'fa fa-list',
+                    ],
+                    [
+                        'label' => '分类管理',
+                        'url' => ['category/index'],
+                        'icon' => 'fa fa-folder-open',
+                    ],
+                    [
+                        'label' => '留言管理',
+                        'url' => ['comment/index'],
+                        'icon' => 'fa fa-comment',
+                    ],
+                    [
+                        'label' => '用户管理',
+                        'url' => ['user/index'],
+                        'icon' => 'fa fa-user',
+                    ],
+                    [
+                        'label' => '操作日志',
+                        'url' => ['log/index'],
+                        'icon' => 'fa fa-paw',
+                    ],
+                    [
+                        'label' => '设置',
+                        'type' => 'header'
+                    ],
+                    [
+                        'label' => '系统配置',
+                        'url' => ['config/index'],
+                        'icon' => 'fa fa-cogs',
                         'options' => [
                             'class' => 'treeview',
                         ],
-                        'visible' => Yii::$app->user->can('readPost'),
                         'items' => [
                             [
-                                'label' => Yii::t('app', 'Basic'),
-                                'url' => ['/basic/index'],
-                                'icon' => 'fa fa-user',
+                                'label' => '基本设置',
+                                'url' => ['config/setting'],
+                                'icon' => 'fa fa-cog',
                             ],
                             [
-                                'label' => Yii::t('app', 'Advanced'),
-                                'url' => ['/advanced/index'],
-                                'icon' => 'fa fa-lock',
-                            ],
-                        ],
-                    ],
-                    [
-                        'label' => Yii::t('app', 'System'),
-                        'url' => ['#'],
-                        'icon' => 'fa fa-cog',
-                        'options' => [
-                            'class' => 'treeview',
-                        ],
-                        'items' => [
-                            [
-                                'label' => Yii::t('app', 'User'),
-                                'url' => ['/user/index'],
-                                'icon' => 'fa fa-user',
-                                //'visible' => (Yii::$app->user->identity->username == 'admin'),
+                                'label' => '缓存管理',
+                                'url' => ['config/cache'],
+                                'icon' => 'fa fa-spinner',
                             ],
                             [
-                                'label' => Yii::t('app', 'Role'),
-                                'url' => ['/role/index'],
-                                'icon' => 'fa fa-lock',
+                                'label' => 'SEO 设置',
+                                'url' => ['config/seo'],
+                                'icon' => 'fa fa-google',
                             ],
                         ],
                     ],
