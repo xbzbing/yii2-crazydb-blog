@@ -14,8 +14,13 @@ class FontAwesomeAsset extends AssetBundle
     public $sourcePath = '@vendor/fortawesome/font-awesome';
     public $css = [];
     public $js = [];
-    public $depends = [
-        'yii\web\YiiAsset',
+    public $depends = [];
+
+    public $publishOptions = [
+        'only' => [
+            'css/*',
+            'fonts/*'
+        ]
     ];
 
     public function init(){

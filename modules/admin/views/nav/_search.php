@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\search\NavSearch */
+/* @var $model app\models\NavSearch */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -24,6 +24,8 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'url') ?>
 
     <?= $form->field($model, 'order') ?>
+
+    <?php // echo $form->field($model, 'extra') ?>
 
     <?php // echo $form->field($model, 'create_time') ?>
 

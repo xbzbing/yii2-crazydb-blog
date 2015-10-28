@@ -1,10 +1,7 @@
 <?php
-
 use yii\helpers\Html;
-
 /* @var $this yii\web\View */
 /* @var $model app\models\Nav */
-
 $this->title = '更新导航';
 $this->params['breadcrumbs'][] = ['label' => '前台导航', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];

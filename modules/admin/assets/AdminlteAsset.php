@@ -33,10 +33,19 @@ class AdminlteAsset extends AssetBundle
         */
         'dist/js/app.min.js'
     ];
+
     public $depends = [
-        'yii\web\YiiAsset',
         'yii\bootstrap\BootstrapAsset',
         'yii\bootstrap\BootstrapPluginAsset'
+    ];
+    public $publishOptions = [
+        'except' => [
+            '/*.html',
+            '/*.json',
+            '/*.md',
+            '/*.js',
+            'pages/'
+        ]
     ];
 
 }

@@ -1,41 +1,52 @@
 <?php
 
 use yii\helpers\Html;
-use yii\widgets\DetailView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Nav */
 
-$this->title = $model->name;
+$this->title = '编辑导航';
 $this->params['breadcrumbs'][] = ['label' => 'Navs', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="nav-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+<div class="box">
+    <div class="box-header with-border">
+        <h3 class="box-title">编辑导航</h3>
+        <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
+            <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
+    <div class="box-body">
+        <table class="table table-hover">
+            <tr>
+                <td>名称</td>
+                <td><?=$model->name?></td>
+            </tr>
+            <tr>
+                <td>类型</td>
+                <td><?=$model->pid?$model->navType. ' - ' . $model->parent->name:$model->navType?></td>
+            </tr>
+            <tr>
+                <td>网址</td>
+                <td><?=$model->url?></td>
+            </tr>
+            <tr>
+                <td>显示顺序</td>
+                <td><?=$model->order?></td>
+            </tr>
+        </table>
+    </div>
+    <div class="box-footer">
+        <?= Html::a('更新', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('删除', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
+                'confirm' => '删除操作不可恢复，确定删除？',
                 'method' => 'post',
             ],
         ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'pid',
-            'name',
-            'url:url',
-            'order',
-            'create_time:datetime',
-            'update_time:datetime',
-        ],
-    ]) ?>
-
+        <?= Html::a('返回', ['nav/index'], ['class' => 'btn btn-default']) ?>
+    </div>
 </div>
