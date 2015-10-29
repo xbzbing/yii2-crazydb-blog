@@ -64,6 +64,7 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
 
     <div class="form-group">
         <?= Html::submitButton('保存', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::a('返回', ['post/index'], ['class' => 'btn btn-default']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>
@@ -76,9 +77,9 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
     var cover_uploader = WebUploader.create({
         auto: true,
         formData: {
-            _csrf: '<?=Yii::$app->request->csrfToken?>'
+            _csrf: '<?= Yii::$app->request->csrfToken ?>'
         },
-        server: '<?=Url::to(['/tool/image-upload'])?>',
+        server: '<?= Url::to(['/tool/image-upload']) ?>',
         pick: '#cover-upload',
         accept: {
             title: '请选择图片',

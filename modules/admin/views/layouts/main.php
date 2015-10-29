@@ -26,44 +26,44 @@ $current_module = Yii::$app->controller->module;
         <title><?= $this->title ? $this->title . ' | ' . $current_module->name : $current_module->name ?></title>
         <?php $this->head() ?>
     </head>
-    <body class="skin-blue">
+    <body class="skin-blue sidebar-mini">
     <?php $this->beginBody() ?>
-    <div class="wrapper">
-        <header class="main-header">
-            <a href="javascript:void(0)" class="logo"><b><?= Yii::$app->name ?></b></a>
-            <nav class="navbar navbar-static-top" role="navigation">
-                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                    <span class="sr-only">Toggle navigation</span>
-                </a>
-                <div class="navbar-custom-menu">
-                    <?= $this->render('navbar-menu') ?>
-                </div>
-            </nav>
-        </header>
-        <?= $this->render('sidebar-left') ?>
-        <div class="content-wrapper">
-            <section class="content-header">
-                <h1>
-                    <?= $this->title ?>
-                </h1>
-                <?= Breadcrumbs::widget([
-                    'tag' => 'ol',
-                    'encodeLabels' => false,
-                    'homeLink' => ['label' => '<i class="fa fa-dashboard"> </i>控制台', 'url' => ['/manager']],
-                    'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [$this->title],
-                ]) ?>
-            </section>
-            <section class="content">
-                <?= $content ?>
-            </section>
-        </div>
-        <footer class="main-footer">
-            <div class="pull-right hidden-xs">
-                <b>Version</b> <?= $current_module->version ?>
+        <div class="wrapper">
+            <header class="main-header">
+                <a href="javascript:void(0)" class="logo"><b><?= Yii::$app->name ?></b></a>
+                <nav class="navbar navbar-static-top" role="navigation">
+                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                        <span class="sr-only">Toggle navigation</span>
+                    </a>
+                    <div class="navbar-custom-menu">
+                        <?= $this->render('navbar-menu') ?>
+                    </div>
+                </nav>
+            </header>
+            <?= $this->render('sidebar-left') ?>
+            <div class="content-wrapper">
+                <section class="content-header">
+                    <h1>
+                        <?= $this->title ?>
+                    </h1>
+                    <?= Breadcrumbs::widget([
+                        'tag' => 'ol',
+                        'encodeLabels' => false,
+                        'homeLink' => ['label' => '<i class="fa fa-dashboard"> </i>控制台', 'url' => ['/manager']],
+                        'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [$this->title],
+                    ]) ?>
+                </section>
+                <section class="content">
+                    <?= $content ?>
+                </section>
             </div>
-            <strong>Copyright &copy; 2014-<?= date('Y') ?> <a href="http://www.crazydb.com">疯狂数据</a>.</strong>
-        </footer>
-    </div>
+            <footer class="main-footer">
+                <div class="pull-right hidden-xs">
+                    <b>Version</b> <?= $current_module->version ?>
+                </div>
+                <strong>Copyright &copy; 2014-<?= date('Y') ?> <a href="http://www.crazydb.com">疯狂数据</a>.</strong>
+            </footer>
+        </div>
     <?php $this->endBody() ?>
     </body>
     </html>

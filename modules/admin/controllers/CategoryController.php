@@ -7,7 +7,6 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use app\models\Category;
-use app\components\CMSUtils;
 use app\modules\admin\components\Controller;
 
 /**
@@ -50,7 +49,7 @@ class CategoryController extends Controller
     public function actionCreate()
     {
         $model = new Category();
-        $category_array = CMSUtils::getAllCategories();
+        $category_array = Category::getAllCategories();
 
         if($category_array)
             $category_array = ['0' => '顶级分类'] + $category_array;
@@ -80,7 +79,7 @@ class CategoryController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $category_array = CMSUtils::getAllCategories();
+        $category_array = Category::getAllCategories();
         $category_array = ['0' => '顶级分类'] + $category_array;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $id]);

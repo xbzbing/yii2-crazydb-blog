@@ -13,7 +13,7 @@
 </div>
 
 
-<div class="nav-tabs-custom hidden">
+<div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
         <li class="active"><a href="" data-toggle="tab" aria-expanded="true">标签 1</a></li>
         <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">标签 2</a></li>

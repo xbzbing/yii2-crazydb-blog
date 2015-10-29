@@ -4,7 +4,7 @@ namespace app\modules\admin;
 
 use Yii;
 use yii\web\ForbiddenHttpException;
-use app\components\AclUtils;
+use app\models\User;
 use app\models\Logger;
 
 /**
@@ -22,7 +22,7 @@ class Module extends Yii\base\Module
      * 允许访问的角色
      * @var array
      */
-    public $roles = ['Author', 'Editor', 'Manager', 'Administrator'];
+    public $allowRoles = [User::ROLE_ADMIN];
     /**
      * 允许直接访问的路由
      * @var array
@@ -46,13 +46,11 @@ class Module extends Yii\base\Module
     {
         $route = Yii::$app->controller->id . '/' . $action->id;
 
-        if (!$this->checkAccess($route)) {
+        if (!$this->checkAccess($route))
             throw new ForbiddenHttpException('需要登录');
-        }
 
-        if (!$this->checkRole()) {
+        if (!$this->checkRole())
             throw new ForbiddenHttpException('当前角色没有访问该模块的权限。');
-        }
 
         return parent::beforeAction($action);
     }
@@ -64,9 +62,9 @@ class Module extends Yii\base\Module
      */
     protected function checkAccess($route)
     {
-        if (in_array($route, $this->excludedRoute)) {
+        if (in_array($route, $this->excludedRoute))
             return true;
-        }
+
         if (Yii::$app->user->isGuest)
             return false;
         else
@@ -80,32 +78,21 @@ class Module extends Yii\base\Module
     protected function checkRole()
     {
 
-        if (!is_array($this->roles))
+        /* @var User $current_user */
+        $current_user = Yii::$app->user->identity;
+        if (!is_array($this->allowRoles))
             return false;
 
-        if (in_array('*', $this->roles))
+        if (in_array('*', $this->allowRoles))
             return true;
 
-        $userAcl = Yii::$app->user->isGuest ? 'Guest' : Yii::$app->user->identity->acl;
-        $userAcl = explode(',', $userAcl);
-        $acl = AclUtils::getAllAcl(true);
-        $currentRole = '';
+        if (in_array($current_user->role, $this->allowRoles))
+            return true;
 
-        foreach ($userAcl as $id) {
-            if (!isset($acl[$id]))
-                break;
-            $currentRole .= $acl[$id]['name'];
-            if (in_array($acl[$id]['name'], $this->roles) || $acl[$id]['name'] == AclUtils::ADMIN) {
-                return true;
-            }
-        }
-        if (!$currentRole)
-            $currentRole = 'Guest';
-
-        Logger::record(
+        1 or Logger::record(
             Yii::$app->user->id,
             '越权访问',
-            '用户[ ' . Yii::$app->user->username . " ]以[ $currentRole ]权限访问「{$this->name}」模块被拒绝。",
+            "用户[ {$current_user->username} ]以[ {$current_user->role} ]权限访问「{$this->name}」模块被拒绝。",
             '失败'
         );
 

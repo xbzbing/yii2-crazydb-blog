@@ -29,9 +29,19 @@ $this->params['breadcrumbs'][] = $this->title;
 						return Html::a($model->nickname, ['user/view', 'id' => $model->id]);
 					},
 				],
-				'id',
 				[
 					'attribute' => 'role',
+                    'value' => function($model, $key, $index, $column){
+                        /* @var User $model */
+                        if($model->isAdmin())
+                            return "<span class=\"label label-success\">{$model->userRole}</span>";
+                        elseif($model->isEditor())
+                            return "<span class=\"label label-info\">{$model->userRole}</span>";
+                        elseif($model->isMember())
+                            return "<span class=\"label label-default\">{$model->userRole}</span>";
+                        else
+                            return "<span class=\"label label-danger\">异常角色</span>";
+                    },
 					'format' => 'html',
 					'filter' => Html::activeDropDownList($searchModel, 'role', ['' => '全部'] + User::getAvailableRole(), ['class' => 'form-control']),
 				],
@@ -41,14 +51,14 @@ $this->params['breadcrumbs'][] = $this->title;
 					'attribute' => 'status',
 					'value' => function($model, $key, $index, $column){
 						/* @var User $model */
-						if($model->status === User::STATUS_BANED || $model->status === User::STATUS_DELETED)
-							return "<span class=\"label label-danger\">{$model->userStatus}</span>";
-						elseif($model->status === User::STATUS_INACTIVE)
-							return "<span class=\"label label-default\">{$model->userStatus}</span>";
-						elseif($model->status === User::STATUS_NORMAL)
-							return $model->userStatus;
-						else
+						if($model->isBaned() || $model->isDeleted())
 							return "<span class=\"label label-warning\">{$model->userStatus}</span>";
+						elseif($model->isInactive())
+							return "<span class=\"label label-default\">{$model->userStatus}</span>";
+						elseif($model->isNormal())
+							return "<span class=\"label label-success\">{$model->userStatus}</span>";
+						else
+							return "<span class=\"label label-danger\">{$model->userStatus}</span>";
 					},
 					'filter' => Html::activeDropDownList($searchModel, 'status', ['' => '全部'] + User::getAvailableStatus(), ['class' => 'form-control']),
 				],

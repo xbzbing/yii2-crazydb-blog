@@ -80,6 +80,7 @@ class UserController extends BaseController
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model->setScenario(User::SCENARIO_MODIFY_PROFILE);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);

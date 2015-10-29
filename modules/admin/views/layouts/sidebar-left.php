@@ -29,44 +29,50 @@ $current_user = Yii::$app->user->identity;
                 'options' => [
                     'class' => 'sidebar-menu'
                 ],
+                'encodeLabels' => false,
                 'items' => [
                     [
-                        'label' => '管理首页',
+                        'label' => '<span>管理首页</span>',
                         'url' => ['default/index'],
                         'icon' => 'fa fa-dashboard',
                         'active' => $current_url === Url::to(['default/index'])
                     ],
                     [
-                        'label' => '文章管理',
+                        'label' => '<span>文章管理</span>',
                         'url' => ['post/index'],
                         'icon' => 'fa fa-list',
                     ],
                     [
-                        'label' => '分类管理',
+                        'label' => '<span>分类管理</span>',
                         'url' => ['category/index'],
                         'icon' => 'fa fa-folder-open',
                     ],
                     [
-                        'label' => '留言管理',
+                        'label' => '<span>留言管理</span>',
                         'url' => ['comment/index'],
                         'icon' => 'fa fa-comment',
                     ],
                     [
-                        'label' => '用户管理',
+                        'label' => '<span>用户管理</span>',
                         'url' => ['user/index'],
                         'icon' => 'fa fa-user',
                     ],
                     [
-                        'label' => '操作日志',
+                        'label' => '<span>导航</span>',
+                        'url' => ['nav/index'],
+                        'icon' => 'fa fa-map-marker',
+                    ],
+                    [
+                        'label' => '<span>操作日志</span>',
                         'url' => ['log/index'],
                         'icon' => 'fa fa-paw',
                     ],
                     [
-                        'label' => '设置',
-                        'type' => 'header'
+                        'label' => '<span>设置</span>',
+                        'options' => ['class' => 'header']
                     ],
                     [
-                        'label' => '系统配置',
+                        'label' => '<span>系统配置</span>',
                         'url' => ['config/index'],
                         'icon' => 'fa fa-cogs',
                         'options' => [
@@ -74,17 +80,17 @@ $current_user = Yii::$app->user->identity;
                         ],
                         'items' => [
                             [
-                                'label' => '基本设置',
+                                'label' => '<span>基本设置</span>',
                                 'url' => ['config/setting'],
                                 'icon' => 'fa fa-cog',
                             ],
                             [
-                                'label' => '缓存管理',
+                                'label' => '<span>缓存管理</span>',
                                 'url' => ['config/cache'],
                                 'icon' => 'fa fa-spinner',
                             ],
                             [
-                                'label' => 'SEO 设置',
+                                'label' => '<span>SEO 设置</span>',
                                 'url' => ['config/seo'],
                                 'icon' => 'fa fa-google',
                             ],
