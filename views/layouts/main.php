@@ -8,7 +8,7 @@ use app\assets\AppAsset;
  * @var \yii\web\View $this
  * @var string $content
  */
-AppAsset::register($this);
+$asset = AppAsset::register($this);
 $menu_items = [
     ['label' => 'Home', 'url' => ['site/index']],
     ['label' => 'About', 'url' => ['site/about']],
@@ -39,7 +39,7 @@ if(Yii::$app->user->isGuest){
 <?php $this->beginBody() ?>
     <header class="index-header">
         <div class="col-md-4 index-logo">
-            <img src="<?=Yii::getAlias('@web')?>/static/site/xbzbing.jpg" class="img-circle">
+            <?=Html::img("{$asset->baseUrl}/images/site-logo.jpg", ['class' => 'img-circle']) ?>
         </div>
         <?php
             NavBar::begin([

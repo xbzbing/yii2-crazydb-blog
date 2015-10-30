@@ -13,7 +13,7 @@ $this->beginContent('@app/views/layouts/main.php');
 ?>
     <div class="main">
         <div class="container">
-            <div class="col-md-9 with-shadow" id="content" role="main">
+            <div class="col-md-12 col-lg-9 with-shadow" id="content" role="main">
                 <div class="row breadcrumbs with-shadow">
                     <i class="glyphicon glyphicon-map-marker"></i>
                     <?= Breadcrumbs::widget([

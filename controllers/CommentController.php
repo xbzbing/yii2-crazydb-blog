@@ -32,8 +32,8 @@ class CommentController extends BaseController
      */
     public function actionIndex()
     {
-        $searchModel = new CommentSearch;
-        $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
+        $searchModel = new CommentSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,

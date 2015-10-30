@@ -23,5 +23,4 @@ $posts = $dataProvider->getModels();
     }
 ?>
     <?=LinkPager::widget(['pagination'=>$dataProvider->getPagination()]);?>
-    <?=CategoryWidget::widget(['refresh'=>true])?>
 </div>

@@ -32,8 +32,8 @@ class UserController extends BaseController
      */
     public function actionIndex()
     {
-        $searchModel = new UserSearch;
-        $dataProvider = $searchModel->search(Yii::$app->request->getQueryParams());
+        $searchModel = new UserSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
