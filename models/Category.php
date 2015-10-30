@@ -205,7 +205,7 @@ class Category extends BaseModel
         if ($this->isNewRecord)
             return false;
         if ($this->alias) {
-            return Url::to(['/category/alias', 'alias' => str_replace(' ', '-', $this->alias)], true);
+            return Url::to(['/category/alias', 'alias' => $this->alias], true);
         } else
             return Url::to(['/category/view', 'id' => $this->id], true);
     }
