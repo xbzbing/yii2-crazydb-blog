@@ -3,9 +3,10 @@
 namespace app\modules\admin;
 
 use Yii;
+use yii\helpers\Url;
 use yii\web\ForbiddenHttpException;
 use app\models\User;
-use app\models\Logger;
+use app\models\Log;
 
 /**
  * Class Module
@@ -89,11 +90,12 @@ class Module extends Yii\base\Module
         if (in_array($current_user->role, $this->allowRoles))
             return true;
 
-        1 or Logger::record(
-            Yii::$app->user->id,
-            '越权访问',
-            "用户[ {$current_user->username} ]以[ {$current_user->role} ]权限访问「{$this->name}」模块被拒绝。",
-            '失败'
+        1 or Log::record([
+                'uid' => Yii::$app->user->id,
+                'type' => Log::TYPE_PERMISSION_DENY,
+                'action' => Url::current(),
+                'detail' => "用户[ {$current_user->username} ]以[ {$current_user->role} ]权限访问「{$this->name}」模块被拒绝。访问URL:" . Yii::$app->request->absoluteUrl
+            ]
         );
 
         return false;

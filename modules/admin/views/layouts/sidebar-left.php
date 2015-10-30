@@ -87,7 +87,7 @@ $current_user = Yii::$app->user->identity;
                             [
                                 'label' => '<span>缓存管理</span>',
                                 'url' => ['config/cache'],
-                                'icon' => 'fa fa-spinner',
+                                'icon' => 'fa fa-refresh',
                             ],
                             [
                                 'label' => '<span>SEO 设置</span>',

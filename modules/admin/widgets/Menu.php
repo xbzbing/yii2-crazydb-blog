@@ -6,7 +6,6 @@ use yii\helpers\Url;
 use yii\helpers\Html;
 /**
  * Class Menu
- * @package backend\themes\admin\widgets
  * Theme menu widget.
  */
 class Menu extends \yii\widgets\Menu
@@ -145,18 +144,14 @@ class Menu extends \yii\widgets\Menu
                 $route = Yii::$app->controller->module->getUniqueId() . '/' . $route;
             }
 
-            if($route !== $this->route)
+            if($route === $this->route)
+                return true;
+            $route_array = explode('/', $route);
+            $current_array = explode('/', $this->route);
+            if(count($route_array) === 3 && $route_array[2] === 'index' && $route_array[0] === $current_array[0] && $route_array[1] === $current_array[1])
+                return true;
+            else
                 return false;
-
-            unset($item['url']['#']);
-            if (count($item['url']) > 1) {
-                foreach (array_splice($item['url'], 1) as $name => $value) {
-                    if ($value !== null && (!isset($this->params[$name]) || $this->params[$name] != $value)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
         return false;
     }

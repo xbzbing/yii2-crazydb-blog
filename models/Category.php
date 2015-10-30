@@ -18,9 +18,7 @@ use yii\db\Query;
  * @property integer $parent
  * @property string $display
  * @property integer $sort_order
- * @property string $seo_title
- * @property string $seo_keywords
- * @property string $seo_description
+ * @property string $keywords
  * @property integer $update_time
  *
  * #用魔术方法获取的属性
@@ -54,11 +52,11 @@ class Category extends BaseModel
     {
         return [
             ['name', 'required'],
-            [['desc', 'seo_description'], 'string'],
+            [['desc'], 'string'],
             ['display', 'in', 'range' => array_keys(self::getAvailableDisplay()), 'message' => '分类「显示模式」错误！'],
             [['parent', 'sort_order'], 'integer'],
-            [['name', 'seo_keywords'], 'string', 'max' => 255],
-            [['alias', 'seo_title'], 'string', 'max' => 100],
+            [['name', 'keywords'], 'string', 'max' => 255],
+            [['alias'], 'string', 'max' => 100],
         ];
     }
 
@@ -116,7 +114,7 @@ class Category extends BaseModel
             'display' => '显示模式',
             'sort_order' => '分类显示排序',
             'seo_title' => 'SEO 标题',
-            'seo_keywords' => 'SEO 关键字',
+            'keywords' => 'SEO 关键字',
             'seo_description' => 'SEO 描述',
             'displayType' => '显示模式'
         ];
@@ -180,6 +178,14 @@ class Category extends BaseModel
         parent::afterSave($insert, $changedAttributes);
     }
 
+    /**
+     * 删除后将自分类提升至自己的父分类
+     */
+    public function afterDelete()
+    {
+        parent::afterDelete();
+        self::updateAll(['parent' => $this->parent], ['parent' => $this->id]);
+    }
     /**
      * 获取访问URL
      * @return string

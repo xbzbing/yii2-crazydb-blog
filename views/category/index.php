@@ -3,11 +3,9 @@
 use yii\helpers\Html;
 use yii\grid\GridView;
 
-/**
- * @var yii\web\View $this
- * @var yii\data\ActiveDataProvider $dataProvider
- * @var app\models\CategorySearch $searchModel
- */
+/* @var $this yii\web\View */
+/* @var $searchModel app\models\CategorySearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Categories';
 $this->params['breadcrumbs'][] = $this->title;
@@ -34,9 +32,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'parent',
             // 'display',
             // 'sort_order',
-            // 'seo_title',
-            // 'seo_keywords',
-            // 'seo_description:ntext',
+            // 'keywords',
+            // 'update_time:datetime',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

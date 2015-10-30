@@ -31,7 +31,7 @@ class CategoryController extends Controller
 
     /**
      * Displays a single Category model.
-     * @param string $id
+     * @param integer $id
      * @return mixed
      */
     public function actionView($id)
@@ -73,7 +73,7 @@ class CategoryController extends Controller
     /**
      * Updates an existing Category model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param string $id
+     * @param integer $id
      * @return mixed
      */
     public function actionUpdate($id)
@@ -117,7 +117,7 @@ class CategoryController extends Controller
         if (($model = Category::findOne($id)) !== null) {
             return $model;
         } else {
-            throw new NotFoundHttpException('404 未找到.');
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }

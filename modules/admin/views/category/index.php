@@ -8,7 +8,7 @@ use yii\grid\GridView;
  * @var yii\data\ActiveDataProvider $dataProvider
  */
 
-$this->title = Yii::t('app', 'Categories');
+$this->title = '分类管理';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="row">
@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         'parent',
                         'displayType',
                         'sort_order',
-                        'seo_keywords',
+                        'keywords',
                         ['class' => 'yii\grid\ActionColumn'],
                     ],
                 ]); ?>

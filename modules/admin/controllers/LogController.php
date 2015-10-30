@@ -1,26 +1,26 @@
 <?php
 
-namespace app\controllers;
+namespace app\modules\admin\controllers;
 
 use Yii;
-use app\models\Category;
-use app\models\CategorySearch;
-use app\components\BaseController;
+use app\models\Log;
+use app\models\LogSearch;
+use app\modules\admin\components\Controller;
 use yii\web\NotFoundHttpException;
 
 /**
- * CategoryController implements the CRUD actions for Category model.
+ * LogController implements the CRUD actions for Log model.
  */
-class CategoryController extends BaseController
+class LogController extends Controller
 {
 
     /**
-     * Lists all Category models.
+     * Lists all Log models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new CategorySearch();
+        $searchModel = new LogSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -30,7 +30,7 @@ class CategoryController extends BaseController
     }
 
     /**
-     * Displays a single Category model.
+     * Displays a single Log model.
      * @param integer $id
      * @return mixed
      */
@@ -42,15 +42,15 @@ class CategoryController extends BaseController
     }
 
     /**
-     * Finds the Category model based on its primary key value.
+     * Finds the Log model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Category the loaded model
+     * @return Log the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Category::findOne($id)) !== null) {
+        if (($model = Log::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

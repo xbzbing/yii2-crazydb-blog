@@ -20,6 +20,10 @@ use yii\db\Query;
  * @property integer $create_time
  * @property integer $update_time
  *
+ * #magic method
+ * @property string navType
+ *
+ * # relations
  * @property Nav parent
  * @property Nav[] children
  */
@@ -60,7 +64,15 @@ class Nav extends BaseModel
             'extra' => '附加属性',
             'create_time' => '创建时间',
             'update_time' => '更新时间',
+            'navType' => '类型',
         ];
+    }
+
+    public function getNavType(){
+        if($this->pid>0)
+            return '子菜单';
+        else
+            return '顶级菜单';
     }
 
     public function beforeSave($insert)
@@ -72,6 +84,24 @@ class Nav extends BaseModel
 
         $this->update_time = time();
         return true;
+    }
+
+    public function afterSave($insert, $changedAttributes){
+        parent::afterSave($insert, $changedAttributes);
+        if($insert && $this->pid == $this->id){
+            $this->pid = 0;
+            $this->save(false);
+        }
+        if(isset($changedAttributes['pid']) && $this->pid > 0 && empty($changedAttributes['pid'])){
+            //由顶级菜单变成二级菜单
+            self::updateAll(['pid'=>$this->pid], ['pid' => $this->id]);
+        }
+    }
+
+    public function afterDelete(){
+        parent::afterDelete();
+        if($this->pid == 0)
+            self::deleteAll(['pid' => $this->id]);
     }
 
     /**

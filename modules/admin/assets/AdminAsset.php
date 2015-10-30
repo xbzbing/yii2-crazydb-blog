@@ -13,9 +13,11 @@ class AdminAsset extends AssetBundle
 {
     public $sourcePath = '@CrazydbAdmin/assets/resources';
     public $css = [
-        'css/common.css'
+        'css/common.css',
+        'css/AdminLTE.min.css'
     ];
     public $js = [
+        'js/main.js'
     ];
     public $depends = [
         'yii\bootstrap\BootstrapAsset',

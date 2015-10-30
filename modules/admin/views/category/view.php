@@ -9,7 +9,7 @@ use yii\widgets\DetailView;
  */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Categories'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '分类管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="row">
@@ -17,15 +17,15 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="box">
             <div class="box-header">
                 <p>
-                    <?= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-                    <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
+                    <?= Html::a('编辑', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+                    <?= Html::a('删除', ['delete', 'id' => $model->id], [
                         'class' => 'btn btn-danger',
                         'data' => [
-                            'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                            'confirm' => '删除操作不可恢复,确定删除?',
                             'method' => 'post',
                         ],
                     ]) ?>
-                    <?= Html::a(Yii::t('app', 'Back'), ['index'], ['class' => 'btn btn-default']) ?>
+                    <?= Html::a('返回', ['index'], ['class' => 'btn btn-default']) ?>
                 </p>
             </div>
             <div class="box-body category-view">
@@ -45,9 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         ],
                         'display',
                         'sort_order',
-                        'seo_title',
-                        'seo_keywords',
-                        'seo_description',
+                        'keywords',
                         ]
                 ]) ?>
             </div>

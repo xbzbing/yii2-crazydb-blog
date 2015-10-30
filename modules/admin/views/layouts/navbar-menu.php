@@ -41,13 +41,15 @@ $menuItems[] =  [
         ],
         [
             'label' => '<i class="fa fa-sign-out"></i> ' . '注销',
-            'url' => ['/role'],
+            'url' => ['/logout'],
         ],
     ],
 ];
 
+$menuItems[] = ['label' => "<i class=\"fa fa-cog\"> </i>", 'url' => '#', 'linkOptions' => ['data-toggle' => 'control-sidebar']];
+
 echo Nav::widget([
-    'options' => ['class' => 'navbar-nav navbar-right'],
+    'options' => ['class' => 'nva navbar-nav'],
     'items' => $menuItems,
     'encodeLabels' => false
 ]);
