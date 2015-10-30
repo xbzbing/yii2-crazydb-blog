@@ -10,7 +10,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="box nav-index">
     <div class="box-header with-border">
-        <h3 class="box-title">导航</h3>
+        <?= Html::a('添加导航', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
     <div class="box-body">
         <table class="table table-bordered table-hover">
@@ -37,8 +37,5 @@ $this->params['breadcrumbs'][] = $this->title;
             ?>
             </tbody>
         </table>
-    </div>
-    <div class="box-footer">
-        <?= Html::a('添加', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
 </div>

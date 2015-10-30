@@ -29,24 +29,24 @@ $this->params['breadcrumbs'][] = $this->title;
                 </p>
             </div>
             <div class="box-body category-view">
-                <?=DetailView::widget([
+                <?= DetailView::widget([
                     'model' => $model,
                     'attributes' => [
                         'id',
                         'name',
                         'alias',
                         'displayType',
-                        'desc',
                         [
                             'attribute' => 'parent',
-                            'value' => $model->parent?Html::a($model->parentCategory->name,$model->parentCategory->url):'顶级分类',
-                            'label' => $model->parent?'上级分类':'分类类型',
+                            'value' => $model->parent ? Html::a($model->parent->name, $model->parent->url) : '顶级分类',
+                            'label' => $model->parent ? '上级分类' : '分类类型',
                             'format' => 'raw'
                         ],
                         'display',
                         'sort_order',
                         'keywords',
-                        ]
+                        'desc:html',
+                    ]
                 ]) ?>
             </div>
         </div>

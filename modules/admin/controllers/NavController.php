@@ -28,7 +28,7 @@ class NavController extends Controller
      */
     public function actionIndex()
     {
-        $parent = Nav::find()->where(['pid' => 0])->orderBy(['order' => SORT_ASC, 'id' => SORT_ASC])->all();
+        $parent = Nav::find()->where(['pid' => 0])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])->all();
         return $this->render('index',['parent' => $parent]);
     }
     /**

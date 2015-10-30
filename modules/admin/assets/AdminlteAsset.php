@@ -27,10 +27,10 @@ class AdminlteAsset extends AssetBundle
         'plugins/datepicker/bootstrap-datepicker.js',
         'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js',
         'plugins/iCheck/icheck.min.js',
-        'plugins/slimScroll/jquery.slimscroll.min.js',
         'plugins/fastclick/fastclick.min.js',
         */
-        'dist/js/app.min.js'
+        'plugins/slimScroll/jquery.slimscroll.min.js',
+        'dist/js/app.min.js',
     ];
 
     public $depends = [

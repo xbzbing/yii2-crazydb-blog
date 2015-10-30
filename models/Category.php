@@ -15,7 +15,7 @@ use yii\db\Query;
  * @property string $name
  * @property string $alias
  * @property string $desc
- * @property integer $parent
+ * @property integer $pid
  * @property string $display
  * @property integer $sort_order
  * @property string $keywords
@@ -27,7 +27,8 @@ use yii\db\Query;
  * @property array $availableDisplay
  *
  * #relations
- * @property Category $parentCategory
+ * @property Category $parent
+ * @property Category[] $children
  * @property Post[] $posts
  * @property Post[] $allPosts
  */
@@ -54,7 +55,7 @@ class Category extends BaseModel
             ['name', 'required'],
             [['desc'], 'string'],
             ['display', 'in', 'range' => array_keys(self::getAvailableDisplay()), 'message' => '分类「显示模式」错误！'],
-            [['parent', 'sort_order'], 'integer'],
+            [['pid', 'sort_order'], 'integer'],
             [['name', 'keywords'], 'string', 'max' => 255],
             [['alias'], 'string', 'max' => 100],
         ];
@@ -65,11 +66,14 @@ class Category extends BaseModel
      * 父类
      * @return self
      */
-    public function getParentCategory()
+    public function getParent()
     {
-        return $this->parent > 0 ? $this->hasOne(self::className(), ['id' => 'parent']) : null;
+        return $this->pid > 0 ? $this->hasOne(self::className(), ['id' => 'pid']) : null;
     }
 
+    public function getChildren(){
+        return $this->hasMany(self::className(), ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
+    }
 
     public function getAllPosts()
     {
@@ -106,13 +110,13 @@ class Category extends BaseModel
     public function attributeLabels()
     {
         return [
-            'id' => '分类ID',
+            'id' => '分类 ID',
             'name' => '分类名称',
-            'alias' => 'URL别名',
+            'alias' => 'URL 别名',
             'desc' => '分类介绍',
-            'parent' => '分类父ID',
+            'pid' => '分类父',
             'display' => '显示模式',
-            'sort_order' => '分类显示排序',
+            'sort_order' => '显示顺序权重',
             'seo_title' => 'SEO 标题',
             'keywords' => 'SEO 关键字',
             'seo_description' => 'SEO 描述',
@@ -130,23 +134,23 @@ class Category extends BaseModel
         if (!parent::beforeSave($insert)) {
             return false;
         }
-        if ($this->parent != 0) {
+        if ($this->pid != 0) {
             //插入模式即已有id。且父id不为0
             if (!$insert) {
                 //父类ID不能是自身
-                if ($this->parent == $this->id) {
-                    $this->parent = 0;
+                if ($this->pid == $this->id) {
+                    $this->pid = 0;
                 } else {
                     //父类ID不能是自己的子类
-                    if (self::find()->where(['id' => $this->parent, 'parent' => $this->id])->exists()) {
-                        $this->addError('parent', '不合法的父类ID！');
+                    if (self::find()->where(['id' => $this->pid, 'pid' => $this->id])->exists()) {
+                        $this->addError('pid', '不合法的父类ID！');
                         return false;
                     }
                 }
             }
             //父类ID不能不存在
-            if (self::find()->where(['parent' => $this->id])->exists()) {
-                $this->parent = 0;
+            if (self::find()->where(['pid' => $this->id])->exists()) {
+                $this->pid = 0;
             }
         }
 
@@ -157,6 +161,12 @@ class Category extends BaseModel
             $this->alias = $this->name;
         else
             $this->alias = htmlspecialchars(strip_tags($this->alias));
+
+        //alias 唯一性校验
+        if (self::find()->where(['alias' => $this->alias])->exists()){
+            $this->addError('alias', '访问别名不能重复!');
+            return false;
+        }
 
         $this->update_time = time();
         return true;
@@ -171,8 +181,8 @@ class Category extends BaseModel
     {
 
         //防止预测ID插入脏数据
-        if ($insert && $this->parent == $this->id) {
-            $this->parent = 0;
+        if ($insert && $this->pid == $this->id) {
+            $this->pid = 0;
             $this->save(false);
         }
         parent::afterSave($insert, $changedAttributes);
@@ -184,7 +194,7 @@ class Category extends BaseModel
     public function afterDelete()
     {
         parent::afterDelete();
-        self::updateAll(['parent' => $this->parent], ['parent' => $this->id]);
+        self::updateAll(['pid' => $this->pid], ['pid' => $this->id]);
     }
     /**
      * 获取访问URL
@@ -195,7 +205,7 @@ class Category extends BaseModel
         if ($this->isNewRecord)
             return false;
         if ($this->alias) {
-            return Url::to(['/category/alias', 'name' => str_replace(' ', '-', $this->alias)], true);
+            return Url::to(['/category/alias', 'alias' => str_replace(' ', '-', $this->alias)], true);
         } else
             return Url::to(['/category/view', 'id' => $this->id], true);
     }

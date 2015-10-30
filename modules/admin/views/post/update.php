@@ -10,6 +10,7 @@ $this->params['breadcrumbs'][] = '编辑';
 ?>
 <div class="box post-update">
     <div class="box-header with-border">
+        <i class="fa fa-edit"></i>
         <h3 class="box-title">编辑</h3>
         <div class="box-tools pull-right">
             <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>

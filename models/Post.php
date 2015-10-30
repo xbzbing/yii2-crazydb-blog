@@ -256,6 +256,12 @@ class Post extends BaseModel
         $this->alias = strip_tags($this->alias);
         $this->alias = htmlspecialchars($this->alias);
 
+        //alias唯一性校验
+        if (self::find()->where(['alias' => $this->alias])->exists()){
+            $this->addError('alias', '访问别名不能重复!');
+            return false;
+        }
+
         //生成并处理excerpt
         if (!$this->excerpt) {
             if ($this->status == self::STATUS_PUBLISHED) {

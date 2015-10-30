@@ -42,6 +42,18 @@ class CategoryController extends BaseController
     }
 
     /**
+     * 按别名访问
+     * @param $alias
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionAlias($alias){
+        return $this->render('view', [
+            'model' => $this->findModelByAlias($alias),
+        ]);
+    }
+
+    /**
      * Finds the Category model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
@@ -51,6 +63,22 @@ class CategoryController extends BaseController
     protected function findModel($id)
     {
         if (($model = Category::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    /**
+     * Finds the Category model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param string $alias
+     * @return Category the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModelByAlias($alias)
+    {
+        if (($model = Category::findOne(['alias' => $alias])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

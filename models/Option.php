@@ -54,7 +54,7 @@ class Option extends BaseModel
     function beforeSave($insert)
     {
         /**
-         * 这里制作encode，特殊点需要decode
+         * 这里先做 encode，特殊的自行 decode
          */
         $this->description = Html::encode($this->description);
         return true;

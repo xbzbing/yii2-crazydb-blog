@@ -15,8 +15,7 @@ use crazydb\ueditor\UEditor;
 ?>
 <div class="box category-form">
     <div class="box-header with-border">
-        <h3 class="box-title"></h3>
-
+        <i class="fa fa-edit"></i>
         <div class="box-tools pull-right">
             <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
                     class="fa fa-minus"></i></button>
@@ -37,7 +36,7 @@ use crazydb\ueditor\UEditor;
         </div>
         <div class="row">
             <div class="col-md-12 col-lg-4">
-                <?= $form->field($model, 'parent')->dropDownList($category_array) ?>
+                <?= $form->field($model, 'pid')->dropDownList($category_array) ?>
             </div>
             <div class="col-md-12 col-lg-4">
                 <?= $form->field($model, 'display')->dropDownList(Category::getAvailableDisplay()) ?>

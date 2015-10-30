@@ -12,12 +12,9 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="box post-index">
     <div class="box-header with-border">
-        <h3 class="box-title">文章列表</h3>
+        <?= Html::a('发表新文章', ['create'], ['class' => 'btn btn-success']) ?>
     </div>
     <div class="box-body">
-        <p>
-            <?= Html::a('发表新文章', ['create'], ['class' => 'btn btn-success']) ?>
-        </p>
         <?= GridView::widget([
             'dataProvider' => $dataProvider,
             'filterModel' => $searchModel,

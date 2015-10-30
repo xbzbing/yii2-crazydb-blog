@@ -15,17 +15,17 @@ use yii\db\Query;
  * @property integer $pid
  * @property string $name
  * @property string $url
- * @property integer $order
+ * @property integer $sort_order
  * @property string $extra
  * @property integer $create_time
  * @property integer $update_time
  *
  * #magic method
- * @property string navType
+ * @property string $navType
  *
  * # relations
- * @property Nav parent
- * @property Nav[] children
+ * @property Nav $parent
+ * @property Nav[] $children
  */
 class Nav extends BaseModel
 {
@@ -43,7 +43,7 @@ class Nav extends BaseModel
     public function rules()
     {
         return [
-            [['pid', 'order'], 'integer'],
+            [['pid', 'sort_order'], 'integer'],
             [['name'], 'required'],
             ['pid', 'default', 'value' => 0],
             [['name', 'url', 'extra'], 'string', 'max' => 255],
@@ -60,7 +60,7 @@ class Nav extends BaseModel
             'pid' => '父菜单',
             'name' => '名字',
             'url' => '网址',
-            'order' => '显示顺序',
+            'sort_order' => '显示顺序权重',
             'extra' => '附加属性',
             'create_time' => '创建时间',
             'update_time' => '更新时间',
@@ -118,7 +118,7 @@ class Nav extends BaseModel
      */
     public function getChildren()
     {
-        return $this->hasMany(self::className(), ['pid' => 'id'])->orderBy(['order' => SORT_DESC]);
+        return $this->hasMany(self::className(), ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
     }
 
     /**
@@ -135,7 +135,7 @@ class Nav extends BaseModel
             $items = Yii::$app->cache->get($cache_key);
 
         if (empty($items)) {
-            $item_array = self::find()->select('id,name')->where(['pid' => 0])->orderBy(['order' => SORT_DESC])->asArray()->all();
+            $item_array = self::find()->select('id,name')->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->asArray()->all();
             if (empty($item_array))
                 return [];
             foreach ($item_array as $item) {
@@ -171,7 +171,7 @@ class Nav extends BaseModel
 
         if (empty($items)) {
             /* @var self[] $parent */
-            $parent = self::find()->where(['pid' => 0])->orderBy(['order' => SORT_DESC])->all();;
+            $parent = self::find()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all();;
             if (empty($parent))
                 return $items;
 

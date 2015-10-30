@@ -21,12 +21,8 @@ class CategoryController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Category::find()->where(['parent' => 0]),
-        ]);
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-        ]);
+        $models = Category::find()->where(['pid' => 0])->orderBy(['sort_order' => SORT_ASC, 'id' => SORT_ASC])->all();
+        return $this->render('index',['models' => $models]);
     }
 
     /**
