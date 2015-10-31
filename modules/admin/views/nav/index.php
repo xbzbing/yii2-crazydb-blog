@@ -19,6 +19,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <th width="35">#</th>
                 <th colspan="2">名字</th>
                 <th>Url</th>
+                <th>系统路由</th>
                 <th>排序</th>
                 <th>操作</th>
             </tr>

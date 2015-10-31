@@ -6,6 +6,7 @@ use Yii;
 use app\components\BaseModel;
 use yii\caching\DbDependency;
 use yii\db\Query;
+use yii\helpers\Url;
 
 
 /**
@@ -15,6 +16,7 @@ use yii\db\Query;
  * @property integer $pid
  * @property string $name
  * @property string $url
+ * @property integer $route
  * @property integer $sort_order
  * @property string $extra
  * @property integer $create_time
@@ -43,9 +45,9 @@ class Nav extends BaseModel
     public function rules()
     {
         return [
-            [['pid', 'sort_order'], 'integer'],
+            [['pid', 'sort_order', 'route'], 'integer'],
             [['name'], 'required'],
-            ['pid', 'default', 'value' => 0],
+            [['pid', 'route'], 'default', 'value' => 0],
             [['name', 'url', 'extra'], 'string', 'max' => 255],
         ];
     }
@@ -65,14 +67,21 @@ class Nav extends BaseModel
             'create_time' => '创建时间',
             'update_time' => '更新时间',
             'navType' => '类型',
+            'route' => '系统路由'
         ];
     }
 
-    public function getNavType(){
-        if($this->pid>0)
+    public function getNavType()
+    {
+        if ($this->pid > 0)
             return '子菜单';
         else
             return '顶级菜单';
+    }
+
+    public function getUrl()
+    {
+        return $this->route ? [$this->url] : $this->url;
     }
 
     public function beforeSave($insert)
@@ -86,21 +95,23 @@ class Nav extends BaseModel
         return true;
     }
 
-    public function afterSave($insert, $changedAttributes){
+    public function afterSave($insert, $changedAttributes)
+    {
         parent::afterSave($insert, $changedAttributes);
-        if($insert && $this->pid == $this->id){
+        if ($insert && $this->pid == $this->id) {
             $this->pid = 0;
             $this->save(false);
         }
-        if(isset($changedAttributes['pid']) && $this->pid > 0 && empty($changedAttributes['pid'])){
+        if (isset($changedAttributes['pid']) && $this->pid > 0 && empty($changedAttributes['pid'])) {
             //由顶级菜单变成二级菜单
-            self::updateAll(['pid'=>$this->pid], ['pid' => $this->id]);
+            self::updateAll(['pid' => $this->pid], ['pid' => $this->id]);
         }
     }
 
-    public function afterDelete(){
+    public function afterDelete()
+    {
         parent::afterDelete();
-        if($this->pid == 0)
+        if ($this->pid == 0)
             self::deleteAll(['pid' => $this->id]);
     }
 
@@ -112,6 +123,7 @@ class Nav extends BaseModel
     {
         return $this->hasOne(self::className(), ['id' => 'pid']);
     }
+
     /**
      * 关联属性 获取 子节点
      * @return \yii\db\ActiveQuery
@@ -178,14 +190,13 @@ class Nav extends BaseModel
             foreach ($parent as $node) {
                 $items[$node->id] = [
                     'label' => $node->name,
-                    'url' => $node->url,
-                    'items' => []
+                    'url' => $node->getUrl(),
                 ];
                 $children = $node->children;
                 foreach ($children as $child) {
                     $items[$node->id]['items'] = [
                         'label' => $child->name,
-                        'url' => $node->url,
+                        'url' => $node->getUrl(),
                     ];
                 }
             }

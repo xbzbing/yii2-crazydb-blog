@@ -7,7 +7,8 @@ use yii\helpers\Url;
 <tr>
     <td><?= $model->id ?></td>
     <?= $model->pid ? '<td></td><td>' . $model->name . '</td>' : '<td colspan="2">' . $model->name . '</td>' ?>
-    <td><?= $model->url?></td>
+    <td><?= $model->url ?></td>
+    <td><?= $model->route ? '<span class="label label-success">是</span>' : '否' ?></td>
     <td><?= $model->sort_order ?></td>
     <td>
         <a href="<?= Url::to(['view', 'id' => $model->id]) ?>" title="查看"><i class="fa fa-eye"> </i></a>
