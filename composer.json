@@ -19,7 +19,8 @@
         "yiisoft/yii2-authclient": "*",
         "crazydb/yii2-ueditor": "*",
         "bower-asset/adminlte": "*",
-        "FortAwesome/Font-Awesome": "*"
+        "FortAwesome/Font-Awesome": "*",
+        "mibe/feedwriter": ">=1.0"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "*",

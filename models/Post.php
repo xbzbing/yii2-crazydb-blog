@@ -51,6 +51,7 @@ use app\components\XUtils;
 class Post extends BaseModel
 {
     const SCENARIO_EDIT = 'edit';
+    const SCENARIO_MANAGE = 'manage';
     /**
      * 文章状态
      * 共四类
@@ -78,13 +79,22 @@ class Post extends BaseModel
         return '{{%post}}';
     }
 
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_EDIT] = ['cid', 'author_name', 'title', 'content', 'excerpt', 'type', 'alias', 'cover', 'password', 'status', 'tags'];
+        $scenarios[self::SCENARIO_MANAGE] = $scenarios[self::SCENARIO_EDIT] + ['author_id', 'view_count'];
+        return $scenarios;
+    }
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['cid', 'author_id', 'comment_count', 'view_count'], 'integer'],
+            [['cid', 'author_id', 'view_count'], 'integer'],
             [['author_id', 'title', 'content'], 'required'],
             [['excerpt', 'content', 'ext_info'], 'string'],
             [['author_name'], 'string', 'max' => 80],
@@ -196,9 +206,11 @@ class Post extends BaseModel
         return self::getTypeName($this->type);
     }
 
-    public function getIsTop(){
+    public function getIsTop()
+    {
         return $this->is_top > 0;
     }
+
     /**
      * 获得文章所属分类
      * @return string|null
@@ -222,13 +234,15 @@ class Post extends BaseModel
         if (!parent::beforeSave($insert))
             return false;
 
+        $this->comment_count = intval($this->comment_count);
+
         //创建新Post
         if ($insert) {
             $this->create_time = $this->update_time = time();
             $this->ext_info = null;
         }
         //编辑状态记录信息
-        if ($this->scenario == self::SCENARIO_EDIT) {
+        if (in_array($this->scenario, [self::SCENARIO_EDIT, self::SCENARIO_MANAGE])) {
             $this->ext_info = is_array($this->ext_info) ? serialize($this->ext_info) : null;
             $this->update_time = time();
         }
@@ -257,7 +271,7 @@ class Post extends BaseModel
         $this->alias = htmlspecialchars($this->alias);
 
         //alias唯一性校验
-        if (self::find()->where(['alias' => $this->alias])->exists()){
+        if (self::find()->where(['alias' => $this->alias])->exists()) {
             $this->addError('alias', '访问别名不能重复!');
             return false;
         }
@@ -293,16 +307,17 @@ class Post extends BaseModel
 
     /**
      * 获取文章访问的URL
+     * @param bool $schema
      * @return null|string
      */
-    public function getUrl()
+    public function getUrl($schema = false)
     {
         if ($this->isNewRecord)
             return null;
         if ($this->alias)
-            return Url::to(['/post/alias', 'name' => $this->alias]);
+            return Url::to(['/post/alias', 'name' => $this->alias], $schema);
         else
-            return Url::to(['/post/view', 'id' => $this->id], true);
+            return Url::to(['/post/view', 'id' => $this->id], $schema);
     }
 
     /**
@@ -315,7 +330,7 @@ class Post extends BaseModel
         if (isset($matches[1][0]))
             return $matches[1][0];
         else
-            return '';
+            return null;
     }
 
     /**
@@ -331,7 +346,7 @@ class Post extends BaseModel
     {
         $relations = ['before' => '<', 'after' => '>'];
         $orders = ['before' => SORT_DESC, 'after' => SORT_ASC];
-        if($simple)
+        if ($simple)
             $cache_key = "simple_post_{$relation}_{$this->id}";
         else
             $cache_key = "all_post_{$relation}_{$this->id}";

@@ -10,15 +10,19 @@ class BaseController extends Controller
 {
     public $layout = 'column1';
 
+    public $enableTheme = true;
     /**
      * 前端controller初始化
      */
     public function init()
     {
         parent::init();
+
         $config = CMSUtils::getSiteConfig('sys');
-        if (!empty($config['theme']))
+
+        if ($this->enableTheme && !empty($config['theme']))
             $this->setTheme($config['theme']);
+
         $seoConfig = CMSUtils::getSiteConfig('seo');
 
         if (!empty($seoConfig['seo_keywords']))

@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'adminEmail' => 'admin@example.com',
+    'admin_email' => 'admin@example.com',
+    'site_name' => '疯狂的dabing'
 ];
