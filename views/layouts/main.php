@@ -1,19 +1,14 @@
 <?php
 use yii\helpers\Html;
-use yii\bootstrap\Nav;
-use yii\bootstrap\NavBar;
+use yii\helpers\ArrayHelper;
 use app\assets\AppAsset;
-
+use yii\bootstrap\Nav;
 /**
  * @var \yii\web\View $this
  * @var string $content
  */
 $asset = AppAsset::register($this);
-$menu_items = [
-    ['label' => 'Home', 'url' => ['site/index']],
-    ['label' => 'About', 'url' => ['site/about']],
-    ['label' => 'Contact', 'url' => ['site/contact']],
-];
+$menu_items = app\models\Nav::getNavTree(1);
 if(Yii::$app->user->isGuest){
     $menu_items[] = ['label' => 'Login', 'url' => ['site/login']];
 }else{
@@ -23,49 +18,47 @@ if(Yii::$app->user->isGuest){
         ],
     ];
 }
-?>
-<?php $this->beginPage() ?>
+$site_name = ArrayHelper::getValue(Yii::$app->params, 'site_name', Yii::$app->name);
+$this->beginPage(); ?>
 <!DOCTYPE html>
 <html lang="<?=Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>"/>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?=Html::encode($this->title) ?></title>
+    <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 <body>
 <?php $this->beginBody() ?>
     <header class="index-header">
-        <div class="col-md-4 index-logo">
-            <?=Html::img("{$asset->baseUrl}/images/site-logo.jpg", ['class' => 'img-circle']) ?>
-        </div>
-        <?php
-            NavBar::begin([
-                'brandLabel' => Yii::$app->name,
-                'options' => [
-                    'class' => 'container',
-                ],
-                'innerContainerOptions'=>[
-                    'class'=>'navbar navbar-default col-md-7'
-                ],
-            ]);
-3        ?>
-        <?= Nav::widget([
-                'options' => ['class' => 'navbar-nav'],
-                'items' => $menu_items,
-            ]);
-            NavBar::end();
-        ?>
+        <nav class="container" role="navigation">
+            <div class="col-md-4 index-logo">
+                <?= Html::img("{$asset->baseUrl}/images/site-logo.jpg", ['class' => 'img-circle']) ?>
+            </div>
+            <div class="navbar navbar-default col-md-6 index-navbar">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#w0-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="<?= Yii::$app->homeUrl ?>"><?= $site_name ?></a>
+                </div>
+                <div class="navbar-collapse collapse" id="site-navbar">
+                    <?= Nav::widget([
+                        'options' => ['class' => 'nav navbar-nav'],
+                        'items' => $menu_items,
+                    ]);
+                    ?>
+                </div>
+            </div>
+        </nav>
     </header>
     <?= $content ?>
-    <footer class="footer">
-        <div class="container">
-            <p class="pull-left">&copy; X-CMS <?= date('Y') ?></p>
-            <p class="pull-right"><?= Yii::powered() ?></p>
-        </div>
-    </footer>
+    <?= $this->render('footer') ?>
 <?php $this->endBody() ?>
 </body>
 </html>

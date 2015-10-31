@@ -4,6 +4,9 @@ namespace app\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
+use yii\caching\DbDependency;
+use yii\db\Query;
 
 /**
  * This is the model class for table "{{%tag}}".
@@ -16,6 +19,8 @@ use yii\db\ActiveRecord;
  */
 class Tag extends ActiveRecord
 {
+    public $totalCount = 0;
+
     /**
      * @inheritdoc
      */
@@ -48,5 +53,58 @@ class Tag extends ActiveRecord
             'cid' => '分类ID',
             'create_time' => '创建时间',
         ];
+    }
+
+
+    /**
+     * 获取系统的常用tags，默认前10位
+     * @param bool $refresh
+     * @param int $limit 默认为10
+     * @return mixed|null
+     */
+    public static function getTags($refresh = false, $limit = 10)
+    {
+        $cache_key = '__tags';
+        $limit = intval($limit) ? intval($limit) : 10;
+
+        if ($refresh)
+            $items = [];
+        else
+            $items = Yii::$app->cache->get($cache_key);
+
+        if (empty($items)) {
+
+            $tag_array = self::find()
+                ->select('id,name,create_time,COUNT(id) as totalCount')
+                ->groupBy('name')
+                ->orderBy(['totalCount' => SORT_DESC])
+                ->limit($limit)
+                ->all();
+
+            if (empty($tag_array))
+                return [];
+
+            /* @var self[] $tag_array */
+            foreach ($tag_array as $tag) {
+                $items[] = [
+                    'totalCount' => $tag->totalCount,
+                    'name' => $tag->name,
+                    'create_time' => $tag->create_time,
+                    'url' => Url::to(['tag/show', ['name' => $tag->name]])
+                ];
+            }
+            $dp = new DbDependency();
+            $dp->sql = (new Query())
+                ->select('MAX(id)')
+                ->from(self::tableName())
+                ->createCommand()->rawSql;
+            Yii::$app->cache->set(
+                $cache_key,
+                $items,
+                3600,
+                $dp
+            );
+        }
+        return $items;
     }
 }

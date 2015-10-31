@@ -6,6 +6,8 @@ use Yii;
 use app\components\BaseModel;
 use app\components\CMSException;
 use app\components\XUtils;
+use yii\caching\DbDependency;
+use yii\db\Query;
 
 /**
  * This is the model class for table "{{%comment}}".
@@ -198,6 +200,7 @@ class Comment extends BaseModel
         } catch (CMSException $cms) {
             return false;
         }
+        return $this->ext;
     }
 
     public function beforeSave($insert)
@@ -215,4 +218,63 @@ class Comment extends BaseModel
         }
         return parent::beforeSave($insert);
     }
+
+    /**
+     * 获取最近的 {$limit} 条评论
+     * @param int $limit
+     * @param bool|false $refresh
+     * @param int $size
+     * @return array|mixed|null
+     */
+    public static function getRecentComments($limit = 10, $refresh = false, $size = 40)
+    {
+
+        $cache_key = '__recentComments';
+        $limit = intval($limit) ? intval($limit) : 10;
+        if ($refresh)
+            $comments = null;
+        else
+            $comments = Yii::$app->cache->get($cache_key);
+
+        if (empty($comments)) {
+
+            /* @var self[] $post_comments */
+            $post_comments = self::find()->with('post')->limit($limit)->all();
+            $ids = $avatars = $urls = array();
+
+            foreach ($post_comments as $comment) {
+                $ids[$comment->pid] = $comment->pid;
+                if (!isset($avatars[$comment->id]))
+                    $avatars[$comment->id] = XUtils::getAvatar($comment->email, $size);
+            }
+
+            foreach ($post_comments as $comment) {
+                $comments[] = [
+                    'id' => $comment->id,
+                    'author' => $comment->author,
+                    'author_url' => $comment->url,
+                    'pid' => $comment->pid,
+                    'post_url' => $comment->post->getUrl(true),
+                    'content' => $comment->content,
+                    'create_time' => $comment->create_time,
+                    'email' => $comment->email,
+                    'avatar' => $avatars[$comment->id],
+                    'title' => $comment->post ? $comment->post->title : '',
+                ];
+            }
+            $dp = new DbDependency();
+            $dp->sql = (new Query())
+                ->select('MAX(update_time)')
+                ->from(self::tableName())
+                ->createCommand()->rawSql;
+            Yii::$app->cache->set(
+                $cache_key,
+                $comments,
+                3600,
+                $dp
+            );
+        }
+        return $comments;
+    }
+
 }

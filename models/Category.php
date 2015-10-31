@@ -31,6 +31,7 @@ use yii\db\Query;
  * @property Category[] $children
  * @property Post[] $posts
  * @property Post[] $allPosts
+ * @property integer $postCount
  */
 class Category extends BaseModel
 {
@@ -71,7 +72,8 @@ class Category extends BaseModel
         return $this->pid > 0 ? $this->hasOne(self::className(), ['id' => 'pid']) : null;
     }
 
-    public function getChildren(){
+    public function getChildren()
+    {
         return $this->hasMany(self::className(), ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
     }
 
@@ -163,7 +165,7 @@ class Category extends BaseModel
             $this->alias = htmlspecialchars(strip_tags($this->alias));
 
         //alias 唯一性校验
-        if (self::find()->where(['alias' => $this->alias])->exists()){
+        if (self::find()->where(['alias' => $this->alias])->exists()) {
             $this->addError('alias', '访问别名不能重复!');
             return false;
         }
@@ -196,6 +198,7 @@ class Category extends BaseModel
         parent::afterDelete();
         self::updateAll(['pid' => $this->pid], ['pid' => $this->id]);
     }
+
     /**
      * 获取访问URL
      * @return string
@@ -208,6 +211,14 @@ class Category extends BaseModel
             return Url::to(['/category/alias', 'alias' => $this->alias], true);
         } else
             return Url::to(['/category/view', 'id' => $this->id], true);
+    }
+
+    public function getPostCount()
+    {
+        return Post::find()
+            ->where(['cid' => $this->id])
+            ->andWhere(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
+            ->count();
     }
 
     /**
@@ -230,6 +241,44 @@ class Category extends BaseModel
             foreach ($item_array as $item) {
                 $items[$item['id']] = $item['name'];
             }
+            $dp = new DbDependency();
+            $dp->sql = (new Query())
+                ->select('MAX(update_time)')
+                ->from(self::tableName())
+                ->createCommand()->rawSql;
+            Yii::$app->cache->set(
+                $cache_key,
+                $items,
+                3600,
+                $dp
+            );
+        }
+        return $items;
+    }
+
+    /**
+     * 获得分类概况
+     * @param bool $refresh
+     * @return mixed|null
+     */
+    public static function getCategorySummary($refresh = false)
+    {
+        $cache_key = '__category_summary';
+
+        if ($refresh)
+            $items = [];
+        else
+            $items = Yii::$app->cache->get($cache_key);
+
+        if (empty($items)) {
+            /* @var Category[] $item_array */
+            $item_array = self::find()->all();
+            if (empty($item_array))
+                return [];
+
+            foreach ($item_array as $item)
+                $items[$item->id] = ['name' => $item->name, 'desc' => $item->desc, 'url' => $item->url, 'postCount' => $item->postCount];
+
             $dp = new DbDependency();
             $dp->sql = (new Query())
                 ->select('MAX(update_time)')

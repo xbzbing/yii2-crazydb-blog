@@ -5,13 +5,34 @@ namespace app\controllers;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
+use yii\caching\DbDependency;
+use yii\db\Query;
 use app\components\BaseController;
 use app\models\Post;
 use FeedWriter\RSS2;
 use FeedWriter\ATOM;
 
+
 class FeedController extends BaseController
 {
+    public function behaviors()
+    {
+        $sql = (new Query())
+            ->select('MAX(update_time)')
+            ->from(Post::tableName())
+            ->createCommand()->rawSql;
+        return [
+            [
+                'class' => 'yii\filters\PageCache',
+                'only' => ['rss', 'atom'],
+                'duration' => 24 * 60 * 60,
+                'dependency' => [
+                    'class' => DbDependency::className(),
+                    'sql' => $sql,
+                ],
+            ],
+        ];
+    }
 
     public function init()
     {
@@ -43,7 +64,12 @@ class FeedController extends BaseController
     {
         /* @var Post[] $posts */
         $site_name = ArrayHelper::getValue(Yii::$app->params, 'site_name', Yii::$app->name);
-        $posts = Post::find()->where(['status' => Post::STATUS_PUBLISHED])->orderBy(['post_time' => SORT_DESC, 'update_time' => SORT_DESC])->limit(20)->all();
+
+        $posts = Post::find()
+            ->where(['status' => Post::STATUS_PUBLISHED])
+            ->orderBy(['post_time' => SORT_DESC, 'update_time' => SORT_DESC])
+            ->limit(20)
+            ->all();
 
         $feed->setTitle($site_name);
         $feed->setLink(Url::home(true));
@@ -63,7 +89,7 @@ class FeedController extends BaseController
             $entry->setDescription($post->excerpt);
             $entry->setAuthor($post->author_name ? $post->author_name : $post->author->nickname);
             $entry->setId($post->alias);
-            if($feed instanceof ATOM)
+            if ($feed instanceof ATOM)
                 $entry->setContent($post->content);
 
             $feed->addItem($entry);

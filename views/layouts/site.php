@@ -5,11 +5,12 @@
  */
 $this->beginContent('@app/views/layouts/main.php');
 ?>
-    <div class="main">
-        <div class="container">
-            <div class="col-md-12 col-lg-9 list-group post-list no-padding with-shadow">
-                <?= $content ?>
-            </div>
+<div class="main">
+    <div class="container">
+        <div class="col-md-9 list-group post-list no-padding with-shadow">
+            <?= $content ?>
         </div>
+        <?= $this->render('right-aside'); ?>
     </div>
+</div>
 <?php $this->endContent(); ?>
