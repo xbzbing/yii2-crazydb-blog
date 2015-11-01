@@ -62,10 +62,11 @@ class Tag extends ActiveRecord
      * @param int $limit 默认为10
      * @return mixed|null
      */
-    public static function getTags($refresh = false, $limit = 10)
+    public static function getTags($refresh = false, $limit = 0)
     {
-        $cache_key = '__tags';
-        $limit = intval($limit) ? intval($limit) : 10;
+        $cache_key = '__tags_' . $limit;
+
+        $limit = intval($limit);
 
         if ($refresh)
             $items = [];
@@ -77,9 +78,11 @@ class Tag extends ActiveRecord
             $tag_array = self::find()
                 ->select('id,name,create_time,COUNT(id) as totalCount')
                 ->groupBy('name')
-                ->orderBy(['totalCount' => SORT_DESC])
-                ->limit($limit)
-                ->all();
+                ->orderBy(['totalCount' => SORT_DESC]);
+            if($limit)
+                $tag_array = $tag_array->limit($limit)->all();
+            else
+                $tag_array = $tag_array->all();
 
             if (empty($tag_array))
                 return [];
@@ -90,7 +93,7 @@ class Tag extends ActiveRecord
                     'totalCount' => $tag->totalCount,
                     'name' => $tag->name,
                     'create_time' => $tag->create_time,
-                    'url' => Url::to(['tag/show', ['name' => $tag->name]])
+                    'url' => Url::to(['tag/show', 'name' => $tag->name])
                 ];
             }
             $dp = new DbDependency();

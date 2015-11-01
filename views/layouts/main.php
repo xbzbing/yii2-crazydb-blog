@@ -1,11 +1,13 @@
 <?php
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
-use app\assets\AppAsset;
 use yii\bootstrap\Nav;
+use app\assets\AppAsset;
+use yii\web\View;
 /**
- * @var \yii\web\View $this
+ * @var View $this
  * @var string $content
+ * @var array $site_params
  */
 $asset = AppAsset::register($this);
 $menu_items = app\models\Nav::getNavTree(1);

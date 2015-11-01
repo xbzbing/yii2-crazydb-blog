@@ -39,9 +39,10 @@ $config = [
                 '' => 'site/index',//首页
                 'catalog/<name>' => 'category/alias',//分类
                 'archive/<name>' => 'post/alias',//文章
+                '<controller>/<name:\w+>' => '<controller>/show',
                 '<controller:(post|comment)>/<id:\d+>/<action:(create|update|delete)>' => '<controller>/<action>',
-                '<controller:(post|comment)>/<id:\d+>' => '<controller>/read',
-                '<controller:(post|comment)>s' => '<controller>/list',
+                '<controller:(post|comment)>/<id:\d+>' => '<controller>/view',
+                '<controller:(post|comment|tag)>s' => '<controller>/list',
             ]
         ],
         'errorHandler' => [

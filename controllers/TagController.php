@@ -4,87 +4,51 @@ namespace app\controllers;
 
 use Yii;
 use app\models\Tag;
-use app\models\TagSearch;
+use app\models\Post;
 use app\components\BaseController;
+use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * TagController implements the CRUD actions for Tag model.
  */
 class TagController extends BaseController
 {
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                ],
-            ],
-        ];
-    }
-
+    public $layout = 'column_static';
 
     /**
-     * Lists all Tag models.
-     * @return mixed
+     * 按照name获取tag
+     * @param string $name
+     * @return string
+     * @throws NotFoundHttpException
      */
-    public function actionIndex()
+    public function actionShow($name)
     {
-        $searchModel = new TagSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'searchModel' => $searchModel,
-        ]);
-    }
-
-    /**
-     * Displays a single Tag model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Tag model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Tag;
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Finds the Tag model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Tag the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Tag::findOne($id)) !== null) {
-            return $model;
-        } else {
+        $tags = Tag::find()->select('pid')->where(['name' => $name])->asArray()->all();
+        $pid = array();
+        if (empty($tags))
             throw new NotFoundHttpException('The requested page does not exist.');
-        }
+
+        foreach ($tags as $tag)
+            $pid[] = $tag['pid'];
+
+        $pid = array_filter(array_filter($pid));
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => Post::find()->where(['in', 'id', $pid])->andWhere(['in', 'status', [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])->orderBy(['post_time' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => 10
+            ]
+        ]);
+        /* @var Post[] $posts */
+        return $this->render('show', ['tag' => $name, 'dataProvider' => $dataProvider]);
+    }
+
+    /**
+     * 显示所有的tag标签
+     */
+    public function actionList()
+    {
+        return $this->render('list', ['tags' => Tag::getTags(1)]);
     }
 }

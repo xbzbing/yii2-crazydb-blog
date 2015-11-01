@@ -1,6 +1,7 @@
 <?php
+use yii\web\View;
 /**
- * @var \yii\web\View $this
+ * @var View $this
  * @var string $content
  */
 $this->beginContent('@app/views/layouts/main.php');

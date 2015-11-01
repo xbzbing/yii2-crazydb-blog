@@ -1,8 +1,4 @@
 <?php
-/**
- * @author xbzbing<xbzbing@gmail.com>
- */
-
 use yii\web\View;
 use yii\widgets\Breadcrumbs;
 
@@ -10,13 +6,12 @@ use yii\widgets\Breadcrumbs;
  * @var View $this
  * @var string $content
  */
-
 $this->beginContent('@app/views/layouts/main.php');
 ?>
 <div class="main">
     <div class="container">
-        <div class="col-md-9 with-shadow" id="content" role="main">
-            <div class="row breadcrumbs with-shadow">
+        <div class="col-md-9 list-group post-list no-padding with-shadow">
+            <div class="breadcrumbs with-shadow">
                 <i class="glyphicon glyphicon-map-marker"></i>
                 <?= Breadcrumbs::widget([
                     'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
@@ -24,8 +19,12 @@ $this->beginContent('@app/views/layouts/main.php');
             </div>
             <?= $content ?>
         </div>
-        <?= $this->render('right-aside') ?>
+        <?= '<aside class="col-md-3 sidebar" id="right-sidebar">',
+        $this->render('//widget/aside-about'),
+        $this->render('//widget/aside-category'),
+        $this->render('//widget/aside-comment'),
+        '</aside>'; ?>
     </div>
 </div>
-<?php
-$this->endContent();
+<?php $this->endContent(); ?>
+

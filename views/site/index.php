@@ -4,7 +4,6 @@
  * @var yii\data\ActiveDataProvider $dataProvider
  */
 use yii\widgets\LinkPager;
-use app\widgets\CategoryWidget;
 use app\models\Category;
 
 $this->title = Yii::$app->name;
@@ -21,4 +20,4 @@ if (empty($posts)) {
     }
 }
 ?>
-<?= LinkPager::widget(['pagination' => $dataProvider->getPagination()]); ?>
+<?= LinkPager::widget(['pagination' => $dataProvider->pagination]); ?>

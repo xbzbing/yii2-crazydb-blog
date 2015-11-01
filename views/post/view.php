@@ -17,11 +17,11 @@ use app\models\Post;
 $author = $post->author;
 $category = $post->category;
 $this->title = $post->title;
-$this->params['breadcrumbs'][] = ['label' => '文章', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '所有', 'url' => ['post/index']];
 $this->params['breadcrumbs'][] = ['label'=>$category->name,'url'=>$category->getUrl()];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<article id="post-<?php echo $post->id;?>" class="post-view">
+<article id="post-<?= $post->id ?>" class="post-view">
     <header class="entry-header">
         <h1>
             <?php echo $post->title;?>

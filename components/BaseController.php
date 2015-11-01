@@ -24,18 +24,9 @@ class BaseController extends Controller
             $this->setTheme($config['theme']);
 
         $seoConfig = CMSUtils::getSiteConfig('seo');
-
-        if (!empty($seoConfig['seo_keywords']))
-            $this->view->registerMetaTag([
-                'name' => 'keywords',
-                'content' => $seoConfig['seo_keywords']
-            ]);
-        if (!empty($seoConfig['seo_description']))
-            $this->view->registerMetaTag([
-                'name' => 'description',
-                'content' => $seoConfig['seo_description']
-            ]);
-        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
+        $this->view->params['seo_keywords'] = ArrayHelper::getValue(Yii::$app->params, 'seo_keywords');
+        $this->view->params['seo_description'] = ArrayHelper::getValue(Yii::$app->params, 'seo_description');
+        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $seoConfig, $config);
         Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
     }
 
