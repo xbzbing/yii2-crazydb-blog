@@ -270,6 +270,7 @@ class Category extends BaseModel
         else
             $items = Yii::$app->cache->get($cache_key);
 
+
         if (empty($items)) {
             /* @var Category[] $item_array */
             $item_array = self::find()->all();

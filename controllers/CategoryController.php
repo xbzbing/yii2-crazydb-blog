@@ -15,6 +15,7 @@ class CategoryController extends BaseController
 {
 
     public $layout = 'column-list';
+
     /**
      * Lists all Category models.
      * @return mixed
@@ -37,7 +38,7 @@ class CategoryController extends BaseController
      */
     public function actionView($id)
     {
-        return $this->render('view', [
+        return $this->render('show', [
             'model' => $this->findModel($id),
         ]);
     }
@@ -48,8 +49,9 @@ class CategoryController extends BaseController
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionShow($name){
-        return $this->render('view', [
+    public function actionShow($name)
+    {
+        return $this->render('show', [
             'model' => $this->findModelByAlias($name),
         ]);
     }
