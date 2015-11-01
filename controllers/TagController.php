@@ -14,7 +14,7 @@ use yii\web\NotFoundHttpException;
  */
 class TagController extends BaseController
 {
-    public $layout = 'column_static';
+    public $layout = 'column-static';
 
     /**
      * 按照name获取tag

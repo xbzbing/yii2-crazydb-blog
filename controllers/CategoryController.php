@@ -14,11 +14,12 @@ use yii\web\NotFoundHttpException;
 class CategoryController extends BaseController
 {
 
+    public $layout = 'column-list';
     /**
      * Lists all Category models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionList()
     {
         $searchModel = new CategorySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -43,13 +44,13 @@ class CategoryController extends BaseController
 
     /**
      * 按别名访问
-     * @param $alias
+     * @param $name
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionAlias($alias){
+    public function actionShow($name){
         return $this->render('view', [
-            'model' => $this->findModelByAlias($alias),
+            'model' => $this->findModelByAlias($name),
         ]);
     }
 

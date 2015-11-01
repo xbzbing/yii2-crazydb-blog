@@ -29,7 +29,7 @@ $categories = Category::getCategorySummary();
         ?>
         <li>
             <em class="glyphicon glyphicon-hand-right"></em>&nbsp;&nbsp;
-            <a href="<?= Url::to('post/archives')?>" target="_blank">文章归档</a>
+            <a href="<?= Url::to(['post/archives'])?>" target="_blank">文章归档</a>
         </li>
     </ul>
 </div>

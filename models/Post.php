@@ -315,7 +315,7 @@ class Post extends BaseModel
         if ($this->isNewRecord)
             return null;
         if ($this->alias)
-            return Url::to(['/post/alias', 'name' => $this->alias], $schema);
+            return Url::to(['/post/show', 'name' => $this->alias], $schema);
         else
             return Url::to(['/post/view', 'id' => $this->id], $schema);
     }

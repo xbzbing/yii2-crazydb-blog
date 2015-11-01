@@ -20,7 +20,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('清空所有缓存', ['config/cache', 'action' => 'clear_all'], [
             'class' => 'btn btn-success',
             'data' => [
-                'confirm' => '缓存可能共用,清空全部缓存可能会影响系统稳定.',
+                'confirm' => '缓存可能共用,清空全部缓存可能会影响系统稳定.确定清楚?',
                 'method' => 'post',
             ],
         ]) ?>

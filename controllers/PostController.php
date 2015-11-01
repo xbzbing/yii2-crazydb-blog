@@ -2,13 +2,15 @@
 
 namespace app\controllers;
 
-use app\models\Comment;
 use Yii;
+use yii\web\NotFoundHttpException;
+use yii\caching\DbDependency;
+use yii\db\Query;
+use yii\data\ActiveDataProvider;
+use app\models\Comment;
 use app\models\Post;
 use app\models\PostSearch;
 use app\components\BaseController;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * PostController implements the CRUD actions for Post model.
@@ -16,15 +18,23 @@ use yii\filters\VerbFilter;
 class PostController extends BaseController
 {
 
-    public $layout = 'column_post';
+    public $layout = 'column-post';
 
     public function behaviors()
     {
+        $sql = (new Query())
+            ->select('MAX(update_time)')
+            ->from(Post::tableName())
+            ->createCommand()->rawSql;
+
         return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
+            'pageCache' => [
+                'class' => 'yii\filters\PageCache',
+                'only' => ['archives', 'archive-date'],
+                'duration' => 24 * 60 * 60,
+                'dependency' => [
+                    'class' => DbDependency::className(),
+                    'sql' => $sql,
                 ],
             ],
         ];
@@ -34,7 +44,7 @@ class PostController extends BaseController
      * Lists all Post models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionList()
     {
         $searchModel = new PostSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
@@ -57,7 +67,12 @@ class PostController extends BaseController
         ]);
     }
 
-    public function actionAlias($name)
+    /**
+     * @param $name
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionShow($name)
     {
         $post = $this->findModelByAlias($name);
 
@@ -74,6 +89,45 @@ class PostController extends BaseController
                 'pwd' => 'hide-pwd'
             )
         ]);
+    }
+
+    /**
+     * 显示文章归档
+     */
+    public function actionArchives()
+    {
+        $items = Post::find()
+            ->select('id,cid,title,alias,post_time')
+            ->where(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
+            ->orderBy(['post_time' => SORT_DESC])
+            ->asArray()
+            ->all();
+        $this->view->title = '文章归档';
+        $this->view->params['seo_keywords'] .= ',文章归档';
+        $num = count($items);
+        $this->view->params['seo_description'] = "这里是「{" . Yii::$app->params['site_name'] . "」的文章归档，目前共有{$num}篇文章。";
+        return $this->render('archives', ['data' => $items, 'sum' => $num]);
+    }
+
+    /**
+     * @todo 归档的细化操作
+     * @param $year
+     * @param $month
+     */
+    public function actionArchivesDate($year, $month)
+    {
+        $this->layout = 'column-list';
+        $date = "{$year}-{$month}";
+        $start = strtotime($date);
+        $end = strtotime('+1 month', $start);
+        $dataProvider = new ActiveDataProvider([
+            'query' => Post::find()->where(['between', 'post_time', $start, $end]),
+            'pagination' => [
+                'pageSize' => 10
+            ]
+        ]);
+        $this->view->title  = '文章归档:' . $date;
+        echo $this->render('archives-date', ['date' => $date, 'dataProvider' => $dataProvider]);
     }
 
     /**

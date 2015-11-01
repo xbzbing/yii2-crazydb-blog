@@ -35,7 +35,7 @@ HTML;
         ?>
         <div class="more-link">
             <em class="glyphicon glyphicon-hand-right"></em>&nbsp;&nbsp;
-            <a href="<?= Url::to(['tag/index']) ?>" target="_blank" title="所有标签">所有标签</a>
+            <a href="<?= Url::to(['tag/list']) ?>" target="_blank" title="所有标签">所有标签</a>
         </div>
     </div>
 </div>
