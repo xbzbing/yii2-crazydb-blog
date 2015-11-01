@@ -8,14 +8,14 @@ use yii\helpers\Url;
 
 /* @var yii\web\View $this */
 /* @var Post $post */
-/* @var $category string */
-/* @var $extCss string */
+/* @var array $category */
+/* @var string $extCss */
 ?>
 <article id="post-<?= $post->id ?>" class="list-group-item<?= isset($extCss) ? ' ' . $extCss : '' ?>">
     <header class="entry-header">
         <h3>
-            <a title="<?= $category ?>" href="<?= Url::toRoute(['category/view', 'id' => $post->cid]) ?>" class="pl-category">
-                <span class="label label-info"><?= $category ?></span>
+            <a title="<?= $category['name'] ?>" href="<?= $category['url'] ?>" class="pl-category">
+                <span class="label label-info"><?= $category['name'] ?></span>
             </a>
             <?php
             if ($post->status == Post::STATUS_HIDDEN)

@@ -6,7 +6,7 @@
  */
 use yii\widgets\LinkPager;
 use app\models\Category;
-$categories = Category::getAllCategories();
+$categories = Category::getCategorySummary();
 $posts = $dataProvider->getModels();
 if (empty($posts)) {
     echo '<article class="list-group-item"><h1>暂时没有公开的文章发布，请关注本站更新！</h1></article>';
