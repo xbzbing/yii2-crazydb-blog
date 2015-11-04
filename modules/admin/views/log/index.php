@@ -1,6 +1,8 @@
 <?php
 
 use yii\grid\GridView;
+use yii\helpers\Html;
+use app\models\Log;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\LogSearch */
@@ -23,11 +25,38 @@ $this->params['breadcrumbs'][] = $this->title;
             'filterModel' => $searchModel,
             'columns' => [
                 ['class' => 'yii\grid\SerialColumn'],
-                'uid',
+                [
+                    'label' => '用户',
+                    'attribute' => 'uid',
+                    'format' => 'html',
+                    'value' => function($model, $key, $index, $column){
+                        /* @var Log $model */
+                        return $model->uid ? Html::a(Html::encode($model->user->username), ['user/view', 'id'=>$model->id], ['target' => '_blank']) : '';
+                    }
+                ],
                 'type',
                 'action',
-                'result',
-                'create_time:datetime',
+                [
+                    'attribute' => 'result',
+                    'format' => 'html',
+                    'value' => function($model, $key, $index, $column){
+                        /* @var Log $model */
+                        if($model->result == 'success' || $model->result == '成功')
+                            return "<span class=\"label label-success\">{$model->result}</span>";
+                        elseif($model->result == 'failed' || $model->result == '失败')
+                            return "<span class=\"label label-warning\">{$model->result}</span>";
+                        else
+                            return $model->result;
+                    }
+                ],
+                [
+                    'attribute' => 'create_time',
+                    'format' => 'html',
+                    'value' => function($model, $key, $index, $column){
+                        /* @var Log $model */
+                        return date('Y-m-d H:i:s', $model->create_time);
+                    }
+                ],
                 'ip',
                 ['class' => 'yii\grid\ActionColumn'],
             ],

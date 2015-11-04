@@ -11,13 +11,15 @@ use app\models\CommentSearch;
  * @var CommentSearch $searchModel
  */
 
-$this->title = Yii::t('app', 'Comments Manage');
+$this->title = '评论管理';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
             <div class="box-header">
+                <i class="fa fa-comment"></i>
+                <h3 class="box-title">评论列表</h3>
             </div>
             <div class="box-body post-index">
             <?= GridView::widget([
@@ -49,12 +51,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                         'attribute' => 'pid',
                         'value' => function(Comment $model, $key, $index, $column){
-                            return Html::a($model->pid,$model->post->url,['title'=>$model->post->title, 'target'=>'_blank']);
+                            return Html::a($model->post->title,$model->post->url,['title'=>$model->post->title, 'target'=>'_blank']);
                         },
-                        'filter' => false,
                         'label' => '文章 ID',
                         'enableSorting' => true,
-                        'format' => 'raw'
+                        'format' => 'html'
                     ],
                     'email',
                     [

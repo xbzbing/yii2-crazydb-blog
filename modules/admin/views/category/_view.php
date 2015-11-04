@@ -8,7 +8,7 @@ use app\models\Category;
 <tr>
     <td><?= $model->id ?></td>
     <?= $model->pid ? '<td></td><td>' . $model->name . '</td>' : '<td colspan="2">' . $model->name . '</td>' ?>
-    <td><?= Html::a($model->alias, ['/category/alias', 'alias' => $model->alias], ['target' => '_blank']) ?></td>
+    <td><?= Html::a($model->alias, ['/category/show', 'name' => $model->alias], ['target' => '_blank']) ?></td>
     <td><?= $model->sort_order ?></td>
     <td>
         <a href="<?= Url::to(['view', 'id' => $model->id]) ?>" title="查看"><i class="fa fa-eye"> </i></a>

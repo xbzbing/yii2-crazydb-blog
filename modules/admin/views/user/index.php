@@ -14,6 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="box user-index">
 	<div class="box-header with-border">
+		<i class="fa fa-user"></i>
 		<h3 class="box-title">用户列表</h3>
 	</div>
 	<div class="box-body">
