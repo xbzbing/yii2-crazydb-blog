@@ -37,11 +37,12 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 '' => 'site/index',//首页
+                'login' => 'site/login',
+                'logout' => 'site/logout',
                 'catalog/<name>' => 'category/show',//分类
                 'archive/<name>' => 'post/show',//文章
                 'archives' => 'post/archives',
                 'archives/<year:(\d{4})>/<month:(\d{1,2})>' => 'post/archives-date',
-                '<controller>/<name:\w+>' => '<controller>/show',
                 '<controller:(post|comment)>/<id:\d+>' => '<controller>/view',
                 '<controller:(post|comment|tag)>s' => '<controller>/list',
             ]

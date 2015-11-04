@@ -40,7 +40,10 @@ class SiteController extends BaseController
             ],
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+                'maxLength' => 5,
+                'minLength' => 4,
+                'testLimit' => 2,
+                'transparent' => true
             ],
         ];
     }
@@ -58,6 +61,7 @@ class SiteController extends BaseController
 
     public function actionLogin()
     {
+        $this->layout = 'column1';
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
@@ -77,24 +81,5 @@ class SiteController extends BaseController
         Yii::$app->user->logout();
 
         return $this->goHome();
-    }
-
-    public function actionContact()
-    {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        } else {
-            return $this->render('contact', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    public function actionAbout()
-    {
-        return $this->render('about');
     }
 }

@@ -79,12 +79,12 @@ class Category extends BaseModel
 
     public function getAllPosts()
     {
-        return $this->hasMany(Post::className(), ['cid' => 'id']);
+        return $this->hasMany(Post::className(), ['cid' => 'id'])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]);
     }
 
     public function getPosts()
     {
-        return $this->hasMany(Post::className(), ['cid' => 'id', 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]]);
+        return $this->hasMany(Post::className(), ['cid' => 'id', 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]);
     }
 
     public static function getAvailableDisplay()

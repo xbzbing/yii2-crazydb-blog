@@ -13,6 +13,7 @@ class LoginForm extends Model
     public $username;
     public $password;
     public $rememberMe;
+    public $captcha;
 
     private $_user = false;
 
@@ -25,6 +26,7 @@ class LoginForm extends Model
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
             ['password', 'validatePassword'],
+            ['captcha', 'captcha', 'skipOnEmpty' => false]
         ];
     }
 
@@ -38,7 +40,7 @@ class LoginForm extends Model
             $user = $this->getUser();
 
             if (!$user || !$user->validatePassword($this->password)) {
-                $this->addError('password', 'Incorrect username or password.');
+                $this->addError('password', '用户名和密码不匹配。');
             }
         }
     }
@@ -49,6 +51,7 @@ class LoginForm extends Model
             'username' => '用户名',
             'password' => '密码',
             'rememberMe' => '记住我',
+            'captcha' => '验证码'
         ];
     }
 

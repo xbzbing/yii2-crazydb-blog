@@ -61,6 +61,10 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public $nameBlackList = ['admin'];
 
+    public $password_repeat;
+
+    public $old_password;
+
     /**
      * @inheritdoc
      */
@@ -72,9 +76,9 @@ class User extends ActiveRecord implements IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_REGISTER] = ['username', 'nickname', 'password', 'info', 'email', 'avatar'];
+        $scenarios[self::SCENARIO_REGISTER] = ['username', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat'];
         $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'password', 'info', 'email', 'avatar'];
-        $scenarios[self::SCENARIO_MODIFY_PWD] = ['password'];
+        $scenarios[self::SCENARIO_MODIFY_PWD] = ['password', 'old_password', 'password_repeat'];
         return $scenarios;
     }
 
@@ -93,12 +97,14 @@ class User extends ActiveRecord implements IdentityInterface
             [['nickname'], 'string', 'max' => 80],
             [['username'], 'string', 'max' => 20],
             [['password'], 'string', 'max' => 60],
-            [['password'], 'string', 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
+            [['password', 'password_repeat'], 'string', 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
             [['password'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
             [['email', 'website', 'role'], 'string', 'max' => 100],
             [['email'], 'email', 'message' => '邮箱格式不正确'],
             [['register_ip'], 'string', 'max' => 15],
-            [['username', 'nickname', 'email'], 'unique', 'message' => '{attribute} 已经存在,请重新输入.']
+            [['username', 'nickname', 'email'], 'unique', 'message' => '{attribute} 已经存在,请重新输入.'],
+            ['old_password', 'required', 'on' => self::SCENARIO_MODIFY_PWD],
+            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'operator' => '===', 'message' => '两次密码输入不一致']
         ];
     }
 
@@ -405,7 +411,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getAllPosts()
     {
-        return $this->hasMany(Post::className(), ['author_id' => 'id'])->orderBy(['create_time' => SORT_DESC]);
+        return $this->hasMany(Post::className(), ['author_id' => 'id'])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]);
     }
 
     public function getComments()
@@ -417,7 +423,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function getAllComments()
     {
-        return $this->hasMany(Comment::className(), ['uid' => 'id'])->orderBy(['create_time' => SORT_DESC]);
+        return $this->hasMany(Comment::className(), ['uid' => 'id'])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]);
     }
 
 }

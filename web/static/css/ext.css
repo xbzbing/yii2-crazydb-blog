@@ -790,7 +790,7 @@ aside.sidebar {
     margin: 10px auto;
 }
 
-.hidden-post .ccaptcha {
+.hidden-post .captcha {
     padding: 0;
     background: #EEEEEE;
     border: 1px solid #DDDDDD;
@@ -800,4 +800,9 @@ aside.sidebar {
 
 .hidden-post .input-group-addon {
     width: 80px;
+}
+
+/************/
+.captcha-cover{
+    padding: 0 3px;
 }
