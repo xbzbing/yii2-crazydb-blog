@@ -15,7 +15,7 @@ class PostSearch extends Post
     public function rules()
     {
         return [
-            [['id', 'cid', 'author_id', 'create_time', 'post_time', 'update_time', 'comment_count', 'view_count'], 'integer'],
+            [['id', 'cid', 'author_id', 'create_time', 'post_time', 'update_time'], 'integer'],
             [['author_name', 'type', 'title', 'alias', 'excerpt', 'content', 'cover', 'password', 'status', 'tags', 'options', 'ext_info'], 'safe'],
         ];
     }
@@ -47,8 +47,6 @@ class PostSearch extends Post
             'create_time' => $this->create_time,
             'post_time' => $this->post_time,
             'update_time' => $this->update_time,
-            'comment_count' => $this->comment_count,
-            'view_count' => $this->view_count,
         ]);
 
         $query->andFilterWhere(['like', 'author_name', $this->author_name])

@@ -20,6 +20,8 @@ use yii\helpers\ArrayHelper;
  * @property integer $create_time
  * @property string $ip
  * @property string $user_agent
+ *
+ * @property User $user
  */
 class Log extends ActiveRecord
 {
@@ -66,6 +68,12 @@ class Log extends ActiveRecord
             'user_agent' => 'User Agent',
         ];
     }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'uid']);
+    }
+
 
     public function beforeSave($insert)
     {

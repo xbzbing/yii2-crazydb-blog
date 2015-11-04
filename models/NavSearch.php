@@ -17,7 +17,7 @@ class NavSearch extends Nav
     public function rules()
     {
         return [
-            [['id', 'pid', 'order', 'create_time', 'update_time'], 'integer'],
+            [['id', 'pid', 'sort_order', 'create_time', 'update_time'], 'integer'],
             [['name', 'url'], 'safe'],
         ];
     }
@@ -49,21 +49,20 @@ class NavSearch extends Nav
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+             $query->where('0=1');
             return $dataProvider;
         }
 
         $query->andFilterWhere([
             'id' => $this->id,
             'pid' => $this->pid,
-            'order' => $this->order,
+            'order' => $this->sort_order,
             'create_time' => $this->create_time,
             'update_time' => $this->update_time,
+            'name' => $this->name
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'url', $this->url]);
+        $query->andFilterWhere(['like', 'url', $this->url]);
 
         return $dataProvider;
     }

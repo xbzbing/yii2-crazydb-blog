@@ -16,6 +16,8 @@ use yii\db\Query;
  * @property integer $pid
  * @property integer $cid
  * @property integer $create_time
+ *
+ * @property Post $post
  */
 class Tag extends ActiveRecord
 {
@@ -55,6 +57,10 @@ class Tag extends ActiveRecord
         ];
     }
 
+    public function getPost()
+    {
+        return $this->hasOne(Post::className(), ['id' => 'pid']);
+    }
 
     /**
      * 获取系统的常用tags，默认前10位

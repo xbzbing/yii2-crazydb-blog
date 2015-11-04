@@ -46,6 +46,7 @@ use app\components\XUtils;
  * @property User $author 作者
  * @property Category $category 分类
  * @property Comment[] $comments 评论s
+ * @property Comment[] $allComments 全部评论s
  * @property Tag[] $postTags 标签s
  */
 class Post extends BaseModel
@@ -401,7 +402,14 @@ class Post extends BaseModel
 
     public function getComments()
     {
-        return $this->hasMany(Comment::className(), ['pid' => 'id']);
+        return $this->hasMany(Comment::className(), ['pid' => 'id'])->orderBy(['create_time' => SORT_ASC]);
+    }
+
+    public function getAllComments()
+    {
+        return $this->hasMany(Comment::className(), ['pid' => 'id'])
+            ->onCondition(['status' => Comment::STATUS_APPROVED])
+            ->orderBy(['create_time' => SORT_ASC]);
     }
 
     public function getPostTags()

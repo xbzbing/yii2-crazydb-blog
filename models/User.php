@@ -32,6 +32,11 @@ use app\components\XUtils;
  * #getter
  * @property string $userStatus
  * @property string $userRole
+ *
+ * @property Comment[] $comments
+ * @property Comment[] $allComments
+ * @property Post[] $posts
+ * @property Post[] $allPosts
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -134,7 +139,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 是否是管理员
      * @return bool
      */
-    public function isAdmin(){
+    public function isAdmin()
+    {
         return $this->role == self::ROLE_ADMIN;
     }
 
@@ -142,7 +148,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 是否是会员
      * @return bool
      */
-    public function isMember(){
+    public function isMember()
+    {
         return $this->role == self::ROLE_MEMBER;
     }
 
@@ -150,9 +157,11 @@ class User extends ActiveRecord implements IdentityInterface
      * 是否是编辑
      * @return bool
      */
-    public function isEditor(){
+    public function isEditor()
+    {
         return $this->role == self::ROLE_EDITOR;
     }
+
     /**
      * 获得支持的所有状态值
      * @return string[]
@@ -191,7 +200,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 用户状态是否正常
      * @return bool
      */
-    public function isNormal(){
+    public function isNormal()
+    {
         return $this->status == self::STATUS_NORMAL;
     }
 
@@ -199,7 +209,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 用户是否被禁止登录
      * @return bool
      */
-    public function isBaned(){
+    public function isBaned()
+    {
         return $this->status == self::STATUS_BANED;
     }
 
@@ -207,7 +218,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 用户是否被删除
      * @return bool
      */
-    public function isDeleted(){
+    public function isDeleted()
+    {
         return $this->status == self::STATUS_DELETED;
     }
 
@@ -215,7 +227,8 @@ class User extends ActiveRecord implements IdentityInterface
      * 用户是否是未激活状态
      * @return bool
      */
-    public function isInactive(){
+    public function isInactive()
+    {
         return $this->status == self::STATUS_INACTIVE;
     }
 
@@ -381,6 +394,30 @@ class User extends ActiveRecord implements IdentityInterface
     public function generateAuthKey()
     {
         $this->auth_key = Yii::$app->security->generateRandomKey();
+    }
+
+    public function getPosts()
+    {
+        return $this->hasMany(Post::className(), ['author_id' => 'id'])
+            ->onCondition(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])
+            ->orderBy(['create_time' => SORT_DESC]);
+    }
+
+    public function getAllPosts()
+    {
+        return $this->hasMany(Post::className(), ['author_id' => 'id'])->orderBy(['create_time' => SORT_DESC]);
+    }
+
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['uid' => 'id'])
+            ->onCondition(['status' => Comment::STATUS_APPROVED])
+            ->orderBy(['create_time' => SORT_DESC]);
+    }
+
+    public function getAllComments()
+    {
+        return $this->hasMany(Comment::className(), ['uid' => 'id'])->orderBy(['create_time' => SORT_DESC]);
     }
 
 }

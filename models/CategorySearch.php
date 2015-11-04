@@ -52,8 +52,7 @@ class CategorySearch extends Category
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+             $query->where('0=1');
             return $dataProvider;
         }
 
@@ -63,11 +62,12 @@ class CategorySearch extends Category
             'parent' => $this->parent,
             'sort_order' => $this->sort_order,
             'update_time' => $this->update_time,
+            'name' => $this->name,
+            'alias' => $this->alias,
+            'display' => $this->display
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'alias', $this->alias])
-            ->andFilterWhere(['like', 'desc', $this->desc])
+        $query->andFilterWhere(['like', 'desc', $this->desc])
             ->andFilterWhere(['like', 'display', $this->display])
             ->andFilterWhere(['like', 'keywords', $this->keywords]);
 

@@ -5,7 +5,6 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Log;
 
 /**
  * LogSearch represents the model behind the search form about `app\models\Log`.
@@ -19,7 +18,7 @@ class LogSearch extends Log
     {
         return [
             [['id', 'uid', 'create_time'], 'integer'],
-            [['type', 'action', 'result', 'key', 'info', 'ip', 'user_agent'], 'safe'],
+            [['type', 'action', 'result', 'key', 'detail', 'ip', 'user_agent'], 'safe'],
         ];
     }
 
@@ -43,7 +42,6 @@ class LogSearch extends Log
     {
         $query = Log::find();
 
-        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -52,25 +50,25 @@ class LogSearch extends Log
         $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
+            $query->where('0=1');
             return $dataProvider;
         }
 
-        // grid filtering conditions
         $query->andFilterWhere([
             'id' => $this->id,
             'uid' => $this->uid,
             'create_time' => $this->create_time,
+            'action' => $this->action,
+            'result' => $this->result,
+            'key' => $this->key,
+            'type' => $this->type
         ]);
 
-        $query->andFilterWhere(['like', 'type', $this->type])
-            ->andFilterWhere(['like', 'action', $this->action])
-            ->andFilterWhere(['like', 'result', $this->result])
-            ->andFilterWhere(['like', 'key', $this->key])
-            ->andFilterWhere(['like', 'info', $this->info])
+        $query->andFilterWhere(['like', 'detail', $this->detail])
             ->andFilterWhere(['like', 'ip', $this->ip])
             ->andFilterWhere(['like', 'user_agent', $this->user_agent]);
+
+        $query->with('user');
 
         return $dataProvider;
     }

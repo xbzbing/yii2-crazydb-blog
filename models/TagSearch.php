@@ -41,6 +41,7 @@ class TagSearch extends Tag
             'id' => $this->id,
             'pid' => $this->pid,
             'cid' => $this->cid,
+            'name' => $this->name,
             'create_time' => $this->create_time,
         ]);
 
