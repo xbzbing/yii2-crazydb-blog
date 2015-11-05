@@ -37,8 +37,8 @@ class Tag extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'pid', 'create_time'], 'required'],
-            [['pid', 'cid', 'create_time'], 'integer'],
+            [['name', 'pid'], 'required'],
+            [['pid', 'cid'], 'integer'],
             ['name', 'string', 'max' => 255]
         ];
     }
@@ -57,9 +57,42 @@ class Tag extends ActiveRecord
         ];
     }
 
+    public function beforeSave($insert)
+    {
+        if ($insert)
+            $this->create_time = time();
+        $this->name = htmlspecialchars($this->name);
+        return parent::beforeSave($insert);
+    }
+
     public function getPost()
     {
         return $this->hasOne(Post::className(), ['id' => 'pid']);
+    }
+
+    /**
+     * 由字符串生成标签(逗号和空格都会作为分隔符)
+     * @param string $tags
+     * @param integer $pid
+     * @param integer $cid
+     * @return integer 插入的条数
+     */
+    public static function post2tags($tags, $pid, $cid)
+    {
+        $tags_array = array_unique(explode(',', str_replace(array(' ', '，'), ',', $tags)));
+        $tag_count = 0;
+        self::deleteAll(['pid' => $pid]);
+        foreach ($tags_array as $key => $tag) {
+            if ($tag_count <= 5 && preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u', $tag)) {
+                $tag = new self();
+                $tag->name = $tag;
+                $tag->pid = intval($pid);
+                $tag->cid = intval($cid);
+                if($tag->save(false))
+                    $tag_count++;
+            }
+        }
+        return $tag_count;
     }
 
     /**
@@ -85,7 +118,7 @@ class Tag extends ActiveRecord
                 ->select('id,name,create_time,COUNT(id) as totalCount')
                 ->groupBy('name')
                 ->orderBy(['totalCount' => SORT_DESC]);
-            if($limit)
+            if ($limit)
                 $tag_array = $tag_array->limit($limit)->all();
             else
                 $tag_array = $tag_array->all();

@@ -7,7 +7,7 @@ use yii\web\View;
 
 /* @var View $this */
 $js = <<<JS
-       $("#about-me").popover({trigger:"hover",placement:"left",html:true,content:function(){return $("#about-lina").html()}});
+   $("#about-me").popover({trigger:"hover",placement:"left",html:true,content:function(){return $("#about-lina").html()}});
 JS;
 $this->registerJs($js);
 ?>

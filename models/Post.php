@@ -267,7 +267,7 @@ class Post extends BaseModel
 
         if (!$this->alias)
             $this->alias = $this->title;
-        $this->alias = str_replace([' ', '%'], ['-'], trim($this->alias));
+        $this->alias = str_replace([' ', '%', '/', '\\'], ['-'], trim($this->alias));
         $this->alias = strip_tags($this->alias);
         $this->alias = htmlspecialchars($this->alias);
 
@@ -295,15 +295,40 @@ class Post extends BaseModel
 
         //处理并生成tags
         $tags_array = array_unique(explode(',', str_replace([' ', '，'], ',', $this->tags)));
+        $tag_count = 0;
         foreach ($tags_array as $key => $tag) {
-            if (preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u', $tag))
+            if ($tag_count <= 5 && preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u', $tag)) {
                 $tags_array[$key] = $tag;
-            else
+                $tag_count++;
+            } else
                 unset($tags_array[$key]);
         }
         $this->tags = implode(',', $tags_array);
 
         return true;
+    }
+
+    /**
+     * 保存后更新tags
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        if (!empty($changedAttributes['tags']))
+            Tag::post2tags($this->tags, $this->id, $this->cid);
+
+        parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * 删除后更新Tag表
+     */
+    public function afterDelete()
+    {
+        Tag::deleteAll(['pid' => $this->id]);
+
+        parent::afterDelete();
     }
 
     /**

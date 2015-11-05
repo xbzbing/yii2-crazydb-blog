@@ -41,7 +41,7 @@ $this->beginPage(); ?>
             </div>
             <div class="navbar navbar-default col-md-6 index-navbar">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#w0-collapse">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="site-navbar">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>

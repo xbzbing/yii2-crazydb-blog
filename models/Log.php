@@ -109,7 +109,7 @@ class Log extends ActiveRecord
         $log->action = ArrayHelper::getValue($logger, 'action');
         $log->key = ArrayHelper::getValue($logger, 'key');
         $log->detail = ArrayHelper::getValue($logger, 'detail');
-        $log->result = ArrayHelper::getValue($logger, 'result', 'failed');
+        $log->result = ArrayHelper::getValue($logger, 'result', 'unknown');
         return $log->save();
     }
 }
