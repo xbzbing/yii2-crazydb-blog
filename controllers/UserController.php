@@ -57,23 +57,6 @@ class UserController extends BaseController
     }
 
     /**
-     * Creates a new User model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new User;
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-    /**
      * 通过nickname获取用户信息
      * @param $name
      * @throws NotFoundHttpException
@@ -97,28 +80,7 @@ class UserController extends BaseController
             ]
         );
     }
-    /**
-     * 用户注册
-     */
-    public function actionRegister(){
-        $this->layout = 'column1';
-        if(!Yii::$app->user->isGuest){
-            $this->goHome();
-        }
-        $model = new User();
-        $model->setScenario(User::SCENARIO_REGISTER);
-        if ($model->load(Yii::$app->request->post())) {
-            if($model->save()){
-                Yii::$app->session->setFlash('RegOption','注册成功，请用刚才注册的号码登录！');
-                return $this->redirect(['site/login']);
-            }else
-                $model->password = $model->password_repeat = null;
-        }
 
-        return $this->render('register', [
-            'model' => $model,
-        ]);
-    }
     /**
      * Updates an existing User model.
      * If update is successful, the browser will be redirected to the 'view' page.

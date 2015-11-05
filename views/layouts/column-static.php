@@ -10,7 +10,7 @@ $this->beginContent('@app/views/layouts/main.php');
 ?>
 <div class="main">
     <div class="container">
-        <div class="col-md-9 list-group post-list no-padding with-shadow">
+        <div class="col-md-9 main-container with-shadow">
             <div class="breadcrumbs with-shadow">
                 <i class="glyphicon glyphicon-map-marker"></i>
                 <?= Breadcrumbs::widget([

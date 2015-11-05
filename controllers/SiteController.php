@@ -7,7 +7,7 @@ use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use app\components\BaseController;
 use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\User;
 use app\models\Post;
 
 class SiteController extends BaseController
@@ -74,6 +74,29 @@ class SiteController extends BaseController
                 'model' => $model,
             ]);
         }
+    }
+
+    /**
+     * 用户注册
+     */
+    public function actionRegister(){
+        $this->layout = 'column1';
+        if(!Yii::$app->user->isGuest){
+            $this->goHome();
+        }
+        $model = new User();
+        $model->setScenario(User::SCENARIO_REGISTER);
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->save()){
+                Yii::$app->session->setFlash('RegOption','注册成功，请用刚才注册的号码登录！');
+                return $this->redirect(['site/login']);
+            }else
+                $model->password = $model->password_repeat = null;
+        }
+
+        return $this->render('register', [
+            'model' => $model,
+        ]);
     }
 
     public function actionLogout()

@@ -65,6 +65,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     public $old_password;
 
+    public $captcha;
     /**
      * @inheritdoc
      */
@@ -76,7 +77,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_REGISTER] = ['username', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat'];
+        $scenarios[self::SCENARIO_REGISTER] = ['username', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat', 'captcha'];
         $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'password', 'info', 'email', 'avatar'];
         $scenarios[self::SCENARIO_MODIFY_PWD] = ['password', 'old_password', 'password_repeat'];
         return $scenarios;
@@ -88,8 +89,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'email'], 'required'],
-            [['register_time', 'update_time', 'status'], 'integer'],
+            [['username', 'email', 'nickname'], 'required'],
             [['status'], 'default', 'value' => self::STATUS_NORMAL],
             [['status'], 'in', 'range' => array_keys(self::getAvailableStatus())],
             [['info'], 'string'],
@@ -97,14 +97,15 @@ class User extends ActiveRecord implements IdentityInterface
             [['nickname'], 'string', 'max' => 80],
             [['username'], 'string', 'max' => 20],
             [['password'], 'string', 'max' => 60],
-            [['password', 'password_repeat'], 'string', 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
-            [['password'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
+            [['website'], 'url'],
+            [['password', 'password_repeat'], 'string', 'min' => '8', 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD], 'message' => '{attribute} 需要在8-20位之间。'],
+            [['password', 'password_repeat'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
             [['email', 'website', 'role'], 'string', 'max' => 100],
             [['email'], 'email', 'message' => '邮箱格式不正确'],
-            [['register_ip'], 'string', 'max' => 15],
-            [['username', 'nickname', 'email'], 'unique', 'message' => '{attribute} 已经存在,请重新输入.'],
+            [['username', 'nickname', 'email'], 'unique', 'message' => '{attribute} 已经存在，请重新输入。'],
             ['old_password', 'required', 'on' => self::SCENARIO_MODIFY_PWD],
-            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'operator' => '===', 'message' => '两次密码输入不一致']
+            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'operator' => '===', 'message' => '两次密码输入不一致。'],
+            ['captcha', 'captcha', 'skipOnEmpty' => false, 'on' => self::SCENARIO_REGISTER],
         ];
     }
 
@@ -262,7 +263,9 @@ class User extends ActiveRecord implements IdentityInterface
             'ext' => '保留字段',
             'userStatus' => '用户状态',
             'userRole' => '用户角色',
-            'active_time' => '活动时间'
+            'active_time' => '活动时间',
+            'password_repeat' => '确认密码',
+            'old_password' => '旧密码'
         ];
     }
 
@@ -280,7 +283,7 @@ class User extends ActiveRecord implements IdentityInterface
         if ($this->isNewRecord) {
             $this->register_time = time();
             $this->register_ip = XUtils::getClientIP();
-            $this->auth_key = Yii::$app->security->generateRandomKey();
+            $this->generateAuthKey();
         }
         //注册黑名单
         if (in_array($this->username, $this->nameBlackList) || in_array($this->nickname, $this->nameBlackList)) {
@@ -399,7 +402,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function generateAuthKey()
     {
-        $this->auth_key = Yii::$app->security->generateRandomKey();
+        $this->auth_key = base64_encode(Yii::$app->security->generateRandomKey());
     }
 
     public function getPosts()

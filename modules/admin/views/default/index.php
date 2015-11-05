@@ -7,6 +7,7 @@ $this->title = "控制台";
 ?>
 <div class="box">
     <div class="box-header">
+        <i class="fa fa-info"></i>
         <h3 class="box-title">系统信息</h3>
     </div>
     <div class="box-body table-responsive no-padding">

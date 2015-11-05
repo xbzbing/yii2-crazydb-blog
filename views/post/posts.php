@@ -1,11 +1,15 @@
 <?php
-/**
- * 显示多个 post 的页面
- * @var yii\web\View $this
- * @var yii\data\ActiveDataProvider $dataProvider
- */
+use yii\data\Pagination;
+use yii\web\View;
+use yii\data\ActiveDataProvider;
 use yii\widgets\LinkPager;
 use app\models\Category;
+/**
+ * 显示多个 post 的页面
+ * @var View $this
+ * @var ActiveDataProvider $dataProvider
+ */
+
 $categories = Category::getCategorySummary();
 $posts = $dataProvider->getModels();
 if (empty($posts)) {
@@ -15,4 +19,14 @@ if (empty($posts)) {
         echo $this->render('_article', ['post' => $post, 'category' => $categories[$post->cid]]);
     }
 }
-echo LinkPager::widget(['pagination' => $dataProvider->pagination]);
+?>
+<div class="panel-footer">
+<?= LinkPager::widget([
+    'pagination' => $dataProvider->pagination,
+    'nextPageLabel' => '下一页',
+    'prevPageLabel' => '上一页',
+    'firstPageLabel' => '首页',
+    'lastPageLabel' => '末页',
+    'registerLinkTags' => true
+]);?>
+</div>

@@ -65,7 +65,7 @@ $current_user = Yii::$app->user->identity;
                     [
                         'label' => '<span>操作日志</span>',
                         'url' => ['log/index'],
-                        'icon' => 'fa fa-paw',
+                        'icon' => 'fa fa-clock-o',
                     ],
                     [
                         'label' => '<span>设置</span>',

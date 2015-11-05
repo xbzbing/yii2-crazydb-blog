@@ -8,7 +8,7 @@ $this->beginContent('@app/views/layouts/main.php');
 ?>
 <div class="main">
     <div class="container">
-        <div class="col-md-9 with-shadow post-list" role="main">
+        <div class="col-md-9 with-shadow main-container" role="main">
             <div class="breadcrumbs with-shadow">
                 <i class="glyphicon glyphicon-map-marker"></i>
                 <?= Breadcrumbs::widget([

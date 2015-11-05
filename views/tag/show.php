@@ -11,7 +11,7 @@ use app\models\Post;
 use app\models\Category;
 
 /* @var View $this */
-/* @var Post $posts */
+/* @var Post[] $posts */
 /* @var string $tag */
 /* @var ActiveDataProvider $dataProvider */
 
@@ -22,7 +22,7 @@ $this->params['breadcrumbs'] = [
 $sum = $dataProvider->totalCount;
 $this->title = '标签：' . $tag;
 $seo_description = "标签：{$tag}。该标签下共有{$sum}篇文章，";
-$categories = Category::getAllCategories();
+$categories = Category::getCategorySummary();
 $post_names = array();
 echo <<<HTML5
 <header class="tag-info list-header">

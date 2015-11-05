@@ -10,7 +10,7 @@
 }
 
 #footer {
-    background: url(../images/footer-light.jpg) 0 0/100% no-repeat #282828;
+    background: url(../images/footer-light.jpg) 0 0/100% 100% no-repeat #282828;
     color: #B9B9B9;
     font-family: "微软雅黑", sans-serif;
     font-size: 13px;
@@ -73,9 +73,15 @@
     box-shadow: 0 0 5px #999999;
 }
 
-.main-content {
+.site-index{
     background: #FFF;
     padding: 0 15px 20px;
+}
+
+.main-container {
+    border-radius: 10px 10px 0 0;
+    background: #FFF;
+    padding: 0 0 20px;
 }
 
 .form .input-group {
@@ -87,11 +93,11 @@
 }
 
 .no-padding {
-    padding: 0;
+    padding: 0!important;
 }
 
 .no-margin {
-    margin: 0;
+    margin: 0!important;
 }
 
 .radius-10 {
@@ -144,7 +150,7 @@ a.read-more:hover {
 .index-header {
     background: url("../images/blue-bg.png") no-repeat;
     height: 260px;
-    background-size: 100%;
+    background-size: 100% 100%;
 }
 
 .index-header .container {
@@ -268,7 +274,6 @@ article.list-group-item:nth-of-type(1) {
 .post-list {
     border-radius: 10px 10px 0 0;
     background: #FFFFFF;
-    padding-bottom: 18px;
 }
 
 .post-list .list-group-item:hover {
@@ -280,7 +285,6 @@ article.list-group-item:nth-of-type(1) {
 
 .post-list .list-group-item:hover .entry-header h3 {
     border-bottom: 2px dashed orange;
-
 }
 
 .list-group-item .entry-content {
@@ -501,7 +505,6 @@ aside.sidebar {
     background: #FFF;
     border-radius: 10px 10px 0 0;
     margin-bottom: 8px;
-    padding-bottom: 8px;
 }
 
 #content .entry-header {
