@@ -33,4 +33,9 @@ $this->params['breadcrumbs'] = [$this->title];
     </div>
 </div>
 <?= $form->errorSummary($model, ['class' => 'alert alert-danger col-md-offset-1 col-md-3']); ?>
-<?php ActiveForm::end(); ?>
+<?php
+$message = Yii::$app->session->getFlash('RegOption');
+if($message && empty($model->errors))
+    echo '<div class="alert alert-info col-md-offset-1 col-md-3">', $message, '</div>';
+
+ActiveForm::end(); ?>

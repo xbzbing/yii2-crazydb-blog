@@ -41,6 +41,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= $form->field($model, 'copyright',['inputOptions'=>['class'=>'form-control']]) ?>
         </div>
         <div class="col-md-12 col-lg-offset-1 col-lg-5">
+            <?= $form->field($model, 'allow_register',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'允许注册','closed'=>'禁止注册']) ?>
             <?= $form->field($model, 'site_status',['inputOptions'=>['class'=>'form-control']])->dropDownList(['open'=>'正常运行','closed'=>'维护中，暂时关闭']) ?>
             <?= $form->field($model, 'closed_summary',['inputOptions'=>['class'=>'form-control autogrow']])->textarea(['rows'=>6]) ?>
         </div>

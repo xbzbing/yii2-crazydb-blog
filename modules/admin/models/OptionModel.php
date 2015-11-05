@@ -77,8 +77,8 @@ class OptionModel extends Model
             if ($this->getOldAttribute($name) == $value)
                 continue;
             $row += Yii::$app->db->createCommand(
-                "REPLACE INTO " . Option::tableName() . " (type, name, value) VALUES(:type,:name,:value)",
-                [':type' => $type, ':name' => $name, ':value' => $value]
+                "REPLACE INTO " . Option::tableName() . " (type, name, value, update_time) VALUES(:type,:name,:value,:update_time)",
+                ['type' => $type, 'name' => $name, 'value' => $value, 'update_time' => time()]
             )->execute();
         }
         return $row;

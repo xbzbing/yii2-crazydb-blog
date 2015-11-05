@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Option;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -9,6 +10,7 @@ use app\components\BaseController;
 use app\models\LoginForm;
 use app\models\User;
 use app\models\Post;
+use yii\helpers\ArrayHelper;
 
 class SiteController extends BaseController
 {
@@ -80,15 +82,18 @@ class SiteController extends BaseController
      * 用户注册
      */
     public function actionRegister(){
-        $this->layout = 'column1';
-        if(!Yii::$app->user->isGuest){
+        if(!Yii::$app->user->isGuest)
             $this->goHome();
-        }
+        $this->layout = 'column1';
+
+        if(ArrayHelper::getValue(Yii::$app->params, Option::ALLOW_REGISTER) !== Option::STATUS_OPEN)
+            return $this->render('register-closed');
+
         $model = new User();
         $model->setScenario(User::SCENARIO_REGISTER);
         if ($model->load(Yii::$app->request->post())) {
             if($model->save()){
-                Yii::$app->session->setFlash('RegOption','注册成功，请用刚才注册的号码登录！');
+                Yii::$app->session->setFlash('RegOption','注册成功，请用刚才注册的帐号登录！');
                 return $this->redirect(['site/login']);
             }else
                 $model->password = $model->password_repeat = null;

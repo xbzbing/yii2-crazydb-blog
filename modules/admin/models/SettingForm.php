@@ -27,7 +27,7 @@ class SettingForm extends OptionModel
      */
     public $site_icp;
     /**
-     * @var string 网站备案信息
+     * @var string 主题
      */
     public $theme;
     /**
@@ -53,7 +53,7 @@ class SettingForm extends OptionModel
     /**
      * @var string 留言需要审核
      */
-    public $need_approve;
+    public $audit_on_comment;
     /**
      * @var string 留言时候发送邮件
      * @todo 这个可能要放到留言管理的部分
@@ -75,7 +75,7 @@ class SettingForm extends OptionModel
             ['site_name', 'required'],
             ['admin_email', 'email'],
             ['site_analyzer', 'safe'],//这个地方可能是唯一的XSS。。
-            [['site_status', 'allow_register', 'need_approve', 'allow_comment', 'send_mail_on_comment'], 'in', 'range' => ['open', 'closed']],
+            [['site_status', 'allow_register', 'audit_on_comment', 'allow_comment', 'send_mail_on_comment'], 'in', 'range' => ['open', 'closed']],
             [['site_icp', 'copyright', 'closed_summary', 'theme'], 'simplePurify']
         ];
     }
@@ -98,7 +98,7 @@ class SettingForm extends OptionModel
             'site_status' => '网站状态',
             'closed_summary' => '网站关闭时提示消息',
             'allow_comment' => '评论功能',
-            'need_approve' => '评论审核',
+            'audit_on_comment' => '评论审核',
             'site_analyzer' => '网站统计代码',
             'send_mail_on_comment' => '留言时发送邮件'
         );

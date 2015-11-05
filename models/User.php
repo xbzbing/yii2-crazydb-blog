@@ -77,7 +77,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_REGISTER] = ['username', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat', 'captcha'];
+        $scenarios[self::SCENARIO_REGISTER] = ['username', 'website', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat', 'captcha'];
         $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'password', 'info', 'email', 'avatar'];
         $scenarios[self::SCENARIO_MODIFY_PWD] = ['password', 'old_password', 'password_repeat'];
         return $scenarios;
@@ -98,7 +98,7 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'string', 'max' => 20],
             [['password'], 'string', 'max' => 60],
             [['website'], 'url'],
-            [['password', 'password_repeat'], 'string', 'min' => '8', 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD], 'message' => '{attribute} 需要在8-20位之间。'],
+            [['password', 'password_repeat'], 'string', 'min' => 8, 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD], 'message' => '{attribute} 需要在8-20位之间。'],
             [['password', 'password_repeat'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
             [['email', 'website', 'role'], 'string', 'max' => 100],
             [['email'], 'email', 'message' => '邮箱格式不正确'],
