@@ -30,7 +30,7 @@ $current_module = Yii::$app->controller->module;
 <?php $this->beginBody() ?>
 <div class="wrapper">
     <header class="main-header">
-        <a href="javascript:void(0)" class="logo"><span class="logo-mini"><b>X</b></span><span class="log-lg"><b>X</b>-CMS</span></a>
+        <a href="javascript:void(0)" class="logo"><span class="logo-mini"><b>DB</b></span><span class="log-lg"><b><?= Yii::$app->name ?></b></span></a>
         <nav class="navbar navbar-static-top" role="navigation">
             <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
                 <span class="sr-only">Toggle navigation</span>

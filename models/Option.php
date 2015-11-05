@@ -69,7 +69,7 @@ class Option extends BaseModel
     /**
      * @var string 留言时候发送邮件
      */
-    const MAIL_ON_COMMENT = 'send_mail_on_comment';
+    const SEND_MAIL_ON_COMMENT = 'send_mail_on_comment';
 
     /**
      * 网站分析代码，包含<script></script>

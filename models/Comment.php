@@ -67,6 +67,12 @@ class Comment extends BaseModel
     const TYPE_REPLY = 'reply';
 
     /**
+     * 回复目标的名字
+     * @var string
+     */
+    public $target_name;
+
+    /**
      * @inheritdoc
      */
     public static function tableName()

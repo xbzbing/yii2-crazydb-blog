@@ -3,12 +3,12 @@
 $params = require(__DIR__ . '/params.php');
 
 $config = [
-    'id' => 'basic',
+    'id' => 'crazydb',
     'basePath' => dirname(__DIR__),
     'timeZone' => 'PRC',
     'language' => 'zh-CN',
     'bootstrap' => ['log'],
-    'name' => 'X-CMS',
+    'name' => 'Crazydb-Blog',
     'modules' => [
         'admin' => [
             'class' => 'app\modules\Admin\Module'
