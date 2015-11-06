@@ -1,5 +1,6 @@
 <?php
 use yii\bootstrap\Nav;
+use yii\helpers\Html;
 use app\components\Common;
 use app\models\User;
 /* @var User $current_user */
@@ -37,12 +38,12 @@ $menuItems[] =  [
     'items' => [
         [
             'label' => '<i class="fa fa-user"></i> ' . '个人资料',
-            'url' => ['/user'],
+            'url' => ['/user/profile'],
         ],
-        [
-            'label' => '<i class="fa fa-sign-out"></i> ' . '注销',
-            'url' => ['/logout'],
-        ],
+        '<li><a href="#" title="退出" id="logout-btn" type="submit"><i class="fa fa-sign-out"> </i> 退出</a>'
+        . Html::beginForm(['/site/logout'], 'post', ['id' => 'logout-form'])
+        . Html::endForm()
+        . '</li>'
     ],
 ];
 

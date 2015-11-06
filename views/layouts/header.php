@@ -21,11 +21,17 @@ if(Yii::$app->user->isGuest){
         ]
     ];
 }else{
-    $menu_items[] = ['label' => $current_user->nickname, 'items' => [
-        ['label' => '管理后台','url' => ['admin/'], 'visible' => $current_user->isAdmin()],
-        ['label' => '退出','url' => ['site/logout']],
-    ],
+    $menu_items[] = [
+        'label' => $current_user->nickname,
+        'items' => [
+            ['label' => '管理后台','url' => ['admin/'], 'visible' => $current_user->isAdmin()],
+            '<li><a href="#" title="退出" id="logout-btn">退出</a>'
+            . Html::beginForm(['/site/logout'], 'post', ['id' => 'logout-form'])
+            . Html::endForm()
+            . '</li>'
+        ],
     ];
+    $this->registerJs('$("#logout-btn").click(function(){ $("#logout-form").submit();});');
 }
 ?>
 <header class="index-header">

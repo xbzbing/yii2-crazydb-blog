@@ -2,15 +2,16 @@
 
 namespace app\controllers;
 
-use app\models\Option;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
+use yii\filters\VerbFilter;
 use app\components\BaseController;
+use app\models\Option;
 use app\models\LoginForm;
 use app\models\User;
 use app\models\Post;
-use yii\helpers\ArrayHelper;
 
 class SiteController extends BaseController
 {
@@ -29,6 +30,12 @@ class SiteController extends BaseController
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'logout' => ['post'],
                 ],
             ],
         ];

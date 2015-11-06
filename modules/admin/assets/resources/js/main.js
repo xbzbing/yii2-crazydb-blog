@@ -9,6 +9,9 @@ $(function () {
     }).on('hidden.bs.modal', function(){
         $(this).find('form')[0].reset();
     });
+    $("#logout-btn").click(function(){
+        $("#logout-form").submit();
+    });
     Messenger.options = {
         extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
         theme: 'future'

@@ -61,7 +61,7 @@ class UserController extends BaseController
      * @param $name
      * @throws NotFoundHttpException
      */
-    public function actionViewUser($name){
+    public function actionShow($name){
         /* @var User $model */
         $model = User::findOne(['nickname'=>$name]);
         if($model==null)
@@ -87,7 +87,7 @@ class UserController extends BaseController
      * @param string $id
      * @return mixed
      */
-    public function actionUpdate($id)
+    public function actionProfile($id)
     {
         $model = $this->findModel($id);
         $model->setScenario(User::SCENARIO_MODIFY_PROFILE);
