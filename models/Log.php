@@ -97,19 +97,26 @@ class Log extends ActiveRecord
 
     /**
      * 记录一条日志
-     * 会调用save()自动保存
-     * @param array $logger
+     * @param string $type
+     * @param string $action
+     * @param string $key
+     * @param string|null $result
+     * @param string|null $detail
      * @return bool
      */
-    public static function record($logger)
+    public static function Record($type, $action, $key, $result = null, $detail = null)
     {
         $log = new self();
-        $log->uid = intval(ArrayHelper::getValue($logger, 'uid', 0));
-        $log->type = ArrayHelper::getValue($logger, 'type', self::TYPE_DEFAULT);
-        $log->action = ArrayHelper::getValue($logger, 'action');
-        $log->key = ArrayHelper::getValue($logger, 'key');
-        $log->detail = ArrayHelper::getValue($logger, 'detail');
-        $log->result = ArrayHelper::getValue($logger, 'result', 'unknown');
+        $log->type = $type;
+        $log->action = $action;
+        $log->key = $key;
+        $log->result = $result;
+        $log->detail = $detail;
+        if(Yii::$app->user->isGuest)
+            $log->uid = 0;
+        else
+            $log->uid = Yii::$app->user->id;
+
         return $log->save();
     }
 }

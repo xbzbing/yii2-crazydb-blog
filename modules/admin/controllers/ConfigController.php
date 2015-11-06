@@ -2,7 +2,9 @@
 namespace app\modules\admin\controllers;
 
 use Yii;
+use yii\filters\VerbFilter;
 use app\components\CMSUtils;
+use app\components\XUtils;
 use app\modules\admin\models\SettingForm;
 use app\modules\admin\models\SeoForm;
 use app\modules\admin\components\Controller;
@@ -78,7 +80,7 @@ class ConfigController extends Controller
         if(Yii::$app->request->isPost && in_array($action, $actions)){
             if($action === 'clear_all'){
                 Yii::$app->cache->flush();
-                Yii::$app->session->setFlash('admin-success', '操作成功，该漏洞已经通过审核。');
+                XUtils::actionMessage('admin', 'cache', 'success', '缓存清理成功!');
             }
         }
         return $this->render('cache');

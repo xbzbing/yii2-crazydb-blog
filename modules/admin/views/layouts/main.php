@@ -15,6 +15,18 @@ AdminlteAsset::register($this);
 FontAwesomeAsset::register($this);
 AdminAsset::register($this);
 $current_module = Yii::$app->controller->module;
+$message = Yii::$app->session->getFlash('admin');
+if ($message) {
+    try{
+        $this->registerJs("
+    Messenger().post({
+        message: '{$message['detail']}',
+        type: '{$message['status']}',
+        showCloseButton: true
+    });
+    ");
+    }catch (Exception $e){}
+}
 ?>
 <?php $this->beginPage() ?>
 <!DOCTYPE html>

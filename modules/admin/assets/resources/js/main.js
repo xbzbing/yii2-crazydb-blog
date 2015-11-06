@@ -9,6 +9,10 @@ $(function () {
     }).on('hidden.bs.modal', function(){
         $(this).find('form')[0].reset();
     });
+    Messenger.options = {
+        extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
+        theme: 'future'
+    }
 });
 
 (function ($, AdminLTE) {

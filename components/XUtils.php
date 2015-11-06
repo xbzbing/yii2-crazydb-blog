@@ -161,4 +161,23 @@ class XUtils
         }
         return $return;
     }
+
+    /**
+     * 像 flash 中写入操作记录
+     * @param string $key
+     * @param string $action
+     * @param string $status
+     * @param string $detail
+     * @param string $extra
+     */
+    public static function actionMessage($key, $action, $status, $detail, $extra = null)
+    {
+        $message = [
+            'action' => $action,
+            'status' => $status,
+            'detail' => $detail,
+            'extra' => $extra
+        ];
+        Yii::$app->session->setFlash($key, $message);
+    }
 }

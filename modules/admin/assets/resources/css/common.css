@@ -9,6 +9,10 @@
 .post-create {
     border-bottom: none;
 }
+/********************/
+.messenger .message-success,.messenger  .message-error,.messenger .message-info{
+    background-color: transparent!important;
+}
 
 /****=== 文件上传  ===****/
 #dropbox{
