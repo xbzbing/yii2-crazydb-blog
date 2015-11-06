@@ -668,7 +668,7 @@ aside.sidebar {
     width: 100%;
 }
 
-.leave-comment .ccaptcha {
+.leave-comment .captcha {
     padding: 0 12px;
 }
 
@@ -721,12 +721,14 @@ aside.sidebar {
     padding-left: 0;
 }
 
-.comment-captcha .ccaptcha {
-    padding: 4px 0 0;
+.comment-captcha .captcha {
+    padding: 4px 4px 0;
     background: #EEEEEE;
     border: 1px solid #DDDDDD;
     border-bottom: none;
     border-radius: 4px 4px 0 0;
+    display: block;
+    text-align: center;
 }
 
 .comment-captcha span {

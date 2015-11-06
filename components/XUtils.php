@@ -147,17 +147,20 @@ class XUtils
         $email = md5($email);
         $filePath = Yii::getAlias('@webroot') . "/static/avatar/{$email}-{$size}.png";
         $return = Yii::getAlias('@web') . "/static/avatar/{$email}-{$size}.png";
+        $gravatar = "http://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
 
         if (!file_exists($filePath)) {
             //头像不存在，远程获取图片
             Yii::trace('获取头像:本地头像缓存不存在，远程获取图片', __CLASS__);
-            $img = @file_get_contents($return);
-            if ($img && @file_put_contents($filePath, $img)) {
+            try{
+                $img = file_get_contents($gravatar);
+                file_put_contents($filePath, $img);
                 return $return;
-            } else {
-                Yii::trace('远程获取图片失败:请检查服务器权限和网络连接状态。', __CLASS__);
-                return "http://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
+            }catch (\Exception $e){
+                Yii::trace('远程获取图片失败:请检查服务器权限和网络连接状态。' . $e->getMessage(), __CLASS__);
+                return $gravatar;
             }
+
         }
         return $return;
     }

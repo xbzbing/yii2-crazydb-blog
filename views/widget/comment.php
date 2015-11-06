@@ -135,8 +135,8 @@ if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::
                     </div>
                         <?= Captcha::widget([
                             'name' => 'captcha',
-                            'template' => '<div class="input-group"><span class="input-group-addon"><em class="glyphicon glyphicon-ok-sign"></em></span>{input}<span class="input-group-addon captcha-cover">{image}</span></div>',
-                            'options' => ['tabindex' => '3', 'class' => 'form-control'],
+                            'template' => '<div class="comment-captcha col-md-6"><span class="captcha">{image}</span>{input}</div>',
+                            'options' => ['tabindex' => '2', 'class' => 'form-control'],
                             'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
                         ]); ?>
                     <?php endif;?>
@@ -159,17 +159,16 @@ if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::
                         <span id="more_smilie" title="更多表情"><em class="glyphicon glyphicon-chevron-right"></em></span>
                     </div>
                     <input type="hidden" name="Comment[replyto]" value="0" id="parentId"/>
-                    <input type="hidden" name="inajax" value="1"/>
-                    <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]" id="leave-a-comment" placeholder="留下你的看法，欢迎交流 :)"></textarea>
+                    <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]" id="leave-a-comment" tabindex="1" placeholder="留下你的看法，欢迎交流 :)"></textarea>
                     <div class="actionPanel">
                         <?php if (isset(Yii::$app->params[Option::SEND_MAIL_ON_COMMENT]) && Yii::$app->params[Option::SEND_MAIL_ON_COMMENT] == Option::STATUS_OPEN && isset(Yii::$app->mailer)): ?>
                         <div class="checkbox pull-left">
                             <label>
-                                <input name="Comment[sendMail]" value="1" type="checkbox"> 邮件通知对方
+                                <input name="Comment[sendMail]" value="1" type="checkbox" tabindex="3"> 邮件通知对方
                             </label>
                         </div>
                         <?php endif;?>
-                        <button id="sendComment" class="btn btn-primary">
+                        <button id="sendComment" class="btn btn-primary" tabindex="4">
                             提交留言 <em class="glyphicon glyphicon-send"></em>
                         </button>
                     </div>
