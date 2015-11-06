@@ -11,6 +11,7 @@ use app\components\BaseController;
 use app\models\Post;
 use FeedWriter\RSS2;
 use FeedWriter\ATOM;
+use yii\web\Response;
 
 
 class FeedController extends BaseController
@@ -39,21 +40,21 @@ class FeedController extends BaseController
         $this->enableTheme = false;
         parent::init();
         $this->defaultAction = 'rss';
-        $this->layout = null;
+        Yii::$app->response->format = Response::FORMAT_XML;
     }
 
     public function actionRss()
     {
         $feed = new RSS2();
         $this->generateFeed($feed);
-        $feed->printFeed(true);
+        echo $feed->generateFeed();
     }
 
     public function actionAtom()
     {
         $feed = new ATOM();
         $this->generateFeed($feed);
-        $feed->printFeed(true);
+        echo $feed->generateFeed();
     }
 
     /**

@@ -17,7 +17,9 @@ $this->beginContent('@app/views/layouts/main.php');
                     'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
                 ]) ?>
             </div>
-            <?= $content ?>
+            <div class="content">
+                <?= $content ?>
+            </div>
         </div>
         <?= $this->render('right-aside') ?>
     </div>

@@ -1,11 +1,21 @@
 @charset "UTF-8";
+html, body {
+    height: 100%
+}
+
+.site-container {
+    min-height: 100%;
+    height: auto !important;
+    position: relative;
+}
+
 /**********common*************/
 .main {
     background-color: #E2E2E2;
     background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent);
     background-size: 12px 12px;
     padding-top: 8px;
-    padding-bottom: 20px;
+    padding-bottom: 200px;
     font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
 }
 
@@ -14,7 +24,11 @@
     color: #B9B9B9;
     font-family: "微软雅黑", sans-serif;
     font-size: 13px;
-    height: 165px;
+    height: 199px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    clear: both;
 }
 
 #footer li {
@@ -73,7 +87,7 @@
     box-shadow: 0 0 5px #999999;
 }
 
-.site-index{
+.site-index {
     background: #FFF;
     padding: 0 15px 20px;
 }
@@ -82,6 +96,10 @@
     border-radius: 10px 10px 0 0;
     background: #FFF;
     padding: 0 0 20px;
+}
+
+.content {
+    padding: 5px 15px;
 }
 
 .form .input-group {
@@ -93,11 +111,11 @@
 }
 
 .no-padding {
-    padding: 0!important;
+    padding: 0 !important;
 }
 
 .no-margin {
-    margin: 0!important;
+    margin: 0 !important;
 }
 
 .radius-10 {
@@ -423,29 +441,31 @@ article.list-group-item:nth-of-type(1) {
     text-decoration: none;
 }
 
-ul.tags{
+ul.tags {
     list-style: none;
 }
 
-ul.tags li{
+ul.tags li {
     width: 30%;
-    float:left;
+    float: left;
     height: 2em;
     line-height: 2em;
     font-size: 1.1em;
 }
-ul.breadcrumb{
+
+ul.breadcrumb {
     display: inline-block;
     padding: 0;
     font-size: .9em;
     background-color: transparent;
     margin: auto;
 }
-.breadcrumb > li + li:before{
+
+.breadcrumb > li + li:before {
     content: "»";
 }
 
-    /***************fixed**************/
+/***************fixed**************/
 article.list-group-item {
     padding-bottom: 0;
     border-top: none;
@@ -806,6 +826,6 @@ aside.sidebar {
 }
 
 /************/
-.captcha-cover{
+.captcha-cover {
     padding: 0 3px;
 }

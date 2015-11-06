@@ -23,9 +23,11 @@ $this->beginPage(); ?>
 </head>
 <body>
 <?php $this->beginBody() ?>
+<div class="site-container">
     <?= $this->render('header', ['asset' => $asset, 'site_name' => $site_name]) ?>
     <?= $content ?>
     <?= $this->render('footer') ?>
+</div>
 <?php $this->endBody() ?>
 </body>
 </html>
