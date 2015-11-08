@@ -28,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'action',
                 'result',
                 'key',
-                'info',
+                'detail',
                 'create_time:datetime',
                 'ip',
                 'user_agent',
