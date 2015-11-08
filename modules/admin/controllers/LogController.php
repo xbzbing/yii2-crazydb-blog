@@ -2,11 +2,14 @@
 
 namespace app\modules\admin\controllers;
 
+
 use Yii;
+use yii\web\NotFoundHttpException;
 use app\models\Log;
 use app\models\LogSearch;
+use app\models\User;
 use app\modules\admin\components\Controller;
-use yii\web\NotFoundHttpException;
+use app\components\XUtils;
 
 /**
  * LogController implements the CRUD actions for Log model.
@@ -40,6 +43,14 @@ class LogController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
+    }
+
+    public function actionDelete($id){
+        /* @var User $current_user */
+        $current_user = Yii::$app->user->identity;
+        Log::record(Log::TYPE_DELETE_LOG, 'log/delete', $id, Log::STATUS_FAILED, "{$current_user->username}({$current_user->id})尝试删除[ID={$id}]的日志.");
+        XUtils::actionMessage('admin', 'log/delete', 'error', '删除日志失败!');
+        return $this->redirect('index');
     }
 
     /**

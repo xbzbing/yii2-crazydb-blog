@@ -28,6 +28,7 @@ class Log extends ActiveRecord
     const TYPE_PERMISSION_DENY = 'permission deny';
     const TYPE_LOGIN = 'login';
     const TYPE_DEFAULT = 'default';
+    const TYPE_DELETE_LOG = 'delete log';
 
     const STATUS_SUCCESS = 'success';
     const STATUS_FAILED = 'failed';
@@ -100,11 +101,11 @@ class Log extends ActiveRecord
 
     /**
      * 记录一条日志
-     * @param string $type
-     * @param string $action
-     * @param string $key
-     * @param string|null $result
-     * @param string|null $detail
+     * @param string $type 操作类型
+     * @param string $action 操作action
+     * @param string $key 识别key
+     * @param string|null $result 操作结果
+     * @param string|null $detail 操作细节
      * @return bool
      */
     public static function record($type, $action, $key, $result = null, $detail = null)
