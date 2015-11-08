@@ -8,10 +8,40 @@ namespace app\components;
 use yii;
 use yii\caching\DbDependency;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use app\models\Option;
 
 class CMSUtils
 {
+
+    public static function getSmilies()
+    {
+        return [
+            'question',
+            'razz',
+            'sad',
+            'evil',
+            'exclaim',
+            'smile',
+            'redface',
+            'biggrin',
+            'surprised',
+            'eek',
+            'confused',
+            'cool',
+            'lol',
+            'mad',
+            'twisted',
+            'rolleyes',
+            'wink',
+            'idea',
+            'arrow',
+            'neutral',
+            'cry',
+            'mrgreen'
+        ];
+    }
 
     /**
      * 获取Option信息
@@ -52,6 +82,20 @@ class CMSUtils
     }
 
     /**
+     * 获取指定的key
+     * @param $key
+     * @param bool|false $fresh
+     * @return mixed
+     */
+    public static function getSysConfig($key, $fresh = false)
+    {
+        static $config = [];
+        if (empty($config) || $fresh)
+            $config = self::getSiteConfig('sys', $fresh);
+        return ArrayHelper::getValue($config, $key);
+    }
+
+    /**
      * 获取themes文件夹下的文件
      * @return array
      */
@@ -70,5 +114,28 @@ class CMSUtils
         closedir($folder);
         ksort($themes);
         return $themes;
+    }
+
+    /**
+     * 系统通知机制
+     * @param string $to
+     * @param string $title
+     * @param string $content
+     * @param string $nickname
+     * @return bool
+     */
+    public static function notice($to, $nickname, $title, $content)
+    {
+        $admin_email = ArrayHelper::getValue(Yii::$app->params, 'admin_email');
+        $notice_email = ArrayHelper::getValue(Yii::$app->params, 'notice_email');
+        if(isset(Yii::$app->mailer) && $admin_email && $notice_email)
+            Yii::$app->mailer
+                ->compose('@app/mail/notice', ['name' => Html::encode($nickname), 'title' => $title, 'message' => $content])
+                ->setFrom($notice_email)
+                ->setTo(YII_DEBUG ? $admin_email : $to)
+                ->setSubject($title)
+                ->send();
+
+        return true;
     }
 }

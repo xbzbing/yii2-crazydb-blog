@@ -3,11 +3,11 @@
 namespace app\models;
 
 use Yii;
+use yii\caching\DbDependency;
+use yii\db\Query;
 use app\components\BaseModel;
 use app\components\CMSException;
 use app\components\XUtils;
-use yii\caching\DbDependency;
-use yii\db\Query;
 
 /**
  * This is the model class for table "{{%comment}}".
@@ -15,7 +15,7 @@ use yii\db\Query;
  * @property string $id 评论ID
  * @property string $pid 文章ID
  * @property string $uid 用户ID
- * @property string $author 评论用户姓名
+ * @property string $nickname 评论用户姓名
  * @property string $email 电子邮箱
  * @property string $type 回复的类型
  * @property string $replyto 回复目标ID
@@ -26,14 +26,12 @@ use yii\db\Query;
  * @property integer $update_time 更新时间
  * @property string $content 评论内容
  * @property string $status 状态
- * @property string $ext 保留字段
  *
  * #getter
  * @property array $availableStatus 支持的评论状态
  * @property array $availableType 支持的评论类型
  * @property string $commentType 回复类型
  * @property string $commentStatus 回复状态
- * @property array $extInfo 扩展信息
  *
  *
  * @property Post $post 所评论文章
@@ -72,12 +70,69 @@ class Comment extends BaseModel
      */
     public $target_name;
 
+    public $captcha;
+
+    const SCENARIO_COMMENT = 'comment';
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return '{{%comment}}';
+    }
+
+
+    public function scenarios(){
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_COMMENT] = ['pid', 'nickname', 'email', 'content', 'captcha', 'url'];
+        return $scenarios;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['pid', 'nickname', 'email', 'content'], 'required'],
+            [['pid', 'uid', 'replyto'], 'integer'],
+            ['content', 'string'],
+            ['status', 'default', 'value' => self::STATUS_UNAPPROVED],
+            ['status', 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '评论状态异常'],
+            ['type', 'default', 'value' => self::TYPE_REPLY],
+            ['type', 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '评论类型异常'],
+            ['nickname', 'string', 'max' => 80],
+            ['email', 'email', 'message' => '不是有效的E-mail地址。'],
+            ['url', 'url', 'message' => 'URL地址不合法，需要以http或https开头'],
+            ['captcha', 'captcha', 'skipOnEmpty' => false, 'on' => self::SCENARIO_COMMENT]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => '评论ID',
+            'pid' => '文章ID',
+            'uid' => '用户ID',
+            'nickname' => '用户名称',
+            'email' => '电子邮箱',
+            'type' => '回复类型',
+            'replyto' => '回复目标ID',
+            'url' => 'URL',
+            'ip' => '用户IP',
+            'user_agent' => '浏览器',
+            'create_time' => '评论时间',
+            'update_time' => '更新时间',
+            'content' => '评论内容',
+            'status' => '评论审核状态',
+            'commentType' => '回复类型',
+            'commentStatus' => '回复状态',
+            'captcha' => '验证码'
+        ];
     }
 
     /**
@@ -137,51 +192,6 @@ class Comment extends BaseModel
         return self::getTypeName($this->type);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['pid', 'author', 'email', 'content'], 'required'],
-            [['pid', 'uid', 'replyto', 'create_time', 'update_time'], 'integer'],
-            ['content', 'purify'],
-            ['status', 'default', 'value' => self::STATUS_UNAPPROVED],
-            ['status', 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '评论状态异常'],
-            ['type', 'default', 'value' => self::TYPE_REPLY],
-            ['type', 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '评论类型异常'],
-            ['author', 'string', 'max' => 80],
-            ['email', 'email', 'message' => '不是有效的E-mail地址。'],
-            ['url', 'url', 'message' => 'URL地址不合法，需要以http或https开头']
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => '评论ID',
-            'pid' => '文章ID',
-            'uid' => '用户ID',
-            'author' => '用户名称',
-            'email' => '电子邮箱',
-            'type' => '回复类型',
-            'replyto' => '回复目标ID',
-            'url' => 'URL',
-            'ip' => '用户IP',
-            'user_agent' => '浏览器',
-            'create_time' => '评论时间',
-            'update_time' => '更新时间',
-            'content' => '评论内容',
-            'status' => '评论审核状态',
-            'ext' => '保留字段',
-            'commentType' => '回复类型',
-            'commentStatus' => '回复状态'
-        ];
-    }
-
     public function getPost()
     {
         return $this->hasOne(Post::className(), ['id' => 'pid']);
@@ -192,22 +202,6 @@ class Comment extends BaseModel
         return $this->hasOne(User::className(), ['id' => 'uid']);
     }
 
-    /**
-     * 获得 message 信息
-     * @return array|bool
-     */
-    public function getExtInfo()
-    {
-        try {
-            if (is_array($this->ext))
-                return $this->ext;
-
-            $this->ext = unserialize($this->ext);
-        } catch (CMSException $cms) {
-            return false;
-        }
-        return $this->ext;
-    }
 
     public function beforeSave($insert)
     {
@@ -215,13 +209,11 @@ class Comment extends BaseModel
             $this->ip = XUtils::getClientIP();
             $this->create_time = time();
             $this->user_agent = htmlspecialchars(Yii::$app->request->getUserAgent());
-        } else {
-            $this->update_time = time();
-            $this->ext = serialize([
-                'ip' => XUtils::getClientIP(),
-                'username' => Yii::$app->user->isGuest ? 'Guest' : Yii::$app->user->identity->username,
-            ]);
         }
+
+        $this->update_time = time();
+        $this->content = XUtils::HTMLPurify($this->content);
+        $this->nickname = htmlspecialchars(strip_tags($this->nickname));
         return parent::beforeSave($insert);
     }
 
@@ -257,8 +249,8 @@ class Comment extends BaseModel
             foreach ($post_comments as $comment) {
                 $comments[] = [
                     'id' => $comment->id,
-                    'author' => $comment->author,
-                    'author_url' => $comment->url,
+                    'nickname' => $comment->nickname,
+                    'website' => $comment->url,
                     'pid' => $comment->pid,
                     'post_url' => $comment->post->getUrl(true),
                     'content' => $comment->content,

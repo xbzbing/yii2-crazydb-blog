@@ -18,9 +18,9 @@ foreach($comments as $comment){
     $comment['content'] = trim(strip_tags($comment['content']));
     echo <<<HTML
             <li>
-                <img alt="{$comment['author']}" title="{$comment['author']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">
+                <img alt="{$comment['nickname']}" title="{$comment['nickname']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">
                 <a href="{$comment['post_url']}#comment-{$comment['id']}" title="查看详情">
-                    <strong>{$comment['author']}：</strong>
+                    <strong>{$comment['nickname']}：</strong>
                 </a>
                 <span title="发表在：{$comment['title']}">{$comment['content']}</span>
             </li>

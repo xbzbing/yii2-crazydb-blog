@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Log;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -77,6 +78,7 @@ class SiteController extends BaseController
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            Log::record(Log::TYPE_LOGIN, 'site-login', Yii::$app->user->id, 'success');
             return $this->goBack();
         } else {
             return $this->render('login', [

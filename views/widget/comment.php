@@ -7,8 +7,10 @@
 
 use yii\captcha\Captcha;
 use yii\web\View;
-use yii\helpers\Url;
+use yii\widgets\ActiveForm;
+use yii\helpers\Html;
 use app\assets\AppAsset;
+use app\components\CMSUtils;
 use app\models\Comment;
 use app\models\Option;
 use app\models\User;
@@ -21,30 +23,7 @@ use app\components\XUtils;
  * @var User $current_user;
  * @var Comment[] $temp
  */
-$smilies = [
-    'question',
-    'razz',
-    'sad',
-    'evil',
-    'exclaim',
-    'smile',
-    'redface',
-    'biggrin',
-    'surprised',
-    'eek',
-    'confused',
-    'cool',
-    'lol',
-    'mad',
-    'twisted',
-    'rolleyes',
-    'wink',
-    'idea',
-    'arrow',
-    'neutral',
-    'cry',
-    'mrgreen'
-];
+$smilies = CMSUtils::getSmilies();
 $current_user = Yii::$app->user->identity;
 if(empty($asset))
     $asset = AppAsset::register($this);
@@ -75,7 +54,6 @@ if (count($comments) > 0) {
 }
 ?>
 <div class="post-comments">
-    <form method="post" name="comment_content" action="#">
     <h3 id="comments">
         留言交流
     </h3>
@@ -83,12 +61,12 @@ if (count($comments) > 0) {
 <?php
 if (count($comments) > 0) {
     foreach ($comments[0] as $parent) {
-        echo $this->render("//comment/display", ['comment' => $parent]);
+        echo $this->render("//comment/display", ['comment' => $parent, 'baseUrl' => $asset->baseUrl]);
         //没有回复
         if (isset($comments[$parent->id])) {
             //多级评论
             foreach ($comments[$parent->id] as $comment) {
-                echo $this->render("//comment/display", ['comment' => $comment]);
+                echo $this->render("//comment/display", ['comment' => $comment, 'baseUrl' => $asset->baseUrl]);
             }
         }
     }
@@ -99,9 +77,10 @@ if (count($comments) > 0) {
     </ol>
 
 <?php
-if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::ALLOW_COMMENT] == Option::STATUS_OPEN):
+if(CMSUtils::getSysConfig(Option::ALLOW_COMMENT) === Option::STATUS_OPEN):
 ?>
     <div id="comment-area">
+        <?= Html::beginForm(['comment/add', 'id' => $pid]) ?>
         <div class="comment" id="comment">
             <div id="comment_error" class="alert alert-danger">
             </div>
@@ -110,20 +89,20 @@ if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::
                     <?php if(Yii::$app->user->isGuest):?>
                     <div class="input-group">
                         <span class="input-group-addon"><em class="glyphicon glyphicon-user"></em></span>
-                        <input type="text" required="required" data-title="姓名" class="form-control" name="Comment[author]" placeholder="* Name">
+                        <input type="text" required="required" tabindex="1" data-title="姓名" class="form-control" name="Comment[nickname]" placeholder="* Name">
                     </div>
                     <div class="input-group">
                         <span class="input-group-addon"><em class="glyphicon glyphicon-envelope"></em></span>
-                        <input type="text" required="required" data-title="邮箱" class="form-control" name="Comment[email]" placeholder="* E-mail">
+                        <input type="text" required="required" tabindex="2" data-title="邮箱" class="form-control" name="Comment[email]" placeholder="* E-mail">
                     </div>
                     <div class="input-group">
                         <span class="input-group-addon"><em class="glyphicon glyphicon-globe"></em></span>
-                        <input type="text" maxlength="80" data-title="网站地址" class="form-control" id="comment-url" name="Comment[url]" placeholder="WebSite URL">
+                        <input type="text" maxlength="80" tabindex="3" data-title="网站地址" class="form-control" id="comment-url" name="Comment[url]" placeholder="WebSite URL">
                     </div>
                         <?= Captcha::widget([
-                            'name' => 'captcha',
+                            'name' => 'Comment[captcha]',
                             'template' => '<div class="input-group"><span class="input-group-addon"><em class="glyphicon glyphicon-ok-sign"></em></span>{input}<span class="input-group-addon captcha-cover">{image}</span></div>',
-                            'options' => ['tabindex' => '3', 'class' => 'form-control'],
+                            'options' => ['class' => 'form-control', 'tabindex' => 4],
                             'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
                         ]); ?>
                     <?php else:?>
@@ -134,9 +113,9 @@ if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::
                         <strong><?= $current_user->nickname ?></strong>
                     </div>
                         <?= Captcha::widget([
-                            'name' => 'captcha',
+                            'name' => 'Comment[captcha]',
                             'template' => '<div class="comment-captcha col-md-6"><span class="captcha">{image}</span>{input}</div>',
-                            'options' => ['tabindex' => '2', 'class' => 'form-control'],
+                            'options' => ['class' => 'form-control', 'tabindex' => 4],
                             'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
                         ]); ?>
                     <?php endif;?>
@@ -159,32 +138,29 @@ if(isset(Yii::$app->params[Option::ALLOW_COMMENT]) && Yii::$app->params[Option::
                         <span id="more_smilie" title="更多表情"><em class="glyphicon glyphicon-chevron-right"></em></span>
                     </div>
                     <input type="hidden" name="Comment[replyto]" value="0" id="parentId"/>
-                    <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]" id="leave-a-comment" tabindex="1" placeholder="留下你的看法，欢迎交流 :)"></textarea>
+                    <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]" id="leave-a-comment" tabindex="5" placeholder="留下你的看法，欢迎交流 :)"></textarea>
                     <div class="actionPanel">
-                        <?php if (isset(Yii::$app->params[Option::SEND_MAIL_ON_COMMENT]) && Yii::$app->params[Option::SEND_MAIL_ON_COMMENT] == Option::STATUS_OPEN && isset(Yii::$app->mailer)): ?>
+                        <?php if (CMSUtils::getSysConfig(Option::SEND_MAIL_ON_COMMENT) === Option::STATUS_OPEN && Yii::$app->get('mailer', false)): ?>
                         <div class="checkbox pull-left">
                             <label>
-                                <input name="Comment[sendMail]" value="1" type="checkbox" tabindex="3"> 邮件通知对方
+                                <input name="Comment[sendMail]" value="1" type="checkbox" tabindex="6"> 邮件通知对方
                             </label>
                         </div>
                         <?php endif;?>
-                        <button id="sendComment" class="btn btn-primary" tabindex="4">
+                        <button id="sendComment" class="btn btn-primary" tabindex="7" type="button">
                             提交留言 <em class="glyphicon glyphicon-send"></em>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+        <?= Html::endForm() ?>
     </div>
 
     <br class="clearfix">
 <?php
-    $comment_url = Url::to(['post/comment', 'id' => $pid]);
     $script = <<<SCRIPT
     var smile_path = "{$baseUrl}/images/smilie/icon_";
-    var comment_submit = "{$comment_url}";
-    var postId = "{$pid}";
-    var changeCaptcha = false;
 SCRIPT;
     $this->registerJs($script, View::POS_HEAD);
     $this->registerJsFile("{$baseUrl}/js/comment.js");
@@ -192,5 +168,4 @@ else:
     $this->registerJs('$(".comment-reply-link").hide();');
 endif;
 ?>
-    </form>
 </div>

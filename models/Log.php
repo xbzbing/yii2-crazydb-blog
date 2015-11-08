@@ -29,6 +29,9 @@ class Log extends ActiveRecord
     const TYPE_LOGIN = 'login';
     const TYPE_DEFAULT = 'default';
 
+    const STATUS_SUCCESS = 'success';
+    const STATUS_FAILED = 'failed';
+
     /**
      * @inheritdoc
      */
@@ -104,7 +107,7 @@ class Log extends ActiveRecord
      * @param string|null $detail
      * @return bool
      */
-    public static function Record($type, $action, $key, $result = null, $detail = null)
+    public static function record($type, $action, $key, $result = null, $detail = null)
     {
         $log = new self();
         $log->type = $type;
