@@ -29,14 +29,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 ],
                 [
                     'attribute' => 'author_id',
-                    'value' => function ($model, $key, $index, $column) {
+                    'value' => function (Post $model, $key, $index, $column) {
                         return $model->author ? $model->author->nickname : null;
                     }
                 ],
                 [
                     'attribute' => 'is_top',
                     'format' => 'html',
-                    'value' => function ($model, $key, $index, $column) {
+                    'value' => function (Post $model, $key, $index, $column) {
                         return $model->is_top ? '<span class="label label-success">置顶</span>' : '';
                     },
                     'filter' => Html::activeDropDownList($searchModel, 'is_top', ['' => '全部', '0' => '否', '1' => '是'], ['class' => 'form-control']),

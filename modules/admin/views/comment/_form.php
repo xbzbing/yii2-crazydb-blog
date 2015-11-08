@@ -26,7 +26,7 @@ use crazydb\ueditor\UEditor;
         ]
     ]) ?>
 
-    <?= $form->field($model, 'author')->textInput(['maxlength' => 128]) ?>
+    <?= $form->field($model, 'nickname')->textInput(['maxlength' => 128]) ?>
 
     <?= $form->field($model, 'email')->textInput(['maxlength' => 128]) ?>
 
@@ -39,8 +39,8 @@ use crazydb\ueditor\UEditor;
     <?= $form->field($model, 'pid')->textInput(['maxlength' => '5']) ?>
 
     <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? Yii::t('app', 'Create') : Yii::t('app', 'Update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Back'), ['index'], ['class' => 'btn btn-default']) ?>
+        <?= Html::submitButton('保存', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::a('返回', ['index'], ['class' => 'btn btn-default']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

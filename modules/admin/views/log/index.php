@@ -30,8 +30,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'label' => '用户',
                     'attribute' => 'uid',
                     'format' => 'html',
-                    'value' => function($model, $key, $index, $column){
-                        /* @var Log $model */
+                    'value' => function(Log $model, $key, $index, $column){
                         return $model->uid ? Html::a(Html::encode($model->user->username), ['user/view', 'id'=>$model->id], ['target' => '_blank']) : '';
                     }
                 ],
@@ -40,8 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 [
                     'attribute' => 'result',
                     'format' => 'html',
-                    'value' => function($model, $key, $index, $column){
-                        /* @var Log $model */
+                    'value' => function(Log $model, $key, $index, $column){
                         if($model->result == 'success' || $model->result == '成功')
                             return "<span class=\"label label-success\">{$model->result}</span>";
                         elseif($model->result == 'failed' || $model->result == '失败')

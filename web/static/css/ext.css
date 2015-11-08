@@ -634,9 +634,7 @@ aside.sidebar {
 }
 
 .comment-smilie {
-    height: 25px;
     font-size: 14px;
-    line-height: 25px;
 }
 
 #more_smilie {
@@ -673,30 +671,34 @@ aside.sidebar {
 }
 
 .comment-list {
-    list-style: none;
     padding-left: 15px;
+    margin-bottom: 10px;
 }
-
-.c-avatar {
+.comment-panel{
+    min-height: 50px;
+    padding: 5px 15px 0 0;
+    border-bottom: 1px solid #E6E6E6;
+}
+.comment-panel .avatar {
     float: left;
     margin-right: 10px;
 }
-
-.c-meta {
+.reply-to .avatar {
+    margin-left: 10px;
+}
+.comment-body{
+    padding-left: 10px;
+}
+.comment-meta {
     color: #7E7E7E;
 }
-
+.comment-content img{
+    margin-top: -3px;
+}
 /******************评论框*************************/
 #comments {
     border-bottom: 1px dashed #E6E6E6;
     padding-bottom: 5px;
-}
-
-.comment-list li {
-    min-height: 45px;
-    padding: 5px 0;
-    border-bottom: 1px solid #E6E6E6;
-    display: block;
 }
 
 .comment-reply-link {
@@ -743,12 +745,12 @@ aside.sidebar {
     border-radius: 0 0 4px 4px;
 }
 
-#comment_error {
+#comment-error {
     display: none;
     text-align: center;
 }
 
-.comment-list .replyTo {
+.comment-list .reply-to {
     margin-left: 40px;
     border-left: 2px dashed #DDDDDD;
 }

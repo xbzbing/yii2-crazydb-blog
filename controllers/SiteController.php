@@ -17,7 +17,7 @@ use app\models\Post;
 class SiteController extends BaseController
 {
 
-    public $layout = 'site';
+    public $layout = 'column1';
 
     public function behaviors()
     {
@@ -60,6 +60,7 @@ class SiteController extends BaseController
 
     public function actionIndex()
     {
+        $this->layout = 'site';
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()
                 ->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])
@@ -71,16 +72,16 @@ class SiteController extends BaseController
 
     public function actionLogin()
     {
-        $this->layout = 'column1';
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            Log::record(Log::TYPE_LOGIN, 'site-login', Yii::$app->user->id, 'success');
+            Log::record(Log::TYPE_LOGIN, 'site-login', Yii::$app->user->id, Log::STATUS_SUCCESS, $model->username . ' 登录成功.');
             return $this->goBack();
         } else {
+            Log::record(Log::TYPE_LOGIN, 'site-login', 0, Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
             return $this->render('login', [
                 'model' => $model,
             ]);
@@ -93,7 +94,6 @@ class SiteController extends BaseController
     public function actionRegister(){
         if(!Yii::$app->user->isGuest)
             $this->goHome();
-        $this->layout = 'column1';
 
         if(ArrayHelper::getValue(Yii::$app->params, Option::ALLOW_REGISTER) !== Option::STATUS_OPEN)
             return $this->render('register-closed');

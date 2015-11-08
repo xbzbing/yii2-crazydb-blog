@@ -11,8 +11,8 @@ $(function () {
         var myField;
         var tag = $(this).attr("data-smilie");
         tag = ' :' + tag + ': ';
-        if (document.getElementById('leave-a-comment') && document.getElementById('leave-a-comment').type == 'textarea') {
-            myField = document.getElementById('leave-a-comment');
+        if (document.getElementById('comment-content') && document.getElementById('comment-content').type == 'textarea') {
+            myField = document.getElementById('comment-content');
         } else {
             return false;
         }
@@ -42,12 +42,11 @@ $(function () {
     //发表留言按钮
     $('#sendComment').click(function () {
         if (checkRequire()) {
-            $("#comment_error").slideDown(300).delay(4000).slideUp(300);
+            $("#comment-error").slideDown(300).delay(4000).slideUp(300);
             return false;
         }
         onTransfer();
-        var form = $(this).parents("form");
-        console.debug(form);
+        var form = $("#add-comment");
         $.ajax({
             'type': 'POST',
             'url': form.attr('action'),
@@ -56,18 +55,18 @@ $(function () {
             'data': form.serialize(),
             'success': function (data, status) {
                 if (data.status == "fail") {
-                    $("#comment_error").append(data.info).slideDown(300).delay(4000).slideUp(300);
+                    $("#comment-error").append(data.info).slideDown(300).delay(4000).slideUp(300);
                 } else if (data.status == "success") {
                     if (data.display == 1) {
-                        if (data.replyto > 0) {
-                            $("#comment-" + data.replyto).after(data.template);
-                            moveCommentForm(data.replyto);
+                        if (data.reply_to > 0) {
+                            $("#comment-" + data.reply_to).after(data.template);
+                            moveCommentForm(data.reply_to);
                         } else
                             $(".comment-list").append(data.template);
                         if (document.getElementById("no-comment")) {
                             $("#no-comment").hide();
                         }
-                        $("#leave-a-comment").val("");
+                        $("#comment-content").val("");
                     } else {
                         alert(data.info);
                     }
@@ -122,17 +121,21 @@ function afterTransfer() {
  */
 function checkRequire() {
     var empty = false;
-    var comment_error = $("#comment_error");
+    var comment_error = $("#comment-error");
     comment_error.html("");
     $(".leave-comment input[required=required]").each(function () {
-        if ($(this).val() == "") {
-            $("#comment_error").append("<p>* " + $(this).attr("data-title") + "不能为空。</p>");
+        if (!$(this).val()) {
+            comment_error.append("<p>* " + $(this).attr("data-title") + "不能为空。</p>");
             empty = true;
         }
     });
     var url = $("#comment-url").val();
     if (url && !checkURL(url)) {
         comment_error.append("<p>* URL格式错误，请以http或者https开头。</p>");
+        empty = true;
+    }
+    if (!$("#comment-content").val()) {
+        comment_error.append("<p>* 评论内容不能为空。</p>");
         empty = true;
     }
     return empty;

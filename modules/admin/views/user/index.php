@@ -26,14 +26,13 @@ $this->params['breadcrumbs'][] = $this->title;
 				[
 					'attribute' => 'nickname',
 					'format' => 'html',
-					'value' => function($model, $key, $index, $column){
+					'value' => function(User $model, $key, $index, $column){
 						return Html::a($model->nickname, ['user/view', 'id' => $model->id]);
 					},
 				],
 				[
 					'attribute' => 'role',
-                    'value' => function($model, $key, $index, $column){
-                        /* @var User $model */
+                    'value' => function(User $model, $key, $index, $column){
                         if($model->isAdmin())
                             return "<span class=\"label label-success\">{$model->userRole}</span>";
                         elseif($model->isEditor())
@@ -50,8 +49,7 @@ $this->params['breadcrumbs'][] = $this->title;
 				[
 					'format' => 'html',
 					'attribute' => 'status',
-					'value' => function($model, $key, $index, $column){
-						/* @var User $model */
+					'value' => function(User $model, $key, $index, $column){
 						if($model->isBaned() || $model->isDeleted())
 							return "<span class=\"label label-warning\">{$model->userStatus}</span>";
 						elseif($model->isInactive())
@@ -65,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
 				],
 				[
 					'label' => '注册时间',
-					'value' => function($model, $key, $index, $column){
+					'value' => function(User $model, $key, $index, $column){
 						return date('Y-m-d H:i:s', $model->register_time);
 					},
 				],

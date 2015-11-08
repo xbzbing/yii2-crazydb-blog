@@ -9,7 +9,7 @@ use yii\widgets\DetailView;
  */
 
 $this->title = $model->name;
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Tags'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '标签管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="tag-view">
@@ -17,11 +17,10 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
+        <?= Html::a('删除', ['delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                'confirm' => 'Are you sure you want to delete this item?',
                 'method' => 'post',
             ],
         ]) ?>
@@ -32,7 +31,8 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
-            'frequency',
+            'post.title',
+            'post.url:url'
         ],
     ]) ?>
 

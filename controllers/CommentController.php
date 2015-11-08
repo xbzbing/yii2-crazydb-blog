@@ -3,15 +3,12 @@
 namespace app\controllers;
 
 use Yii;
-use yii\filters\VerbFilter;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\Response;
-use yii\web\NotFoundHttpException;
 use app\components\CMSUtils;
 use app\models\Option;
 use app\models\Comment;
-use app\models\CommentSearch;
 use app\models\Post;
 use app\models\User;
 use app\components\BaseController;
@@ -50,10 +47,6 @@ class CommentController extends BaseController
             $comment->pid = $id;
             $comment->load(Yii::$app->request->post());
             $comment->status = $status;
-            if ($comment->replyto > 0)
-                $comment->type = Comment::TYPE_REPLYTO;
-            else
-                $comment->type = Comment::TYPE_REPLY;
 
             if (!Yii::$app->user->isGuest) {
                 /* @var User $current_user */
@@ -82,6 +75,8 @@ class CommentController extends BaseController
             if ($comment->save()) {
                 //保存成功，返回结果并在前台显示
                 /* @var Post $post */
+                if($comment->isReply() && $comment->reply)
+                    $comment->target_name = $comment->reply->nickname;
                 $template = $display ? $this->renderPartial('//comment/display', ['comment' => $comment]) : '';
                 $post = Post::findOne($comment->pid);
                 $post_url = $post->getUrl(true);
@@ -97,11 +92,11 @@ class CommentController extends BaseController
 
                 //1、是否勾选了通知对方 2、是否配置了mailer组件 3、是否开启留言邮件功能 4、留言通过审核 5、留言类型是回复
                 $serverReady = $mailer && CMSUtils::getSysConfig(Option::AUDIT_ON_COMMENT) === Option::STATUS_OPEN;
-                $clientReady = $sendMail && $comment->status == Comment::STATUS_APPROVED && $comment->type == Comment::TYPE_REPLYTO;
+                $clientReady = $sendMail && $comment->status == Comment::STATUS_APPROVED && $comment->isReply();
 
                 if ($serverReady && $clientReady && CMSUtils::getSysConfig(Option::AUDIT_ON_COMMENT) != Option::STATUS_OPEN) {
                     /* @var Comment $replyTo */
-                    $replyTo = Comment::findOne($comment->replyto);
+                    $replyTo = Comment::findOne($comment->reply_to);
                     if ($replyTo && $replyTo->email != $comment->email && $replyTo->email != Yii::$app->params['admin_email']) {
                         //自言自语式或者给管理员留言式
                         $notice = <<<NOTICE
@@ -131,7 +126,7 @@ NOTICE;
                 return [
                     'status' => 'success',
                     'info' => $info,
-                    'replyto' => $comment->replyto,
+                    'reply_to' => $comment->reply_to,
                     'display' => $display,
                     'template' => $template
                 ];

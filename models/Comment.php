@@ -6,7 +6,6 @@ use Yii;
 use yii\caching\DbDependency;
 use yii\db\Query;
 use app\components\BaseModel;
-use app\components\CMSException;
 use app\components\XUtils;
 
 /**
@@ -17,8 +16,7 @@ use app\components\XUtils;
  * @property string $uid 用户ID
  * @property string $nickname 评论用户姓名
  * @property string $email 电子邮箱
- * @property string $type 回复的类型
- * @property string $replyto 回复目标ID
+ * @property string $reply_to 回复目标ID
  * @property string $url URL
  * @property string $ip 用户IP
  * @property string $user_agent UA
@@ -29,13 +27,14 @@ use app\components\XUtils;
  *
  * #getter
  * @property array $availableStatus 支持的评论状态
- * @property array $availableType 支持的评论类型
  * @property string $commentType 回复类型
  * @property string $commentStatus 回复状态
  *
  *
  * @property Post $post 所评论文章
  * @property User $user 发表评论的用户
+ * @property bool $isReply
+ * @property Comment $reply 回复的评论
  */
 class Comment extends BaseModel
 {
@@ -53,16 +52,6 @@ class Comment extends BaseModel
      * @var string 垃圾留言
      */
     const STATUS_SPAM = 'spam';
-    /**
-     * 评论的回复类型
-     * @var string 回复留言
-     */
-    const TYPE_REPLYTO = 'replyTo';
-    /**
-     * 评论的回复类型
-     * @var string 回复文章
-     */
-    const TYPE_REPLY = 'reply';
 
     /**
      * 回复目标的名字
@@ -83,9 +72,10 @@ class Comment extends BaseModel
     }
 
 
-    public function scenarios(){
+    public function scenarios()
+    {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_COMMENT] = ['pid', 'nickname', 'email', 'content', 'captcha', 'url'];
+        $scenarios[self::SCENARIO_COMMENT] = ['pid', 'nickname', 'email', 'content', 'captcha', 'url', 'reply_to'];
         return $scenarios;
     }
 
@@ -96,12 +86,10 @@ class Comment extends BaseModel
     {
         return [
             [['pid', 'nickname', 'email', 'content'], 'required'],
-            [['pid', 'uid', 'replyto'], 'integer'],
+            [['pid', 'uid', 'reply_to'], 'integer'],
             ['content', 'string'],
             ['status', 'default', 'value' => self::STATUS_UNAPPROVED],
             ['status', 'in', 'range' => array_keys(self::getAvailableStatus()), 'message' => '评论状态异常'],
-            ['type', 'default', 'value' => self::TYPE_REPLY],
-            ['type', 'in', 'range' => array_keys(self::getAvailableType()), 'message' => '评论类型异常'],
             ['nickname', 'string', 'max' => 80],
             ['email', 'email', 'message' => '不是有效的E-mail地址。'],
             ['url', 'url', 'message' => 'URL地址不合法，需要以http或https开头'],
@@ -120,8 +108,7 @@ class Comment extends BaseModel
             'uid' => '用户ID',
             'nickname' => '用户名称',
             'email' => '电子邮箱',
-            'type' => '回复类型',
-            'replyto' => '回复目标ID',
+            'reply_to' => '回复目标ID',
             'url' => 'URL',
             'ip' => '用户IP',
             'user_agent' => '浏览器',
@@ -131,7 +118,8 @@ class Comment extends BaseModel
             'status' => '评论审核状态',
             'commentType' => '回复类型',
             'commentStatus' => '回复状态',
-            'captcha' => '验证码'
+            'captcha' => '验证码',
+            'isReply' => '回复类型'
         ];
     }
 
@@ -148,17 +136,6 @@ class Comment extends BaseModel
         ];
     }
 
-    /**
-     * 支持的评论状态
-     * @return array
-     */
-    public static function getAvailableType()
-    {
-        return [
-            self::TYPE_REPLY => '评论',
-            self::TYPE_REPLYTO => '回复'
-        ];
-    }
 
     /**
      * 获得评论状态所对应的名称
@@ -176,20 +153,18 @@ class Comment extends BaseModel
         return self::getStatusName($this->status);
     }
 
-    /**
-     * 获得评论状态所对应的名称
-     * @param string $type
-     * @return string|null
-     */
-    public static function getTypeName($type)
+    public function isReply()
     {
-        $types = self::getAvailableType();
-        return isset($types[$type]) ? $types[$type] : $types[self::TYPE_REPLY];
+        return $this->reply_to > 0;
     }
 
-    public function getCommentType()
+    public function getCommentType(){
+        return $this->isReply() ? '回复' : '评论';
+    }
+
+    public function getReply()
     {
-        return self::getTypeName($this->type);
+        return $this->hasOne(self::className(), ['id' => 'reply_to']);
     }
 
     public function getPost()

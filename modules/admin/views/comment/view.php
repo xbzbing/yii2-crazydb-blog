@@ -10,14 +10,14 @@ use app\models\Comment;
  */
 
 $this->title = '查看评论';
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Comments Manage'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => '评论管理', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="row">
     <div class="col-xs-12">
         <div class="box">
             <div class="box-header">
-                <b><?=$model->author?></b>对<strong>《<?=$model->post->title?>》</strong>的评论
+                <b><?= $model->nickname ?></b>对<strong>《<?= $model->post->title ?>》</strong>的评论
             </div>
             <div class="box-body comment-view">
                 <?= DetailView::widget([
@@ -28,13 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
                         'commentStatus',
                         [
                             'attribute' => 'type',
-                            'value' => $model->type == Comment::TYPE_REPLYTO?Html::a($model->commentType,['comment/view','id'=>$model->id]):$model->commentType,
+                            'value' => $model->isReply() ? Html::a($model->commentType, ['comment/view', 'id' => $model->id]) : $model->commentType,
                             'format' => 'raw'
 
                         ],
                         'create_time:datetime',
                         'update_time:datetime',
-                        'author',
+                        'nickname',
                         'email',
                         'url',
                         'ip',
@@ -44,15 +44,15 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
         <div class="form-group">
-            <?= Html::a(Yii::t('app', 'Update'), ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-            <?= Html::a(Yii::t('app', 'Delete'), ['delete', 'id' => $model->id], [
+            <?= Html::a('编辑', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('删除', ['delete', 'id' => $model->id], [
                 'class' => 'btn btn-danger',
                 'data' => [
-                    'confirm' => Yii::t('app', 'Are you sure you want to delete this item?'),
+                    'confirm' => 'Are you sure you want to delete this item?',
                     'method' => 'post',
                 ],
             ]) ?>
-            <?= Html::a(Yii::t('app', 'Back'), ['index'], ['class' => 'btn btn-default']) ?>
+            <?= Html::a('返回', ['index'], ['class' => 'btn btn-default']) ?>
         </div>
     </div>
 </div>

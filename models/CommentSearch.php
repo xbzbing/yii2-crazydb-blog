@@ -15,7 +15,7 @@ class CommentSearch extends Comment
     {
         return [
             [['id', 'pid', 'uid', 'replyto'], 'integer'],
-            [['author', 'email', 'type', 'url', 'user_agent', 'ip', 'content', 'status', 'ext'], 'safe'],
+            [['author', 'email', 'url', 'user_agent', 'ip', 'content', 'status'], 'safe'],
         ];
     }
 
@@ -41,18 +41,16 @@ class CommentSearch extends Comment
             'id' => $this->id,
             'pid' => $this->pid,
             'uid' => $this->uid,
-            'replyto' => $this->replyto,
+            'reply_to' => $this->reply_to,
             'create_time' => $this->create_time,
             'update_time' => $this->update_time,
             'user_agent' => $this->user_agent,
             'email' => $this->email,
-            'author' => $this->author,
-            'type' => $this->type,
+            'nickname' => $this->nickname,
             'ip' => $this->ip,
             'status' => $this->status,
         ]);
 
-        //TODO ext 属性的搜索
         $query->andFilterWhere(['like', 'url', $this->url])
             ->andFilterWhere(['like', 'content', $this->content])
             ->andFilterWhere(['like', 'user_agent', $this->user_agent]);

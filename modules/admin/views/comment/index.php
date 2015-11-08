@@ -28,12 +28,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'columns' => [
                     ['class' => 'yii\grid\SerialColumn'],
                     [
-                        'attribute' => 'author',
+                        'attribute' => 'nickname',
                         'value' => function (Comment $model, $key, $index, $column){
                             if($model->uid > 0){
-                                return Html::a($model->author,['user/view','id'=>$model->uid]);
+                                return Html::a($model->nickname,['user/view','id'=>$model->uid]);
                             }else
-                                return $model->author;
+                                return $model->nickname;
                         },
                         'format' => 'raw'
                     ],
