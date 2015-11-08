@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'attribute' => 'uid',
                     'format' => 'html',
                     'value' => function(Log $model, $key, $index, $column){
-                        return $model->uid ? Html::a(Html::encode($model->user->username), ['user/view', 'id'=>$model->id], ['target' => '_blank']) : '';
+                        return $model->uid ? Html::a(Html::encode($model->user->username), ['user/view', 'id'=>$model->uid], ['target' => '_blank']) : '';
                     }
                 ],
                 'type',
@@ -57,7 +57,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     }
                 ],
                 'ip',
-                ['class' => 'yii\grid\ActionColumn'],
+                ['class' => 'yii\grid\ActionColumn', 'template' => '{view} {delete}'],
             ],
         ]); ?>
     </div>

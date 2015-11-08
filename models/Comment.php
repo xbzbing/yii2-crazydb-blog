@@ -115,7 +115,7 @@ class Comment extends BaseModel
             'create_time' => '评论时间',
             'update_time' => '更新时间',
             'content' => '评论内容',
-            'status' => '评论审核状态',
+            'status' => '审核状态',
             'commentType' => '回复类型',
             'commentStatus' => '回复状态',
             'captcha' => '验证码',
@@ -212,7 +212,7 @@ class Comment extends BaseModel
         if (empty($comments)) {
 
             /* @var self[] $post_comments */
-            $post_comments = self::find()->with('post')->limit($limit)->all();
+            $post_comments = self::find()->with('post')->orderBy(['create_time' => SORT_DESC])->limit($limit)->all();
             $ids = $avatars = $urls = array();
 
             foreach ($post_comments as $comment) {

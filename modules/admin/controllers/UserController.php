@@ -2,6 +2,8 @@
 
 namespace app\modules\admin\controllers;
 
+use app\components\XUtils;
+use app\models\Log;
 use Yii;
 use yii\web\NotFoundHttpException;
 use app\models\User;
@@ -68,7 +70,25 @@ class UserController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        /* @var User $current_user */
+        $action = 'user/delete';
+        $current_user = Yii::$app->user->identity;
+        if(intval($id) === Yii::$app->user->id){
+            XUtils::actionMessage('admin', $action, 'error', '不能删除自己!');
+            Log::record(Log::TYPE_PERMISSION_DENY, $action, $id, Log::STATUS_FAILED, "「$current_user->nickname」尝试删除自己失败!");
+        }else{
+            $user = $this->findModel($id);
+            if($user->isAdmin()){
+                $user->status = User::STATUS_DELETED;
+                $user->save();
+                XUtils::actionMessage('admin', $action, 'success', '管理员用户不能直接删除,已经将其状态修改为"DELETED",如果要彻底删除请直接操作数据库或者等更新....');
+                Log::record(Log::TYPE_PERMISSION_DENY, $action, $id, Log::STATUS_FAILED, "「$current_user->nickname」尝试删除管理员「$user->nickname」失败!");
+            }else{
+                $user->delete();
+                XUtils::actionMessage('admin', $action, 'success', '删除成功!');
+                Log::record(Log::TYPE_PERMISSION_DENY, $action, $id, Log::STATUS_FAILED, "「$current_user->nickname」删除用户「$user->nickname」($id)成功!");
+            }
+        }
         return $this->redirect(['index']);
     }
 

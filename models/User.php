@@ -80,6 +80,7 @@ class User extends ActiveRecord implements IdentityInterface
         $scenarios[self::SCENARIO_REGISTER] = ['username', 'website', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat', 'captcha'];
         $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'password', 'info', 'email', 'avatar'];
         $scenarios[self::SCENARIO_MODIFY_PWD] = ['password', 'old_password', 'password_repeat'];
+        $scenarios[self::SCENARIO_MANAGE] = ['username', 'website', 'nickname', 'password', 'info', 'email', 'avatar', 'role', 'status'];
         return $scenarios;
     }
 

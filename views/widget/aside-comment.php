@@ -5,6 +5,7 @@
  */
 use yii\web\View;
 use app\models\Comment;
+use app\components\XUtils;
 /* @var View $this */
 $comments = Comment::getRecentComments(5);
 //有留言就显示，没有则完全不显示
@@ -15,7 +16,7 @@ if($comments):
     <ul class="with-shadow">
 <?php
 foreach($comments as $comment){
-    $comment['content'] = trim(strip_tags($comment['content']));
+    $comment['content'] = trim(XUtils::strimwidthWithTag($comment['content'], 0 ,100));
     echo <<<HTML
             <li>
                 <img alt="{$comment['nickname']}" title="{$comment['nickname']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">

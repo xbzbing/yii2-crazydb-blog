@@ -34,6 +34,7 @@ class CommentController extends Controller
     {
         $searchModel = new CommentSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider->sort->defaultOrder = ['create_time' => SORT_DESC];
 
         return $this->render('index', [
             'searchModel' => $searchModel,
