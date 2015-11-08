@@ -72,20 +72,21 @@ class SiteController extends BaseController
 
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
+        if (!Yii::$app->user->isGuest)
             return $this->goHome();
-        }
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            Log::record(Log::TYPE_LOGIN, 'site-login', Yii::$app->user->id, Log::STATUS_SUCCESS, $model->username . ' 登录成功.');
-            return $this->goBack();
-        } else {
-            Log::record(Log::TYPE_LOGIN, 'site-login', 0, Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
-            return $this->render('login', [
-                'model' => $model,
-            ]);
+            if($model->login()){
+                Log::record(Log::TYPE_LOGIN, 'site-login', Yii::$app->user->id, Log::STATUS_SUCCESS, $model->username . ' 登录成功.');
+                return $this->goBack();
+            }else
+                Log::record(Log::TYPE_LOGIN, 'site-login', 0, Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
+
         }
+        return $this->render('login', [
+            'model' => $model,
+        ]);
     }
 
     /**
