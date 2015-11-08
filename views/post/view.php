@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
             }
             ?>
             <span><i class="glyphicon glyphicon-user"></i>
-                <?= Html::a(Html::encode($post->author_name), ['user/nickname', 'name' => $post->author_name], ['title' => $post->author_name]) ?>
+                <?= Html::a(Html::encode($post->author_name), ['user/show', 'name' => $post->author->nickname], ['title' => $post->author_name]) ?>
 		</span>
 		<span><i class="glyphicon glyphicon-time"></i>
             <?= XUtils::XDateFormatter($post->post_time) ?>

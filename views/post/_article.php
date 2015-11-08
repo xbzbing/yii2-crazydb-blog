@@ -40,7 +40,7 @@ use yii\helpers\Url;
     </div>
     <footer class="entry-footer row">
 		<span><i class="glyphicon glyphicon-user"></i>
-		<a href="<?= Url::toRoute(['user/alias', 'name' => $post->author_name]) ?>"><?= $post->author_name ?></a>
+		<a href="<?= Url::to(['user/show', 'name' => $post->author->nickname]) ?>"><?= $post->author_name ?></a>
 		</span>
 		<span><i class="glyphicon glyphicon-time"></i>
             <?= XUtils::XDateFormatter($post->post_time) ?>

@@ -19,7 +19,7 @@ $this->beginContent('@app/views/layouts/main.php');
                 <?= $content ?>
             </div>
         </div>
-        <?php $this->render('right-aside'); ?>
+        <?= $this->render('right-aside'); ?>
     </div>
 </div>
 <?php $this->endContent(); ?>

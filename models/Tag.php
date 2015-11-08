@@ -96,9 +96,9 @@ class Tag extends ActiveRecord
     }
 
     /**
-     * 获取系统的常用tags，默认前10位
+     * 获取系统的常用tags
      * @param bool $refresh
-     * @param int $limit 默认为10
+     * @param int $limit 默认为0
      * @return mixed|null
      */
     public static function getTags($refresh = false, $limit = 0)

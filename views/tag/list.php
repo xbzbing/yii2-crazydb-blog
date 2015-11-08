@@ -18,7 +18,7 @@ echo <<<HTML
 <header class="tag-info list-header">
     <h1><em class="glyphicon glyphicon-tag"></em>所有标签  <small>共 {$sum} 个标签</small></h1>
 </header>
-<article class="tags-list">
+<div class="tags-list">
 <ul class="tags">
 HTML;
 $half = floor($sum / 2);
@@ -31,6 +31,6 @@ foreach ($tags as $tag) {
 }
 echo <<<HTML
     </ul>
-</article>
+</div>
 HTML;
 $this->params['seo_keywords'] .= implode('、', $tag_array) . '。';

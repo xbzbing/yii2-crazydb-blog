@@ -16,7 +16,7 @@ $this->beginContent('@app/views/layouts/main.php');
                         'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
                     ]) ?>
                 </div>
-                <div class="content">
+                <div class="content no-padding">
                     <?= $content ?>
                 </div>
             </div>

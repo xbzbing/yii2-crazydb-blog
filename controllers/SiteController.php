@@ -2,7 +2,6 @@
 
 namespace app\controllers;
 
-use app\models\Log;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
@@ -10,6 +9,7 @@ use yii\helpers\ArrayHelper;
 use yii\filters\VerbFilter;
 use app\components\BaseController;
 use app\models\Option;
+use app\models\Log;
 use app\models\LoginForm;
 use app\models\User;
 use app\models\Post;

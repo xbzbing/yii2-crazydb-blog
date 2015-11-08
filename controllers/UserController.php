@@ -2,15 +2,15 @@
 
 namespace app\controllers;
 
-use app\models\Post;
 use Yii;
-use app\models\User;
-use app\models\UserSearch;
-use app\components\BaseController;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use app\models\Post;
+use app\models\User;
+use app\components\BaseController;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -20,6 +20,17 @@ class UserController extends BaseController
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['logout'],
+                'rules' => [
+                    [
+                        'actions' => ['profile'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -30,39 +41,14 @@ class UserController extends BaseController
     }
 
     /**
-     * Lists all User models.
-     * @return mixed
-     */
-    public function actionIndex()
-    {
-        $searchModel = new UserSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'searchModel' => $searchModel,
-        ]);
-    }
-
-    /**
-     * Displays a single User model.
-     * @param string $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
      * 通过nickname获取用户信息
      * @param $name
      * @throws NotFoundHttpException
+     * @return mixed
      */
     public function actionShow($name){
         /* @var User $model */
+        $this->layout = 'column2';
         $model = User::findOne(['nickname'=>$name]);
         if($model==null)
             throw new NotFoundHttpException('未找到相关用户的资料。');
@@ -74,7 +60,7 @@ class UserController extends BaseController
         ]);
         $this->view->params['seo_description'] = "{$model->nickname}在「". ArrayHelper::getValue(Yii::$app->params, 'site_name') ."」共发表{$dataProvider->totalCount}篇文章，个人资料：{$model->info}。";
         $this->view->params['seo_keywords'] = "{$model->nickname}," . ArrayHelper::getValue(Yii::$app->params, 'seo_keywords');
-        $this->render('view',[
+        return $this->render('view',[
                 'model'=>$model,
                 'dataProvider'=>$dataProvider
             ]
@@ -84,21 +70,20 @@ class UserController extends BaseController
     /**
      * Updates an existing User model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param string $id
      * @return mixed
      */
-    public function actionProfile($id)
+    public function actionProfile()
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel(Yii::$app->user->id);
         $model->setScenario(User::SCENARIO_MODIFY_PROFILE);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
         }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
     /**

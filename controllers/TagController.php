@@ -49,6 +49,6 @@ class TagController extends BaseController
      */
     public function actionList()
     {
-        return $this->render('list', ['tags' => Tag::getTags(1)]);
+        return $this->render('list', ['tags' => Tag::getTags()]);
     }
 }

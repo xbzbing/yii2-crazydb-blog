@@ -18,16 +18,16 @@ if($comments):
 foreach($comments as $comment){
     $comment['content'] = trim(XUtils::strimwidthWithTag($comment['content'], 0 ,100));
     echo <<<HTML
-            <li>
-                <img alt="{$comment['nickname']}" title="{$comment['nickname']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">
-                <a href="{$comment['post_url']}#comment-{$comment['id']}" title="查看详情">
-                    <strong>{$comment['nickname']}：</strong>
-                </a>
-                <span title="发表在：{$comment['title']}">{$comment['content']}</span>
-            </li>
+        <li>
+            <img alt="{$comment['nickname']}" title="{$comment['nickname']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">
+            <a href="{$comment['post_url']}#comment-{$comment['id']}" title="查看详情">
+                <strong>{$comment['nickname']}：</strong>
+            </a>
+            <span title="发表在：{$comment['title']}">{$comment['content']}</span>
+        </li>
 HTML;
 }
 ?>
-        </ul>
+    </ul>
 </div>
 <?php endif;?>
