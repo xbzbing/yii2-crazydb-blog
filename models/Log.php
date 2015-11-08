@@ -112,7 +112,7 @@ class Log extends ActiveRecord
         $log = new self();
         $log->type = $type;
         $log->action = $action;
-        $log->key = $key;
+        $log->key = "{$key}";
         $log->result = $result;
         $log->detail = $detail;
         if(Yii::$app->user->isGuest)
