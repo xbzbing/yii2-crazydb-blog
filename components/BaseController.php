@@ -1,6 +1,7 @@
 <?php
 namespace app\components;
 
+use app\models\Option;
 use yii;
 use yii\web\Controller;
 use yii\base\InvalidConfigException;
@@ -24,9 +25,9 @@ class BaseController extends Controller
             $this->setTheme($config['theme']);
 
         $seoConfig = CMSUtils::getSiteConfig('seo');
-        $this->view->params['seo_keywords'] = ArrayHelper::getValue(Yii::$app->params, 'seo_keywords');
-        $this->view->params['seo_description'] = ArrayHelper::getValue(Yii::$app->params, 'seo_description');
         Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $seoConfig, $config);
+        $this->view->params[Option::SEO_KEYWORDS] = ArrayHelper::getValue($seoConfig, Option::SEO_KEYWORDS);
+        $this->view->params[Option::SEO_DESCRIPTION] = ArrayHelper::getValue($seoConfig, Option::SEO_DESCRIPTION);
         Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
     }
 

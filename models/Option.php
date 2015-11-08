@@ -71,6 +71,10 @@ class Option extends BaseModel
      */
     const SEND_MAIL_ON_COMMENT = 'send_mail_on_comment';
 
+    const SEO_KEYWORDS = 'seo_keywords';
+
+    const SEO_DESCRIPTION = 'seo_description';
+
     /**
      * 网站分析代码，包含<script></script>
      * @var string 网站分析代码

@@ -32,7 +32,7 @@ $this->params['breadcrumbs'] = [$this->title];
         <?= Html::a('注册', ['user/register']); ?>
     </div>
 </div>
-<?= $form->errorSummary($model, ['class' => 'alert alert-danger col-md-3']); ?>
+<?= $form->errorSummary($model, ['class' => 'alert alert-danger col-md-offset-1 col-md-3']); ?>
 <?php
 $message = Yii::$app->session->getFlash('RegOption');
 if($message && empty($model->errors))

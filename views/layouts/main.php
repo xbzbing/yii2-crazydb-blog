@@ -3,6 +3,7 @@ use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use yii\web\View;
 use app\assets\AppAsset;
+use app\models\Option;
 /**
  * @var View $this
  * @var string $content
@@ -10,6 +11,10 @@ use app\assets\AppAsset;
  */
 $asset = AppAsset::register($this);
 $site_name = ArrayHelper::getValue(Yii::$app->params, 'site_name', Yii::$app->name);
+if(!empty($this->params[Option::SEO_KEYWORDS]))
+    $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params[Option::SEO_KEYWORDS]]);
+if(!empty($this->params[Option::SEO_DESCRIPTION]))
+    $this->registerMetaTag(['name' => 'description', 'content' => $this->params[Option::SEO_DESCRIPTION]]);
 $this->beginPage(); ?>
 <!DOCTYPE html>
 <html lang="<?=Yii::$app->language ?>">

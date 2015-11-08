@@ -76,14 +76,14 @@ class SiteController extends BaseController
             return $this->goHome();
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+        if ($model->load(Yii::$app->request->post())) {
             if($model->login()){
                 Log::record(Log::TYPE_LOGIN, 'site/login', Yii::$app->user->id, Log::STATUS_SUCCESS, "用户「{$model->username}」成功!");
                 return $this->goBack();
             }else
                 Log::record(Log::TYPE_LOGIN, 'site/login', 0, Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
-
         }
+
         return $this->render('login', [
             'model' => $model,
         ]);
