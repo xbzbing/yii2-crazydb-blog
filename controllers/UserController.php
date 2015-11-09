@@ -58,7 +58,7 @@ class UserController extends BaseController
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED], 'author_id' => $model->id])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]),
             'pagination' => [
-                'pageSize' => 10
+                'defaultPageSize' => 10
             ]
         ]);
         $this->view->params[Option::SEO_DESCRIPTION] = "{$model->nickname}在「" . ArrayHelper::getValue(Yii::$app->params, Option::SITE_NAME) . "」共发表{$dataProvider->totalCount}篇文章，个人简介：{$model->info}";

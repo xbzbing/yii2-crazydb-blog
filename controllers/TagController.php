@@ -37,7 +37,7 @@ class TagController extends BaseController
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()->where(['in', 'id', $pid])->andWhere(['in', 'status', [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])->orderBy(['post_time' => SORT_DESC]),
             'pagination' => [
-                'pageSize' => 10
+                'defaultPageSize' => 10
             ]
         ]);
         /* @var Post[] $posts */

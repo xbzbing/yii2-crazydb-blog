@@ -43,7 +43,7 @@ class CategoryController extends BaseController
                 ->where(['cid' => $model->id, 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
                 ->orderBy(['post_time' => SORT_DESC]),
             'pagination' => [
-                'pageSize' => '10'
+                'defaultPageSize' => '10'
             ],
         ]);
         return $this->render('show', [

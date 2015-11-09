@@ -123,7 +123,7 @@ class PostController extends BaseController
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()->where(['between', 'post_time', $start, $end]),
             'pagination' => [
-                'pageSize' => 10
+                'defaultPageSize' => 10
             ]
         ]);
         $this->view->title  = '文章归档:' . $date;
