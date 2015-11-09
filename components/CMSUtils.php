@@ -108,7 +108,7 @@ class CMSUtils
         $folder = @opendir($basePath);
         //TODO 主题部分支持开xml或者其他格式的自定义
         while (($file = @readdir($folder)) !== false) {
-            if (substr($file, 0, 1) != '.' && is_dir($basePath . DIRECTORY_SEPARATOR . $file) && htmlspecialchars($file) == $file)
+            if (substr($file, 0, 1) != '.' && is_dir($basePath . DIRECTORY_SEPARATOR . $file) && htmlspecialchars(strip_tags($file)) == $file)
                 $themes[$file] = $file;
         }
         closedir($folder);

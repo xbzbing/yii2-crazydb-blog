@@ -14,7 +14,7 @@ $this->title = $model->username;
 $this->params['breadcrumbs'][] = '用户';
 $this->params['breadcrumbs'][] = $model->nickname;
 ?>
-<div id="autho-info">
+<div id="author-info">
     <div class="author-info">
         <div class="user-avatar pull-left">
             <?= '<img src="', XUtils::getAvatar($model->email, 100) . '" class="thumbnail"/>'; ?>

@@ -4,6 +4,7 @@ use yii\bootstrap\Nav;
 use yii\web\View;
 use app\assets\AppAsset;
 use app\models\User;
+
 /**
  * @var View $this
  * @var string $site_name
@@ -12,7 +13,7 @@ use app\models\User;
  */
 $current_user = Yii::$app->user->identity;
 $menu_items = app\models\Nav::getNavTree();
-if(Yii::$app->user->isGuest){
+if (Yii::$app->user->isGuest) {
     $menu_items[] = [
         'label' => '用户',
         'items' => [
@@ -20,11 +21,14 @@ if(Yii::$app->user->isGuest){
             ['label' => '注册', 'url' => ['site/register']],
         ]
     ];
-}else{
+} else {
     $menu_items[] = [
         'label' => $current_user->nickname,
         'items' => [
-            ['label' => '管理后台','url' => ['admin/'], 'visible' => $current_user->isAdmin()],
+            ['label' => '个人资料', 'url' => ['user/profile']],
+            ['label' => '修改密码', 'url' => ['user/modify-password']],
+            '<li class="divider"></li>',
+            ['label' => '管理后台', 'url' => ['admin/'], 'visible' => $current_user->isAdmin()],
             '<li><a href="#" title="退出" id="logout-btn">退出</a>'
             . Html::beginForm(['/site/logout'], 'post', ['id' => 'logout-form'])
             . Html::endForm()

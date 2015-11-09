@@ -33,7 +33,7 @@ $this->registerJs("$('[id^=user-]').tooltip({'placement':'right','container':'bo
     <?= $form->field($model, 'info', ['template' => str_replace('{icon}', 'qrcode', $template)])->textarea(['rows' => 5, 'placeholder' => '个人简介（选填）', 'title' => '个人简介（选填）']) ?>
     <?= $form->field($model, 'captcha')->widget(Captcha::className(), [
         'template' => '<div class="input-group"><span class="input-group-addon"><em class="glyphicon glyphicon-ok-sign"></em></span>{input}<span class="input-group-addon captcha-cover">{image}</span></div>',
-        'options' => ['tabindex' => '3', 'class' => 'form-control'],
+        'options' => ['class' => 'form-control'],
         'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
     ])->label(false)->error(false) ?>
 </div>
@@ -48,7 +48,7 @@ $this->registerJs("$('[id^=user-]').tooltip({'placement':'right','container':'bo
     <?= $form->errorSummary($model, ['class' => 'alert alert-danger col-md-12']); ?>
 </div>
 <div class="clearfix"></div>
-<div class="input-group col-md-12" style="text-align: center">
+<div class="form-group col-md-12" style="text-align: center">
     <?= Html::submitButton('注册', ['class' => 'btn btn-primary']); ?>
     <a class="btn btn-default" href="<?= Url::to(['site/login']) ?>">返回登录</a>
 </div>

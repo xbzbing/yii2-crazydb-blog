@@ -108,7 +108,7 @@ class Log extends ActiveRecord
      * @param string|null $detail 操作细节
      * @return bool
      */
-    public static function record($type, $action, $key, $result = null, $detail = null)
+    public static function record($type, $action, $key, $result, $detail = null)
     {
         $log = new self();
         $log->type = $type;

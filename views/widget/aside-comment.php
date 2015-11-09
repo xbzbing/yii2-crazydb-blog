@@ -16,7 +16,7 @@ if($comments):
     <ul class="with-shadow">
 <?php
 foreach($comments as $comment){
-    $comment['content'] = trim(XUtils::strimwidthWithTag($comment['content'], 0 ,100));
+    $comment['content'] = trim(XUtils::strimwidthWithTag($comment['content'], 0 ,120));
     echo <<<HTML
         <li>
             <img alt="{$comment['nickname']}" title="{$comment['nickname']}" src="{$comment['avatar']}" class="avatar img-thumbnail" height="40" width="40">

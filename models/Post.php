@@ -425,12 +425,12 @@ class Post extends BaseModel
         return $this->hasOne(Category::className(), ['id' => 'cid']);
     }
 
-    public function getComments()
+    public function getAllComments()
     {
         return $this->hasMany(Comment::className(), ['pid' => 'id'])->orderBy(['create_time' => SORT_ASC]);
     }
 
-    public function getAllComments()
+    public function getComments()
     {
         return $this->hasMany(Comment::className(), ['pid' => 'id'])
             ->onCondition(['status' => Comment::STATUS_APPROVED])

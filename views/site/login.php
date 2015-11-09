@@ -27,9 +27,9 @@ $this->params['breadcrumbs'] = [$this->title];
         'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
     ])->label(false)->error(false) ?>
     <?= $form->field($model, 'rememberMe')->checkbox(['tabIndex' => 4]) ?>
-    <div>
+    <div class="form-group">
         <?= Html::submitButton('登录', ['class' => 'btn btn-primary', 'tabIndex' => 5, 'name' => 'login-button']) ?>
-        <?= Html::a('注册', ['user/register']); ?>
+        <?= Html::a('注册', ['site/register'], ['class' => 'btn btn-default']); ?>
     </div>
 </div>
 <?= $form->errorSummary($model, ['class' => 'alert alert-danger col-md-offset-1 col-md-3']); ?>

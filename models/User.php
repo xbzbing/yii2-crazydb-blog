@@ -4,9 +4,9 @@ namespace app\models;
 
 use Yii;
 use yii\base\NotSupportedException;
-use yii\db\ActiveRecord;
 use yii\helpers\HtmlPurifier;
 use yii\web\IdentityInterface;
+use app\components\BaseModel;
 use app\components\XUtils;
 
 /**
@@ -38,7 +38,7 @@ use app\components\XUtils;
  * @property Post[] $posts
  * @property Post[] $allPosts
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends BaseModel implements IdentityInterface
 {
 
     const STATUS_NORMAL = 1;
@@ -63,8 +63,6 @@ class User extends ActiveRecord implements IdentityInterface
 
     public $password_repeat;
 
-    public $old_password;
-
     public $captcha;
     /**
      * @inheritdoc
@@ -78,9 +76,9 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $scenarios = parent::scenarios();
         $scenarios[self::SCENARIO_REGISTER] = ['username', 'website', 'nickname', 'password', 'info', 'email', 'avatar', 'password_repeat', 'captcha'];
-        $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'password', 'info', 'email', 'avatar'];
-        $scenarios[self::SCENARIO_MODIFY_PWD] = ['password', 'old_password', 'password_repeat'];
+        $scenarios[self::SCENARIO_MODIFY_PROFILE] = ['nickname', 'info', 'email', 'avatar', 'website'];
         $scenarios[self::SCENARIO_MANAGE] = ['username', 'website', 'nickname', 'password', 'info', 'email', 'avatar', 'role', 'status'];
+        $scenarios[self::SCENARIO_MODIFY_PWD] = ['password'];
         return $scenarios;
     }
 
@@ -99,14 +97,14 @@ class User extends ActiveRecord implements IdentityInterface
             [['username'], 'string', 'max' => 20],
             [['password'], 'string', 'max' => 60],
             [['website'], 'url'],
-            [['password', 'password_repeat'], 'string', 'min' => 8, 'max' => 20, 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD], 'message' => '{attribute} 需要在8-20位之间。'],
-            [['password', 'password_repeat'], 'required', 'on' => [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]],
+            ['role', 'default', 'value' => self::ROLE_MEMBER],
             [['email', 'website', 'role'], 'string', 'max' => 100],
             [['email'], 'email', 'message' => '邮箱格式不正确'],
             [['username', 'nickname', 'email'], 'unique', 'message' => '{attribute} 已经存在，请重新输入。'],
-            ['old_password', 'required', 'on' => self::SCENARIO_MODIFY_PWD],
-            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'operator' => '===', 'message' => '两次密码输入不一致。'],
             ['captcha', 'captcha', 'skipOnEmpty' => false, 'on' => self::SCENARIO_REGISTER],
+            [['password', 'password_repeat'], 'string', 'min' => 8, 'max' => 20, 'on' => self::SCENARIO_REGISTER],
+            [['password', 'password_repeat'], 'required', 'on' => self::SCENARIO_REGISTER],
+            ['password_repeat', 'compare', 'compareAttribute' => 'password', 'operator' => '===', 'message' => '两次密码输入不一致。', 'on' => self::SCENARIO_REGISTER],
         ];
     }
 
@@ -266,7 +264,6 @@ class User extends ActiveRecord implements IdentityInterface
             'userRole' => '用户角色',
             'active_time' => '活动时间',
             'password_repeat' => '确认密码',
-            'old_password' => '旧密码'
         ];
     }
 
@@ -287,12 +284,14 @@ class User extends ActiveRecord implements IdentityInterface
             $this->generateAuthKey();
         }
         //注册黑名单
-        if (in_array($this->username, $this->nameBlackList) || in_array($this->nickname, $this->nameBlackList)) {
-            $this->$this->addError('username', '该用户名不能被注册！');
-        }
-        if (in_array($this->scenario, array(self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD))) {
+        if (in_array($this->username, $this->nameBlackList))
+            $this->addError('username', '该用户名不能被注册！');
+
+        if (in_array($this->nickname, $this->nameBlackList))
+            $this->addError('nickname', '该昵称不能被注册！');
+
+        if (in_array($this->scenario, [self::SCENARIO_REGISTER, self::SCENARIO_MODIFY_PWD]))
             $this->password = $this->hashPassword($this->password);
-        }
 
         $this->info = HtmlPurifier::process($this->info, ['HTML.ForbiddenElements' => ['a']]);
 
@@ -300,8 +299,18 @@ class User extends ActiveRecord implements IdentityInterface
         if ($this->scenario !== self::SCENARIO_MANAGE)
             $this->active_time = time();
 
+        if ($this->scenario === self::SCENARIO_REGISTER)
+            $this->role = self::ROLE_MEMBER;
+
+        if ($this->website)
+            $this->website = rtrim($this->website, "/\\\t\n\r\0 \x0B");
+
         $this->update_time = time();
-        return true;
+
+        if($this->hasErrors())
+            return false;
+        else
+            return true;
     }
 
     /**
@@ -324,12 +333,11 @@ class User extends ActiveRecord implements IdentityInterface
      * Finds user by username
      *
      * @param  string $username
-     * @param int $status
      * @return static|null
      */
-    public static function findByUsername($username, $status = self::STATUS_NORMAL)
+    public static function findByUsername($username)
     {
-        return static::findOne(['username' => $username, $status]);
+        return static::findOne(['username' => $username]);
     }
 
     /**

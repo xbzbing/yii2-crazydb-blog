@@ -13,7 +13,6 @@ use yii\helpers\HtmlPurifier;
 class BaseModel extends ActiveRecord
 {
 
-
     const REG_BLANK = 'blank';
     const REG_LETTER = 'letter';
     const REG_OTHER = 'other';

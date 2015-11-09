@@ -77,7 +77,7 @@ class PostController extends BaseController
         $post = $this->findModelByAlias($name);
 
         //按类型显示
-        $comments = Comment::findAll(['pid' => $post->id]);
+        $comments = Comment::findAll(['pid' => $post->id, 'status' => Comment::STATUS_APPROVED]);
         $post->updateCounters(['view_count' => 1, 'comment_count' => count($comments) - $post->comment_count]);
         return $this->render('view', [
             'post' => $post,
@@ -155,7 +155,7 @@ class PostController extends BaseController
      */
     protected function findModelByAlias($alias)
     {
-        if (($model = $post = Post::findOne(['alias' => $alias])) !== null) {
+        if (($model = Post::find()->where(['alias' => $alias])->with('category')->one()) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

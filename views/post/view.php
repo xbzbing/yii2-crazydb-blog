@@ -32,7 +32,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </h1>
         </header>
         <div class="entry-meta">
-            <a href="<?= Url::to(['category/view', 'id' => $post->cid]) ?>" class="pl-category"
+            <a href="<?= Url::to($post->category->getUrl()) ?>" class="pl-category"
                title="<?= $category->name ?>">
                 <span class="label label-info"><?= $category->name ?></span>
             </a>

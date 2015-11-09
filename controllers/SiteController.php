@@ -13,6 +13,7 @@ use app\models\Log;
 use app\models\LoginForm;
 use app\models\User;
 use app\models\Post;
+use yii\helpers\Url;
 
 class SiteController extends BaseController
 {
@@ -81,7 +82,7 @@ class SiteController extends BaseController
                 Log::record(Log::TYPE_LOGIN, 'site/login', Yii::$app->user->id, Log::STATUS_SUCCESS, "用户「{$model->username}」成功!");
                 return $this->goBack();
             }else
-                Log::record(Log::TYPE_LOGIN, 'site/login', 0, Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
+                Log::record(Log::TYPE_LOGIN, 'site/login', Url::current(), Log::STATUS_FAILED, "用户「{$model->username}」登录失败!");
         }
 
         return $this->render('login', [

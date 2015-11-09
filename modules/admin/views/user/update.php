@@ -40,6 +40,8 @@ $this->params['breadcrumbs'][] = '更新';
 
         <?= $form->field($model, 'status')->dropDownList(User::getAvailableStatus()) ?>
 
+        <?= $form->field($model, 'info')->textarea(['rows' => 5]) ?>
+
     </div>
     <div class="box-footer form-group">
         <?= Html::submitButton('保存', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>

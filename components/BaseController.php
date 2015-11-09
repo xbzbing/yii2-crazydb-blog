@@ -1,11 +1,12 @@
 <?php
 namespace app\components;
 
-use app\models\Option;
 use yii;
 use yii\web\Controller;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
+use app\models\Option;
+use app\models\User;
 
 class BaseController extends Controller
 {
@@ -29,6 +30,15 @@ class BaseController extends Controller
         $this->view->params[Option::SEO_KEYWORDS] = ArrayHelper::getValue($seoConfig, Option::SEO_KEYWORDS);
         $this->view->params[Option::SEO_DESCRIPTION] = ArrayHelper::getValue($seoConfig, Option::SEO_DESCRIPTION);
         Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
+
+        if(!Yii::$app->user->isGuest){
+            $cache_key = '__user_active_time_' . Yii::$app->user->id;
+            $active_time = Yii::$app->cache->get($cache_key);
+            if(!$active_time){
+                User::updateAll(['active_time' => time()], ['id' => Yii::$app->user->id]);
+                Yii::$app->cache->set($cache_key, time(), 600);//10分钟
+            }
+        }
     }
 
     /**

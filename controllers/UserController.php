@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\ModifyPassword;
+use app\models\Option;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
@@ -25,7 +27,7 @@ class UserController extends BaseController
                 'only' => ['logout'],
                 'rules' => [
                     [
-                        'actions' => ['profile'],
+                        'actions' => ['profile', 'modify-password'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -46,23 +48,30 @@ class UserController extends BaseController
      * @throws NotFoundHttpException
      * @return mixed
      */
-    public function actionShow($name){
+    public function actionShow($name)
+    {
         /* @var User $model */
         $this->layout = 'column2';
-        $model = User::findOne(['nickname'=>$name]);
-        if($model==null)
+        $model = User::findOne(['nickname' => $name]);
+        if ($model == null)
             throw new NotFoundHttpException('未找到相关用户的资料。');
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED], 'author_id' => $model->id])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]),
-            'pagination'=>[
-                'pageSize'=>10
+            'pagination' => [
+                'pageSize' => 10
             ]
         ]);
-        $this->view->params['seo_description'] = "{$model->nickname}在「". ArrayHelper::getValue(Yii::$app->params, 'site_name') ."」共发表{$dataProvider->totalCount}篇文章，个人资料：{$model->info}。";
-        $this->view->params['seo_keywords'] = "{$model->nickname}," . ArrayHelper::getValue(Yii::$app->params, 'seo_keywords');
-        return $this->render('view',[
-                'model'=>$model,
-                'dataProvider'=>$dataProvider
+        $this->view->params[Option::SEO_DESCRIPTION] = "{$model->nickname}在「" . ArrayHelper::getValue(Yii::$app->params, Option::SITE_NAME) . "」共发表{$dataProvider->totalCount}篇文章，个人简介：{$model->info}";
+        $key_words = ArrayHelper::getValue(Yii::$app->params, Option::SEO_KEYWORDS);
+
+        if (empty($key_words))
+            Yii::$app->params[Option::SEO_KEYWORDS] = $model->nickname;
+        elseif (strpos($key_words, $model->nickname) === false)
+            Yii::$app->params[Option::SEO_KEYWORDS] = "{$model->nickname}," . $key_words;
+
+        return $this->render('view', [
+                'model' => $model,
+                'dataProvider' => $dataProvider
             ]
         );
     }
@@ -78,12 +87,27 @@ class UserController extends BaseController
         $model->setScenario(User::SCENARIO_MODIFY_PROFILE);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['user/show', 'name' => $model->nickname]);
         }
 
         return $this->render('update', [
             'model' => $model,
         ]);
+    }
+
+    public function actionModifyPassword()
+    {
+        $model = new ModifyPassword();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['user/show', 'name' => $model->getUser()->nickname]);
+        }
+        $model->password = $model->old_password = $model->password_repeat = null;
+
+        return $this->render('modify-pwd', [
+            'model' => $model,
+        ]);
+
     }
 
     /**

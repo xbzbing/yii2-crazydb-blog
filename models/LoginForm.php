@@ -25,8 +25,8 @@ class LoginForm extends Model
         return [
             [['username', 'password'], 'required'],
             ['rememberMe', 'boolean'],
-            ['password', 'validatePassword'],
-            ['captcha', 'captcha', 'skipOnEmpty' => false]
+            ['captcha', 'captcha', 'skipOnEmpty' => false],
+            ['password', 'validatePassword']
         ];
     }
 
@@ -41,7 +41,8 @@ class LoginForm extends Model
 
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError('password', '用户名和密码不匹配。');
-            }
+            }elseif($user->isBaned())
+                $this->addError('status', '该用户被禁止登录!');
         }
     }
 

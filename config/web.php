@@ -40,7 +40,6 @@ $config = [
                 'register' => 'site/register',
                 'catalog/<name>' => 'category/show',//分类
                 'archive/<name>' => 'post/show',//文章
-                'user/<name>' => 'user/show',//用户
                 'archives/<year:(\d{4})>/<month:(\d{1,2})>' => 'post/archives-date',
                 'archives' => 'post/archives',
                 '<controller:(comment)>/add/<id:\d+>' => 'comment/add',
