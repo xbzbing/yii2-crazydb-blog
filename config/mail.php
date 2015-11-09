@@ -10,6 +10,7 @@ $mail = [
         'encryption' => 'tls',
     ],
 ];
-if (YII_ENV_DEV && file_exists(__DIR__ . '/mail-local.php'))
+if (file_exists(__DIR__ . '/mail-local.php'))
     $mail = require(__DIR__ . '/mail-local.php');
+
 return $mail;

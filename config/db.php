@@ -9,8 +9,7 @@ $db =  [
     'tablePrefix'=>'#prefix#'
 ];
 
-if(YII_ENV_DEV){
-    if(file_exists(__DIR__.'/db-local.php'))
-        $db = require(__DIR__.'/db-local.php');
-}
+if(file_exists(__DIR__.'/db-local.php'))
+    $db = require(__DIR__.'/db-local.php');
+
 return $db;
