@@ -16,9 +16,7 @@ $config = [
         'request' => [
             'cookieValidationKey' => 'cookieValidateKey!'
         ],
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
-        ],
+        'cache' => require(__DIR__ . '/cache.php'),
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
