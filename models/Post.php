@@ -31,7 +31,6 @@ use app\components\XUtils;
  * @property string $tags 标签
  * @property integer $comment_count 评论数量
  * @property integer $view_count 点击数量
- * @property string $ext_info 附加信息
  * @property integer $is_top 是否置顶
  *
  * #利用魔术方法获取的属性
@@ -97,7 +96,7 @@ class Post extends BaseModel
         return [
             [['cid', 'author_id', 'view_count'], 'integer'],
             [['author_id', 'title', 'content'], 'required'],
-            [['excerpt', 'content', 'ext_info'], 'string'],
+            [['excerpt', 'content'], 'string'],
             [['author_name'], 'string', 'max' => 80],
             [['type'], 'string', 'max' => 20],
             [['title', 'alias', 'cover', 'tags'], 'string', 'max' => 255],
@@ -134,7 +133,6 @@ class Post extends BaseModel
             'tags' => '标签',
             'comment_count' => '评论数',
             'view_count' => '浏览数',
-            'ext_info' => '附加数据',
             'postType' => '类型',
             'postStatus' => '状态',
             'is_top' => '置顶'
@@ -240,13 +238,11 @@ class Post extends BaseModel
         //创建新Post
         if ($insert) {
             $this->create_time = $this->update_time = time();
-            $this->ext_info = null;
         }
         //编辑状态记录信息
-        if (in_array($this->scenario, [self::SCENARIO_EDIT, self::SCENARIO_MANAGE])) {
-            $this->ext_info = is_array($this->ext_info) ? serialize($this->ext_info) : null;
+        if (in_array($this->scenario, [self::SCENARIO_EDIT, self::SCENARIO_MANAGE]))
             $this->update_time = time();
-        }
+
 
         //修改保存状态，处理发布时间
         if ($this->status != self::STATUS_PUBLISHED && $this->status != self::STATUS_HIDDEN)

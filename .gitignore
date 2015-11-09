@@ -33,3 +33,5 @@ phpunit.phar
 composer.lock
 
 *-local.php
+
+web/ugc

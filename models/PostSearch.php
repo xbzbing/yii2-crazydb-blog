@@ -16,7 +16,7 @@ class PostSearch extends Post
     {
         return [
             [['id', 'cid', 'author_id', 'create_time', 'post_time', 'update_time'], 'integer'],
-            [['author_name', 'type', 'title', 'alias', 'excerpt', 'content', 'cover', 'password', 'status', 'tags', 'options', 'ext_info'], 'safe'],
+            [['author_name', 'type', 'title', 'alias', 'excerpt', 'content', 'cover', 'password', 'status', 'tags', 'options'], 'safe'],
         ];
     }
 
