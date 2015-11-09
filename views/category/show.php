@@ -10,16 +10,12 @@ use app\models\Post;
 
 /* @var yii\web\View $this */
 /* @var Category $model */
+/* @var ActiveDataProvider $dataProvider */
 
 $this->params['breadcrumbs'] = [
     ['label' => '文章归档', 'url' => Url::to(['post/archives'])],
     '分类文章'
 ];
-$dataProvider = new ActiveDataProvider([
-    'query' => Post::find()
-        ->where(['cid' => $model->id, 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
-        ->orderBy(['post_time' => SORT_DESC])
-]);
 
 echo <<<HTML5
 <header class="tag-info list-header">

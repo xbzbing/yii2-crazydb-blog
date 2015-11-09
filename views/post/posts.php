@@ -26,6 +26,5 @@ if (empty($posts)) {
     'prevPageLabel' => '上一页',
     'firstPageLabel' => '首页',
     'lastPageLabel' => '末页',
-    'registerLinkTags' => true
 ]);?>
 </div>

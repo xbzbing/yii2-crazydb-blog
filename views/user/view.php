@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\data\ActiveDataProvider;
 use yii\widgets\LinkPager;
 use app\components\XUtils;
 use app\models\Category;
@@ -8,6 +9,7 @@ use app\models\Category;
 /**
  * @var yii\web\View $this
  * @var app\models\User $model
+ * @var ActiveDataProvider $dataProvider
  */
 
 $this->title = $model->username;
@@ -58,6 +60,5 @@ foreach ($dataProvider->getModels() as $post) {
         'prevPageLabel' => '上一页',
         'firstPageLabel' => '首页',
         'lastPageLabel' => '末页',
-        'registerLinkTags' => true
     ]); ?>
 </div>

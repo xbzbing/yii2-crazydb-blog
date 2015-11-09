@@ -44,6 +44,13 @@ $config = [
                 '<controller>/show/<name:\w+>' => '<controller>/show',
                 '<controller:(post|comment)>/<id:\d+>' => '<controller>/view',
                 '<controller:(post|comment|tag)>s' => '<controller>/list',
+                'page/<page:\d+>' => 'site/index',
+                '<controller:\w+>/page/<page:\d+>' => '<controller>/index',
+                '<controller:(post|comment|tag)>s/page/<page:\d+>' => '<controller>/list',
+                '<controller:\w+>/<action:(show)/<id:\d+>/page/<page:\d+>' => '<controller>/<action>',
+                'catalog/<name>/page/<page:\d+>' => 'category/show', //SEO URL优化
+                'tag/<name>/page/<page:\d+>' => 'tag/show',
+                'user/<name>/page/<page:\d+>' => 'user/show',
             ]
         ],
         'errorHandler' => [

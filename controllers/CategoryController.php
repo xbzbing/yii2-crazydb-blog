@@ -3,10 +3,11 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Category;
-use app\models\CategorySearch;
-use app\components\BaseController;
+use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
+use app\models\Category;
+use app\models\Post;
+use app\components\BaseController;
 
 /**
  * CategoryController implements the CRUD actions for Category model.
@@ -15,21 +16,6 @@ class CategoryController extends BaseController
 {
 
     public $layout = 'column-list';
-
-    /**
-     * Lists all Category models.
-     * @return mixed
-     */
-    public function actionList()
-    {
-        $searchModel = new CategorySearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
 
     /**
      * Displays a single Category model.
@@ -51,8 +37,18 @@ class CategoryController extends BaseController
      */
     public function actionShow($name)
     {
+        $model = $this->findModelByAlias($name);
+        $dataProvider = new ActiveDataProvider([
+            'query' => Post::find()
+                ->where(['cid' => $model->id, 'status' => [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
+                ->orderBy(['post_time' => SORT_DESC]),
+            'pagination' => [
+                'pageSize' => '10'
+            ],
+        ]);
         return $this->render('show', [
-            'model' => $this->findModelByAlias($name),
+            'model' => $model,
+            'dataProvider' => $dataProvider
         ]);
     }
 
