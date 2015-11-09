@@ -160,7 +160,7 @@ if(CMSUtils::getSysConfig(Option::ALLOW_COMMENT) === Option::STATUS_OPEN):
     var smile_path = "{$baseUrl}/images/smilie/icon_";
 SCRIPT;
     $this->registerJs($script, View::POS_HEAD);
-    $this->registerJsFile("{$baseUrl}/js/comment.js");
+    $this->registerJsFile("{$baseUrl}/js/comment.min.js");
 else:
     $this->registerJs('$(".comment-reply-link").hide();');
 endif;

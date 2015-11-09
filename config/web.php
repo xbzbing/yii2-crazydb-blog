@@ -9,7 +9,7 @@ $config = [
     'name' => 'Crazydb-Blog',
     'modules' => [
         'admin' => [
-            'class' => 'app\modules\Admin\Module'
+            'class' => 'app\modules\admin\Module'
         ],
     ],
     'components' => [
