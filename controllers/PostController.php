@@ -20,26 +20,6 @@ class PostController extends BaseController
 
     public $layout = 'column-post';
 
-    public function behaviors()
-    {
-        $sql = (new Query())
-            ->select('MAX(update_time)')
-            ->from(Post::tableName())
-            ->createCommand()->rawSql;
-
-        return [
-            'pageCache' => [
-                'class' => 'yii\filters\PageCache',
-                'only' => ['archives', 'archive-date'],
-                'duration' => 24 * 60 * 60,
-                'dependency' => [
-                    'class' => DbDependency::className(),
-                    'sql' => $sql,
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Post models.
      * @return mixed

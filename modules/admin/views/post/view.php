@@ -53,9 +53,15 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td>置顶</td>
                 <td><?=$model->is_top?'<span class="label label-success">置顶</span>':'否'?></td>
             </tr>
+            <tr>
+                <td>封面</td>
+                <td><?= $model->cover ? Html::img(htmlspecialchars($model->cover), ['class' => 'img-thumbnail']) : '无' ?></td>
+            </tr>
             </tbody>
         </table>
         <div class="content entry-content">
+            <h2 align="center"><?= $model->title ?></h2>
+            <hr>
             <?=$model->content?>
         </div>
     </div>

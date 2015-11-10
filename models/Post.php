@@ -71,6 +71,8 @@ class Post extends BaseModel
     const TYPE_ALBUM = 'album';
     const TYPE_PRODUCT = 'product';
 
+    public $auto_cover = false;
+
     /**
      * @inheritdoc
      */
@@ -83,7 +85,7 @@ class Post extends BaseModel
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_EDIT] = ['cid', 'author_name', 'title', 'content', 'excerpt', 'type', 'alias', 'cover', 'password', 'status', 'tags'];
+        $scenarios[self::SCENARIO_EDIT] = ['cid', 'author_name', 'title', 'content', 'excerpt', 'type', 'alias', 'cover', 'password', 'status', 'tags', 'auto_cover'];
         $scenarios[self::SCENARIO_MANAGE] = $scenarios[self::SCENARIO_EDIT] + ['author_id', 'view_count'];
         return $scenarios;
     }
@@ -96,7 +98,7 @@ class Post extends BaseModel
         return [
             [['cid', 'author_id', 'view_count'], 'integer'],
             [['author_id', 'title', 'content'], 'required'],
-            [['excerpt', 'content'], 'string'],
+            [['excerpt', 'content', 'auto_cover'], 'string'],
             [['author_name'], 'string', 'max' => 80],
             [['type'], 'string', 'max' => 20],
             [['title', 'alias', 'cover', 'tags'], 'string', 'max' => 255],
@@ -135,7 +137,8 @@ class Post extends BaseModel
             'view_count' => '浏览数',
             'postType' => '类型',
             'postStatus' => '状态',
-            'is_top' => '置顶'
+            'is_top' => '置顶',
+            'auto_cover' => '自动生成封面'
         ];
     }
 
@@ -243,6 +246,16 @@ class Post extends BaseModel
         if (in_array($this->scenario, [self::SCENARIO_EDIT, self::SCENARIO_MANAGE]))
             $this->update_time = time();
 
+        if($this->scenario === self::SCENARIO_MANAGE){
+            if($this->isAttributeChanged('author_id')){
+                if(!User::find()->where(['id' => 'author_id'])->exists()){
+                    $this->addError('author_id', '指定的用户(UID=' . $this->author_id . ')不存在!');
+                    $this->author_id = $this->getOldAttribute('author_id');
+                    return false;
+                }
+            }
+        }
+
 
         //修改保存状态，处理发布时间
         if ($this->status != self::STATUS_PUBLISHED && $this->status != self::STATUS_HIDDEN)
@@ -268,7 +281,7 @@ class Post extends BaseModel
         $this->alias = htmlspecialchars($this->alias);
 
         //alias唯一性校验
-        if (self::find()->where(['alias' => $this->alias])->exists()) {
+        if (self::find()->where(['alias' => $this->alias])->andWhere(['not', ['id' => $this->id]])->exists()) {
             $this->addError('alias', '访问别名不能重复!');
             return false;
         }
@@ -285,7 +298,7 @@ class Post extends BaseModel
         //处理封面图片
         if ($this->cover) {
             //TODO 验证cover
-        } else {
+        } elseif($this->auto_cover) {
             $this->cover = $this->getCoverImage();
         }
 

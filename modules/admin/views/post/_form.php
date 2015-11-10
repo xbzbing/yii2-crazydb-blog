@@ -29,7 +29,25 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
             <?= $form->field($model, 'author_name')->textInput(['maxlength' => true]) ?>
         </div>
     </div>
-    <?= $form->field($model, 'cover', ['template' => '{label}<div class="input-group"><span class="input-group-btn"><button id="cover-upload" type="button" class="btn btn-success">上传图片</button></span>{input}</div>'])->textInput(['maxlength' => true]) ?>
+    <?php if ($model->scenario === Post::SCENARIO_MANAGE):?>
+    <div class="row">
+        <div class="col-md-12 col-lg-4">
+            <?= $form->field($model, 'author_id')->textInput(['maxlength' => true])->label('作者: ' . $model->author->nickname)  ?>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            <?= $form->field($model, 'view_count')->textInput(['maxlength' => true]) ?>
+        </div>
+    </div>
+    <?php endif; ?>
+    <div class="row">
+        <?php
+        $template = '{label}<div class="input-group"><span class="input-group-addon bg-default">'
+            . Html::activeCheckbox($model, 'auto_cover')
+            . '</span>{input}<span class="input-group-btn"><button id="cover-upload" type="button" class="btn btn-success">上传图片</button></span></div>';
+        echo $form->field($model, 'cover', ['template' => $template, 'options' => ['class' => 'col-md-8']])
+            ->textInput(['maxlength' => true]);
+        ?>
+    </div>
     <div class="row">
         <div class="col-md-12 col-lg-3">
             <?= $form->field($model, 'cid')->dropDownList(Category::getAllCategories()) ?>
@@ -63,7 +81,7 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
     ]) ?>
 
     <div class="form-group">
-        <?= Html::submitButton('保存', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        <?= Html::submitButton('保存', ['class' => 'btn btn-success']) ?>
         <?= Html::a('返回', ['post/index'], ['class' => 'btn btn-default']) ?>
     </div>
 
