@@ -37,6 +37,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><?= Html::a($model->author->nickname, Url::to(['user/view', 'id' => $model->author_id])) ?></td>
             </tr>
             <tr>
+                <td>标签</td>
+                <td><?= $model->tags ?></td>
+            </tr>
+            <tr>
                 <td>创建时间</td>
                 <td><?= date('Y-m-d H:i:s', $model->create_time) ?></td>
             </tr>

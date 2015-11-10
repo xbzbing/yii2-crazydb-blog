@@ -324,7 +324,7 @@ class Post extends BaseModel
      */
     public function afterSave($insert, $changedAttributes)
     {
-        if (!empty($changedAttributes['tags']))
+        if (isset($changedAttributes['tags']))
             Tag::post2tags($this->tags, $this->id, $this->cid);
 
         parent::afterSave($insert, $changedAttributes);

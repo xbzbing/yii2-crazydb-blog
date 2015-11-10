@@ -29,9 +29,7 @@ $site_analyzer = ArrayHelper::getValue(Yii::$app->params, 'site_analyzer');
     <div id="copyright">
         <?= "<span>{$site_name}</span><span>{$copyright}</span><span>{$site_icp}</span>" ?>
         <?php if ($site_analyzer): ?>
-            <div class="scriptAnalyzer">
-                <?= $site_analyzer ?>
-            </div>
+            <div class="scriptAnalyzer"><?= $site_analyzer ?></div>
         <?php endif; ?>
     </div>
 </footer>

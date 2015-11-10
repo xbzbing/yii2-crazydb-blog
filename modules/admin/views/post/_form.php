@@ -61,6 +61,9 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
             <?= $form->field($model, 'is_top')->dropDownList(['0' => '普通', '1' => '置顶']) ?>
         </div>
     </div>
+
+    <?= $form->field($model, 'tags')->textInput(['maxlength' => true]) ?>
+
     <?= $form->field($model, 'content', ['enableClientValidation' => false])->textarea(['rows' => 6])->widget(UEditor::className(), [
         'config' => [
             'serverUrl' => ['editor/index'],

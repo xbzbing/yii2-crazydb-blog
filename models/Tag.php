@@ -79,17 +79,21 @@ class Tag extends ActiveRecord
      */
     public static function post2tags($tags, $pid, $cid)
     {
-        $tags_array = array_unique(explode(',', str_replace(array(' ', '，'), ',', $tags)));
+        $tags_array = array_unique(explode(',', str_replace([' ', '，'], ',', $tags)));
         $tag_count = 0;
         self::deleteAll(['pid' => $pid]);
         foreach ($tags_array as $key => $tag) {
             if ($tag_count <= 5 && preg_match('/^[0-9a-zA-Z_\x{4e00}-\x{9fa5}]+$/u', $tag)) {
-                $tag = new self();
-                $tag->name = $tag;
-                $tag->pid = intval($pid);
-                $tag->cid = intval($cid);
-                if($tag->save(false))
+                $one = new self();
+                $one->name = $tag;
+                $one->pid = intval($pid);
+                $one->cid = intval($cid);
+                if($one->save(false))
                     $tag_count++;
+                else{
+                    print_r($one->errors);
+                    die();
+                }
             }
         }
         return $tag_count;

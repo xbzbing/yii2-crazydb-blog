@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 $c = count($tags);
                 echo '<span class="label label-primary">';
                 foreach ($tags as $tag) {
-                    echo Html::a($tag, ['tag/view', 'name' => $tag], ['title' => $tag]);
+                    echo Html::a($tag, ['tag/show', 'name' => $tag], ['title' => $tag]);
                     if ($i < $c)
                         echo ' / ';
                     $i++;
