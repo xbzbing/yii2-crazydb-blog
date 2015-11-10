@@ -13,7 +13,6 @@ use crazydb\ueditor\UEditor;
 /* @var $form yii\widgets\ActiveForm */
 $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.min.js')
 ?>
-
 <div class="post-form">
 
     <?php $form = ActiveForm::begin(); ?>
@@ -62,7 +61,7 @@ $this->registerJsFile(Url::base(true).'/static/plugins/webuploader/webuploader.m
             <?= $form->field($model, 'is_top')->dropDownList(['0' => '普通', '1' => '置顶']) ?>
         </div>
     </div>
-    <?= $form->field($model, 'content')->textarea(['rows' => 6])->widget(UEditor::className(), [
+    <?= $form->field($model, 'content', ['enableClientValidation' => false])->textarea(['rows' => 6])->widget(UEditor::className(), [
         'config' => [
             'serverUrl' => ['editor/index'],
             'iframeCssUrl' => Yii::getAlias('@web') . '/static/css/ueditor.css',

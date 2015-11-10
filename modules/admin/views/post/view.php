@@ -13,9 +13,12 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="box post-view">
     <div class="box-header with-border">
         <h3 class="box-title">文章详情</h3>
+
         <div class="box-tools pull-right">
-            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-            <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+            <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i
+                    class="fa fa-minus"></i></button>
+            <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i
+                    class="fa fa-times"></i></button>
         </div>
     </div>
     <div class="box-body table-responsive no-padding">
@@ -23,27 +26,27 @@ $this->params['breadcrumbs'][] = $this->title;
             <tbody>
             <tr>
                 <td width="120">文章标题</td>
-                <td><?=$model->title?></td>
+                <td><?= $model->title ?></td>
             </tr>
             <tr>
                 <td>分类</td>
-                <td><?=$model->postCategory?></td>
+                <td><?= $model->postCategory ?></td>
             </tr>
             <tr>
                 <td>作者</td>
-                <td><?=Html::a($model->author->nickname, Url::to(['user/view', 'id'=>$model->author_id]))?></td>
+                <td><?= Html::a($model->author->nickname, Url::to(['user/view', 'id' => $model->author_id])) ?></td>
             </tr>
             <tr>
                 <td>创建时间</td>
-                <td><?=date('Y-m-d H:i:s', $model->create_time)?></td>
+                <td><?= date('Y-m-d H:i:s', $model->create_time) ?></td>
             </tr>
             <tr>
                 <td>更新时间</td>
-                <td><?=date('Y-m-d H:i:s', $model->update_time)?></td>
+                <td><?= date('Y-m-d H:i:s', $model->update_time) ?></td>
             </tr>
             <tr>
                 <td>发表时间</td>
-                <td><?=date('Y-m-d H:i:s', $model->post_time)?></td>
+                <td><?= date('Y-m-d H:i:s', $model->post_time) ?></td>
             </tr>
             <tr>
                 <td>点击数量</td>
@@ -51,7 +54,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </tr>
             <tr>
                 <td>置顶</td>
-                <td><?=$model->is_top?'<span class="label label-success">置顶</span>':'否'?></td>
+                <td><?= $model->is_top ? '<span class="label label-success">置顶</span>' : '否' ?></td>
             </tr>
             <tr>
                 <td>封面</td>
@@ -62,7 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="content entry-content">
             <h2 align="center"><?= $model->title ?></h2>
             <hr>
-            <?=$model->content?>
+            <?= $model->content ?>
         </div>
     </div>
     <div class="box-footer">
@@ -74,7 +77,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
-        <?= Html::a('前台查看', $model->url, ['target' => '_blank', 'class' => 'btn btn-success'])?>
+        <?= Html::a('前台查看', $model->url, ['target' => '_blank', 'class' => 'btn btn-success']) ?>
         <?= Html::a('返回列表', ['post/index'], ['class' => 'btn btn-default']) ?>
     </div>
 </div>

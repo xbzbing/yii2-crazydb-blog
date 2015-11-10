@@ -4,6 +4,7 @@ use yii\helpers\ArrayHelper;
 use yii\web\View;
 use app\assets\AppAsset;
 use app\models\Option;
+
 /**
  * @var View $this
  * @var string $content
@@ -11,19 +12,27 @@ use app\models\Option;
  */
 $asset = AppAsset::register($this);
 $site_name = ArrayHelper::getValue(Yii::$app->params, 'site_name', Yii::$app->name);
-if(!empty($this->params[Option::SEO_KEYWORDS]))
+$title = [];
+if ($this->title)
+    $title[] = $this->title;
+$title[] = $site_name;
+if (!empty($this->params[Option::SEO_TITLE]) && strpos($this->params[Option::SEO_TITLE], $site_name) === false)
+    $title[] = $this->params[Option::SEO_TITLE];
+
+if (!empty($this->params[Option::SEO_KEYWORDS]))
     $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params[Option::SEO_KEYWORDS]]);
-if(!empty($this->params[Option::SEO_DESCRIPTION]))
+if (!empty($this->params[Option::SEO_DESCRIPTION]))
     $this->registerMetaTag(['name' => 'description', 'content' => $this->params[Option::SEO_DESCRIPTION]]);
+$this->title = implode(' - ', $title);
 $this->beginPage(); ?>
 <!DOCTYPE html>
-<html lang="<?=Yii::$app->language ?>">
+<html lang="<?= Yii::$app->language ?>">
 <head>
     <meta charset="<?= Yii::$app->charset ?>"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $this->title ? Html::encode($this->title) . ' - ' . $site_name : $site_name ?></title>
+    <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 <body>

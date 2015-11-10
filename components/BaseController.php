@@ -13,6 +13,7 @@ class BaseController extends Controller
     public $layout = 'column1';
 
     public $enableTheme = true;
+
     /**
      * 前端controller初始化
      */
@@ -21,20 +22,18 @@ class BaseController extends Controller
         parent::init();
 
         $seoConfig = CMSUtils::getSiteConfig('seo');
-        $this->view->params[Option::SEO_KEYWORDS] = ArrayHelper::getValue($seoConfig, Option::SEO_KEYWORDS);
-        $this->view->params[Option::SEO_DESCRIPTION] = ArrayHelper::getValue($seoConfig, Option::SEO_DESCRIPTION);
+        $this->view->params = ArrayHelper::merge($this->view->params, $seoConfig);
 
         $config = CMSUtils::getSiteConfig('sys');
+        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
 
         if ($this->enableTheme && !empty($config['theme']))
             $this->setTheme($config['theme']);
 
-        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
-
-        if(!Yii::$app->user->isGuest){
+        if (!Yii::$app->user->isGuest) {
             $cache_key = '__user_active_time_' . Yii::$app->user->id;
             $active_time = Yii::$app->cache->get($cache_key);
-            if(!$active_time){
+            if (!$active_time) {
                 User::updateAll(['active_time' => time()], ['id' => Yii::$app->user->id]);
                 Yii::$app->cache->set($cache_key, time(), 600);//10分钟
             }
