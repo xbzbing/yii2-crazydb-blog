@@ -56,10 +56,10 @@ class ModifyPassword extends Model
             $user = $this->getUser();
             $user->password = $this->password;
             if ($user->save()) {
-                Log::record('modify-password', 'user/modify-password', Url::current(), Log::STATUS_SUCCESS, "「$user->username」修改密码成功.");
+                Log::record('modify-password', 'user/modify-password', Url::current(), Log::STATUS_SUCCESS, "「{$user->username}」修改密码成功.");
                 return true;
             } else {
-                Log::record('modify-password', 'user/modify-password', Url::current(), Log::STATUS_FAILED, "「$user->username」修改密码失败!");
+                Log::record('modify-password', 'user/modify-password', Url::current(), Log::STATUS_FAILED, "「{$user->username}」修改密码失败!");
                 $this->errors += $user->errors;
                 return false;
             }

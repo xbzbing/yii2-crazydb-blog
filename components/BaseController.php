@@ -30,7 +30,6 @@ class BaseController extends Controller
             $this->setTheme($config['theme']);
 
         Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
-        Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         if(!Yii::$app->user->isGuest){
             $cache_key = '__user_active_time_' . Yii::$app->user->id;

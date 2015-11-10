@@ -95,6 +95,10 @@ class UserController extends BaseController
         ]);
     }
 
+    /**
+     * 修改密码
+     * @return string|\yii\web\Response
+     */
     public function actionModifyPassword()
     {
         $model = new ModifyPassword();
