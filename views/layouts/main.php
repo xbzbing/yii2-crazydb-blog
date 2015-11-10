@@ -23,7 +23,7 @@ $this->beginPage(); ?>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= Html::encode($this->title) ?></title>
+    <title><?= $this->title ? Html::encode($this->title) . ' - ' . $site_name : $site_name ?></title>
     <?php $this->head() ?>
 </head>
 <body>

@@ -7,5 +7,4 @@ use yii\data\ActiveDataProvider;
  * @var ActiveDataProvider $dataProvider
  */
 
-$this->title = Yii::$app->name;
 echo $this->render('//post/posts', ['dataProvider' => $dataProvider]);

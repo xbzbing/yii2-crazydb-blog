@@ -20,15 +20,16 @@ class BaseController extends Controller
     {
         parent::init();
 
+        $seoConfig = CMSUtils::getSiteConfig('seo');
+        $this->view->params[Option::SEO_KEYWORDS] = ArrayHelper::getValue($seoConfig, Option::SEO_KEYWORDS);
+        $this->view->params[Option::SEO_DESCRIPTION] = ArrayHelper::getValue($seoConfig, Option::SEO_DESCRIPTION);
+
         $config = CMSUtils::getSiteConfig('sys');
 
         if ($this->enableTheme && !empty($config['theme']))
             $this->setTheme($config['theme']);
 
-        $seoConfig = CMSUtils::getSiteConfig('seo');
-        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $seoConfig, $config);
-        $this->view->params[Option::SEO_KEYWORDS] = ArrayHelper::getValue($seoConfig, Option::SEO_KEYWORDS);
-        $this->view->params[Option::SEO_DESCRIPTION] = ArrayHelper::getValue($seoConfig, Option::SEO_DESCRIPTION);
+        Yii::$app->params = ArrayHelper::merge(Yii::$app->params, $config);
         Yii::$app->response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         if(!Yii::$app->user->isGuest){
