@@ -93,15 +93,18 @@ class XUtils
         if ($ip !== null)
             return $ip;
         $ips = [];
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-        }
-        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            $ips[] = $_SERVER['HTTP_CLIENT_IP'];
-        }
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $ips[] = $_SERVER['REMOTE_ADDR'];
         }
+
+        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $ips[] = $_SERVER['HTTP_CLIENT_IP'];
+        }
+
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips += explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        }
+
         //将第一个有效IP地址作为用户IP地址
         //@todo 异常IP记录
         foreach ($ips as $value) {
@@ -152,11 +155,11 @@ class XUtils
         if (!file_exists($filePath) || (filemtime($filePath) + 3 * 24 * 60 * 60 < time())) {
             //头像不存在或者缓存超过三天，远程获取图片
             Yii::trace('获取头像:本地头像缓存不存在，远程获取图片', __CLASS__);
-            try{
+            try {
                 $img = file_get_contents($gravatar);
                 file_put_contents($filePath, $img);
                 return $return;
-            }catch (\Exception $e){
+            } catch (\Exception $e) {
                 Yii::trace('远程获取图片失败:请检查服务器权限和网络连接状态。' . $e->getMessage(), __CLASS__);
                 return $gravatar;
             }

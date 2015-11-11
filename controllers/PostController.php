@@ -26,13 +26,15 @@ class PostController extends BaseController
      */
     public function actionList()
     {
-        $searchModel = new PostSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'searchModel' => $searchModel,
+        $this->layout = 'column-list';
+        $dataProvider = new ActiveDataProvider([
+            'query' => Post::find()
+                ->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])
+                ->orderBy(['post_time' => SORT_DESC]),
+            'pagination' => ['defaultPageSize' => 10]
         ]);
+        $this->view->params['breadcrumbs'][] = '所有文章';
+        return $this->render('posts', ['dataProvider' => $dataProvider]);
     }
 
     /**

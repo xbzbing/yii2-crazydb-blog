@@ -40,6 +40,7 @@ $config = [
                 'catalog/<name>/page/<page:\d+>' => 'category/show', //SEO URL优化
                 'tag/<name>/page/<page:\d+>' => 'tag/show',
                 'user/<name>/page/<page:\d+>' => 'user/show',
+                'posts/page/<page:\d+>' => 'post/list',
                 'catalog/<name>' => 'category/show',//分类
                 'archive/<name>' => 'post/show',//文章
                 'tag/<name>' => 'tag/show',//标签
