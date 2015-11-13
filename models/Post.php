@@ -85,7 +85,7 @@ class Post extends BaseModel
     public function scenarios()
     {
         $scenarios = parent::scenarios();
-        $scenarios[self::SCENARIO_EDIT] = ['cid', 'author_name', 'title', 'content', 'excerpt', 'type', 'alias', 'cover', 'password', 'status', 'tags', 'auto_cover'];
+        $scenarios[self::SCENARIO_EDIT] = ['cid', 'author_name', 'title', 'content', 'excerpt', 'type', 'alias', 'cover', 'password', 'status', 'tags', 'auto_cover', 'is_top'];
         $scenarios[self::SCENARIO_MANAGE] = $scenarios[self::SCENARIO_EDIT] + ['author_id', 'view_count'];
         return $scenarios;
     }
@@ -246,9 +246,9 @@ class Post extends BaseModel
         if (in_array($this->scenario, [self::SCENARIO_EDIT, self::SCENARIO_MANAGE]))
             $this->update_time = time();
 
-        if($this->scenario === self::SCENARIO_MANAGE){
-            if($this->isAttributeChanged('author_id')){
-                if(!User::find()->where(['id' => 'author_id'])->exists()){
+        if ($this->scenario === self::SCENARIO_MANAGE) {
+            if ($this->isAttributeChanged('author_id')) {
+                if (!User::find()->where(['id' => 'author_id'])->exists()) {
                     $this->addError('author_id', '指定的用户(UID=' . $this->author_id . ')不存在!');
                     $this->author_id = $this->getOldAttribute('author_id');
                     return false;
@@ -298,7 +298,7 @@ class Post extends BaseModel
         //处理封面图片
         if ($this->cover) {
             //TODO 验证cover
-        } elseif($this->auto_cover) {
+        } elseif ($this->auto_cover) {
             $this->cover = $this->getCoverImage();
         }
 

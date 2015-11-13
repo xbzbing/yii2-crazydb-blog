@@ -43,7 +43,8 @@
                     "runtime": "0777",
                     "web/assets": "0777",
                     "yii": "0755",
-                    "web/upload":"0777"
+                    "web/upload": "0777",
+                    "web/static/avatar": "0777"
                 }
             ],
             "generateCookieValidationKey": [

@@ -90,10 +90,6 @@ class Tag extends ActiveRecord
                 $one->cid = intval($cid);
                 if($one->save(false))
                     $tag_count++;
-                else{
-                    print_r($one->errors);
-                    die();
-                }
             }
         }
         return $tag_count;
