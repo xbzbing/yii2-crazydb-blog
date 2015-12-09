@@ -129,6 +129,8 @@ if (empty($post->content) ? false : strpos($post->content, '<pre class=')) {
     SyntaxHighlighter.autoloader(
         'java {$baseUrl}/plugins/sh/scripts/shBrushJava.js',
         'php {$baseUrl}/plugins/sh/scripts/shBrushPhp.js',
+        'python {$baseUrl}/plugins/sh/scripts/shBrushPython.js',
+        'plain {$baseUrl}/plugins/sh/scripts/shBrushPlain.js',
         'html xml {$baseUrl}/plugins/sh/scripts/shBrushXml.js',
         'css {$baseUrl}/plugins/sh/scripts/shBrushCss.js',
         'js jscript javascript {$baseUrl}/plugins/sh/scripts/shBrushJScript.js',
