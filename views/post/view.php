@@ -24,9 +24,9 @@ $this->title = $post->title;
 $this->params['breadcrumbs'][] = ['label' => '所有文章', 'url' => ['post/list']];
 $this->params['breadcrumbs'][] = ['label' => $category->name, 'url' => $category->getUrl()];
 $this->params['breadcrumbs'][] = $this->title;
-if($model->tags)
-	$this->params['seo_keywords'] = $model->tags . ',' . $this->params['seo_keywords'];
-$this->params['seo_description'] = $model->excerpt;
+if($post->tags)
+	$this->params['seo_keywords'] = $post->tags . ',' . $this->params['seo_keywords'];
+$this->params['seo_description'] = $post->excerpt;
 ?>
     <article id="post-<?= $post->id ?>" class="post-view">
         <header class="entry-header">
