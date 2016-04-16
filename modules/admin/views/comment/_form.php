@@ -34,8 +34,6 @@ use crazydb\ueditor\UEditor;
 	
 	<?= $form->field($model, 'status')->dropDownList(Comment::getAvailableStatus()) ?>
 
-    <?= $form->field($model, 'type')->dropDownList(Comment::getAvailableType()) ?>
-
     <?= $form->field($model, 'pid')->textInput(['maxlength' => '5']) ?>
 
     <div class="form-group">
