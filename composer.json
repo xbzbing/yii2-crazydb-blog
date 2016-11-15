@@ -2,7 +2,7 @@
     "name": "xbzbing/yii2-crazydb-blog",
     "description": "crazydb-blog的Yii2重构版本",
     "keywords": ["yii2", "basic", "crazydb","blog"],
-    "homepage": "http://www.crazydb.com/",
+    "homepage": "https://www.crazydb.com/",
     "type": "project",
     "license": "BSD-3-Clause",
     "support": {
@@ -23,7 +23,7 @@
         "mibe/feedwriter": ">=1.0"
     },
     "require-dev": {
-        "yiisoft/yii2-codeception": "*",
+        "codeception/codeception": "*",
         "yiisoft/yii2-debug": "*",
         "yiisoft/yii2-gii": "*",
         "yiisoft/yii2-faker": "*"

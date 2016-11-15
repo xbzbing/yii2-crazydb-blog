@@ -150,7 +150,7 @@ class XUtils
         $email = md5($email);
         $filePath = Yii::getAlias('@webroot') . "/static/avatar/{$email}-{$size}.png";
         $return = Yii::getAlias('@web') . "/static/avatar/{$email}-{$size}.png";
-        $gravatar = "http://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
+        $gravatar = "https://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
 
         if (!file_exists($filePath) || (filemtime($filePath) + 3 * 24 * 60 * 60 < time())) {
             //头像不存在或者缓存超过三天，远程获取图片
