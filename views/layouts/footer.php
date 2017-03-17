@@ -18,7 +18,7 @@ $site_analyzer = ArrayHelper::getValue(Yii::$app->params, 'site_analyzer');
             <h3>友情连接</h3>
             <ul>
                 <li><a href="http://www.nitscan.com" target="_blank" title="RedTeam - Jack">RedTeam - Jack</a></li>
-                <li><a href="http://memoryblade.com" target="_blank" title="Memoryblade - 鱼子的blog">Memoryblade -
+                <li><a href="http://www.memoryblade.com" target="_blank" title="Memoryblade - 鱼子的blog">Memoryblade -
                         鱼子的blog</a></li>
             </ul>
         </div>

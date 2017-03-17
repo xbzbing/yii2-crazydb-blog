@@ -14,6 +14,7 @@ use app\models\LoginForm;
 use app\models\User;
 use app\models\Post;
 use yii\helpers\Url;
+use yii\web\ErrorAction;
 
 class SiteController extends BaseController
 {
@@ -51,6 +52,7 @@ class SiteController extends BaseController
             ],
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
+                'fontFile' => '@app/data/goodbye.ttf',
                 'maxLength' => 5,
                 'minLength' => 4,
                 'testLimit' => 2,
