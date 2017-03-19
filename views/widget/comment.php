@@ -19,12 +19,12 @@ use app\components\XUtils;
  * @var Comment[] $comments
  * @var integer $pid
  * @var AppAsset $asset
- * @var User $current_user;
+ * @var User $current_user ;
  * @var Comment[] $temp
  */
 $smilies = CMSUtils::getSmilies();
 $current_user = Yii::$app->user->identity;
-if(empty($asset))
+if (empty($asset))
     $asset = AppAsset::register($this);
 $baseUrl = $asset->baseUrl;
 //重排数组，以 cid 为键值
@@ -56,6 +56,7 @@ if (count($comments) > 0) {
     <h3 id="comments">
         留言交流
     </h3>
+
     <div class="comment-list">
         <?php
         if (count($comments) > 0) {
@@ -69,57 +70,61 @@ if (count($comments) > 0) {
                     }
                 }
             }
-        }else{
+        } else {
             echo '<div id="no-comment">没有评论</div>';
         }
         ?>
     </div>
-<?php
-if(CMSUtils::getSysConfig(Option::ALLOW_COMMENT) === Option::STATUS_OPEN):
-?>
-    <div id="comment-area">
-        <div class="comment" id="comment">
-            <?= Html::beginForm(['/comment/add', 'id' => $pid], 'post', ['id' => 'add-comment']) ?>
-            <div id="comment-error" class="alert alert-danger"></div>
-            <div class="leave-comment">
-                <div class="col-md-4">
-                    <?php if(Yii::$app->user->isGuest):?>
-                        <div class="input-group">
-                            <span class="input-group-addon"><em class="glyphicon glyphicon-user"></em></span>
-                            <input type="text" required="required" tabindex="1" data-title="姓名" class="form-control" name="Comment[nickname]" placeholder="* Name">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-addon"><em class="glyphicon glyphicon-envelope"></em></span>
-                            <input type="text" required="required" tabindex="2" data-title="邮箱" class="form-control" name="Comment[email]" placeholder="* E-mail">
-                        </div>
-                        <div class="input-group">
-                            <span class="input-group-addon"><em class="glyphicon glyphicon-globe"></em></span>
-                            <input type="text" maxlength="80" tabindex="3" data-title="网站地址" class="form-control" id="comment-url" name="Comment[url]" placeholder="WebSite URL">
-                        </div>
-                        <?= Captcha::widget([
-                            'name' => 'Comment[captcha]',
-                            'template' => '<div class="input-group"><span class="input-group-addon captcha-cover">{image}</span>{input}</div>',
-                            'options' => ['class' => 'form-control', 'tabindex' => 4],
-                            'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
-                        ]); ?>
-                    <?php else:?>
-                        <div class="col-md-6 comment-author">
-                            <div class="thumbnail">
-                                <img src="<?= XUtils::getAvatar($current_user->email,100) ?>" width="100" height="100">
+    <?php
+    if (Comment::isAllowComment()):
+        ?>
+        <div id="comment-area">
+            <div class="comment" id="comment">
+                <?= Html::beginForm(['/comment/add', 'id' => $pid], 'post', ['id' => 'add-comment']) ?>
+                <div id="comment-error" class="alert alert-danger"></div>
+                <div class="leave-comment">
+                    <div class="col-md-4">
+                        <?php if (Yii::$app->user->isGuest): ?>
+                            <div class="input-group">
+                                <span class="input-group-addon"><em class="glyphicon glyphicon-user"></em></span>
+                                <input type="text" required="required" tabindex="1" data-title="姓名" class="form-control"
+                                       name="Comment[nickname]" placeholder="* Name">
                             </div>
-                            <strong><?= $current_user->nickname ?></strong>
-                        </div>
-                        <?= Captcha::widget([
-                            'name' => 'Comment[captcha]',
-                            'template' => '<div class="comment-captcha col-md-6"><span class="captcha">{image}</span>{input}</div>',
-                            'options' => ['class' => 'form-control', 'tabindex' => 4],
-                            'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
-                        ]); ?>
-                    <?php endif;?>
+                            <div class="input-group">
+                                <span class="input-group-addon"><em class="glyphicon glyphicon-envelope"></em></span>
+                                <input type="text" required="required" tabindex="2" data-title="邮箱" class="form-control"
+                                       name="Comment[email]" placeholder="* E-mail">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon"><em class="glyphicon glyphicon-globe"></em></span>
+                                <input type="text" maxlength="80" tabindex="3" data-title="网站地址" class="form-control"
+                                       id="comment-url" name="Comment[url]" placeholder="WebSite URL">
+                            </div>
+                            <?= Captcha::widget([
+                                'name' => 'Comment[captcha]',
+                                'template' => '<div class="input-group"><span class="input-group-addon captcha-cover">{image}</span>{input}</div>',
+                                'options' => ['class' => 'form-control', 'tabindex' => 4],
+                                'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
+                            ]); ?>
+                        <?php else: ?>
+                            <div class="col-md-6 comment-author">
+                                <div class="thumbnail">
+                                    <img src="<?= XUtils::getAvatar($current_user->email, 100) ?>" width="100"
+                                         height="100">
+                                </div>
+                                <strong><?= $current_user->nickname ?></strong>
+                            </div>
+                            <?= Captcha::widget([
+                                'name' => 'Comment[captcha]',
+                                'template' => '<div class="comment-captcha col-md-6"><span class="captcha">{image}</span>{input}</div>',
+                                'options' => ['class' => 'form-control', 'tabindex' => 4],
+                                'imageOptions' => ['alt' => '点击换图', 'title' => '点击换图', 'style' => 'cursor:pointer', 'height' => '32']
+                            ]); ?>
+                        <?php endif; ?>
 
-                </div>
-                <div class="col-md-8">
-                    <div class="comment-smilie input-group">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="comment-smilie input-group">
                         <span class="smilie-img">
                         <?php
                         //尽量不打乱原有顺序
@@ -132,37 +137,40 @@ if(CMSUtils::getSysConfig(Option::ALLOW_COMMENT) === Option::STATUS_OPEN):
                         }
                         ?>
                         </span>
-                        <span id="more_smilie" title="更多表情"><em class="glyphicon glyphicon-chevron-right"></em></span>
+                            <span id="more_smilie" title="更多表情"><em
+                                    class="glyphicon glyphicon-chevron-right"></em></span>
+                        </div>
+                        <input type="hidden" name="Comment[reply_to]" value="0" id="parentId"/>
+                        <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]"
+                                  id="comment-content" tabindex="5" placeholder="留下你的看法，欢迎交流 :)"></textarea>
+
+                        <div class="actionPanel">
+                            <?php if (CMSUtils::getSysConfig(Option::SEND_MAIL_ON_COMMENT) === Option::STATUS_OPEN && Yii::$app->get('mailer', false)): ?>
+                                <div class="checkbox pull-left">
+                                    <label>
+                                        <input name="Comment[sendMail]" value="1" type="checkbox" tabindex="6"> 邮件通知对方
+                                    </label>
+                                </div>
+                            <?php endif; ?>
+                            <button id="sendComment" class="btn btn-primary" tabindex="7" type="button">
+                                提交留言 <em class="glyphicon glyphicon-send"></em>
+                            </button>
+                        </div>
                     </div>
-                    <input type="hidden" name="Comment[reply_to]" value="0" id="parentId"/>
-                    <textarea class="form-control" data-title="留言内容" required="required" name="Comment[content]" id="comment-content" tabindex="5" placeholder="留下你的看法，欢迎交流 :)"></textarea>
-                    <div class="actionPanel">
-                        <?php if (CMSUtils::getSysConfig(Option::SEND_MAIL_ON_COMMENT) === Option::STATUS_OPEN && Yii::$app->get('mailer', false)): ?>
-                            <div class="checkbox pull-left">
-                                <label>
-                                    <input name="Comment[sendMail]" value="1" type="checkbox" tabindex="6"> 邮件通知对方
-                                </label>
-                            </div>
-                        <?php endif;?>
-                        <button id="sendComment" class="btn btn-primary" tabindex="7" type="button">
-                            提交留言 <em class="glyphicon glyphicon-send"></em>
-                        </button>
-                    </div>
+                    <div class="clearfix"></div>
                 </div>
-                <div class="clearfix"></div>
+                <?= Html::endForm() ?>
             </div>
-            <?= Html::endForm() ?>
         </div>
-    </div>
-    <br class="clearfix">
-<?php
-    $script = <<<SCRIPT
+        <br class="clearfix">
+        <?php
+        $script = <<<SCRIPT
     var smile_path = "{$baseUrl}/images/smilie/icon_";
 SCRIPT;
-    $this->registerJs($script, View::POS_HEAD);
-    $this->registerJsFile("{$baseUrl}/js/comment.min.js");
-else:
-    $this->registerJs('$(".comment-reply-link").hide();');
-endif;
-?>
+        $this->registerJs($script, View::POS_HEAD);
+        $this->registerJsFile("{$baseUrl}/js/comment.min.js");
+    else:
+        $this->registerJs('$(".comment-reply-link").hide();');
+    endif;
+    ?>
 </div>

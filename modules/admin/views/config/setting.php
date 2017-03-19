@@ -43,6 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= $form->field($model, Option::COPYRIGHT, ['inputOptions' => ['class' => 'form-control']]) ?>
         </div>
         <div class="col-md-12 col-lg-offset-1 col-lg-5">
+            <?= $form->field($model, Option::ALLOW_COMMENT, ['inputOptions' => ['class' => 'form-control']])->dropDownList(['open' => '允许评论', 'closed' => '禁止评论']) ?>
             <?= $form->field($model, Option::ALLOW_REGISTER, ['inputOptions' => ['class' => 'form-control']])->dropDownList(['open' => '允许注册', 'closed' => '禁止注册']) ?>
             <?= $form->field($model, Option::SITE_STATUS, ['inputOptions' => ['class' => 'form-control']])->dropDownList(['open' => '正常运行', 'closed' => '维护中，暂时关闭']) ?>
             <?= $form->field($model, Option::CLOSE_SUMMARY, ['inputOptions' => ['class' => 'form-control autogrow']])->textarea(['rows' => 3]) ?>

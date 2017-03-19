@@ -2,11 +2,13 @@
 
 namespace app\models;
 
+use app\components\CMSUtils;
 use Yii;
 use yii\caching\DbDependency;
 use yii\db\Query;
 use app\components\BaseModel;
 use app\components\XUtils;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%comment}}".
@@ -93,9 +95,21 @@ class Comment extends BaseModel
             ['nickname', 'string', 'max' => 80],
             ['email', 'email', 'message' => '不是有效的E-mail地址。'],
             ['url', 'url', 'message' => 'URL地址不合法，需要以http或https开头'],
-            ['captcha', 'captcha', 'skipOnEmpty' => false, 'on' => self::SCENARIO_COMMENT]
+            ['captcha', 'captcha', 'skipOnEmpty' => false, 'on' => self::SCENARIO_COMMENT],
+            ['content', 'antiSpam', 'message' => 'Your message is blocked by anti-spam policy, please try again.'],
         ];
     }
+
+    public function antiSpam()
+    {
+        if (preg_match('/[\x{4e00}-\x{9fa5}]+/u', $this->content))
+            return true;
+        if (preg_match('/[\x{4e00}-\x{9fa5}]+/u', $this->content))
+            return true;
+        $this->addError('content', 'Your message is blocked by anti-spam policy, please try again.');
+        return false;
+    }
+
 
     /**
      * @inheritdoc
@@ -158,7 +172,8 @@ class Comment extends BaseModel
         return $this->reply_to > 0;
     }
 
-    public function getCommentType(){
+    public function getCommentType()
+    {
         return $this->isReply() ? '回复' : '评论';
     }
 
@@ -181,6 +196,10 @@ class Comment extends BaseModel
     public function beforeSave($insert)
     {
         if ($this->isNewRecord) {
+            if (self::isAllowComment()) {
+                $this->addError('content', 'Sorry, comment is not allowed now.');
+                return false;
+            }
             $this->ip = XUtils::getClientIP();
             $this->create_time = time();
             $this->user_agent = htmlspecialchars(Yii::$app->request->getUserAgent());
@@ -190,6 +209,15 @@ class Comment extends BaseModel
         $this->content = XUtils::HTMLPurify($this->content);
         $this->nickname = htmlspecialchars(strip_tags($this->nickname));
         return parent::beforeSave($insert);
+    }
+
+    /**
+     * 是否允许评论
+     * @return bool
+     */
+    public static function isAllowComment()
+    {
+        return CMSUtils::getSysConfig(Option::ALLOW_COMMENT) === Option::STATUS_OPEN;
     }
 
     /**
