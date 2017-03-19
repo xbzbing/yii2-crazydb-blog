@@ -28,6 +28,7 @@ class Log extends ActiveRecord
     const TYPE_PERMISSION_DENY = 'permission deny';
     const TYPE_LOGIN = 'login';
     const TYPE_DEFAULT = 'default';
+    const TYPE_COMMENT = 'comment';
     const TYPE_DELETE_LOG = 'delete log';
 
     const STATUS_SUCCESS = 'success';

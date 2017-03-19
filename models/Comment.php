@@ -107,6 +107,7 @@ class Comment extends BaseModel
         if (preg_match('/[\x{4e00}-\x{9fa5}]+/u', $this->content))
             return true;
         $this->addError('content', 'Your message is blocked by anti-spam policy, please try again.');
+        Log::record(Log::TYPE_COMMENT, __CLASS__, $this->nickname, Log::STATUS_FAILED, 'email:' . $this->email . ',content:' . $this->content);
         return false;
     }
 
