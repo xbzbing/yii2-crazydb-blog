@@ -1,0 +1,75 @@
+version: "3"
+
+networks:
+  frontend:
+  backend:
+
+
+services:
+  nginx:
+    build:
+      context: ./nginx-alpine
+    image: blog-nginx:1.15-alpine
+    container_name: blog-nginx
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./config/sites-enabled:/etc/nginx/conf.d
+      - ~/data/nginx/log:/opt/log/nginx
+      - ./:/opt/webroot
+    depends_on:
+      - php
+    networks:
+      - frontend
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+
+
+  php:
+    build:
+      context: ./php7-alpine
+    image: blog-php:7.2-fpm-alpine
+    container_name: blog-php
+    environment:
+      - TZ=Asia/Shanghai
+      - DBGP_IDEKEY=docker-php-debug
+    volumes:
+      - ./:/opt/webroot
+      - ~/data/blog-yii/risk-runtime:/opt/log/php
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - mysql
+      - redis
+
+
+  mysql:
+    image: mysql:5.7
+    container_name: blog-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql.password
+      - TZ=Asia/Shanghai
+    command: ['mysqld', '--character-set-server=utf8mb4']
+    volumes:
+      - ~/data/blog-mysql:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306"
+    networks:
+      - backend
+
+
+  redis:
+    image: redis:5-alpine
+    container_name: blog-redis
+    environment:
+      - TZ=Asia/Shanghai
+    command: "redis-server --requirepass redis.password"
+    volumes:
+      - ~/data/blog-redis:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - backend
+
