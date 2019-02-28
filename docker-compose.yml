@@ -8,7 +8,7 @@ networks:
 services:
   nginx:
     build:
-      context: ./nginx-alpine
+      context: ./deploy/nginx-alpine
     image: blog-nginx:1.15-alpine
     container_name: blog-nginx
     environment:
@@ -28,7 +28,7 @@ services:
 
   php:
     build:
-      context: ./php7-alpine
+      context: ./deploy/php7-alpine
     image: blog-php:7.2-fpm-alpine
     container_name: blog-php
     environment:
