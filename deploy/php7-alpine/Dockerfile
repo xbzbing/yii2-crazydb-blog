@@ -1,7 +1,7 @@
 FROM php:7.2-fpm-alpine
 
 ENV TZ Asia/Shanghai
-ENV ZOOKEEPER_VERSION 3.4.13
+ENV ZOOKEEPER_VERSION 3.4.14
 
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 RUN apk update && apk add bash tzdata curl
