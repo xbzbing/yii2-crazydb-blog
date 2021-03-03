@@ -11,26 +11,23 @@ use yii\web\AssetBundle;
  */
 class AdminlteAsset extends AssetBundle
 {
-    public $sourcePath = '@bower/adminlte';
+    public $sourcePath = '@vendor/almasaeed2010/adminlte';
     public $css = [
         'dist/css/skins/_all-skins.min.css',
     ];
     public $js = [
         /*
-        '//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js',
-        'plugins/morris/morris.min.js',
-        'plugins/sparkline/jquery.sparkline.min.js',
-        'plugins/jvectormap/jquery-jvectormap-1.2.2.min.js',
-        'plugins/jvectormap/jquery-jvectormap-world-mill-en.js',
-        'plugins/knob/jquery.knob.js',
-        'plugins/daterangepicker/daterangepicker.js',
-        'plugins/datepicker/bootstrap-datepicker.js',
-        'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js',
-        'plugins/iCheck/icheck.min.js',
-        'plugins/fastclick/fastclick.min.js',
+            bootstrap-slider
+            bootstrap-wysihtml5
+            iCheck
+            input-mask
+            jQueryUI
+            jvectormap
+            pace
+            seiyria-bootstrap-slider
+            timepicker
         */
-        'plugins/slimScroll/jquery.slimscroll.min.js',
-        'dist/js/app.min.js',
+        'dist/js/adminlte.min.js',
     ];
 
     public $depends = [

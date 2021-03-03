@@ -2,17 +2,18 @@
 
 namespace app\controllers;
 
-use app\models\ModifyPassword;
-use app\models\Option;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 use app\models\Post;
 use app\models\User;
 use app\components\BaseController;
+use app\models\ModifyPassword;
+use app\models\Option;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -45,8 +46,8 @@ class UserController extends BaseController
     /**
      * 通过nickname获取用户信息
      * @param $name
-     * @throws NotFoundHttpException
      * @return mixed
+     * @throws NotFoundHttpException
      */
     public function actionShow($name)
     {
@@ -54,7 +55,7 @@ class UserController extends BaseController
         $this->layout = 'column2';
         $model = User::findOne(['nickname' => $name]);
         if ($model == null)
-            throw new NotFoundHttpException('未找到相关用户的资料。');
+            throw new NotFoundHttpException('未找到相关用户的资料。[' . $name . ']');
         $dataProvider = new ActiveDataProvider([
             'query' => Post::find()->where(['status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED], 'author_id' => $model->id])->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC]),
             'pagination' => [
@@ -87,7 +88,7 @@ class UserController extends BaseController
         $model->setScenario(User::SCENARIO_MODIFY_PROFILE);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['user/show', 'name' => $model->nickname]);
+            return $this->run('user/show', ['name' => $model->nickname]);
         }
 
         return $this->render('update', [
@@ -97,15 +98,16 @@ class UserController extends BaseController
 
     /**
      * 修改密码
-     * @return string|\yii\web\Response
+     * @return string|Response
      */
     public function actionModifyPassword()
     {
         $model = new ModifyPassword();
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['user/show', 'name' => $model->getUser()->nickname]);
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->run('user/show', ['name' => $model->getUser()->nickname]);
         }
+
         $model->password = $model->old_password = $model->password_repeat = null;
 
         return $this->render('modify-pwd', [

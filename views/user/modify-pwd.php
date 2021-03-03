@@ -19,7 +19,7 @@ $this->params['breadcrumbs'][] = '个人资料';
 ?>
 <div class="user-update content">
     <div class="base-profile">
-        <img src="<?= XUtils::getAvatar($current_user->email) ?>" class="img-thumbnail">
+        <img alt="<?= Html::encode($current_user->username)?>" src="<?= XUtils::getAvatar($current_user->email) ?>" class="img-thumbnail">
         <h3><?= $current_user->username ?></h3>
     </div>
     <?php $form = ActiveForm::begin(); ?>
