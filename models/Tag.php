@@ -115,7 +115,7 @@ class Tag extends ActiveRecord
         if (empty($items)) {
 
             $tag_array = self::find()
-                ->select('id,name,create_time,COUNT(id) as totalCount')
+                ->select('name,COUNT(*) as totalCount')
                 ->groupBy('name')
                 ->orderBy(['totalCount' => SORT_DESC]);
             if ($limit)
