@@ -25,7 +25,7 @@ foreach ($smilies as $smilie)
     $content = str_replace(":{$smilie}:", "<img src=\"{$baseUrl}/images/smilie/icon_{$smilie}.gif\" alt=\"$smilie\" width=\"18px\" height=\"16px\"/>", $content);
 
 $avatar = XUtils::getAvatar($comment->email, 40);
-$display_name = $comment->url ? Html::a(Html::encode($comment->nickname), $comment->url, ['target' => '_blank', 'rel' => 'nofollow']) : $comment->nickname;
+$display_name = Html::encode($comment->nickname);
 if ($comment->isReply()){
     $replyTo = "<span class=\"replyTarget\">回复 <a href=\"#comment-{$comment->reply_to}\"><em>{$comment->target_name}</em></a> : </span>";
     $type = ' reply-to';

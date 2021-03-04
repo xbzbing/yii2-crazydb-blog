@@ -9,21 +9,22 @@
         "issues": "https://github.com/xbzbing/yii2-crazydb-blog/issues?state=open",
         "source": "https://github.com/xbzbing/yii2-crazydb-blog"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": ">=7.0",
         "yiisoft/yii2": "~2.0.14",
         "yiisoft/yii2-bootstrap": "~2.0.0",
-        "yiisoft/yii2-swiftmailer": "~2.0.0",
-        "yiisoft/yii2-elasticsearch": "~2.0.0",
+        "yiisoft/yii2-swiftmailer": "^2.1.0",
+        "yiisoft/yii2-redis": "~2.0.0",
+        "elasticsearch/elasticsearch": "~6.0.0",
         "crazydb/yii2-ueditor": "~1.6",
         "almasaeed2010/adminlte": "~2.4",
-        "FortAwesome/Font-Awesome": "~4.7",
+        "fortawesome/font-awesome": "^4.7.0",
         "mibe/feedwriter": "~1.1.1"
     },
     "require-dev": {
-        "yiisoft/yii2-debug": "~2.0.0",
-        "yiisoft/yii2-gii": "~2.0.0",
+        "yiisoft/yii2-debug": "~2.1.0",
+        "yiisoft/yii2-gii": "~2.1.0",
         "yiisoft/yii2-faker": "~2.0.0",
         "codeception/base": "~2.3.0",
         "codeception/verify": "~0.4.0",
@@ -58,10 +59,6 @@
             "generateCookieValidationKey": [
                 "config/web.php"
             ]
-        },
-        "asset-installer-paths": {
-            "npm-asset-library": "vendor/npm",
-            "bower-asset-library": "vendor/bower"
         }
     },
     "repositories": [

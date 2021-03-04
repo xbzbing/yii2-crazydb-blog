@@ -9,7 +9,7 @@ services:
   nginx:
     build:
       context: ./deploy/nginx-alpine
-    image: blog-nginx:1.15-alpine
+    image: blog-nginx:1.19-alpine
     container_name: blog-nginx
     environment:
       - TZ=Asia/Shanghai
@@ -29,7 +29,7 @@ services:
   php:
     build:
       context: ./deploy/php7-alpine
-    image: blog-php:7.2-fpm-alpine
+    image: blog-php:7.4-fpm-alpine
     container_name: blog-php
     environment:
       - TZ=Asia/Shanghai
@@ -61,7 +61,7 @@ services:
 
 
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
     container_name: blog-redis
     environment:
       - TZ=Asia/Shanghai
