@@ -4,12 +4,9 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\NotFoundHttpException;
-use yii\caching\DbDependency;
-use yii\db\Query;
 use yii\data\ActiveDataProvider;
 use app\models\Comment;
 use app\models\Post;
-use app\models\PostSearch;
 use app\components\BaseController;
 
 /**
@@ -92,9 +89,9 @@ class PostController extends BaseController
     }
 
     /**
-     * @todo 归档的细化操作
      * @param $year
      * @param $month
+     * @todo 归档的细化操作
      */
     public function actionArchivesDate($year, $month)
     {
@@ -103,12 +100,12 @@ class PostController extends BaseController
         $start = strtotime($date);
         $end = strtotime('+1 month', $start);
         $dataProvider = new ActiveDataProvider([
-            'query' => Post::find()->where(['between', 'post_time', $start, $end]),
+            'query' => Post::find()->where(['between', 'post_time', $start, $end])->andWhere(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]]),
             'pagination' => [
                 'defaultPageSize' => 10
             ]
         ]);
-        $this->view->title  = '文章归档:' . $date;
+        $this->view->title = '文章归档:' . $date;
         echo $this->render('archives-date', ['date' => $date, 'dataProvider' => $dataProvider]);
     }
 
@@ -121,7 +118,7 @@ class PostController extends BaseController
      */
     protected function findModel($id)
     {
-        if (($model = Post::findOne($id)) !== null) {
+        if (($model = Post::findOne(['id' => $id, 'status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
@@ -137,7 +134,7 @@ class PostController extends BaseController
      */
     protected function findModelByAlias($alias)
     {
-        if (($model = Post::find()->where(['alias' => $alias])->with('category')->one()) !== null) {
+        if (($model = Post::find()->where(['alias' => $alias, 'status' => [Post::STATUS_HIDDEN, Post::STATUS_PUBLISHED]])->with('category')->one()) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
