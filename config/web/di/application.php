@@ -28,6 +28,7 @@ return [
                     [
                         ErrorCatcher::class,
                         SessionMiddleware::class,
+                        \App\User\RememberMeMiddleware::class,
                         CsrfTokenMiddleware::class,
                         RequestCatcherMiddleware::class,
                         Router::class,

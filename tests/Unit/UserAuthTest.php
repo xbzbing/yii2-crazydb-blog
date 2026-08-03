@@ -398,4 +398,37 @@ final class UserAuthTest extends TestCase
             $user->delete();
         }
     }
+
+    public function testRememberMeMiddlewareRestoresSessionFromToken(): void
+    {
+        $suffix = 'rmm_' . bin2hex(random_bytes(3));
+        $created = $this->createUser($suffix);
+        try {
+            $repository = new UserRepository();
+            $token = $repository->createRememberMeToken($created['user']);
+            $session = $this->sharedSession();
+            $session->remove(User::SESSION_AUTH_KEY);
+
+            $middleware = new \App\User\RememberMeMiddleware($repository, $session);
+            $request = (new \HttpSoft\Message\ServerRequestFactory())->createServerRequest('GET', '/')
+                ->withCookieParams([\App\User\RememberMeMiddleware::COOKIE_NAME => $token]);
+            $handler = new class() implements \Psr\Http\Server\RequestHandlerInterface {
+                public function handle(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
+                {
+                    return (new \HttpSoft\Message\ResponseFactory())->createResponse(200);
+                }
+            };
+            $middleware->process($request, $handler);
+            self::assertSame((string)$created['user']->id, $session->get(User::SESSION_AUTH_KEY), 'session restored from token');
+
+            $session->remove(User::SESSION_AUTH_KEY);
+            $badRequest = (new \HttpSoft\Message\ServerRequestFactory())->createServerRequest('GET', '/')
+                ->withCookieParams([\App\User\RememberMeMiddleware::COOKIE_NAME => 'invalid-token']);
+            $middleware->process($badRequest, $handler);
+            self::assertNull($session->get(User::SESSION_AUTH_KEY));
+        } finally {
+            $created['cleanup']();
+            $this->sharedSession()->remove(User::SESSION_AUTH_KEY);
+        }
+    }
 }
