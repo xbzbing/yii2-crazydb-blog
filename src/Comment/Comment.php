@@ -8,8 +8,11 @@ use App\Common\CMSUtils;
 use App\Common\XUtils;
 use App\Log\Log;
 use App\Option\Option;
-use Psr\SimpleCache\CacheInterface;
+use App\Post\Post;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Cache\Dependency\CallbackDependency;
+use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Comment extends ActiveRecord
 {
@@ -76,9 +79,61 @@ final class Comment extends ActiveRecord
         return self::query()->findByPk($this->reply_to);
     }
 
-    public function getPost(): ?\App\Post\Post
+    public function getPost(): ?Post
     {
-        return \App\Post\Post::query()->findByPk($this->pid);
+        return Post::query()->findByPk($this->pid);
+    }
+
+    /**
+     * 最新评论列表（等价 Yii2 getRecentComments）：包含头像/文章链接，按 create_time 降序。
+     *
+     * @return list<array{
+     *     id: int, nickname: string, website: ?string, pid: int, post_url: ?string,
+     *     content: ?string, create_time: int, email: string, avatar: string, title: string
+     * }>
+     */
+    public static function getRecentComments(
+        CacheInterface $cache,
+        UrlGeneratorInterface $urlGenerator,
+        \Yiisoft\Aliases\Aliases $aliases,
+        int $limit = 10,
+        bool $refresh = false,
+        int $size = 40,
+    ): array {
+        $key = '__recentComments';
+        if ($refresh) {
+            $cache->remove($key);
+        }
+        return $cache->getOrSet(
+            $key,
+            static function () use ($urlGenerator, $aliases, $limit, $size): array {
+                $items = [];
+                $comments = self::query()
+                    ->orderBy(['create_time' => SORT_DESC])
+                    ->limit($limit)
+                    ->all();
+                foreach ($comments as $comment) {
+                    $post = $comment->getPost();
+                    $items[] = [
+                        'id' => $comment->id,
+                        'nickname' => $comment->nickname,
+                        'website' => $comment->url,
+                        'pid' => $comment->pid,
+                        'post_url' => $post?->getUrl($urlGenerator) . '#comment-' . $comment->id,
+                        'content' => $comment->content,
+                        'create_time' => $comment->create_time,
+                        'email' => $comment->email,
+                        'avatar' => XUtils::getAvatar($aliases, $comment->email, $size),
+                        'title' => $post?->title ?? '',
+                    ];
+                }
+                return $items;
+            },
+            3600,
+            new CallbackDependency(
+                static fn (): int => (int)self::query()->max('update_time'),
+            ),
+        );
     }
 
     /**
