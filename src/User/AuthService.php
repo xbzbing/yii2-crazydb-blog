@@ -41,6 +41,32 @@ final class AuthService
         $this->session->regenerateId();
     }
 
+    /**
+     * 修改密码：校验旧密码 → 更新 bcrypt → 轮换 auth_key（旧记住我 token 失效）。
+     *
+     * @return string|null 错误信息（null = 成功）
+     */
+    public function changePassword(User $user, string $oldPassword, string $newPassword): ?string
+    {
+        if (!$user->validatePassword($oldPassword)) {
+            return '旧密码不正确。';
+        }
+        $length = mb_strlen($newPassword);
+        if ($length < RegisterService::PASSWORD_MIN || $length > RegisterService::PASSWORD_MAX) {
+            return '新密码长度需在 ' . RegisterService::PASSWORD_MIN . ' 到 ' . RegisterService::PASSWORD_MAX . ' 个字符之间。';
+        }
+        $user->password = User::hashPassword($newPassword);
+        // 轮换 auth_key：使已签发的记住我 cookie 全部失效（撤销能力）
+        $user->generateAuthKey();
+        $user->touch();
+        try {
+            $user->save();
+        } catch (\Throwable) {
+            return '保存失败，请稍后再试。';
+        }
+        return null;
+    }
+
     public function currentUser(): ?User
     {
         $id = $this->session->get($this->sessionKey);

@@ -57,6 +57,18 @@ final readonly class Action
         }
         $comments = $post->getComments()->all();
         $total = count($comments);
+        // 批量预取回复目标（消除模板内每条回复一次 getReply 查询）
+        /** @var list<Comment> $commentList */
+        $commentList = $comments;
+        $replyIds = array_filter(array_map(static fn (Comment $c): ?int => $c->reply_to, $commentList));
+        $replyMap = [];
+        if ($replyIds !== []) {
+            /** @var list<Comment> $replyTargets */
+            $replyTargets = Comment::query()->where(['id' => $replyIds])->all();
+            foreach ($replyTargets as $target) {
+                $replyMap[(int)$target->id] = $target;
+            }
+        }
         // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）
         if ($total !== (int)$post->comment_count) {
             $post->comment_count = $total;
@@ -83,6 +95,7 @@ final readonly class Action
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
                 'comments' => $comments,
+                'replyMap' => $replyMap,
                 'commentTotal' => $total,
                 'previous' => $previous,
                 'next' => $next,

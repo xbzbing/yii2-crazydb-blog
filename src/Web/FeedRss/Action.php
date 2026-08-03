@@ -58,6 +58,7 @@ final readonly class Action
                 . '            <guid isPermaLink="true">' . $this->escape($postUrl) . "</guid>\n"
                 . '            <pubDate>' . date('D, d M Y H:i:s O', (int)$post->post_time) . "</pubDate>\n"
                 . '            <description>' . $this->cdata($content) . "</description>\n"
+                . '            <content:encoded>' . $this->cdata($content) . "</content:encoded>\n"
                 . "        </item>\n";
         }
 

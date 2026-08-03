@@ -431,4 +431,29 @@ final class UserAuthTest extends TestCase
             $this->sharedSession()->remove(User::SESSION_AUTH_KEY);
         }
     }
+
+    public function testChangePasswordRotatesAuthKeyAndInvalidatesOldToken(): void
+    {
+        $suffix = 'pwd_' . bin2hex(random_bytes(3));
+        $created = $this->createUser($suffix);
+        try {
+            $repository = new UserRepository();
+            $oldToken = $repository->createRememberMeToken($created['user']);
+            $oldAuthKey = $created['user']->auth_key;
+
+            $auth = new AuthService($this->sharedSession(), $repository);
+            $error = $auth->changePassword($created['user'], 'password123', 'newpass456');
+            self::assertNull($error);
+
+            self::assertNotSame($oldAuthKey, $created['user']->auth_key, 'auth_key must rotate');
+            self::assertTrue($created['user']->validatePassword('newpass456'));
+            self::assertFalse($created['user']->validatePassword('password123'));
+            self::assertNull($repository->findIdentityByToken($oldToken), 'old remember-me token must be invalidated');
+
+            $badError = $auth->changePassword($created['user'], 'wrong-old', 'newpass456');
+            self::assertNotNull($badError, 'wrong old password rejected');
+        } finally {
+            $created['cleanup']();
+        }
+    }
 }
