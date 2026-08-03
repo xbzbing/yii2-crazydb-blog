@@ -30,8 +30,8 @@ return [
 
             // Posts
             Route::get('/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
-            Route::get('/posts')->action(Web\Placeholder\NotFoundAction::class)->name('post/list'),
-            Route::get('/posts/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/list-page'),
+            Route::get('/posts')->action(Web\PostList\Action::class)->name('post/list'),
+            Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
             Route::get('/post/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/view'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\Placeholder\NotFoundAction::class)->name('post/archives-date'),
@@ -39,7 +39,7 @@ return [
             // Tags
             Route::get('/tag/{name}')->action(Web\TagShow\Action::class)->name('tag/show'),
             Route::get('/tag/{name}/page/{page:\d+}')->action(Web\TagShow\Action::class)->name('tag/show-page'),
-            Route::get('/tags')->action(Web\Placeholder\NotFoundAction::class)->name('tag/list'),
+            Route::get('/tags')->action(Web\TagList\Action::class)->name('tag/list'),
 
             // Users (static paths before /user/{name} — match order is significant)
             Route::get('/user/profile/{name}')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile'),
