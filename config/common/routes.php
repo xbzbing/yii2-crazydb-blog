@@ -15,7 +15,7 @@ return [
         ->routes(
             // Home
             Route::get('/')->action(Web\HomePage\Action::class)->name('site/index'),
-            Route::get('/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('site/index-page'),
+            Route::get('/page/{page:\d+}')->action(Web\HomePage\Action::class)->name('site/index-page'),
 
             // Auth
             Route::get('/login')->action(Web\Placeholder\NotFoundAction::class)->name('site/login'),
@@ -25,7 +25,7 @@ return [
 
             // Categories
             Route::get('/catalog/{alias}')->action(Web\CategoryShow\Action::class)->name('category/show'),
-            Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('category/show-page'),
+            Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\CategoryShow\Action::class)->name('category/show-page'),
 
             // Posts
             Route::get('/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
@@ -37,7 +37,7 @@ return [
 
             // Tags
             Route::get('/tag/{name}')->action(Web\TagShow\Action::class)->name('tag/show'),
-            Route::get('/tag/{name}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('tag/show-page'),
+            Route::get('/tag/{name}/page/{page:\d+}')->action(Web\TagShow\Action::class)->name('tag/show-page'),
             Route::get('/tags')->action(Web\Placeholder\NotFoundAction::class)->name('tag/list'),
 
             // Users (static paths before /user/{name} — match order is significant)

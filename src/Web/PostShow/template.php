@@ -38,7 +38,12 @@ $this->setParameter('showSidebar', $showSidebar);
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($post->title . ' - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($siteConfig['seo_keywords'] ?? '')));
-$this->setParameter('seo_description', $post->getSeoDescription($markdownRenderer));
+$this->setParameter(
+    'seo_description',
+    $post->status === App\Post\Post::STATUS_HIDDEN
+        ? (string)$post->excerpt
+        : $post->getSeoDescription($markdownRenderer),
+);
 
 $postUrl = $post->getUrl($urlGenerator);
 $category = $categorySummary[(int)$post->cid] ?? null;
@@ -46,8 +51,8 @@ $category = $categorySummary[(int)$post->cid] ?? null;
 
 <nav class="breadcrumb">
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
-    <?php if ($category !== null && $category['url'] !== null): ?>
-        » <a href="<?= Html::encode($category['url']) ?>"><?= Html::encode($category['name']) ?></a>
+    <?php if ($category !== null): ?>
+        » <a href="<?= Html::encode((string)$category['url']) ?>"><?= Html::encode($category['name']) ?></a>
     <?php endif; ?>
     » <?= Html::encode($post->title) ?>
 </nav>

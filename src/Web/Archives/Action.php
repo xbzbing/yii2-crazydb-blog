@@ -56,7 +56,7 @@ final readonly class Action
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache),
                 'showSidebar' => true,
-                'categorySummary' => Category::getCategorySummary($this->cache),
+                'categorySummary' => Category::getCategorySummary($this->cache, $this->urlGenerator),
                 'sidebarTags' => Tag::getTags($this->cache, $this->urlGenerator, false, 20),
                 'sidebarComments' => Comment::getRecentComments($this->cache, $this->urlGenerator, $this->aliases, 5),
             ],

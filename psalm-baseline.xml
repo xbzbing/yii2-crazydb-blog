@@ -9,11 +9,6 @@
     </PossiblyFalseArgument>
   </file>
   <file src="src/Category/Category.php">
-    <InvalidPropertyFetch>
-      <code><![CDATA[$category->desc]]></code>
-      <code><![CDATA[$category->id]]></code>
-      <code><![CDATA[$category->name]]></code>
-    </InvalidPropertyFetch>
     <InvalidReturnStatement>
       <code><![CDATA[Post::query()
             ->where(['cid' => $this->id])
@@ -27,7 +22,6 @@
       <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
     </LessSpecificReturnStatement>
     <MixedReturnTypeCoercion>
-      <code><![CDATA[array<int, array{name: string, desc: ?string, url: ?string, postCount: int}>]]></code>
       <code><![CDATA[array<int, string>]]></code>
       <code><![CDATA[self::cached($cache, '__categories', $refresh, static function (): array {
             $items = [];
@@ -36,34 +30,13 @@
             }
             return $items;
         })]]></code>
-      <code><![CDATA[self::cached($cache, '__category_summary', $refresh, static function (): array {
-            $items = [];
-            foreach (self::query()->all() as $category) {
-                $items[$category->id] = [
-                    'name' => $category->name,
-                    'desc' => $category->desc,
-                    'url' => null, // 阶段 E 由 UrlGenerator 生成（route category/show）
-                    'postCount' => $category->getPostCount(),
-                ];
-            }
-            return $items;
-        })]]></code>
     </MixedReturnTypeCoercion>
     <MoreSpecificReturnType>
       <code><![CDATA[\Yiisoft\ActiveRecord\ActiveQuery]]></code>
     </MoreSpecificReturnType>
-    <NoInterfaceProperties>
-      <code><![CDATA[$category->desc]]></code>
-      <code><![CDATA[$category->id]]></code>
-      <code><![CDATA[$category->name]]></code>
-    </NoInterfaceProperties>
-    <PossiblyInvalidMethodCall>
-      <code><![CDATA[getPostCount]]></code>
-    </PossiblyInvalidMethodCall>
     <UndefinedInterfaceMethod>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>
-      <code><![CDATA[getPostCount]]></code>
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Comment/Comment.php">

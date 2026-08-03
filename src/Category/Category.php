@@ -85,20 +85,27 @@ final class Category extends ActiveRecord
      *
      * @return array<int, array{name: string, desc: ?string, url: ?string, postCount: int}>
      */
-    public static function getCategorySummary(CacheInterface $cache, bool $refresh = false): array
-    {
-        return self::cached($cache, '__category_summary', $refresh, static function (): array {
+    public static function getCategorySummary(
+        CacheInterface $cache,
+        UrlGeneratorInterface $urlGenerator,
+        bool $refresh = false,
+    ): array {
+        /** @var array<int, array{name: string, desc: ?string, url: ?string, postCount: int}> $summary */
+        $summary = self::cached($cache, '__category_summary', $refresh, static function () use ($urlGenerator): array {
             $items = [];
-            foreach (self::query()->all() as $category) {
-                $items[$category->id] = [
+            /** @var list<self> $categories */
+            $categories = self::query()->all();
+            foreach ($categories as $category) {
+                $items[(int)$category->id] = [
                     'name' => $category->name,
                     'desc' => $category->desc,
-                    'url' => null, // 阶段 E 由 UrlGenerator 生成（route category/show）
+                    'url' => $category->getUrl($urlGenerator),
                     'postCount' => $category->getPostCount(),
                 ];
             }
             return $items;
         });
+        return $summary;
     }
 
     /**
@@ -111,7 +118,7 @@ final class Category extends ActiveRecord
         if ($refresh) {
             $cache->remove($cacheKey);
         }
-        /** @var array $value */
+        /** @var array<int, mixed> $value */
         $value = $cache->getOrSet($cacheKey, static fn (): array => $callback(), 3600);
         return $value;
     }
