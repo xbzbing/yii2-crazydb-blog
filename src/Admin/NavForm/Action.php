@@ -25,6 +25,7 @@ final readonly class Action
         private WebViewRenderer $viewRenderer,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private \Yiisoft\Router\RouteCollectionInterface $routeCollection,
         private CacheInterface $cache,
         private FlashInterface $flash,
     ) {}
@@ -59,12 +60,23 @@ final readonly class Action
             }
             if ($nav->url === '') {
                 $errors['url'] = 'URL 或路由名不能为空。';
+            } elseif ($nav->route === 1) {
+                try {
+                    $this->routeCollection->getRoute($nav->url);
+                } catch (\Throwable) {
+                    $errors['url'] = '路由名不存在（如 post/list、site/index）。';
+                }
             }
             if ($nav->pid !== 0 && !Nav::query()->where(['id' => $nav->pid, 'pid' => 0])->exists()) {
                 $errors['pid'] = '父导航不存在或不是顶级导航（仅支持两级）。';
             }
             if ($nav->pid !== 0 && $nav->id !== null && $nav->pid === (int)$nav->id) {
                 $errors['pid'] = '父导航不能是自身。';
+            }
+            if ($nav->pid !== 0 && $nav->id !== null
+                && Nav::query()->where(['pid' => (int)$nav->id])->exists()
+            ) {
+                $errors['pid'] = '该导航存在子导航，不能降级为子级。';
             }
 
             if ($errors === []) {

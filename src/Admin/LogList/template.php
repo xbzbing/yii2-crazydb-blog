@@ -31,7 +31,7 @@ $this->setTitle('日志管理 - 后台管理');
     <button type="submit">筛选</button>
 </form>
 
-<form method="post" action="<?= Html::encode($urlGenerator->generate('admin/log/list')) ?>" class="admin-inline" onsubmit="return confirm('清空全部日志？');">
+<form method="post" action="<?= Html::encode($urlGenerator->generate('admin/log/clear')) ?>" class="admin-inline" onsubmit="return confirm('清空全部日志？');">
     <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
     <button type="submit">清空日志</button>
 </form>
