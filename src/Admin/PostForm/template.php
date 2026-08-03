@@ -70,9 +70,8 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
 </form>
 
 <?php if ($post->format === App\Post\Post::FORMAT_MARKDOWN): ?>
-    <link rel="stylesheet" href="/static/vditor/index.css">
-    <link rel="stylesheet" href="/static/vditor/css/github.css">
-    <script src="/static/vditor/index.min.js"></script>
+    <link rel="stylesheet" href="/static/vditor/dist/index.css">
+    <script src="/static/vditor/dist/index.min.js"></script>
     <script>
         (function () {
             var content = document.getElementById('post-content');
@@ -81,7 +80,7 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
                 mode: 'ir',
                 height: 420,
                 lang: 'zh_CN',
-                value: content.value,
+                value: <?= json_encode((string)$post->content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
                 input: function (value) { content.value = value; },
                 after: function () { content.style.display = 'none'; }
             });
