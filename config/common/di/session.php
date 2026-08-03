@@ -12,7 +12,7 @@ use Yiisoft\Session\SessionInterface;
 /**
  * Session/Flash DI 定义：统一到同一 Session 实例（Session::class 与
  * SessionInterface 若各自解析会得到两个实例，session cookie 无法跨中间件发出）。
- * web 环境与 yiisoft/session 包的 di-web.php 定义等价（common 优先覆盖），
+ * 镜像 yiisoft/session 包 di-web.php 定义（common 优先覆盖），
  * 必须显式传 options（cookie_secure=0）——否则 session_start 用 php.ini 默认（secure=1 会在 http 下报错）。
  */
 return [
@@ -22,6 +22,10 @@ return [
             $params['yiisoft/session']['session']['options'],
             $params['yiisoft/session']['session']['handler'],
         ],
+        'reset' => function (): void {
+            $this->sessionId = null;
+            $this->close();
+        },
     ],
     FlashInterface::class => Flash::class,
 ];
