@@ -39,10 +39,10 @@ final readonly class Action
     ): ResponseInterface {
         /** @var ?Post $post */
         $post = $id !== null ? Post::query()->findByPk($id) : null;
-        $isNew = $post === null;
-        if (!$isNew && !$post instanceof Post) {
+        if ($id !== null && $post === null) {
             return $this->redirectList();
         }
+        $isNew = $post === null;
         $post ??= new Post();
 
         $categories = Category::getAllCategories($this->cache);
@@ -68,6 +68,12 @@ final readonly class Action
             } elseif ($post->alias !== '' && Post::query()->where(['alias' => $post->alias])->andWhere(['!=', 'id', (int)$post->id])->exists()) {
                 $errors['alias'] = '别名已存在。';
             }
+            if (!in_array($post->status, [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN, Post::STATUS_DRAFT, Post::STATUS_DELETED], true)) {
+                $errors['status'] = '状态不合法。';
+            }
+            if (!in_array($post->format, [Post::FORMAT_HTML, Post::FORMAT_MARKDOWN], true)) {
+                $errors['format'] = '格式不合法。';
+            }
 
             if ($errors === []) {
                 if ($isNew) {
@@ -76,9 +82,9 @@ final readonly class Action
                     $post->author_name = (string)$user?->nickname;
                     $post->type = Post::TYPE_POST;
                     $post->create_time = time();
-                    if ($post->post_time === 0) {
-                        $post->post_time = time();
-                    }
+                }
+                if ($post->post_time === 0) {
+                    $post->post_time = time();
                 }
                 $post->update_time = time();
                 $post->content = XUtils::htmlPurify($post->content);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\CategoryList;
 
 use App\Category\Category;
-use App\Web\Pager;
+
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -26,7 +26,6 @@ final readonly class Action
     {
         /** @var list<Category> $categories */
         $categories = Category::query()->orderBy(['sort_order' => SORT_DESC])->all();
-        $pager = new Pager(count($categories), count($categories) ?: 1, 1);
 
         return $this->viewRenderer
             ->withLayout('@src/Web/Shared/Layout/Admin/layout.php')
