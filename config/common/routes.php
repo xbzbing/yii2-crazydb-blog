@@ -62,4 +62,23 @@ return [
             Route::get('/tool/image-upload')->action(Web\Placeholder\NotFoundAction::class)->name('tool/image-upload'),
             Route::get('/tool/captcha')->action(Web\ToolCaptcha\Action::class)->name('tool/captcha'),
         ),
+
+    Group::create('/admin')
+        ->middleware(\App\Admin\AdminGuardMiddleware::class)
+        ->routes(
+            Route::get('')->action(\App\Admin\Dashboard\Action::class)->name('admin/index'),
+            Route::get('/posts')->action(\App\Admin\PostList\Action::class)->name('admin/post/list'),
+            Route::get('/posts/page/{page:\d+}')->action(\App\Admin\PostList\Action::class)->name('admin/post/list-page'),
+            Route::methods([Method::GET, Method::POST], '/post/create')->action(\App\Admin\PostForm\Action::class)->name('admin/post/create'),
+            Route::methods([Method::GET, Method::POST], '/post/update/{id:\d+}')->action(\App\Admin\PostForm\Action::class)->name('admin/post/update'),
+            Route::get('/post/delete/{id:\d+}')->action(\App\Admin\PostDelete\Action::class)->name('admin/post/delete'),
+            Route::get('/comments')->action(\App\Admin\CommentList\Action::class)->name('admin/comment/list'),
+            Route::get('/comments/page/{page:\d+}')->action(\App\Admin\CommentList\Action::class)->name('admin/comment/list-page'),
+            Route::get('/comment/{action}/{id:\d+}')->action(\App\Admin\CommentAction\Action::class)->name('admin/comment/action'),
+            Route::methods([Method::GET, Method::POST], '/config')->action(\App\Admin\Config\Action::class)->name('admin/config'),
+            Route::get('/categories')->action(\App\Admin\CategoryList\Action::class)->name('admin/category/list'),
+            Route::methods([Method::GET, Method::POST], '/category/create')->action(\App\Admin\CategoryForm\Action::class)->name('admin/category/create'),
+            Route::methods([Method::GET, Method::POST], '/category/update/{id:\d+}')->action(\App\Admin\CategoryForm\Action::class)->name('admin/category/update'),
+            Route::get('/category/delete/{id:\d+}')->action(\App\Admin\CategoryForm\Action::class)->name('admin/category/delete'),
+        ),
 ];
