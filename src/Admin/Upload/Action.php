@@ -47,7 +47,7 @@ final readonly class Action
         if (!in_array($ext, self::ALLOWED_EXT, true)) {
             return $this->json(['code' => 1, 'msg' => '仅支持 png/jpg/gif/webp 图片。']);
         }
-        // 内容级校验（扩展名可伪造）：真实图片 magic bytes 校验
+        // 内容级校验（扩展名可伪造）：真实图片 magic bytes 校验 + 尺寸上限（防解压炸弹）
         $stream = $uploaded->getStream();
         $tmpFileMeta = $stream->getMetadata('uri');
         $tmpFile = is_string($tmpFileMeta) ? $tmpFileMeta : null;
@@ -56,6 +56,9 @@ final readonly class Action
             $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
             if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
                 return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
+            }
+            if (($info[0] ?? 0) > 8000 || ($info[1] ?? 0) > 8000) {
+                return $this->json(['code' => 1, 'msg' => '图片尺寸过大（最大 8000×8000）。']);
             }
         }
 
@@ -68,10 +71,13 @@ final readonly class Action
         } while (file_exists($dir . '/' . $fileName));
         $target = $dir . '/' . $fileName;
         try {
-            $reencoded = $tmpFile !== null ? $this->stripMetadata($tmpFile, $ext) : null;
+            // gif 跳过 GD 重编码（动图会静默丢帧；且 GIF 不携带 EXIF，剥离无收益）
+            $reencoded = ($tmpFile !== null && $ext !== 'gif') ? $this->stripMetadata($tmpFile, $ext) : null;
             if ($reencoded !== null) {
                 // GD 重编码成功（剥离 EXIF/GPS 等元数据），写入重编码结果
-                file_put_contents($target, $reencoded);
+                if (file_put_contents($target, $reencoded) === false) {
+                    return $this->json(['code' => 1, 'msg' => '保存文件失败。']);
+                }
             } else {
                 $uploaded->moveTo($target);
             }
