@@ -17,6 +17,10 @@ $mailerDebug = $mailerDebugRaw !== ''
     ? filter_var($mailerDebugRaw, FILTER_VALIDATE_BOOLEAN)
     : (($_ENV['APP_ENV'] ?? getenv('APP_ENV')) === 'dev');
 
+// 记住我 cookie Secure 标记：https 部署时设 COOKIE_SECURE=1（默认 0 兼容本地 http）
+$cookieSecureRaw = (string) ($_ENV['COOKIE_SECURE'] ?? getenv('COOKIE_SECURE'));
+$cookieSecure = $cookieSecureRaw !== '' && filter_var($cookieSecureRaw, FILTER_VALIDATE_BOOLEAN);
+
 return [
     'application' => require __DIR__ . '/application.php',
 
@@ -68,5 +72,9 @@ return [
         'notice_email' => 'notice@crazydb.com',
         // debug 模式下所有邮件只发往 admin_email（对齐 Yii2 YII_DEBUG 语义）
         'debug' => $mailerDebug,
+    ],
+
+    'cookie' => [
+        'remember_secure' => $cookieSecure,
     ],
 ];
