@@ -82,6 +82,16 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
                 height: 420,
                 lang: 'zh_CN',
                 value: <?= json_encode((string)$post->content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                upload: {
+                    url: '/admin/upload/image',
+                    fieldName: 'file',
+                    max: 2 * 1024 * 1024,
+                    accept: 'image/png, image/jpeg, image/gif, image/webp',
+                    withCredentials: false,
+                    headers: {
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf"]').getAttribute('content')
+                    }
+                },
                 input: function (value) { content.value = value; },
                 after: function () { content.style.display = 'none'; }
             });
