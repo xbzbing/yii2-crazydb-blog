@@ -83,7 +83,7 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
                 lang: 'zh_CN',
                 value: <?= json_encode((string)$post->content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 upload: {
-                    url: '/admin/upload/image',
+                    url: <?= json_encode($urlGenerator->generate('admin/upload/image'), JSON_UNESCAPED_SLASHES) ?>,
                     fieldName: 'file',
                     max: 2 * 1024 * 1024,
                     accept: 'image/png, image/jpeg, image/gif, image/webp',
