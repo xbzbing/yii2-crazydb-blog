@@ -8,6 +8,7 @@ use Yiisoft\Assets\AssetManager;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Session\Flash\FlashInterface;
 use Yiisoft\Yii\View\Renderer\CsrfViewInjection;
 
 $mailerDebugRaw = (string) ($_ENV['MAILER_DEBUG'] ?? getenv('MAILER_DEBUG'));
@@ -30,6 +31,7 @@ return [
             'aliases' => Reference::to(Aliases::class),
             'urlGenerator' => Reference::to(UrlGeneratorInterface::class),
             'currentRoute' => Reference::to(CurrentRoute::class),
+            'flash' => Reference::to(FlashInterface::class),
         ],
     ],
 

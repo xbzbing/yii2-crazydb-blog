@@ -48,7 +48,7 @@ return [
             Route::get('/user/{name}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('user/show-page'),
 
             // Comments
-            Route::get('/comment/add/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('comment/add'),
+            Route::post('/comment/add/{id:\d+}')->action(Web\CommentAdd\Action::class)->name('comment/add'),
             Route::get('/comment/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('comment/view'),
             Route::get('/comments')->action(Web\Placeholder\NotFoundAction::class)->name('comment/list'),
             Route::get('/comments/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('comment/list-page'),
@@ -59,6 +59,6 @@ return [
 
             // Tools
             Route::get('/tool/image-upload')->action(Web\Placeholder\NotFoundAction::class)->name('tool/image-upload'),
-            Route::get('/tool/captcha')->action(Web\Placeholder\NotFoundAction::class)->name('tool/captcha'),
+            Route::get('/tool/captcha')->action(Web\ToolCaptcha\Action::class)->name('tool/captcha'),
         ),
 ];

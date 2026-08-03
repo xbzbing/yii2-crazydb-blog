@@ -89,9 +89,6 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Comment/CommentService.php">
-    <InvalidArrayOffset>
-      <code><![CDATA[$data['captcha']]]></code>
-    </InvalidArrayOffset>
     <InvalidPropertyFetch>
       <code><![CDATA[$user->email]]></code>
       <code><![CDATA[$user->nickname]]></code>

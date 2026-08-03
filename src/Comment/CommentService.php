@@ -29,7 +29,7 @@ final class CommentService
     }
 
     /**
-     * @param array{content?: string, nickname?: string, email?: string, url?: string, reply_to?: int, sendMail?: bool} $data
+     * @param array{content?: string, nickname?: string, email?: string, url?: string, reply_to?: int, sendMail?: bool, captcha?: string} $data
      * @param array{ip: string, userAgent: string} $request
      * @return array{status: string, info: string, comment?: Comment, display?: int}
      */
@@ -62,7 +62,7 @@ final class CommentService
         if ($comment->nickname === '' || $comment->email === '' || $comment->content === '') {
             return ['status' => 'fail', 'info' => '请填写留言内容'];
         }
-        if (!$this->captcha->validate((string)($data['captcha'] ?? ''))) {
+        if (!$this->captcha->validate($data['captcha'] ?? '')) {
             return ['status' => 'fail', 'info' => '验证码错误'];
         }
         if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
