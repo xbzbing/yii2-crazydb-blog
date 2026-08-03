@@ -15,6 +15,7 @@ declare(strict_types=1);
  * @var string $route
  * @var string $pageRoute
  * @var array<string, string> $routeArgs
+ * @var ?int $excludeId 排除的文章 ID（如首页 hero 去重）
  */
 
 if ($posts === []): ?>
@@ -22,6 +23,9 @@ if ($posts === []): ?>
 <?php else: ?>
     <div class="article-grid">
         <?php foreach ($posts as $post): ?>
+            <?php if ($excludeId !== null && (int)$post->id === $excludeId): ?>
+                <?php continue; ?>
+            <?php endif; ?>
             <?= $this->render('Article/article.php', [
                 'post' => $post,
                 'category' => $categorySummary[(int)$post->cid] ?? ['name' => '', 'desc' => null, 'url' => null, 'postCount' => 0],
