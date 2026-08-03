@@ -206,14 +206,6 @@
       <code><![CDATA[$this->hasOne(Category::class, ['id' => 'cid'])]]></code>
       <code><![CDATA[$this->hasOne(User::class, ['id' => 'author_id'])]]></code>
     </LessSpecificReturnStatement>
-    <MixedMethodCall>
-      <code><![CDATA[orderBy]]></code>
-    </MixedMethodCall>
-    <MixedReturnStatement>
-      <code><![CDATA[$this->hasMany(Comment::class, ['pid' => 'id'])
-            ->andOnCondition(['status' => Comment::STATUS_APPROVED])
-            ->orderBy(['create_time' => SORT_ASC])]]></code>
-    </MixedReturnStatement>
     <MoreSpecificReturnType>
       <code><![CDATA[ActiveQuery]]></code>
       <code><![CDATA[ActiveQuery]]></code>
@@ -221,9 +213,6 @@
     <PossiblyNullOperand>
       <code><![CDATA[$this->id]]></code>
     </PossiblyNullOperand>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[andOnCondition]]></code>
-    </UndefinedInterfaceMethod>
   </file>
   <file src="src/Tag/Tag.php">
     <UndefinedInterfaceMethod>
@@ -261,10 +250,5 @@
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(string)$authKey]]></code>
     </RedundantCastGivenDocblockType>
-  </file>
-  <file src="src/Web/Placeholder/NotFoundAction.php">
-    <UndefinedClass>
-      <code><![CDATA[NotFoundException]]></code>
-    </UndefinedClass>
   </file>
 </files>

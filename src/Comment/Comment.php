@@ -109,6 +109,7 @@ final class Comment extends ActiveRecord
             static function () use ($urlGenerator, $aliases, $limit, $size): array {
                 $items = [];
                 $comments = self::query()
+                    ->where(['status' => self::STATUS_APPROVED])
                     ->orderBy(['create_time' => SORT_DESC])
                     ->limit($limit)
                     ->all();

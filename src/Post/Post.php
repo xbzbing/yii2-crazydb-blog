@@ -78,10 +78,10 @@ final class Post extends ActiveRecord
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
 
-    public function getComments(): ActiveQuery
+    public function getComments(): \Yiisoft\ActiveRecord\ActiveQueryInterface
     {
         return $this->hasMany(Comment::class, ['pid' => 'id'])
-            ->andOnCondition(['status' => Comment::STATUS_APPROVED])
+            ->andOn(['status' => Comment::STATUS_APPROVED])
             ->orderBy(['create_time' => SORT_ASC]);
     }
 

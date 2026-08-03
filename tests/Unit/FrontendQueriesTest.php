@@ -221,6 +221,18 @@ final class FrontendQueriesTest extends TestCase
         $comment->update_time = time();
         $comment->ip = '127.0.0.1';
         $comment->save();
+
+        $unapproved = new Comment();
+        $unapproved->pid = $post->id;
+        $unapproved->uid = 0;
+        $unapproved->nickname = '__rc_spam__';
+        $unapproved->email = 'spam@example.com';
+        $unapproved->content = '未审核评论不得出现在最新评论';
+        $unapproved->status = Comment::STATUS_UNAPPROVED;
+        $unapproved->create_time = time() + 1;
+        $unapproved->update_time = time() + 1;
+        $unapproved->ip = '127.0.0.1';
+        $unapproved->save();
         try {
             $items = Comment::getRecentComments(
                 $this->cache(),
@@ -234,6 +246,7 @@ final class FrontendQueriesTest extends TestCase
                     $found = $item;
                     break;
                 }
+                self::assertNotSame('__rc_spam__', $item['nickname'], 'unapproved comment must be filtered');
             }
             self::assertNotNull($found, 'comment must appear in recent list');
             self::assertSame('__rc_nick__', $found['nickname']);
@@ -241,6 +254,7 @@ final class FrontendQueriesTest extends TestCase
             self::assertStringContainsString('/archive/' . $post->alias . '#comment-' . $comment->id, $found['post_url']);
             self::assertNotSame('', $found['avatar']);
         } finally {
+            $unapproved->delete();
             $comment->delete();
             $post->delete();
         }

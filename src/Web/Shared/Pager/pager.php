@@ -9,11 +9,13 @@ use Yiisoft\Html\Html;
  *
  * @var App\Web\Pager $pager
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
- * @var string $route 当前列表路由名（如 site/index / post/list）
+ * @var string $route 当前列表第一页路由名（如 site/index / category/show）
+ * @var string $pageRoute 分页路由名（如 site/index-page / category/show-page）
+ * @var array<string, string> $routeArgs 路由参数（如分类 alias、标签 name）
  */
 $buildUrl = static fn (int $page): string => $page > 1
-    ? $urlGenerator->generate($route, ['page' => $page])
-    : $urlGenerator->generate($route);
+    ? $urlGenerator->generate($pageRoute, $routeArgs + ['page' => $page])
+    : $urlGenerator->generate($route, $routeArgs);
 ?>
 
 <?php if ($pager->pageCount > 1): ?>

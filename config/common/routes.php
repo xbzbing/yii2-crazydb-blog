@@ -24,19 +24,19 @@ return [
             Route::get('/site/captcha')->action(Web\Placeholder\NotFoundAction::class)->name('site/captcha'),
 
             // Categories
-            Route::get('/catalog/{alias}')->action(Web\Placeholder\NotFoundAction::class)->name('category/show'),
+            Route::get('/catalog/{alias}')->action(Web\CategoryShow\Action::class)->name('category/show'),
             Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('category/show-page'),
 
             // Posts
-            Route::get('/archive/{alias}')->action(Web\Placeholder\NotFoundAction::class)->name('post/show'),
+            Route::get('/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
             Route::get('/posts')->action(Web\Placeholder\NotFoundAction::class)->name('post/list'),
             Route::get('/posts/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/list-page'),
             Route::get('/post/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/view'),
-            Route::get('/archives')->action(Web\Placeholder\NotFoundAction::class)->name('post/archives'),
+            Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\Placeholder\NotFoundAction::class)->name('post/archives-date'),
 
             // Tags
-            Route::get('/tag/{name}')->action(Web\Placeholder\NotFoundAction::class)->name('tag/show'),
+            Route::get('/tag/{name}')->action(Web\TagShow\Action::class)->name('tag/show'),
             Route::get('/tag/{name}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('tag/show-page'),
             Route::get('/tags')->action(Web\Placeholder\NotFoundAction::class)->name('tag/list'),
 
@@ -54,7 +54,7 @@ return [
             Route::get('/comments/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('comment/list-page'),
 
             // Feeds
-            Route::get('/feed/rss')->action(Web\Placeholder\NotFoundAction::class)->name('feed/rss'),
+            Route::get('/feed/rss')->action(Web\FeedRss\Action::class)->name('feed/rss'),
             Route::get('/feed/atom')->action(Web\Placeholder\NotFoundAction::class)->name('feed/atom'),
 
             // Tools
