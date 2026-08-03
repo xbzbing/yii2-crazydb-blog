@@ -21,6 +21,7 @@ use Yiisoft\Html\Html;
  * @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: ?string, create_time: ?int, email: string, avatar: string, title: string}> $sidebarComments
  * @var App\Post\Post $post
  * @var string $contentHtml
+ * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var int $commentTotal
  * @var ?App\Post\Post $previous
@@ -77,6 +78,18 @@ $author = $post->getAuthor()->one();
     <?php endif; ?>
 
     <div class="article-detail-body">
+        <?php if ($toc !== []): ?>
+            <details class="article-toc">
+                <summary>目录</summary>
+                <ul>
+                    <?php foreach ($toc as $item): ?>
+                        <li class="toc-level-<?= $item['level'] ?>">
+                            <a href="#<?= Html::encode($item['id']) ?>"><?= Html::encode($item['text']) ?></a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </details>
+        <?php endif; ?>
         <?= $contentHtml ?>
     </div>
 

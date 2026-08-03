@@ -68,15 +68,20 @@ final readonly class Action
         $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
         $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
         // 隐藏文章不公开全文，仅显示摘要（对齐 Yii2 实际行为：密码验证早已停用）
-        $contentHtml = $post->status === Post::STATUS_HIDDEN
-            ? \Yiisoft\Html\Html::encode((string)$post->excerpt)
-            : $post->getContentProcessed($this->markdownRenderer);
+        if ($post->status === Post::STATUS_HIDDEN) {
+            $contentHtml = \Yiisoft\Html\Html::encode((string)$post->excerpt);
+            $toc = [];
+        } else {
+            $contentHtml = $post->getContentProcessed($this->markdownRenderer);
+            $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
+        }
 
         return $this->viewRenderer->render(
             __DIR__ . '/template',
             [
                 'post' => $post,
                 'contentHtml' => $contentHtml,
+                'toc' => $toc,
                 'comments' => $comments,
                 'commentTotal' => $total,
                 'previous' => $previous,
