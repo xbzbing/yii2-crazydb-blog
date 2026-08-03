@@ -32,6 +32,9 @@ $menu = [
     ['label' => '评论管理', 'route' => 'admin/comment/list'],
     ['label' => '分类管理', 'route' => 'admin/category/list'],
     ['label' => '导航管理', 'route' => 'admin/nav/list'],
+    ['label' => '标签管理', 'route' => 'admin/tag/list'],
+    ['label' => '用户管理', 'route' => 'admin/user/list'],
+    ['label' => '日志管理', 'route' => 'admin/log/list'],
     ['label' => '站点配置', 'route' => 'admin/config'],
 ];
 $this->beginPage()

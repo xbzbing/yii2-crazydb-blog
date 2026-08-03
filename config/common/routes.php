@@ -85,5 +85,13 @@ return [
             Route::methods([Method::GET, Method::POST], '/nav/create')->action(\App\Admin\NavForm\Action::class)->name('admin/nav/create'),
             Route::methods([Method::GET, Method::POST], '/nav/update/{id:\d+}')->action(\App\Admin\NavForm\Action::class)->name('admin/nav/update'),
             Route::post('/nav/delete/{id:\d+}')->action(\App\Admin\NavDelete\Action::class)->name('admin/nav/delete'),
+            Route::get('/tags')->action(\App\Admin\TagList\Action::class)->name('admin/tag/list'),
+            Route::post('/tag/delete/{name}')->action(\App\Admin\TagList\Action::class)->name('admin/tag/delete'),
+            Route::get('/logs')->action(\App\Admin\LogList\Action::class)->name('admin/log/list'),
+            Route::get('/logs/page/{page:\d+}')->action(\App\Admin\LogList\Action::class)->name('admin/log/list-page'),
+            Route::post('/logs/clear')->action(\App\Admin\LogList\Action::class)->name('admin/log/clear'),
+            Route::get('/users')->action(\App\Admin\UserList\Action::class)->name('admin/user/list'),
+            Route::get('/users/page/{page:\d+}')->action(\App\Admin\UserList\Action::class)->name('admin/user/list-page'),
+            Route::post('/user/{action}/{id:\d+}')->action(\App\Admin\UserList\Action::class)->name('admin/user/action'),
         ),
 ];
