@@ -34,7 +34,7 @@ return [
             Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
             Route::get('/post/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/view'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
-            Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\Placeholder\NotFoundAction::class)->name('post/archives-date'),
+            Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\ArchivesDate\Action::class)->name('post/archives-date'),
 
             // Tags
             Route::get('/tag/{name}')->action(Web\TagShow\Action::class)->name('tag/show'),
@@ -56,7 +56,7 @@ return [
 
             // Feeds
             Route::get('/feed/rss')->action(Web\FeedRss\Action::class)->name('feed/rss'),
-            Route::get('/feed/atom')->action(Web\Placeholder\NotFoundAction::class)->name('feed/atom'),
+            Route::get('/feed/atom')->action(Web\FeedAtom\Action::class)->name('feed/atom'),
 
             // Tools
             Route::get('/tool/image-upload')->action(Web\Placeholder\NotFoundAction::class)->name('tool/image-upload'),
