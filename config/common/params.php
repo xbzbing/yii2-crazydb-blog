@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Shared\ApplicationParams;
+use App\User\AuthService;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Assets\AssetManager;
 use Yiisoft\Definitions\Reference;
@@ -32,6 +33,7 @@ return [
             'urlGenerator' => Reference::to(UrlGeneratorInterface::class),
             'currentRoute' => Reference::to(CurrentRoute::class),
             'flash' => Reference::to(FlashInterface::class),
+            'authService' => Reference::to(AuthService::class),
         ],
     ],
 

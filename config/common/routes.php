@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Web;
+use Yiisoft\Http\Method;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 
@@ -18,9 +19,9 @@ return [
             Route::get('/page/{page:\d+}')->action(Web\HomePage\Action::class)->name('site/index-page'),
 
             // Auth
-            Route::get('/login')->action(Web\Placeholder\NotFoundAction::class)->name('site/login'),
-            Route::get('/logout')->action(Web\Placeholder\NotFoundAction::class)->name('site/logout'),
-            Route::get('/register')->action(Web\Placeholder\NotFoundAction::class)->name('site/register'),
+            Route::methods([Method::GET, Method::POST], '/login')->action(Web\Login\Action::class)->name('site/login'),
+            Route::get('/logout')->action(Web\Logout\Action::class)->name('site/logout'),
+            Route::methods([Method::GET, Method::POST], '/register')->action(Web\Register\Action::class)->name('site/register'),
             Route::get('/site/captcha')->action(Web\Placeholder\NotFoundAction::class)->name('site/captcha'),
 
             // Categories

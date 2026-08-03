@@ -17,6 +17,7 @@ use Yiisoft\Html\Html;
  * @var array<string, mixed> $navTree
  * @var bool $showSidebar
  * @var Yiisoft\Session\Flash\FlashInterface $flash
+ * @var App\User\AuthService $authService
  */
 
 $assetManager->register(MainAsset::class);
@@ -80,18 +81,24 @@ $this->beginPage()
                     </li>
                 <?php endforeach; ?>
                 <li><a href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a></li>
+                <?php $currentUser = $authService->currentUser(); ?>
+                <?php if ($currentUser !== null): ?>
+                    <li><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a></li>
+                    <li><a href="<?= $urlGenerator->generate('site/logout') ?>">退出</a></li>
+                <?php else: ?>
+                    <li><a href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
+                    <li><a href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
     </div>
 </header>
 
 <div class="site-body container">
-    <?php $flashMessage = null; ?>
     <?php foreach (['comment_success', 'comment_error'] as $flashKey): ?>
         <?php if ($flash->has($flashKey)): ?>
-            <?php $flashMessage = $flash->get($flashKey)['info'] ?? null; ?>
             <?php $flashType = $flashKey === 'comment_success' ? 'flash-success' : 'flash-error'; ?>
-            <div class="flash <?= $flashType ?>"><?= Html::encode((string)$flashMessage) ?></div>
+            <div class="flash <?= $flashType ?>"><?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?></div>
         <?php endif; ?>
     <?php endforeach; ?>
     <div class="site-main<?= $showSidebar ? '' : ' site-main-full' ?>">
