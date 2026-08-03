@@ -6,6 +6,7 @@ namespace App\Tests\Unit;
 
 use App\Comment\CommentService;
 use App\Mail\NoticeService;
+use App\Post\MarkdownRenderer;
 use App\Tests\TestCase;
 use App\User\AuthService;
 use App\User\RegisterService;
@@ -59,5 +60,15 @@ final class ContainerSmokeTest extends TestCase
     public function testUrlMatcherResolves(): void
     {
         self::assertInstanceOf(UrlMatcherInterface::class, $this->container()->get(UrlMatcherInterface::class));
+    }
+
+    public function testMarkdownRendererResolves(): void
+    {
+        $renderer = $this->container()->get(MarkdownRenderer::class);
+        self::assertInstanceOf(MarkdownRenderer::class, $renderer);
+        self::assertStringContainsString(
+            '<pre class="brush:php">',
+            $renderer->render("```php\nx\n```", 1),
+        );
     }
 }
