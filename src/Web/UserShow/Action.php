@@ -43,6 +43,7 @@ final readonly class Action
     public function __invoke(
         ServerRequestInterface $request,
         #[RouteArgument] string $name,
+        #[RouteArgument] ?string $page = null,
     ): ResponseInterface {
         /** @var ?User $user */
         $user = User::query()->where(['nickname' => $name])->one();
@@ -50,7 +51,7 @@ final readonly class Action
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
         }
 
-        $page = (int)($request->getQueryParams()['page'] ?? 1);
+        $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
 
         $total = Post::query()
@@ -74,7 +75,7 @@ final readonly class Action
                 'urlGenerator' => $this->urlGenerator,
                 'siteConfig' => $siteConfig,
                 'seoConfig' => CMSUtils::getSiteConfig($this->cache, 'seo'),
-                'navTree' => Nav::getNavTree($this->cache),
+                'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => true,
                 'categorySummary' => Category::getCategorySummary($this->cache, $this->urlGenerator),
                 'sidebarTags' => Tag::getTags($this->cache, $this->urlGenerator, false, 20),

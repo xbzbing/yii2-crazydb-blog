@@ -35,9 +35,10 @@ $this->setParameter('navTree', $navTree);
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($user->nickname . ' - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
+$seoDescription = trim(preg_replace('/\s+/u', ' ', strip_tags((string)$user->info)) ?? '');
 $this->setParameter(
     'seo_description',
-    $user->nickname . '在「' . $siteName . '」共发表' . $pager->totalCount . '篇文章，个人简介：' . (string)$user->info,
+    $user->nickname . '在「' . $siteName . '」共发表' . $pager->totalCount . '篇文章，个人简介：' . mb_strimwidth($seoDescription, 0, 120, '...', 'utf-8'),
 );
 ?>
 
