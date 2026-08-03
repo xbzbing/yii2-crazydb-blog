@@ -22,5 +22,15 @@
     <issueHandlers>
         <MixedAssignment errorLevel="suppress" />
         <RiskyTruthyFalsyComparison errorLevel="suppress" />
+        <RedundantCast>
+            <errorLevel type="suppress">
+                <directory name="src/Web" />
+            </errorLevel>
+        </RedundantCast>
+        <RedundantCastGivenDocblockType>
+            <errorLevel type="suppress">
+                <directory name="src/Web" />
+            </errorLevel>
+        </RedundantCastGivenDocblockType>
     </issueHandlers>
 </psalm>

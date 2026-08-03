@@ -6,7 +6,6 @@ namespace App\Tag;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Cache\Dependency\CallbackDependency;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Tag extends ActiveRecord
@@ -41,12 +40,13 @@ final class Tag extends ActiveRecord
         bool $refresh = false,
         int $limit = 0,
     ): array {
-        $key = '__tags_' . $limit;
+        $cacheKey = '__tags_' . $limit . '.' . (int)self::query()->max('id');
         if ($refresh) {
-            $cache->remove($key);
+            $cache->remove($cacheKey);
         }
-        return $cache->getOrSet(
-            $key,
+        /** @var list<array{totalCount: int, name: string, create_time: int, url: string}> $items */
+        $items = $cache->getOrSet(
+            $cacheKey,
             static function () use ($urlGenerator, $limit): array {
                 $query = self::query()
                     ->select('name, COUNT(*) as totalCount, MAX(create_time) as create_time')
@@ -68,9 +68,7 @@ final class Tag extends ActiveRecord
                 return $items;
             },
             3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('id'),
-            ),
         );
+        return $items;
     }
 }

@@ -32,6 +32,14 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - DBGP_IDEKEY=docker-php-debug
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=crazydb
+      - DB_USER=root
+      - DB_PASSWORD=mysql.password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis.password
     volumes:
       - ./:/opt/webroot
       - ~/data/blog-yii/risk-runtime:/opt/log/php

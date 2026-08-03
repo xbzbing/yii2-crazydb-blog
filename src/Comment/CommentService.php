@@ -35,14 +35,14 @@ final class CommentService
      */
     public function add(int $postId, array $data, array $request, ?User $currentUser = null): array
     {
-        if (CMSUtils::getSysConfig($this->cache->psr(), Option::ALLOW_COMMENT) !== Option::STATUS_OPEN) {
+        if (CMSUtils::getSysConfig($this->cache, Option::ALLOW_COMMENT) !== Option::STATUS_OPEN) {
             return ['status' => 'fail', 'info' => '留言功能已被关闭。'];
         }
 
         $info = '留言成功！';
         $display = 1;
         $status = Comment::STATUS_UNAPPROVED;
-        if (CMSUtils::getSysConfig($this->cache->psr(), Option::AUDIT_ON_COMMENT) === Option::STATUS_OPEN) {
+        if (CMSUtils::getSysConfig($this->cache, Option::AUDIT_ON_COMMENT) === Option::STATUS_OPEN) {
             $info .= '您的留言需要经过管理员的审核才可以显示出来。';
             $display = 0;
         } else {

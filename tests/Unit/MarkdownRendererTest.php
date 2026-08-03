@@ -7,14 +7,17 @@ namespace App\Tests\Unit;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Tests\TestCase;
-use Psr\SimpleCache\CacheInterface;
+use DateInterval;
 use Yiisoft\Cache\ArrayCache;
+use Yiisoft\Cache\Cache;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Cache\Dependency\Dependency;
 
 final class MarkdownRendererTest extends TestCase
 {
     private function renderer(): MarkdownRenderer
     {
-        return new MarkdownRenderer(new ArrayCache());
+        return new MarkdownRenderer(new Cache(new ArrayCache()));
     }
 
     public function testGfmTableRenders(): void
@@ -98,58 +101,34 @@ final class MarkdownRendererTest extends TestCase
     {
         $cache = new class() implements CacheInterface {
             public int $sets = 0;
-            private array $store = [];
+            private Cache $inner;
 
-            public function get(string $key, mixed $default = null): mixed
+            public function __construct()
             {
-                return $this->store[$key] ?? $default;
+                $this->inner = new Cache(new ArrayCache());
             }
 
-            public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
+            public function psr(): \Psr\SimpleCache\CacheInterface
             {
-                $this->sets++;
-                $this->store[$key] = $value;
-                return true;
+                return $this->inner->psr();
             }
 
-            public function delete(string $key): bool
-            {
-                unset($this->store[$key]);
-                return true;
+            public function getOrSet(
+                mixed $key,
+                callable $callable,
+                DateInterval|int|null $ttl = null,
+                ?Dependency $dependency = null,
+                float $beta = 1.0,
+            ): mixed {
+                return $this->inner->getOrSet($key, function () use ($callable) {
+                    $this->sets++;
+                    return $callable();
+                }, $ttl, $dependency, $beta);
             }
 
-            public function clear(): bool
+            public function remove(mixed $key): void
             {
-                $this->store = [];
-                return true;
-            }
-
-            public function getMultiple(iterable $keys, mixed $default = null): iterable
-            {
-                foreach ($keys as $key) {
-                    yield $key => $this->get($key, $default);
-                }
-            }
-
-            public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
-            {
-                foreach ($values as $key => $value) {
-                    $this->set($key, $value, $ttl);
-                }
-                return true;
-            }
-
-            public function deleteMultiple(iterable $keys): bool
-            {
-                foreach ($keys as $key) {
-                    $this->delete($key);
-                }
-                return true;
-            }
-
-            public function has(string $key): bool
-            {
-                return isset($this->store[$key]);
+                $this->inner->remove($key);
             }
         };
         $renderer = new MarkdownRenderer($cache);

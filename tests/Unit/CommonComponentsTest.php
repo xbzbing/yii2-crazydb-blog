@@ -10,6 +10,7 @@ use App\Common\XUtils;
 use App\Option\Option;
 use App\Tests\TestCase;
 use Yiisoft\Cache\ArrayCache;
+use Yiisoft\Cache\Cache;
 use Yiisoft\Session\Flash\Flash;
 
 final class CommonComponentsTest extends TestCase
@@ -95,7 +96,7 @@ final class CommonComponentsTest extends TestCase
         $option->save();
 
         try {
-            $cache = new ArrayCache();
+            $cache = new Cache(new ArrayCache());
             $config = CMSUtils::getSiteConfig($cache);
             self::assertSame('__test_value__', $config['__test_key__']);
             self::assertSame('__test_value__', CMSUtils::getSysConfig($cache, '__test_key__'));

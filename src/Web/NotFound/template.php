@@ -31,6 +31,6 @@ $this->setTitle('404');
     </p>
 
     <p>
-        <a href="<?= $urlGenerator->generate('home') ?>">Go Back Home</a>
+        <a href="<?= $urlGenerator->generate('site/index') ?>">Go Back Home</a>
     </p>
 </div>

@@ -10,7 +10,6 @@ use App\User\User;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Cache\Dependency\CallbackDependency;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Post extends ActiveRecord
@@ -119,10 +118,12 @@ final class Post extends ActiveRecord
             return null;
         }
 
-        $key = ($simple ? 'simple' : 'all') . '_post_' . $relation . '_' . $this->id;
+        $cacheKey = ($simple ? 'simple' : 'all') . '_post_' . $relation . '_' . $this->id
+            . '.' . (int)self::query()->max('update_time');
 
-        return $cache->getOrSet(
-            $key,
+        /** @var ?self $related */
+        $related = $cache->getOrSet(
+            $cacheKey,
             function () use ($relation, $category, $simple): ?self {
                 $query = self::query()
                     ->where(['in', 'status', self::visibleStatuses()])
@@ -143,10 +144,8 @@ final class Post extends ActiveRecord
                 return $query->one();
             },
             3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('update_time'),
-            ),
         );
+        return $related;
     }
 
     /**
