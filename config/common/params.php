@@ -26,6 +26,11 @@ return [
 
     'yiisoft/view' => [
         'basePath' => null,
+        'theme' => [
+            'pathMap' => [
+                '@src/Web' => '@root/themes/magazine',
+            ],
+        ],
         'parameters' => [
             'assetManager' => Reference::to(AssetManager::class),
             'applicationParams' => Reference::to(ApplicationParams::class),
