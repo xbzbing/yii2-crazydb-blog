@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Yiisoft\Html\Html;
 
 /**
  * 所有文章列表页（等价 Yii2 views/post/posts.php）。
