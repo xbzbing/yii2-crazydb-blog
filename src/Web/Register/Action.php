@@ -46,10 +46,14 @@ final readonly class Action
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
         $closed = CMSUtils::getSysConfig($this->cache, Option::ALLOW_REGISTER) !== Option::STATUS_OPEN;
         $errors = [];
+        $form = ['username' => '', 'nickname' => '', 'email' => '', 'website' => '', 'info' => ''];
 
         if (!$closed && $request->getMethod() === Method::POST) {
             $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
+            foreach ($form as $field => $_) {
+                $form[$field] = trim((string)($data[$field] ?? ''));
+            }
 
             if (!$this->captcha->validate((string)($data['captcha'] ?? ''))) {
                 $errors['captcha'] = '验证码错误';
@@ -59,7 +63,7 @@ final readonly class Action
                 $result = $this->registerService->register($registerData, (string)($request->getServerParams()['REMOTE_ADDR'] ?? '0.0.0.0'));
                 $errors = $result['errors'];
                 if ($result['user'] !== null) {
-                    $this->flash->set('comment_success', ['info' => '注册成功，请用刚才注册的帐号登录！']);
+                    $this->flash->set('flash_success', ['info' => '注册成功，请用刚才注册的帐号登录！']);
                     return $this->redirectLogin();
                 }
             }
@@ -70,6 +74,7 @@ final readonly class Action
             [
                 'closed' => $closed,
                 'errors' => $errors,
+                'form' => $form,
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache),
                 'showSidebar' => false,

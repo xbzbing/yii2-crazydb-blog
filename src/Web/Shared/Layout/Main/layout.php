@@ -95,9 +95,9 @@ $this->beginPage()
 </header>
 
 <div class="site-body container">
-    <?php foreach (['comment_success', 'comment_error'] as $flashKey): ?>
+    <?php foreach (['flash_success', 'flash_error'] as $flashKey): ?>
         <?php if ($flash->has($flashKey)): ?>
-            <?php $flashType = $flashKey === 'comment_success' ? 'flash-success' : 'flash-error'; ?>
+            <?php $flashType = $flashKey === 'flash_success' ? 'flash-success' : 'flash-error'; ?>
             <div class="flash <?= $flashType ?>"><?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?></div>
         <?php endif; ?>
     <?php endforeach; ?>
