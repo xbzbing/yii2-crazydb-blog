@@ -161,24 +161,24 @@ final class MarkdownRendererTest extends TestCase
         $renderer = $this->renderer();
         $html = $renderer->render("# 标题一\n\n正文\n\n## 小节 A\n\n内容\n\n### 小节 A1\n\n内容\n\n## 小节 B\n\n内容", 1);
         $toc = $renderer->attachTocAnchors($html);
-        self::assertCount(4, $toc, 'h1-h3 all collected');
-        self::assertSame('toc-1', $toc[0]['id']);
-        self::assertSame(1, $toc[0]['level']);
-        self::assertSame('标题一', $toc[0]['text']);
-        self::assertSame(2, $toc[1]['level']);
-        self::assertSame('小节 B', $toc[3]['text']);
-        self::assertStringContainsString('id="toc-1"', $html, 'heading must get anchor id');
+        self::assertCount(3, $toc, 'h2/h3 collected; h1 anchored but not in toc');
+        self::assertSame('toc-2', $toc[0]['id'], 'h1 consumes toc-1 anchor without entering toc');
+        self::assertSame(2, $toc[0]['level']);
+        self::assertSame('小节 A', $toc[0]['text']);
+        self::assertSame('小节 B', $toc[2]['text']);
+        self::assertStringContainsString('id="toc-1"', $html, 'h1 still gets anchor id');
         self::assertStringContainsString('id="toc-4"', $html);
     }
 
     public function testAttachTocAnchorsSkipsExistingIdsAndEscapesText(): void
     {
         $renderer = $this->renderer();
-        $html = '<h2 id="keep">已有 ID</h2><h2>含 <b>加粗</b> 与 &amp; 符号</h2>';
+        $html = '<h2 id="keep">已有 ID</h2><h2 title="id=z">属性值含 id=</h2><h2>含 <b>加粗</b> 与 &amp; 符号</h2>';
         $toc = $renderer->attachTocAnchors($html);
         self::assertStringContainsString('id="keep"', $html, 'existing id untouched');
-        self::assertCount(1, $toc, 'heading with existing id not duplicated in toc');
-        self::assertSame('含 加粗 与 & 符号', $toc[0]['text'], 'text stripped of tags and entities decoded');
+        self::assertStringContainsString('id="toc-2"', $html, 'title="id=z" must not block anchor');
+        self::assertCount(2, $toc, 'existing id heading not duplicated; title-value heading collected');
+        self::assertSame('含 加粗 与 & 符号', $toc[1]['text'], 'text stripped of tags and entities decoded');
     }
 
     public function testGetCoverImageFromMarkdown(): void

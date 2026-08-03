@@ -99,7 +99,12 @@ final class MarkdownRenderer
     }
 
     /**
-     * 为正文 h2/h3 标题生成锚点 id，并提取目录（TOC）。
+     * 为正文标题生成锚点 id 并提取目录（TOC）。
+     *
+     * 前置条件：$html 必须是经 render()/htmlPurify 净化后的 HTML（属性值中的
+     * `>` 已被转义为 &gt;；未净化输入会破坏本方法的正则边界）。
+     * h1-h3 标题都会获得 toc-N 锚点；目录项仅收集 h2/h3（h1 通常是文章主标题，
+     * 由模板渲染，避免与文章标题重复）。
      *
      * @param string $html 已渲染的正文 HTML（会被原地改写：标题加 id）
      * @return list<array{id: string, level: int, text: string}> 目录项（h2/h3，按出现顺序）
@@ -116,12 +121,12 @@ final class MarkdownRenderer
                 $inner = $m[3];
                 $text = trim(html_entity_decode(strip_tags($inner), ENT_QUOTES, 'UTF-8'));
                 $id = 'toc-' . ++$counter;
-                if (!preg_match('/\bid=/i', $attrs)) {
+                if (!preg_match('/\s+id=/i', $attrs)) {
                     $attrs .= ' id="' . $id . '"';
                 } else {
                     $id = '';
                 }
-                if ($id !== '' && $text !== '') {
+                if ($id !== '' && $text !== '' && $level >= 2) {
                     $toc[] = ['id' => $id, 'level' => $level, 'text' => $text];
                 }
                 return "<h{$level}{$attrs}>{$inner}</h{$level}>";
