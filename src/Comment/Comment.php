@@ -103,7 +103,8 @@ final class Comment extends ActiveRecord
         if ($refresh) {
             $cache->remove($cacheKey);
         }
-        /** @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: string, create_time: ?int, email: string, avatar: string, title: string}> $items */        $items = $cache->getOrSet(
+        /** @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: string, create_time: ?int, email: string, avatar: string, title: string}> $items */
+        $items = $cache->getOrSet(
             $cacheKey,
             static function () use ($urlGenerator, $aliases, $limit, $size): array {
                 $items = [];
