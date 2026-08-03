@@ -61,13 +61,26 @@ final class MarkdownRenderer
     }
 
     /**
-     * 按 post.format 分派渲染：markdown 走渲染管线，html 老文章仅净化。
-     * 两条路径均按内容寻址缓存（key 含 update_time，文章更新即失效）。
+     * 按 post.format 分派渲染：
+     * - markdown：commonmark 管线（GFM 语法转换 + 净化）
+     * - html 老文章：仅 HTMLPurifier 净化直出（**不经过 markdown 转换**，
+     *   避免 `_x_`/`*x*`/`~~x~~` 等正文混排字符被静默改写）
+     * 两条路径均按内容寻址缓存（key 含 format 前缀 + update_time，文章更新即失效）。
      */
     public function renderPost(Post $post): string
     {
         $content = (string) $post->content;
-        return $this->render($content, $post->update_time);
+        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'md.' : 'html.')
+            . $post->update_time . '.' . sha1($content);
+        /** @var string $html */
+        $html = $this->cache->getOrSet(
+            $key,
+            fn (): string => $post->format === Post::FORMAT_MARKDOWN
+                ? $this->renderUncached($content)
+                : \App\Common\XUtils::htmlPurify($content),
+            self::CACHE_TTL,
+        );
+        return $html;
     }
 
     /**

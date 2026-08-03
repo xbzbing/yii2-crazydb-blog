@@ -41,11 +41,14 @@ final readonly class Action
 
     public function __invoke(
         ServerRequestInterface $request,
-        #[RouteArgument] string $alias,
+        #[RouteArgument] ?string $alias = null,
+        #[RouteArgument] ?int $id = null,
         #[RouteArgument] ?string $page = null,
     ): ResponseInterface {
-        $category = Category::findByAlias($alias);
-        if ($category === null) {
+        $category = $alias !== null
+            ? Category::findByAlias($alias)
+            : ($id !== null ? Category::query()->findByPk($id) : null);
+        if (!$category instanceof Category) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
         }
 

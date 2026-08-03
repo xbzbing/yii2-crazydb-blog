@@ -114,6 +114,7 @@ $category = $categorySummary[(int)$post->cid] ?? null;
                 <?php if ($replyTo !== null): ?>
                     <span>回复 @<?= Html::encode((string)$replyTo->nickname) ?></span>
                 <?php endif; ?>
+                <button type="button" class="link-button" data-reply-to="<?= $comment->id ?>" data-reply-name="<?= Html::encode($comment->nickname) ?>">回复</button>
             </div>
             <div class="comment-content">
                 <?= Html::encode((string)$comment->content) ?>
@@ -124,8 +125,10 @@ $category = $categorySummary[(int)$post->cid] ?? null;
 
 <section class="comments">
     <h3>发表评论</h3>
+    <p id="comment-form-hint" class="comment-reply-hint"></p>
     <form class="comment-form" method="post" action="<?= Html::encode($urlGenerator->generate('comment/add', ['id' => $post->id])) ?>">
         <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+        <input type="hidden" name="reply_to" id="comment-reply-to" value="">
         <label>昵称：<input type="text" name="nickname" required></label>
         <label>邮箱：<input type="email" name="email" required></label>
         <label>网址：<input type="text" name="url" placeholder="http:// 或 https://"></label>
@@ -136,4 +139,13 @@ $category = $categorySummary[(int)$post->cid] ?? null;
         </label>
         <button type="submit">提交留言</button>
     </form>
+    <script>
+        document.querySelectorAll('[data-reply-to]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                document.getElementById('comment-reply-to').value = btn.dataset.replyTo;
+                document.getElementById('comment-form-hint').textContent = '正在回复 @' + btn.dataset.replyName + '（可取消）';
+                window.scrollTo({top: document.querySelector('.comment-form').offsetTop - 80, behavior: 'smooth'});
+            });
+        });
+    </script>
 </section>

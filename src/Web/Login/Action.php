@@ -86,7 +86,7 @@ final readonly class Action
                 'locked' => $locked,
                 'lockRemaining' => $this->lockRemaining(),
                 'siteConfig' => $siteConfig,
-                'navTree' => Nav::getNavTree($this->cache),
+                'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => false,
             ],
         );

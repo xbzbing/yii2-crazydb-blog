@@ -36,14 +36,25 @@ final readonly class Action
         private MarkdownRenderer $markdownRenderer,
     ) {}
 
-    public function __invoke(ServerRequestInterface $request, #[RouteArgument] string $alias): ResponseInterface
-    {
-        $post = Post::findVisibleByAlias($alias);
+    public function __invoke(
+        ServerRequestInterface $request,
+        #[RouteArgument] ?string $alias = null,
+        #[RouteArgument] ?int $id = null,
+    ): ResponseInterface {
+        $post = $alias !== null
+            ? Post::findVisibleByAlias($alias)
+            : ($id !== null ? Post::findVisibleById($id) : null);
         if ($post === null) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
         }
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
+        // 浏览数自增（对齐 Yii2 actionShow；updateCounters 不触发全行 save）
+        try {
+            $post->updateCounters(['view_count' => 1]);
+            $post->view_count++;
+        } catch (\Throwable) {
+        }
         $comments = $post->getComments()->all();
         $total = count($comments);
         // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）

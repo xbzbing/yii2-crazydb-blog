@@ -34,7 +34,7 @@ final class RoutesCompatibilityTest extends TestCase
         yield [[ 'url' => '/', 'route' => 'site/index' ]];
         yield [[ 'url' => '/page/2', 'route' => 'site/index-page' ]];
         yield [[ 'url' => '/login', 'route' => 'site/login' ]];
-        yield [[ 'url' => '/logout', 'route' => 'site/logout' ]];
+        yield [[ 'url' => '/logout', 'method' => 'POST', 'route' => 'site/logout' ]];
         yield [[ 'url' => '/register', 'route' => 'site/register' ]];
         yield [[ 'url' => '/site/captcha', 'route' => 'site/captcha' ]];
         yield [[ 'url' => '/catalog/php', 'route' => 'category/show' ]];

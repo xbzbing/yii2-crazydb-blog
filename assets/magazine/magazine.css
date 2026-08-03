@@ -484,3 +484,16 @@ a:hover { text-decoration: underline; }
     .article-detail-title { font-size: 28px; }
     .related-nav { grid-template-columns: 1fr; }
 }
+
+/* inline form（退出登录等） */
+.inline-form { display: inline; margin: 0; }
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--accent);
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+}
+.comment-reply-hint { font-size: 13px; color: var(--accent); min-height: 1.2em; }

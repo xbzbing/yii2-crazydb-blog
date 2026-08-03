@@ -53,8 +53,13 @@ final readonly class Action
             $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
             $failed = [];
+            $switchFields = ['allow_comment', 'allow_register', 'need_approve'];
             foreach (self::FIELDS as $name => $field) {
                 $value = trim((string)($data[$name] ?? ''));
+                if (in_array($name, $switchFields, true) && !in_array($value, ['open', 'close'], true)) {
+                    $failed[] = $name . '（须为 open/close）';
+                    continue;
+                }
                 if (!$this->saveOption($field['type'], $name, $value)) {
                     $failed[] = $name;
                 }

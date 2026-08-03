@@ -47,8 +47,11 @@ services:
       - frontend
       - backend
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 
   mysql:
@@ -61,6 +64,12 @@ services:
       - ~/data/blog-mysql:/var/lib/mysql
     ports:
       - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmysql.password"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
     networks:
       - backend
 
@@ -73,6 +82,12 @@ services:
     command: "redis-server --requirepass redis.password"
     volumes:
       - ~/data/blog-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis.password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
     networks:

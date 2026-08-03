@@ -53,7 +53,10 @@ $this->beginPage()
             <?php if ($currentUser !== null): ?>
                 <span><?= Html::encode($currentUser->nickname) ?></span>
                 <a href="<?= $urlGenerator->generate('site/index') ?>">返回前台</a>
-                <a href="<?= $urlGenerator->generate('site/logout') ?>">退出</a>
+                <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <button type="submit" class="link-button">退出</button>
+                </form>
             <?php endif; ?>
         </nav>
     </div>

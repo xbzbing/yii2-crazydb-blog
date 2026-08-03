@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-// 钉死测试环境：避免误用开发/生产 .env 参数（测试必须可复现、不碰生产数据）
-if (getenv('APP_ENV') === false && !isset($_ENV['APP_ENV'])) {
-    putenv('APP_ENV=test');
-}
+// 无条件钉死测试环境（putenv 即可：Environment 读 getenv；不写 $_ENV，
+// 否则 src/bootstrap 的 empty($_ENV['APP_ENV']) 判断会跳过 .env 加载）
+putenv('APP_ENV=test');
 App\Environment::prepare();

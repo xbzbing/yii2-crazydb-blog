@@ -84,7 +84,10 @@ $this->beginPage()
             <a href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a>
             <?php if ($currentUser !== null): ?>
                 <a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a>
-                <a href="<?= $urlGenerator->generate('site/logout') ?>">退出</a>
+                <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <button type="submit" class="link-button">退出</button>
+                </form>
             <?php else: ?>
                 <a href="<?= $urlGenerator->generate('site/login') ?>">登录</a>
                 <a href="<?= $urlGenerator->generate('site/register') ?>">注册</a>

@@ -48,6 +48,14 @@ final readonly class Action
             $data = is_array($body) ? $body : [];
             $category->name = trim((string)($data['name'] ?? ''));
             $category->alias = trim((string)($data['alias'] ?? ''));
+            if ($category->alias === '') {
+                $category->alias = \App\Common\XUtils::generateAlias($category->name);
+                $base = $category->alias;
+                $n = 2;
+                while (Category::query()->where(['alias' => $category->alias])->andWhere(['!=', 'id', (int)$category->id])->exists()) {
+                    $category->alias = $base . '-' . $n++;
+                }
+            }
             $category->desc = trim((string)($data['desc'] ?? '')) ?: null;
             $category->keywords = trim((string)($data['keywords'] ?? ''));
             $category->sort_order = (int)($data['sort_order'] ?? 0);

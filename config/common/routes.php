@@ -20,19 +20,20 @@ return [
 
             // Auth
             Route::methods([Method::GET, Method::POST], '/login')->action(Web\Login\Action::class)->name('site/login'),
-            Route::get('/logout')->action(Web\Logout\Action::class)->name('site/logout'),
+            Route::post('/logout')->action(Web\Logout\Action::class)->name('site/logout'),
             Route::methods([Method::GET, Method::POST], '/register')->action(Web\Register\Action::class)->name('site/register'),
             Route::get('/site/captcha')->action(Web\Placeholder\NotFoundAction::class)->name('site/captcha'),
 
             // Categories
             Route::get('/catalog/{alias}')->action(Web\CategoryShow\Action::class)->name('category/show'),
+            Route::get('/category/{id:\d+}')->action(Web\CategoryShow\Action::class)->name('category/view'),
             Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\CategoryShow\Action::class)->name('category/show-page'),
 
             // Posts
             Route::get('/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
             Route::get('/posts')->action(Web\PostList\Action::class)->name('post/list'),
             Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
-            Route::get('/post/{id:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('post/view'),
+            Route::get('/post/{id:\d+}')->action(Web\PostShow\Action::class)->name('post/view'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\ArchivesDate\Action::class)->name('post/archives-date'),
 
@@ -42,7 +43,7 @@ return [
             Route::get('/tags')->action(Web\TagList\Action::class)->name('tag/list'),
 
             // Users (static paths before /user/{name} — match order is significant)
-            Route::get('/user/profile/{name}')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile'),
+            Route::get('/user/profile/{name}')->action(Web\UserShow\Action::class)->name('user/profile'),
             Route::get('/user/profile')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile-me'),
             Route::get('/user/modify-password')->action(Web\Placeholder\NotFoundAction::class)->name('user/modify-password'),
             Route::get('/user/{name}')->action(Web\UserShow\Action::class)->name('user/show'),

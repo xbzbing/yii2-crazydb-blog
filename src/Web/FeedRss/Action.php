@@ -37,11 +37,16 @@ final readonly class Action
         $siteUrl = $this->urlGenerator->generateAbsolute('site/index');
 
         /** @var list<Post> $posts */
-        $posts = Post::query()
-            ->where(['status' => Post::STATUS_PUBLISHED])
-            ->orderBy(['post_time' => SORT_DESC])
-            ->limit(self::LIMIT)
-            ->all();
+        /** @var list<Post> $posts */
+        $posts = $this->cache->getOrSet(
+            '__feed_rss.' . (int)Post::query()->max('update_time'),
+            static fn (): array => Post::query()
+                ->where(['status' => Post::STATUS_PUBLISHED])
+                ->orderBy(['post_time' => SORT_DESC])
+                ->limit(self::LIMIT)
+                ->all(),
+            300,
+        );
 
         $items = '';
         foreach ($posts as $post) {
@@ -78,6 +83,7 @@ final readonly class Action
 
     private function cdata(string $text): string
     {
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $text) ?? $text;
         return '<![CDATA[' . str_replace(']]>', ']]]]><![CDATA[>', $text) . ']]>';
     }
 

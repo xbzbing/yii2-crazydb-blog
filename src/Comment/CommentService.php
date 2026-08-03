@@ -62,6 +62,21 @@ final class CommentService
         if ($comment->nickname === '' || $comment->email === '' || $comment->content === '') {
             return ['status' => 'fail', 'info' => '请填写留言内容'];
         }
+        if (mb_strlen($comment->nickname) > 80) {
+            return ['status' => 'fail', 'info' => '昵称过长（最多 80 字符）。'];
+        }
+        if (mb_strlen($comment->email) > 100) {
+            return ['status' => 'fail', 'info' => '邮箱过长（最多 100 字符）。'];
+        }
+        if ($comment->reply_to !== null) {
+            $replyTarget = Comment::query()->findByPk($comment->reply_to);
+            if (!$replyTarget instanceof Comment
+                || $replyTarget->pid !== $postId
+                || $replyTarget->status !== Comment::STATUS_APPROVED
+            ) {
+                $comment->reply_to = null;
+            }
+        }
         if (!$this->captcha->validate($data['captcha'] ?? '')) {
             return ['status' => 'fail', 'info' => '验证码错误'];
         }

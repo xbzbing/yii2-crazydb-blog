@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS `post` (
   UNIQUE KEY `uk_alias` (`alias`),
   KEY `idx_cid` (`cid`),
   KEY `idx_status_post_time` (`status`, `post_time`),
-  KEY `idx_author` (`author_id`)
+  KEY `idx_author` (`author_id`),
+  KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章';
 
 -- ------------------------------------------------------------
@@ -53,7 +54,8 @@ CREATE TABLE IF NOT EXISTS `category` (
   `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_alias` (`alias`),
-  KEY `idx_pid_sort` (`pid`, `sort_order`)
+  KEY `idx_pid_sort` (`pid`, `sort_order`),
+  KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分类';
 
 -- ------------------------------------------------------------
@@ -75,7 +77,8 @@ CREATE TABLE IF NOT EXISTS `comment` (
   `status` VARCHAR(20) NOT NULL DEFAULT 'unapproved' COMMENT '状态: unapproved/approved/spam',
   PRIMARY KEY (`id`),
   KEY `idx_pid` (`pid`),
-  KEY `idx_status_create` (`status`, `create_time`)
+  KEY `idx_status_create` (`status`, `create_time`),
+  KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论';
 
 -- ------------------------------------------------------------
@@ -132,7 +135,8 @@ CREATE TABLE IF NOT EXISTS `nav` (
   `create_time` INT UNSIGNED NOT NULL DEFAULT 0,
   `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  KEY `idx_pid_sort` (`pid`, `sort_order`)
+  KEY `idx_pid_sort` (`pid`, `sort_order`),
+  KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='导航';
 
 -- ------------------------------------------------------------
@@ -144,7 +148,8 @@ CREATE TABLE IF NOT EXISTS `option` (
   `value` TEXT COMMENT '值',
   `description` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '描述',
   `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (`type`, `name`)
+  PRIMARY KEY (`type`, `name`),
+  KEY `idx_update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='站点配置';
 
 -- ------------------------------------------------------------

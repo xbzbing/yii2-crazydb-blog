@@ -163,7 +163,6 @@
   </file>
   <file src="src/Post/Post.php">
     <InvalidReturnStatement>
-      <code><![CDATA[$query->one()]]></code>
       <code><![CDATA[self::query()
             ->where(['alias' => $alias, 'status' => self::visibleStatuses()])
             ->one()]]></code>
