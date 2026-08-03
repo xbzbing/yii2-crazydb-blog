@@ -119,6 +119,7 @@ final class Post extends ActiveRecord
         }
 
         $cacheKey = ($simple ? 'simple' : 'all') . '_post_' . $relation . '_' . $this->id
+            . ($category ? '_cat' : '')
             . '.' . (int)self::query()->max('update_time');
 
         /** @var ?self $related */

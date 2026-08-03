@@ -34,27 +34,37 @@ final readonly class Action
     public function __invoke(): ResponseInterface
     {
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
-        /** @var list<Post> $posts */
-        $posts = Post::query()
-            ->where(['status' => Post::visibleStatuses()])
-            ->orderBy(['post_time' => SORT_DESC])
-            ->all();
-
-        $grouped = [];
-        foreach ($posts as $post) {
-            $month = date('Y-m', (int)$post->post_time);
-            $grouped[$month][] = $post;
-        }
+        $version = (int)Post::query()->max('update_time');
+        /** @var array<string, list<Post>> $grouped */
+        $grouped = $this->cache->getOrSet(
+            '__archives.' . $version,
+            static function (): array {
+                /** @var list<Post> $posts */
+                $posts = Post::query()
+                    ->where(['status' => Post::visibleStatuses()])
+                    ->orderBy(['post_time' => SORT_DESC])
+                    ->all();
+                $grouped = [];
+                foreach ($posts as $post) {
+                    $month = date('Y-m', (int)$post->post_time);
+                    $grouped[$month][] = $post;
+                }
+                return $grouped;
+            },
+            3600,
+        );
+        $total = array_sum(array_map(static fn (array $list): int => count($list), $grouped));
 
         return $this->viewRenderer->render(
             __DIR__ . '/template',
             [
                 'grouped' => $grouped,
-                'total' => count($posts),
+                'total' => $total,
                 'markdownRenderer' => $this->markdownRenderer,
                 'urlGenerator' => $this->urlGenerator,
                 'siteConfig' => $siteConfig,
-                'navTree' => Nav::getNavTree($this->cache),
+                'seoConfig' => CMSUtils::getSiteConfig($this->cache, 'seo'),
+                'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => true,
                 'categorySummary' => Category::getCategorySummary($this->cache, $this->urlGenerator),
                 'sidebarTags' => Tag::getTags($this->cache, $this->urlGenerator, false, 20),

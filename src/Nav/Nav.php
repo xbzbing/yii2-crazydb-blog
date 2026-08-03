@@ -7,6 +7,7 @@ namespace App\Nav;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Nav extends ActiveRecord
 {
@@ -31,10 +32,14 @@ final class Nav extends ActiveRecord
     }
 
     /**
-     * 访问 URL：route=1 时 url 为路由名（阶段 E 由 UrlGenerator 解析）。
+     * 访问 URL：route=1 时 url 为路由名，经 UrlGenerator 解析；否则为普通链接。
+     * 等价 Yii2 getUrl() 的 [$this->url] 数组形式（Url::to 解析路由）。
      */
-    public function getUrl(): string
+    public function getUrl(?UrlGeneratorInterface $urlGenerator = null): string
     {
+        if ($this->route === 1 && $urlGenerator !== null) {
+            return $urlGenerator->generate($this->url);
+        }
         return $this->url;
     }
 
@@ -70,8 +75,11 @@ final class Nav extends ActiveRecord
      *
      * @return array<int, array{label: string, url: string, items: array<int, array{label: string, url: string}>}>
      */
-    public static function getNavTree(CacheInterface $cache, bool $refresh = false): array
-    {
+    public static function getNavTree(
+        CacheInterface $cache,
+        ?UrlGeneratorInterface $urlGenerator = null,
+        bool $refresh = false,
+    ): array {
         $cacheKey = '__nav_tree.' . (int)self::query()->max('update_time');
         if ($refresh) {
             $cache->remove($cacheKey);
@@ -79,19 +87,19 @@ final class Nav extends ActiveRecord
         /** @var array<int, array{label: string, url: string, items: array<int, array{label: string, url: string}>}> $items */
         $items = $cache->getOrSet(
             $cacheKey,
-            static function (): array {
+            static function () use ($urlGenerator): array {
                 $items = [];
                 foreach (self::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all() as $node) {
                     $children = [];
                     foreach ($node->getChildren()->all() as $child) {
                         $children[] = [
                             'label' => $child->name,
-                            'url' => $child->getUrl(),
+                            'url' => $child->getUrl($urlGenerator),
                         ];
                     }
                     $items[$node->id] = [
                         'label' => $node->name,
-                        'url' => $node->getUrl(),
+                        'url' => $node->getUrl($urlGenerator),
                         'items' => $children,
                     ];
                 }

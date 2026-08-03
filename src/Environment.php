@@ -29,6 +29,7 @@ final class Environment
         self::setBoolean('APP_C3', false);
         self::setBoolean('APP_DEBUG', false);
         self::setNonEmptyStringOrNull('APP_HOST_PATH', null);
+        date_default_timezone_set('PRC');
     }
 
     /**

@@ -53,7 +53,8 @@ final class CommentService
         $comment->pid = $postId;
         $comment->nickname = trim((string)($data['nickname'] ?? ''));
         $comment->email = trim((string)($data['email'] ?? ''));
-        $comment->url = $data['url'] ?? null;
+        $url = $data['url'] ?? null;
+        $comment->url = is_string($url) && $url !== '' ? $url : null;
         $comment->reply_to = isset($data['reply_to']) ? (int)$data['reply_to'] : null;
         $comment->content = (string)($data['content'] ?? '');
         $comment->status = $status;
@@ -67,7 +68,7 @@ final class CommentService
         if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
             return ['status' => 'fail', 'info' => '不是有效的E-mail地址。'];
         }
-        if ($comment->url !== null && $comment->url !== '') {
+        if ($comment->url !== null) {
             $scheme = parse_url($comment->url, PHP_URL_SCHEME);
             if (!is_string($scheme) || !in_array(strtolower($scheme), ['http', 'https'], true)) {
                 return ['status' => 'fail', 'info' => 'URL地址不合法，需要以http或https开头'];
@@ -117,14 +118,23 @@ final class CommentService
             return ['status' => 'fail', 'info' => '<p>留言失败！</p>'];
         }
 
-        $this->notify($comment, (bool)($data['sendMail'] ?? false), $display === 1);
+        $this->notify($comment, filter_var($data['sendMail'] ?? false, FILTER_VALIDATE_BOOLEAN), $display === 1);
         return ['status' => 'success', 'info' => $info, 'comment' => $comment, 'display' => $display];
     }
 
     /**
      * 邮件通知：回复者 + 管理员（对齐 Yii2 通知逻辑）。
+     * 邮件发送失败不阻断评论发布（与 Log::record 语义一致）。
      */
     private function notify(Comment $comment, bool $sendMail, bool $approved): void
+    {
+        try {
+            $this->doNotify($comment, $sendMail, $approved);
+        } catch (\Throwable) {
+        }
+    }
+
+    private function doNotify(Comment $comment, bool $sendMail, bool $approved): void
     {
         if (!$this->noticeService->isEnabled()) {
             return;

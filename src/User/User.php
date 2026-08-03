@@ -186,10 +186,10 @@ final class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * 判断密码字段是否已是 bcrypt hash。
+     * 判断密码字段是否已是 bcrypt hash（完整格式校验，避免普通密码恰好以 $2y$ 开头被误判）。
      */
     private function isHashed(): bool
     {
-        return str_starts_with($this->password, '$2y$') || str_starts_with($this->password, '$2a$');
+        return preg_match('/^\$2[ayb]\$\d{2}\$[.\/A-Za-z0-9]{53}$/', $this->password) === 1;
     }
 }

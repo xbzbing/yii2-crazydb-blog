@@ -35,14 +35,14 @@ final class Category extends ActiveRecord
     }
 
     /**
-     * 分类 URL：alias 走 category/show（绝对 URL，对齐 Yii2 强制 true）；无 alias 按 id。
+     * 分类 URL：alias 走 category/show，无 alias 按 id（对齐 Yii2 强制绝对 URL）。
      */
     public function getUrl(UrlGeneratorInterface $urlGenerator, bool $schema = true): string
     {
         if ($this->alias !== '') {
             return $urlGenerator->generateAbsolute('category/show', ['alias' => $this->alias]);
         }
-        return $urlGenerator->generate('category/view', ['id' => $this->id]);
+        return $urlGenerator->generateAbsolute('category/view', ['id' => $this->id]);
     }
 
     public function getPostCount(): int

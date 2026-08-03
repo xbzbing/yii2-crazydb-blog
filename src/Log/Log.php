@@ -54,11 +54,11 @@ final class Log extends ActiveRecord
         string $userAgent = '',
     ): void {
         $log = new self();
-        $log->type = $type;
-        $log->action = $action;
-        $log->key = $key;
-        $log->result = $result;
-        $log->detail = mb_substr($detail ?? '', 0, 250);
+        $log->type = htmlspecialchars($type, ENT_QUOTES);
+        $log->action = htmlspecialchars($action, ENT_QUOTES);
+        $log->key = htmlspecialchars($key, ENT_QUOTES);
+        $log->result = htmlspecialchars($result, ENT_QUOTES);
+        $log->detail = htmlspecialchars(mb_substr($detail ?? '', 0, 250), ENT_QUOTES);
         $log->uid = $uid;
         $now = time();
         $log->create_time = $now;

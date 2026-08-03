@@ -10,15 +10,17 @@ namespace App\Web;
 final readonly class Pager
 {
     public int $pageCount;
+    public int $pageSize;
     public int $offset;
     public int $currentPage;
 
     public function __construct(
         public int $totalCount,
-        public int $pageSize = 10,
+        int $pageSize = 10,
         int $currentPage = 1,
     ) {
-        $this->pageCount = max(1, (int)ceil($totalCount / $pageSize));
+        $this->pageSize = max(1, $pageSize);
+        $this->pageCount = max(1, (int)ceil($totalCount / $this->pageSize));
         $this->currentPage = min(max(1, $currentPage), $this->pageCount);
         $this->offset = ($this->currentPage - 1) * $pageSize;
     }

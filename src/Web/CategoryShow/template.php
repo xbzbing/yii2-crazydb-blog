@@ -12,6 +12,7 @@ use Yiisoft\Html\Html;
  * @var App\Post\MarkdownRenderer $markdownRenderer
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  * @var array<string, string|null> $siteConfig
+ * @var array<string, string|null> $seoConfig
  * @var array<string, mixed> $navTree
  * @var bool $showSidebar
  * @var array<int, array{name: string, desc: ?string, url: ?string, postCount: int}> $categorySummary
@@ -26,10 +27,12 @@ $this->setParameter('categorySummary', $categorySummary);
 $this->setParameter('sidebarTags', $sidebarTags);
 $this->setParameter('sidebarComments', $sidebarComments);
 $this->setParameter('showSidebar', $showSidebar);
+$this->setParameter('siteConfig', $siteConfig);
+$this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($category->name . ' - ' . $siteName);
-$this->setParameter('seo_keywords', (string)($category->keywords !== '' ? $category->keywords : ($siteConfig['seo_keywords'] ?? '')));
+$this->setParameter('seo_keywords', (string)($category->keywords !== '' ? $category->keywords : ($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($category->desc ?? ''));
 ?>
 
