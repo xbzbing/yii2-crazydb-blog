@@ -1,0 +1,100 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Category;
+
+use App\Post\Post;
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Cache\Dependency\CallbackDependency;
+
+final class Category extends ActiveRecord
+{
+    public const DISPLAY_LIST = 'list';
+    public const DISPLAY_PAGE = 'page';
+
+    public ?int $id = null;
+    public string $name = '';
+    public string $alias = '';
+    public ?string $desc = null;
+    public int $pid = 0;
+    public string $display = 'list';
+    public int $sort_order = 0;
+    public string $keywords = '';
+    public int $update_time = 0;
+
+    public function tableName(): string
+    {
+        return 'category';
+    }
+
+    public function getChildren(): \Yiisoft\ActiveRecord\ActiveQuery
+    {
+        return $this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
+    }
+
+    public function getPostCount(): int
+    {
+        return Post::query()
+            ->where(['cid' => $this->id])
+            ->andWhere(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
+            ->count();
+    }
+
+    /**
+     * 获取所有的文章分类（id => name）。
+     * 等价 Yii2 Category::getAllCategories，DbDependency 用 CallbackDependency 实现。
+     *
+     * @return array<int, string>
+     */
+    public static function getAllCategories(CacheInterface $cache, bool $refresh = false): array
+    {
+        return self::cached($cache, '__categories', $refresh, static function (): array {
+            $items = [];
+            foreach (self::query()->select('id,name')->asArray()->all() as $row) {
+                $items[(int)$row['id']] = (string)$row['name'];
+            }
+            return $items;
+        });
+    }
+
+    /**
+     * 获取分类概况：id => [name, desc, url, postCount]。
+     *
+     * @return array<int, array{name: string, desc: ?string, url: ?string, postCount: int}>
+     */
+    public static function getCategorySummary(CacheInterface $cache, bool $refresh = false): array
+    {
+        return self::cached($cache, '__category_summary', $refresh, static function (): array {
+            $items = [];
+            foreach (self::query()->all() as $category) {
+                $items[$category->id] = [
+                    'name' => $category->name,
+                    'desc' => $category->desc,
+                    'url' => null, // 阶段 E 由 UrlGenerator 生成（route category/show）
+                    'postCount' => $category->getPostCount(),
+                ];
+            }
+            return $items;
+        });
+    }
+
+    /**
+     * @param callable(): array $callback
+     */
+    private static function cached(CacheInterface $cache, string $key, bool $refresh, callable $callback): array
+    {
+        if ($refresh) {
+            $cache->remove($key);
+        }
+        return $cache->getOrSet(
+            $key,
+            $callback,
+            3600,
+            new CallbackDependency(
+                static fn(): int => (int)self::query()->max('update_time'),
+            ),
+        );
+    }
+}
