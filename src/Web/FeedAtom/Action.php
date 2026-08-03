@@ -43,19 +43,22 @@ final readonly class Action
             ->limit(self::LIMIT)
             ->all();
 
-        $updated = $posts !== [] ? (int)$posts[0]->update_time : time();
+        // feed.updated 须 ≥ 所有 entry.updated（Atom 规范），取全量 MAX(update_time)
+        $updated = (int)(Post::query()->where(['status' => Post::STATUS_PUBLISHED])->max('update_time') ?? time());
 
         $entries = '';
         foreach ($posts as $post) {
             $postUrl = (string)$post->getUrl($this->urlGenerator, true);
+            $content = $post->getContentProcessed($this->markdownRenderer);
             $entries .= "    <entry>\n"
                 . '        <title>' . $this->escape($post->title) . "</title>\n"
                 . '        <link href="' . $this->escape($postUrl) . '"/>' . "\n"
                 . '        <id>' . $this->escape($postUrl) . "</id>\n"
                 . '        <updated>' . date('c', (int)$post->update_time) . "</updated>\n"
                 . '        <published>' . date('c', (int)$post->post_time) . "</published>\n"
-                . '        <author><name>' . $this->escape($post->author_name) . "</name></author>\n"
+                . '        <author><name>' . $this->escape($post->author_name !== '' ? $post->author_name : '佚名') . "</name></author>\n"
                 . '        <summary>' . $this->escape((string)$post->excerpt) . "</summary>\n"
+                . '        <content type="html">' . $this->escape($content) . "</content>\n"
                 . "    </entry>\n";
         }
 
@@ -79,6 +82,7 @@ final readonly class Action
 
     private function escape(string $text): string
     {
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $text) ?? $text;
         return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
     }
 }
