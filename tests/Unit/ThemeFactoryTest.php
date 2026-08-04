@@ -17,11 +17,29 @@ use Yiisoft\View\WebView;
  */
 final class ThemeFactoryTest extends TestCase
 {
+    /** 测试前存在的 theme 配置（测试后原样恢复，避免破坏验收环境） */
+    private ?Option $backupTheme = null;
+
     protected function setUp(): void
     {
         parent::setUp();
-        // 清理上次异常中断可能残留的 theme 行（update_time 不复原 → 污染后续运行）。
+        // 备份原始 theme 配置（若有），测试后恢复；同时清理上次异常中断的残留行。
+        $this->backupTheme = Option::query()->where(['type' => 'sys', 'name' => 'theme'])->one();
         $this->deleteThemeOption();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->deleteThemeOption();
+        if ($this->backupTheme !== null) {
+            $restore = new Option();
+            $restore->type = $this->backupTheme->type;
+            $restore->name = $this->backupTheme->name;
+            $restore->value = $this->backupTheme->value;
+            $restore->update_time = $this->backupTheme->update_time;
+            $restore->save();
+        }
+        parent::tearDown();
     }
 
     private function deleteThemeOption(): void
