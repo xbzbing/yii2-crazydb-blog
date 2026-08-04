@@ -78,6 +78,30 @@ final class CommonComponentsTest extends TestCase
         self::assertStringContainsString(md5($email), XUtils::getAvatar($aliases, $email));
     }
 
+    public function testGetAvatarNeverReturnsRemoteGravatarUrl(): void
+    {
+        // 无论 gravatar 可达与否，头像 URL 必须是本地（本地缓存或默认兜底），避免裂图。
+        $email = 'no-cache-' . bin2hex(random_bytes(6)) . '@example.com';
+        $url = XUtils::getAvatar($this->aliases, $email, 40);
+        self::assertStringNotContainsString('gravatar.com', $url);
+        self::assertStringStartsWith('/static/', $url);
+    }
+
+    public function testGetAvatarFallsBackToDefaultWhenNoCache(): void
+    {
+        // 本地无缓存且远程不可达时，应回退本地默认头像（default-{size}.png），绝不返回远程 URL。
+        $email = 'never-cached-' . bin2hex(random_bytes(6)) . '@example.com';
+        $aliases = $this->aliases;
+        $file = $aliases->get('@public') . '/static/avatar/' . md5($email) . '-40.png';
+        if (is_file($file)) {
+            unlink($file);
+        }
+        $url = XUtils::getAvatar($aliases, $email, 40);
+        self::assertStringNotContainsString('gravatar.com', $url);
+        self::assertStringStartsWith('/static/', $url);
+        self::assertTrue(str_contains($url, 'default-40.png') || is_file($file));
+    }
+
     public function testGetSmiliesHasExpectedNames(): void
     {
         $smilies = CMSUtils::getSmilies();
