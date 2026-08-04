@@ -12,6 +12,18 @@ body {
     font-family: "Microsoft YaHei", "微软雅黑", -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
 }
 
+/* Bootstrap 3 还原：链接默认无下划线（BS5 reboot 默认 underline） */
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+a:hover,
+a:focus {
+    color: #23527c;
+    text-decoration: underline;
+}
+
 .site-container {
     min-height: 100%;
     height: auto !important;
