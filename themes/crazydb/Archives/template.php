@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Yiisoft\Html\Html;
 
 /**
- * Crazydb 主题文章归档页（breadcrumbs + list-header + 按月分组列表）。
+ * Crazydb 主题文章归档页（忠实还原线上：蓝色圆点时间轴 + 年/月节点）。
  *
  * @var Yiisoft\View\WebView $this
  * @var App\Shared\ApplicationParams $applicationParams
@@ -34,31 +34,42 @@ $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 ?>
 
-<div class="breadcrumbs">
-    <i class="fa-solid fa-angle-right"></i>
+<div class="breadcrumbs with-shadow">
+    <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     » 文章归档
 </div>
 
-<div class="list-header with-shadow">
-    <h1><i class="fa-solid fa-box-archive"></i>文章归档（共 <?= $total ?> 篇）</h1>
-</div>
-
-<div class="content with-shadow">
-    <?php foreach ($grouped as $month => $monthPosts): ?>
-        <section class="archives-month">
-            <h2><?= Html::encode($month) ?>（<?= count($monthPosts) ?>）</h2>
-            <ul>
-                <?php foreach ($monthPosts as $post): ?>
-                    <li>
-                        <a href="<?= Html::encode((string)$post->getUrl($urlGenerator)) ?>"><?= Html::encode($post->title) ?></a>
-                        <span class="muted"><?= date('Y-m-d', (int)$post->post_time) ?></span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
-    <?php endforeach; ?>
-    <?php if ($grouped === []): ?>
-        <p>暂无文章归档。</p>
-    <?php endif; ?>
+<div id="archives">
+    <h2>文章归档<small>共 <?= $total ?> 篇</small></h2>
+    <ul class="archives">
+        <li class="future" title="奋然前行"><em class="fa-solid fa-chevron-up"></em></li>
+        <?php foreach ($grouped as $month => $monthPosts): ?>
+            <?php [$year, $monthNum] = array_map('intval', explode('-', $month) + ['', '']); ?>
+            <?php $yearKey = (string)$year; ?>
+            <?php if ($yearKey !== '' && ($displayedYear ?? null) !== $yearKey): ?>
+                <?php $displayedYear = $yearKey; ?>
+                <?php $yearCount = 0; foreach ($grouped as $m => $ps) { if (str_starts_with($m, $yearKey)) $yearCount += count($ps); } ?>
+                <li class="year"><h3 class="year"><?= $yearKey ?> 年（<?= $yearCount ?> 篇）</h3></li>
+            <?php endif; ?>
+            <li class="month"><h4><?= $monthNum ?>月（<?= count($monthPosts) ?> 篇）</h4></li>
+            <?php $index = 1; ?>
+            <?php foreach ($monthPosts as $post): ?>
+                <?php $category = $categorySummary[(int)$post->cid] ?? null; ?>
+                <li class="<?= $index > 1 ? 'else' : 'first' ?>">
+                    <em><?= date('d', (int)$post->post_time) ?></em>
+                    <a href="<?= Html::encode((string)$post->getUrl($urlGenerator)) ?>" title="<?= Html::encode($post->title) ?>" target="_blank"><?= Html::encode($post->title) ?></a>
+                    <?php if ($category !== null && $category['url'] !== null): ?>
+                        <small>[<a href="<?= Html::encode((string)$category['url']) ?>" title="<?= Html::encode((string)$category['name']) ?>" target="_blank"><?= Html::encode((string)$category['name']) ?></a>]</small>
+                    <?php endif; ?>
+                    <time><?= date('Y/m/d', (int)$post->post_time) ?></time>
+                </li>
+                <?php $index++; ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+        <?php if ($grouped === []): ?>
+            <li>&nbsp;&nbsp;暂未发布公开文章</li>
+        <?php endif; ?>
+        <li class="previous" title="不忘初心"><em class="fa-solid fa-chevron-down"></em></li>
+    </ul>
 </div>
