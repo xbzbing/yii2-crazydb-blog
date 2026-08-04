@@ -66,6 +66,7 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
     » <?= Html::encode($post->title) ?>
 </div>
 
+<div id="content" class="with-shadow">
 <article id="post-<?= $post->id ?>" class="post-view">
     <header class="entry-header">
         <h1><?= Html::encode($post->title) ?></h1>
@@ -203,6 +204,7 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
             </form>
         </div>
     </div>
+</div>
 </div>
 
 <script>
