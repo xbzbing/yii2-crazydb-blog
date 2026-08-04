@@ -30,10 +30,10 @@ return [
 
     'yiisoft/view' => [
         'basePath' => null,
+        // 弃用：主题由后台配置（option 表 theme，见 ThemeFactory::AVAILABLE_THEMES）
+        // 动态切换；此处静态 pathMap 若启用会绕过后台配置，保持空 map 勿填。
         'theme' => [
-            'pathMap' => [
-                '@src/Web' => '@root/themes/magazine',
-            ],
+            'pathMap' => [],
         ],
         'parameters' => [
             'assetManager' => Reference::to(AssetManager::class),

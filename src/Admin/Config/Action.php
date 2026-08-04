@@ -6,6 +6,7 @@ namespace App\Admin\Config;
 
 use App\Common\CMSUtils;
 use App\Option\Option;
+use App\Theme\ThemeFactory;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,10 +30,27 @@ final readonly class Action
         'allow_comment' => ['label' => '允许评论（open/close）', 'type' => 'sys'],
         'allow_register' => ['label' => '允许注册（open/close）', 'type' => 'sys'],
         'need_approve' => ['label' => '评论需审核（open/close）', 'type' => 'sys'],
+        'theme' => ['label' => '前台主题', 'type' => 'sys'],
         'seo_title' => ['label' => 'SEO 标题', 'type' => 'seo'],
         'seo_keywords' => ['label' => 'SEO 关键词', 'type' => 'seo'],
         'seo_description' => ['label' => 'SEO 描述', 'type' => 'seo'],
     ];
+
+    /** @var array<string, string> 主题显示名：配置值 => 下拉显示名（与 ThemeFactory::AVAILABLE_THEMES 单源对齐） */
+    private const THEME_LABELS = [
+        '' => '默认主题',
+        'magazine' => '墨刊（杂志风格）',
+    ];
+
+    /** @return array<string, string> 主题下拉选项：以 ThemeFactory::AVAILABLE_THEMES 为唯一白名单源 */
+    private static function themeOptions(): array
+    {
+        $options = [];
+        foreach (ThemeFactory::AVAILABLE_THEMES as $value => $_dir) {
+            $options[$value] = self::THEME_LABELS[$value] ?? $value;
+        }
+        return $options;
+    }
 
     public function __construct(
         private WebViewRenderer $viewRenderer,
@@ -60,6 +78,10 @@ final readonly class Action
                     $failed[] = $name . '（须为 open/close）';
                     continue;
                 }
+                if ($name === 'theme' && !isset(ThemeFactory::AVAILABLE_THEMES[$value])) {
+                    $failed[] = $name . '（未知主题）';
+                    continue;
+                }
                 if (!$this->saveOption($field['type'], $name, $value)) {
                     $failed[] = $name;
                 }
@@ -81,7 +103,7 @@ final readonly class Action
             ->withLayout('@src/Web/Shared/Layout/Admin/layout.php')
             ->render(
                 __DIR__ . '/template',
-                ['values' => $values, 'fields' => self::FIELDS],
+                ['values' => $values, 'fields' => self::FIELDS, 'themeOptions' => self::themeOptions()],
             );
     }
 

@@ -13,8 +13,10 @@ use Yiisoft\View\WebView;
 
 /**
  * WebView 定义：镜像 yiisoft/view 包 di-web.php 的完整定义（公共参数注入
- * setParameters 不可丢失），并追加 magazine 主题（withTheme）。
+ * setParameters 不可丢失），并追加动态主题（withTheme，后台可配置）。
  * 注意：config-plugin 对 service 定义是同 key 整体覆盖，不能只写 withTheme。
+ * Theme 服务覆盖为动态工厂（ThemeFactory：option 表 theme 配置 → pathMap，
+ * 白名单校验）；params 的静态 theme.pathMap 已弃用（保留键避免破坏性变更）。
  */
 return [
     WebView::class => [
@@ -41,4 +43,6 @@ return [
             $this->setParameters($parameters);
         },
     ],
+
+    Theme::class => static fn (\Psr\Container\ContainerInterface $container) => \App\Theme\ThemeFactory::create($container),
 ];
