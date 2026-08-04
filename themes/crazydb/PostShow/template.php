@@ -24,6 +24,7 @@ use Yiisoft\Html\Html;
  * @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: ?string, create_time: ?int, email: string, avatar: string, title: string}> $sidebarComments
  * @var App\Post\Post $post
  * @var string $contentHtml
+ * @var bool $unlocked
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var array<int, App\Comment\Comment> $replyMap
@@ -96,7 +97,7 @@ if (str_contains($contentHtml, '<pre class=')) {
 <div id="content">
 <article id="post-<?= $post->id ?>" class="post-view">
     <header class="entry-header">
-        <h1><?= Html::encode($post->title) ?></h1>
+        <h1><?= Html::encode($post->title) ?><?php if ((int)$post->is_top === 1): ?> <span class="label label-danger post-top-label">置顶</span><?php endif; ?></h1>
     </header>
     <div class="entry-meta">
         <?php if ($category !== null && $category['url'] !== null): ?>
@@ -142,8 +143,19 @@ if (str_contains($contentHtml, '<pre class=')) {
                 </ul>
             </details>
         <?php endif; ?>
-        <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-            <div class="label label-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
+        <?php if ($post->status === App\Post\Post::STATUS_HIDDEN && (string)$post->password !== '' && !$unlocked): ?>
+            <div class="hidden-post">
+                <div class="label label-warning"><i class="fa-solid fa-lock"></i> 这是一篇受密码保护的文章，输入密码后可查看全文。</div>
+                <form method="post" action="<?= Html::encode($urlGenerator->generate('post/unlock', ['id' => $post->id])) ?>" class="hidden-post-form">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="password" placeholder="请输入访问密码" required="required" autocomplete="off">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">解锁</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
         <?php endif; ?>
         <?= $contentHtml ?>
     </div>

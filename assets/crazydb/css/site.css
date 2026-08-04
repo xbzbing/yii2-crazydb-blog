@@ -684,6 +684,30 @@ ul.tags li {
     margin: 10px auto;
 }
 
+.hidden-post .label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.hidden-post-form .input-group {
+    margin-top: 0;
+}
+
+.hidden-post-form .form-control {
+    border-radius: 4px 0 0 4px;
+}
+
+.hidden-post-form .input-group-btn .btn {
+    border-radius: 0 4px 4px 0;
+}
+
+/* 文章详情页「置顶」标记 */
+.post-top-label {
+    font-size: 14px;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
 .hidden-post .captcha {
     padding: 0;
     background: #EEEEEE;

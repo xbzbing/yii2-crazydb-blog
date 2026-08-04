@@ -27,6 +27,9 @@ $postUrl = $post->getUrl($urlGenerator);
             <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
                 <span class="label label-warning"><i class="fa-solid fa-lock"></i></span>
             <?php endif; ?>
+            <?php if ((int)$post->is_top === 1): ?>
+                <span class="label label-danger post-top-label">置顶</span>
+            <?php endif; ?>
             <a class="pl-title" href="<?= Html::encode((string)$postUrl) ?>" title="<?= Html::encode($post->title) ?>" rel="bookmark">
                 <?= Html::encode($post->title) ?>
             </a>

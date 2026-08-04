@@ -71,7 +71,7 @@ final readonly class Action
             ->where(['>=', 'post_time', $start])
             ->andWhere(['<', 'post_time', $end])
             ->andWhere(['status' => Post::visibleStatuses()])
-            ->orderBy(['post_time' => SORT_DESC])
+            ->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC])
             ->limit(self::PAGE_SIZE)
             ->offset($pager->offset)
             ->all();

@@ -35,6 +35,7 @@ return [
             Route::get('/posts')->action(Web\PostList\Action::class)->name('post/list'),
             Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
             Route::get('/post/{id:\d+}')->action(Web\PostShow\Action::class)->name('post/view'),
+            Route::post('/post/unlock/{id:\d+}')->action(Web\PostUnlock\Action::class)->name('post/unlock'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\ArchivesDate\Action::class)->name('post/archives-date'),
 
