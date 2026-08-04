@@ -53,4 +53,4 @@ admin-web/node_modules/
 public/admin/
 
 # local documentation (not tracked in git)
-/docs/
+/docs/local/

@@ -67,7 +67,7 @@ final class ContainerSmokeTest extends TestCase
         $renderer = $this->container()->get(MarkdownRenderer::class);
         self::assertInstanceOf(MarkdownRenderer::class, $renderer);
         self::assertStringContainsString(
-            '<pre class="brush:php">',
+            '<pre><code class="language-php">',
             $renderer->render("```php\nx\n```", 1),
         );
     }

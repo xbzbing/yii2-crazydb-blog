@@ -42,10 +42,10 @@ final class MarkdownRendererTest extends TestCase
         self::assertStringContainsString('<del>gone</del>', $html);
     }
 
-    public function testFencedCodeRendersSyntaxHighlighterBrush(): void
+    public function testFencedCodeRendersHighlightJsFormat(): void
     {
         $html = $this->renderer()->render("```php\necho 'hi';\n```", 1);
-        self::assertStringContainsString('<pre class="brush:php">', $html);
+        self::assertStringContainsString('<pre><code class="language-php">', $html);
         self::assertStringContainsString("echo 'hi';", $html);
     }
 
@@ -56,10 +56,11 @@ final class MarkdownRendererTest extends TestCase
         self::assertStringContainsString('&lt;/pre&gt;', $html);
     }
 
-    public function testCodeWithoutLanguageDefaultsToPlain(): void
+    public function testCodeWithoutLanguageOmitsClass(): void
     {
         $html = $this->renderer()->render("```\nplain text\n```", 1);
-        self::assertStringContainsString('<pre class="brush:plain">', $html);
+        self::assertStringContainsString('<pre><code>', $html);
+        self::assertStringNotContainsString('class=', $html);
     }
 
     public function testPurifiesUnsafeHtml(): void
@@ -69,11 +70,11 @@ final class MarkdownRendererTest extends TestCase
         self::assertStringNotContainsString('<iframe', $html);
     }
 
-    public function testKeepsImgAndBrushClassAfterPurify(): void
+    public function testKeepsImgAndCodeClassAfterPurify(): void
     {
         $html = $this->renderer()->render("![alt](/upload/a.png)\n\n```php\nx\n```", 1);
         self::assertStringContainsString('src="/upload/a.png"', $html);
-        self::assertStringContainsString('<pre class="brush:php">', $html);
+        self::assertStringContainsString('<pre><code class="language-php">', $html);
     }
 
     public function testHtmlFormatPostRendersAsIsWithPurify(): void
@@ -108,7 +109,7 @@ final class MarkdownRendererTest extends TestCase
         $post->update_time = 1700000000;
         $html = $this->renderer()->renderPost($post);
         self::assertStringContainsString('<h2>md title</h2>', $html);
-        self::assertStringContainsString('<pre class="brush:php">', $html);
+        self::assertStringContainsString('<pre><code class="language-php">', $html);
     }
 
     public function testCacheHitSkipsRenderingAndVersionChangesInvalidate(): void

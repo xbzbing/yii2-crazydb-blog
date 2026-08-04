@@ -58,28 +58,13 @@ $category = $categorySummary[(int)$post->cid] ?? null;
 $authorUrl = $urlGenerator->generate('user/show', ['name' => $post->author_name]);
 $isOld = (int)$post->post_time <= strtotime('-1 years');
 
-// 正文含代码块时注册 SyntaxHighlighter（sh/ 资源，等价 Yii2 前台优化加载）
-if (str_contains($contentHtml, '<pre class=')) {
-    $shBase = '/static/plugins/sh';
-    $this->registerCssFile($shBase . '/styles/shCore.css');
-    $this->registerCssFile($shBase . '/styles/shCoreRDark.css');
-    $this->registerJsFile($shBase . '/scripts/shCore.js');
-    $this->registerJsFile($shBase . '/scripts/shAutoloader.js');
+// 正文含代码块时注册 highlight.js（复用 vditor 内置资源）
+if (str_contains($contentHtml, '<pre><code')) {
+    $hlBase = '/static/vditor/dist/js/highlight.js';
+    $this->registerCssFile($hlBase . '/styles/github.css');
+    $this->registerJsFile($hlBase . '/highlight.pack.js');
     $this->registerJs(
-        <<<JS
-        SyntaxHighlighter.autoloader(
-            'java {$shBase}/scripts/shBrushJava.js',
-            'php {$shBase}/scripts/shBrushPhp.js',
-            'python {$shBase}/scripts/shBrushPython.js',
-            'plain {$shBase}/scripts/shBrushPlain.js',
-            'html xml {$shBase}/scripts/shBrushXml.js',
-            'css {$shBase}/scripts/shBrushCss.js',
-            'js jscript javascript {$shBase}/scripts/shBrushJScript.js',
-            'bash shell {$shBase}/scripts/shBrushBash.js',
-            'sql {$shBase}/scripts/shBrushSql.js'
-        );
-        SyntaxHighlighter.all();
-        JS,
+        'document.querySelectorAll("pre code").forEach(function(b){hljs.highlightBlock(b)});',
         \Yiisoft\View\WebView::POSITION_READY,
     );
 }

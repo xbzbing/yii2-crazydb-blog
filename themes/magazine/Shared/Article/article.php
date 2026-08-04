@@ -26,6 +26,9 @@ $postUrl = $post->getUrl($urlGenerator);
         </div>
     <?php endif; ?>
     <h2 class="article-card-title">
+        <?php if ((int)$post->is_top === 1): ?>
+            <span class="article-top">置顶</span>
+        <?php endif; ?>
         <a href="<?= Html::encode((string)$postUrl) ?>"><?= Html::encode($post->title) ?></a>
     </h2>
     <?php if ($post->excerpt !== null && $post->excerpt !== ''): ?>

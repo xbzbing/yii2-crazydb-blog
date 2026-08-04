@@ -48,7 +48,7 @@ $currentUser = $authService->currentUser();
 $this->beginPage()
 ?>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="<?= Html::encode($applicationParams->locale) ?>">
 <head>
     <meta charset="<?= Html::encode($applicationParams->charset) ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">

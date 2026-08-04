@@ -12,7 +12,7 @@ use League\CommonMark\MarkdownConverter;
 use Yiisoft\Cache\CacheInterface;
 
 /**
- * Markdown 渲染管线：commonmark(GFM) + SyntaxHighlighter 兼容代码块 + HTMLPurifier 净化。
+ * Markdown 渲染管线：commonmark(GFM) + highlight.js 兼容代码块 + HTMLPurifier 净化。
  *
  * 输出缓存放 Redis，key 由 update_time 与内容 hash 构成——文章更新（update_time 变化）
  * 即自动失效，无需显式清缓存。
@@ -84,7 +84,7 @@ final class MarkdownRenderer
     }
 
     /**
-     * markdown → HTML 净化管线（HTMLPurifier 白名单，放行代码块 brush class）。
+     * markdown → HTML 净化管线（HTMLPurifier 白名单，放行代码块 language class）。
      */
     public function renderUncached(string $markdown): string
     {

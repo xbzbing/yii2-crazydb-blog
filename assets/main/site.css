@@ -291,44 +291,44 @@ a:hover {
     margin-right: 24px;
 }
 
-/* post page */
-.post-page {
+/* article detail page */
+.article-detail {
     background: var(--card-bg);
     border: 1px solid var(--line);
     padding: 24px 32px;
 }
 
-.post-page-header {
+.article-card-header {
     border-bottom: 1px solid var(--line);
     margin-bottom: 16px;
     padding-bottom: 12px;
 }
 
-.post-page-header h1 {
+.article-card-header h1 {
     margin: 0 0 8px;
 }
 
-.post-page-meta {
+.article-meta {
     color: var(--muted);
     font-size: 13px;
 }
 
-.post-page-meta span {
+.article-meta span {
     margin-right: 14px;
 }
 
-.post-page-content {
+.article-body {
     line-height: 1.9;
     font-size: 17px;
     word-wrap: break-word;
 }
 
-.post-page-content img {
+.article-body img {
     max-width: 100%;
     height: auto;
 }
 
-.post-page-content pre {
+.article-body pre {
     background: var(--code-bg);
     color: var(--code-ink);
     padding: 14px 16px;
@@ -338,7 +338,23 @@ a:hover {
     font-size: 14px;
 }
 
-.post-page-content blockquote {
+.article-body pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+}
+
+.article-body code {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.article-body blockquote {
     border-left: 4px solid var(--accent);
     margin: 1em 0;
     padding: 4px 16px;
@@ -346,29 +362,46 @@ a:hover {
     background: #f4f1ea;
 }
 
-.post-page-content table {
+.article-body table {
     border-collapse: collapse;
     width: 100%;
     margin: 1em 0;
 }
 
-.post-page-content th, .post-page-content td {
+.article-body th, .article-body td {
     border: 1px solid var(--line);
     padding: 6px 10px;
 }
 
-.post-page-content h2 {
+.article-body h2 {
     border-bottom: 1px solid var(--line);
     padding-bottom: 6px;
 }
 
-.post-page-nav {
+.article-card-footer {
     display: flex;
-    justify-content: space-between;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    border-top: 1px solid var(--line);
     margin-top: 20px;
     padding-top: 12px;
-    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.article-top {
+    display: inline-block;
+    font-size: 12px;
+    padding: 1px 6px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.article-related {
+    white-space: nowrap;
 }
 
 /* comments */
@@ -430,14 +463,23 @@ a:hover {
 }
 
 /* archives */
+.archives-year {
+    font-size: 20px;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 6px;
+    margin: 24px 0 12px;
+    color: var(--accent);
+}
+
 .archives-month {
     margin-bottom: 20px;
 }
 
-.archives-month h2 {
-    font-size: 18px;
+.archives-month h4 {
+    font-size: 16px;
     border-bottom: 1px solid var(--line);
     padding-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .archives-month ul {
@@ -450,6 +492,23 @@ a:hover {
     color: var(--muted);
     text-align: center;
     padding: 40px 0;
+}
+
+/* flash messages */
+.flash-success, .flash-error {
+    padding: 10px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.flash-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* comment reply nesting */
+.comment .reply-to {
+    border-left: 3px dashed var(--line);
+    margin-left: 20px;
+    padding-left: 12px;
 }
 
 /* inline form（退出登录等） */
@@ -476,3 +535,29 @@ a:hover {
 .article-toc summary { cursor: pointer; font-weight: 600; }
 .article-toc ul { list-style: none; margin: 8px 0 0; padding-left: 8px; }
 .article-toc .toc-level-3 { padding-left: 16px; }
+
+/* responsive */
+@media (max-width: 900px) {
+    .site-body {
+        flex-direction: column;
+    }
+    .site-sidebar {
+        flex: none;
+        width: 100%;
+    }
+}
+@media (max-width: 600px) {
+    .site-header .container {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .article-card {
+        padding: 16px;
+    }
+    .article-detail {
+        padding: 16px;
+    }
+    .article-body {
+        font-size: 16px;
+    }
+}
