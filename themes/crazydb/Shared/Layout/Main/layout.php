@@ -77,7 +77,7 @@ $this->beginPage()
                 <div class="col-md-4 index-logo">
                     <img class="rounded-circle" src="<?= Html::encode((string)$themeAsset->baseUrl . '/images/site-logo.jpg') ?>" alt="<?= Html::encode($siteName) ?>">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <nav class="navbar navbar-expand-md navbar-light bg-light index-navbar with-shadow">
                         <div class="container-fluid">
                             <a class="navbar-brand" href="<?= $urlGenerator->generate('site/index') ?>"><?= Html::encode($siteName) ?></a>
@@ -95,7 +95,7 @@ $this->beginPage()
                                 <ul class="navbar-nav">
                                     <?php if ($currentUser === null): ?>
                                         <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">用户 <span class="caret"></span></a>
+                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">用户</a>
                                             <ul class="dropdown-menu">
                                                 <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
                                                 <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
@@ -103,7 +103,7 @@ $this->beginPage()
                                         </li>
                                     <?php else: ?>
                                         <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><?= Html::encode($currentUser->nickname) ?> <span class="caret"></span></a>
+                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><?= Html::encode($currentUser->nickname) ?></a>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li><a class="dropdown-item" href="<?= Html::encode($urlGenerator->generate('user/profile', ['name' => $currentUser->nickname])) ?>">个人资料</a></li>
                                                 <li><a class="dropdown-item" href="<?= $urlGenerator->generate('user/modify-password') ?>">修改密码</a></li>

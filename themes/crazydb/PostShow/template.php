@@ -57,7 +57,7 @@ $authorUrl = $urlGenerator->generate('user/show', ['name' => $post->author_name]
 $isOld = (int)$post->post_time <= strtotime('-1 years');
 ?>
 
-<div class="breadcrumbs with-shadow">
+<div class="breadcrumbs">
     <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     <?php if ($category !== null && $category['url'] !== null): ?>
@@ -66,7 +66,7 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
     » <?= Html::encode($post->title) ?>
 </div>
 
-<div id="content" class="with-shadow">
+<div id="content">
 <article id="post-<?= $post->id ?>" class="post-view">
     <header class="entry-header">
         <h1><?= Html::encode($post->title) ?></h1>

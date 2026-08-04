@@ -10,6 +10,8 @@ html, body {
 
 body {
     font-family: "Microsoft YaHei", "微软雅黑", -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+    font-size: 14px;
+    color: #333;
 }
 
 /* Bootstrap 3 还原：链接默认无下划线（BS5 reboot 默认 underline） */
@@ -107,7 +109,7 @@ a:focus {
 }
 
 .main-container {
-    border-radius: 10px 10px 0 0;
+    border-radius: 4px 4px 0 0;
     background: #FFF;
     padding: 0 0 20px;
 }
@@ -129,7 +131,7 @@ a:focus {
 }
 
 .radius-10 {
-    border-radius: 10px 10px 0 0;
+    border-radius: 4px 4px 0 0;
 }
 
 .list-header h1 {
@@ -195,6 +197,8 @@ a.read-more:hover {
 .index-logo {
     padding-right: 0;
     z-index: 2;
+    width: 25%;
+    flex: 0 0 25%;
 }
 
 .index-logo img {
@@ -266,6 +270,7 @@ article.list-group-item:nth-of-type(1) {
     margin-left: -16px;
     margin-right: -15px;
     color: #555555;
+    overflow: hidden;
 }
 
 .entry-footer span {
@@ -296,7 +301,7 @@ article.list-group-item:nth-of-type(1) {
 }
 
 .post-list {
-    border-radius: 10px 10px 0 0;
+    border-radius: 4px 4px 0 0;
     background: #FFFFFF;
 }
 
@@ -349,6 +354,17 @@ article.list-group-item:nth-of-type(1) {
 }
 
 /* ============ 侧边栏 widgets ============ */
+.col-md-3.sidebar {
+    width: 25%;
+    max-width: 285px;
+    flex: 0 0 25%;
+}
+
+.col-md-9.post-list {
+    width: 75%;
+    flex: 0 0 75%;
+}
+
 .widget {
     margin-bottom: 8px;
 }
@@ -364,7 +380,7 @@ article.list-group-item:nth-of-type(1) {
 .widget h3 {
     background-color: #F7F7F7;
     border-bottom: 1px solid #EAEAEA;
-    border-radius: 10px 10px 0 0;
+    border-radius: 4px 4px 0 0;
     font-size: 15px;
     font-weight: 400;
     line-height: 2.5em;
@@ -455,7 +471,7 @@ article.list-group-item:nth-of-type(1) {
 /* ============ 文章详情页 ============ */
 #content {
     background: #FFF;
-    border-radius: 10px 10px 0 0;
+    border-radius: 4px 4px 0 0;
     margin-bottom: 8px;
     padding: 15px;
 }
@@ -514,6 +530,7 @@ article.list-group-item:nth-of-type(1) {
 .post-comments {
     font-size: 13px;
     line-height: 22px;
+    clear: both;
 }
 
 .comment-list {
