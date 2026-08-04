@@ -104,7 +104,7 @@ final readonly class Action
         } elseif ($post->alias !== '' && Post::query()->where(['alias' => $post->alias])->andWhere(['!=', 'id', (int)$post->id])->exists()) {
             $errors['alias'] = '别名已存在。';
         }
-        if (!in_array($post->status, [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN, Post::STATUS_DRAFT, Post::STATUS_DELETED], true)) {
+        if (!in_array($post->status, [Post::STATUS_PUBLISHED, Post::STATUS_DRAFT, Post::STATUS_DELETED], true)) {
             $errors['status'] = '状态不合法。';
         }
         if (!in_array($post->format, [Post::FORMAT_HTML, Post::FORMAT_MARKDOWN], true)) {

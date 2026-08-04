@@ -61,11 +61,11 @@ final class Post extends ActiveRecord
     }
 
     /**
-     * 前台可见状态集合（published + hidden，对齐 Yii2）。
+     * 前台可见状态集合（仅已发布；草稿/已删除不公开，对齐需求）。
      */
     public static function visibleStatuses(): array
     {
-        return [self::STATUS_PUBLISHED, self::STATUS_HIDDEN];
+        return [self::STATUS_PUBLISHED];
     }
 
     public function getCategory(): ActiveQuery

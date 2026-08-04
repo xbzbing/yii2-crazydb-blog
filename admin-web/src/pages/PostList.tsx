@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
@@ -9,7 +9,6 @@ import type { PostItem } from '../types/api'
 
 const STATUS_MAP = {
   published: { text: '已发布', color: 'green' },
-  hidden: { text: '隐藏', color: 'orange' },
   draft: { text: '草稿', color: 'default' },
   deleted: { text: '已删除', color: 'red' },
 }
@@ -34,7 +33,20 @@ export default function PostList() {
       title: '标题',
       dataIndex: 'title',
       ellipsis: true,
-      render: (_, record) => <a onClick={() => navigate(`/posts/${record.id}/edit`)}>{record.title}</a>,
+      render: (_, record) => (
+        <span style={{ whiteSpace: 'nowrap' }}>
+          {record.is_top === 1 && <Tag color="red" style={{ marginRight: 4 }}>置顶</Tag>}
+          {record.is_locked && <Tag color="orange" style={{ marginRight: 4 }}>加锁</Tag>}
+          <a onClick={() => navigate(`/posts/${record.id}/edit`)}>{record.title}</a>
+        </span>
+      ),
+    },
+    {
+      title: '分类',
+      dataIndex: 'category_name',
+      width: 100,
+      search: false,
+      render: (_, r) => r.category_name || <span style={{ color: '#bbb' }}>-</span>,
     },
     {
       title: '状态',
@@ -52,31 +64,55 @@ export default function PostList() {
     {
       title: '发布时间',
       dataIndex: 'post_time',
-      width: 110,
+      width: 150,
       search: false,
-      render: (_, r) => (r.post_time ? dayjs.unix(r.post_time).format('YYYY-MM-DD') : '-'),
+      render: (_, r) => (
+        <span style={{ whiteSpace: 'nowrap' }}>{r.post_time ? dayjs.unix(r.post_time).format('YYYY-MM-DD HH:mm') : '-'}</span>
+      ),
+    },
+    {
+      title: '编辑时间',
+      dataIndex: 'update_time',
+      width: 150,
+      search: false,
+      render: (_, r) => (
+        <span style={{ whiteSpace: 'nowrap' }}>{r.update_time ? dayjs.unix(r.update_time).format('YYYY-MM-DD HH:mm') : '-'}</span>
+      ),
     },
     {
       title: '操作',
       valueType: 'option',
-      width: 72,
+      width: 96,
       fixed: 'right',
-      render: (_, record) => (
-        <Space.Compact>
-          <Tooltip title="编辑">
-            <Button size="small" icon={<EditOutlined />} onClick={() => navigate(`/posts/${record.id}/edit`)} />
-          </Tooltip>
-          <Popconfirm
-            title="确认删除该文章？"
-            description="将同时删除关联评论与标签。"
-            onConfirm={() => handleDelete(record.id)}
-          >
-            <Tooltip title="删除">
-              <Button size="small" danger icon={<DeleteOutlined />} />
+      render: (_, record) => {
+        const frontUrl =
+          record.status === 'published'
+            ? record.alias
+              ? `/archive/${record.alias}`
+              : `/post/${record.id}`
+            : null
+        return (
+          <Space.Compact>
+            {frontUrl && (
+              <Tooltip title="访问前台">
+                <Button size="small" icon={<ExportOutlined />} onClick={() => window.open(frontUrl, '_blank')} />
+              </Tooltip>
+            )}
+            <Tooltip title="编辑">
+              <Button size="small" icon={<EditOutlined />} onClick={() => navigate(`/posts/${record.id}/edit`)} />
             </Tooltip>
-          </Popconfirm>
-        </Space.Compact>
-      ),
+            <Popconfirm
+              title="确认删除该文章？"
+              description="将同时删除关联评论与标签。"
+              onConfirm={() => handleDelete(record.id)}
+            >
+              <Tooltip title="删除">
+                <Button size="small" danger icon={<DeleteOutlined />} />
+              </Tooltip>
+            </Popconfirm>
+          </Space.Compact>
+        )
+      },
     },
   ]
 
@@ -101,6 +137,13 @@ export default function PostList() {
       request={request}
       pagination={{ defaultPageSize: 20, showSizeChanger: false }}
       scroll={{ x: 'max-content' }}
+      columnsState={{
+        persistenceKey: 'admin-post-list',
+        defaultValue: {
+          id: { show: false },
+          update_time: { show: false },
+        },
+      }}
       toolBarRender={() => [
         <Button key="create" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/posts/create')}>
           新建文章

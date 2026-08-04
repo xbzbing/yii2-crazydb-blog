@@ -18,7 +18,6 @@ use Yiisoft\Html\Html;
 $this->setTitle('文章管理 - 后台管理');
 $statusNames = [
     'published' => '已发布',
-    'hidden' => '隐藏',
     'draft' => '草稿',
     'deleted' => '已删除',
 ];

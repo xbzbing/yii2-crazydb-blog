@@ -20,7 +20,7 @@ $this->setTitle(($isNew ? '新建文章' : '编辑文章') . ' - 后台管理');
 $formAction = $isNew
     ? $urlGenerator->generate('admin/post/create')
     : $urlGenerator->generate('admin/post/update', ['id' => $post->id]);
-$statusNames = ['published' => '已发布', 'hidden' => '隐藏', 'draft' => '草稿', 'deleted' => '已删除'];
+$statusNames = ['published' => '已发布', 'draft' => '草稿', 'deleted' => '已删除'];
 $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
 ?>
 

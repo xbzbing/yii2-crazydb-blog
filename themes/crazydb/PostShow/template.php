@@ -48,7 +48,7 @@ $this->setTitle($post->title . ' - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter(
     'seo_description',
-    $post->status === App\Post\Post::STATUS_HIDDEN
+    (string)$post->password !== ''
         ? (string)$post->excerpt
         : $post->getSeoDescription($markdownRenderer),
 );
@@ -143,7 +143,7 @@ if (str_contains($contentHtml, '<pre class=')) {
                 </ul>
             </details>
         <?php endif; ?>
-        <?php if ($post->status === App\Post\Post::STATUS_HIDDEN && (string)$post->password !== '' && !$unlocked): ?>
+        <?php if ((string)$post->password !== '' && !$unlocked): ?>
             <div class="hidden-post">
                 <div class="label label-warning"><i class="fa-solid fa-lock"></i> 这是一篇受密码保护的文章，输入密码后可查看全文。</div>
                 <form method="post" action="<?= Html::encode($urlGenerator->generate('post/unlock', ['id' => $post->id])) ?>" class="hidden-post-form">

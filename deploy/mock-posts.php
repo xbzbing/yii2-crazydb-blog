@@ -570,17 +570,28 @@ MD,
 
 $inserted = 0;
 $skipped = 0;
+$updated = 0;
 foreach ($posts as $p) {
     $exists = $db->createCommand('SELECT COUNT(*) FROM post WHERE alias = :alias')
         ->bindValue(':alias', $p['alias'])->queryScalar();
-    if ($exists > 0) {
-        echo "跳过（已存在）: {$p['title']}\n";
-        $skipped++;
-        continue;
-    }
     $cid = $catId[$p['cid']] ?? 0;
     $authorId = $p['author'] === 'dabing' ? 1 : 2991;
     $postTime = $now - $p['days'] * $day;
+    if ($exists > 0) {
+        // 已存在：仅修复正文/摘要/标签/作者（保留原状态与时间），用于恢复误写乱码
+        $cmd->setSql(
+            'UPDATE `post` SET `author_name` = :authorName, `excerpt` = :excerpt, `content` = :content, `tags` = :tags WHERE `alias` = :alias',
+        )->bindValues([
+            ':authorName' => $p['author'],
+            ':excerpt' => '<p>' . $p['excerpt'] . '</p>',
+            ':content' => $p['content'],
+            ':tags' => implode(',', $p['tags']),
+            ':alias' => $p['alias'],
+        ])->execute();
+        $updated++;
+        echo "修复: {$p['title']}\n";
+        continue;
+    }
     $cmd->setSql(
         'INSERT INTO `post`
          (`cid`, `author_id`, `author_name`, `type`, `title`, `alias`, `excerpt`, `content`, `format`,
@@ -609,5 +620,5 @@ foreach ($posts as $p) {
     echo "插入: {$p['title']}\n";
 }
 
-echo "\n完成！新增 {$inserted} 篇，跳过 {$skipped} 篇。当前文章总数：" .
+echo "\n完成！新增 {$inserted} 篇，修复 {$updated} 篇，跳过 {$skipped} 篇。当前文章总数：" .
     (int)$db->createCommand('SELECT COUNT(*) FROM post')->queryScalar() . PHP_EOL;

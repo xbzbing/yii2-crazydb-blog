@@ -26,10 +26,15 @@ export default function VditorEditor({
   const [ready, setReady] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const initializedRef = useRef(false)
+  const vditorRef = useRef<{ destroy: () => void } | null>(null)
 
-  // 注入 Vditor 静态资源（只注入一次）
+  // 注入 Vditor 静态资源（只注入一次；若已全局存在则直接标记就绪）
   useEffect(() => {
-    if (window.Vditor || loaded) return
+    if (window.Vditor) {
+      setLoaded(true)
+      return
+    }
+    if (loaded) return
     const link = document.createElement('link')
     link.rel = 'stylesheet'
     link.href = '/static/vditor/dist/index.css'
@@ -44,7 +49,7 @@ export default function VditorEditor({
   const init = () => {
     if (initializedRef.current || !window.Vditor || !containerRef.current) return
     initializedRef.current = true
-    new window.Vditor(containerRef.current, {
+    const vditor = new window.Vditor(containerRef.current, {
       cdn: '/static/vditor',
       mode: 'ir',
       height,
@@ -68,6 +73,7 @@ export default function VditorEditor({
       },
       after: () => setReady(true),
     })
+    vditorRef.current = vditor
   }
 
   useEffect(() => {
@@ -87,6 +93,15 @@ export default function VditorEditor({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, ready])
+
+  // 卸载时销毁 Vditor 实例（格式切换 html↔markdown 时组件重挂载）
+  useEffect(() => {
+    return () => {
+      vditorRef.current?.destroy()
+      vditorRef.current = null
+      initializedRef.current = false
+    }
+  }, [])
 
   return (
     <div style={{ position: 'relative' }}>

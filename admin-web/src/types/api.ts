@@ -44,6 +44,7 @@ export interface MeData {
 export interface PostItem {
   id: number
   cid: number
+  category_name?: string
   author_id: number
   author_name: string
   type: string
@@ -55,6 +56,7 @@ export interface PostItem {
   comment_count: number
   view_count: number
   is_top: number
+  is_locked?: boolean
   post_time: number
   create_time: number
   update_time: number

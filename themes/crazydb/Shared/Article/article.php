@@ -24,8 +24,8 @@ $postUrl = $post->getUrl($urlGenerator);
                     <span class="label label-info"><?= Html::encode((string)$category['name']) ?></span>
                 </a>
             <?php endif; ?>
-            <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-                <span class="label label-warning"><i class="fa-solid fa-lock"></i></span>
+            <?php if ((string)$post->password !== ''): ?>
+                <span class="label label-warning" title="该文章需要密码访问"><i class="fa-solid fa-lock"></i></span>
             <?php endif; ?>
             <?php if ((int)$post->is_top === 1): ?>
                 <span class="label label-danger post-top-label">置顶</span>
@@ -36,8 +36,8 @@ $postUrl = $post->getUrl($urlGenerator);
         </h3>
     </header>
     <div class="entry-content">
-        <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-            <div class="label label-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
+        <?php if ((string)$post->password !== ''): ?>
+            <div class="label label-warning">该文章需要输入密码才能查看全文。</div>
         <?php endif; ?>
         <?= $post->excerpt !== null && $post->excerpt !== ''
             ? \App\Common\XUtils::htmlPurify($post->excerpt)

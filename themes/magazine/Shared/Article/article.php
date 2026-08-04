@@ -17,8 +17,8 @@ $postUrl = $post->getUrl($urlGenerator);
 ?>
 
 <article id="post-<?= $post->id ?>" class="article-card">
-    <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-        <div class="article-card-meta"><span class="article-locked">隐藏文章</span></div>
+    <?php if ((string)$post->password !== ''): ?>
+        <div class="article-card-meta"><span class="article-locked">密码保护</span></div>
     <?php endif; ?>
     <?php if ($post->cover !== null && $post->cover !== ''): ?>
         <div class="article-card-cover">

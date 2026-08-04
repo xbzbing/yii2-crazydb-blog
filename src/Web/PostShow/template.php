@@ -23,6 +23,7 @@ use Yiisoft\Html\Html;
  * @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: ?string, create_time: ?int, email: string, avatar: string, title: string}> $sidebarComments
  * @var App\Post\Post $post
  * @var string $contentHtml
+ * @var bool $unlocked
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var array<int, App\Comment\Comment> $replyMap
@@ -45,7 +46,7 @@ $this->setTitle($post->title . ' - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter(
     'seo_description',
-    $post->status === App\Post\Post::STATUS_HIDDEN
+    (string)$post->password !== ''
         ? (string)$post->excerpt
         : $post->getSeoDescription($markdownRenderer),
 );
@@ -88,6 +89,20 @@ $category = $categorySummary[(int)$post->cid] ?? null;
                     <?php endforeach; ?>
                 </ul>
             </details>
+        <?php endif; ?>
+        <?php if ((string)$post->password !== '' && !$unlocked): ?>
+            <div class="article-locked-tip">
+                <div class="label label-warning"><i class="fa-solid fa-lock"></i> 该文章受密码保护，输入密码后可查看全文。</div>
+                <form method="post" action="<?= Html::encode($urlGenerator->generate('post/unlock', ['id' => $post->id])) ?>" class="hidden-post-form">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="password" placeholder="请输入访问密码" required="required" autocomplete="off">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-primary">解锁</button>
+                        </span>
+                    </div>
+                </form>
+            </div>
         <?php endif; ?>
         <?= $contentHtml ?>
     </div>

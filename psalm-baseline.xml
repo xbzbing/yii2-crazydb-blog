@@ -9,15 +9,6 @@
     </PossiblyFalseArgument>
   </file>
   <file src="src/Category/Category.php">
-    <InvalidReturnStatement>
-      <code><![CDATA[Post::query()
-            ->where(['cid' => $this->id])
-            ->andWhere(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
-            ->count()]]></code>
-    </InvalidReturnStatement>
-    <InvalidReturnType>
-      <code><![CDATA[int]]></code>
-    </InvalidReturnType>
     <LessSpecificReturnStatement>
       <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
     </LessSpecificReturnStatement>
