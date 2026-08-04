@@ -43,3 +43,8 @@ body,
 .ant-pro-sider .ant-menu {
   background-color: #fff !important;
 }
+
+/* 后台内容区 padding 收窄（默认 32px 40px → 20px） */
+.ant-layout-content.ant-pro-layout-content {
+  padding: 20px !important;
+}

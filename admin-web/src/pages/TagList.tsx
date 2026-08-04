@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Popconfirm, Tag, message } from 'antd'
+import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
+import { DeleteOutlined, ExportOutlined } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { Tag as TagType } from '../types/api'
 
@@ -27,11 +28,22 @@ export default function TagList() {
     {
       title: '操作',
       valueType: 'option',
-      width: 100,
+      width: 72,
       render: (_, r) => (
-        <Popconfirm title={`确认删除标签「${r.name}」？`} onConfirm={() => handleDelete(r.name)}>
-          <a style={{ color: '#ff4d4f' }}>删除</a>
-        </Popconfirm>
+        <Space.Compact>
+          <Tooltip title="前台查看">
+            <Button
+              size="small"
+              icon={<ExportOutlined />}
+              onClick={() => window.open(`/tag/${encodeURIComponent(r.name)}`, '_blank')}
+            />
+          </Tooltip>
+          <Popconfirm title={`确认删除标签「${r.name}」？`} onConfirm={() => handleDelete(r.name)}>
+            <Tooltip title="删除">
+              <Button size="small" danger icon={<DeleteOutlined />} />
+            </Tooltip>
+          </Popconfirm>
+        </Space.Compact>
       ),
     },
   ]

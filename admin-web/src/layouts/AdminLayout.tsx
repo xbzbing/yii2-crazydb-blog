@@ -11,6 +11,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Dropdown } from 'antd'
 import { getCsrfToken } from '../api/client'
@@ -35,7 +36,7 @@ const menuItems = [
     name: '站点配置',
     icon: <SettingOutlined />,
     path: '/config',
-    children: [
+    routes: [
       { path: '/config/basic', name: '基本设置' },
       { path: '/config/seo', name: 'SEO 设置' },
       { path: '/config/cache', name: '缓存管理' },
@@ -51,7 +52,7 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
   // 受控高亮：始终选中当前 path；站点配置子页时保持父级展开
   const pathname = location.pathname
   const selectedKeys = [pathname]
-  const openKeys = pathname.startsWith('/config') ? ['/config'] : []
+  const [openKeys, setOpenKeys] = useState<string[]>(pathname.startsWith('/config') ? ['/config'] : [])
 
   const userMenu = {
     items: [
@@ -75,6 +76,7 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
     },
   }
 
+  // 点击子菜单：收起父级以外的其他展开项（站点配置是唯一带子菜单的项，点击即收起）
   return (
     <ProLayout
       title="Crazydb-Blog"
@@ -82,29 +84,14 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
       layout="mix"
       route={{
         path: '/',
-        routes: [
-          {
-            path: '/posts',
-            name: '内容管理',
-            routes: [
-              { path: '/posts', name: '文章管理', icon: <FileTextOutlined /> },
-              { path: '/comments', name: '评论管理', icon: <CommentOutlined /> },
-              { path: '/categories', name: '分类管理', icon: <FolderOutlined /> },
-              { path: '/navs', name: '导航管理', icon: <CompassOutlined /> },
-              { path: '/tags', name: '标签管理', icon: <TagsOutlined /> },
-            ],
-          },
-          { path: '/users', name: '用户管理', icon: <TeamOutlined /> },
-          { path: '/logs', name: '日志管理', icon: <HistoryOutlined /> },
-          { path: '/config', name: '站点配置', icon: <SettingOutlined /> },
-        ],
+        routes: menuItems,
       }}
       location={{ pathname: location.pathname }}
       selectedKeys={selectedKeys}
       openKeys={openKeys}
       onOpenChange={(keys) => {
-        // 展开状态交由路径驱动：站点配置子页保持展开，其他收起
-        void keys
+        // 站点配置路径驱动展开，其余按用户点击
+        setOpenKeys(keys === false ? [] : keys)
       }}
       menuItemRender={(item, dom) => (
         <a onClick={() => navigate(item.path || '/')}>{dom}</a>
@@ -137,7 +124,6 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
           返回前台
         </a>,
       ]}
-      menuDataRender={() => menuItems}
       onMenuHeaderClick={() => navigate('/')}
     >
       <div style={{ padding: 16 }}>{children}</div>
