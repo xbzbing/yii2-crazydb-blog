@@ -44,10 +44,10 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
     <h2>文章归档<small>共 <?= $total ?> 篇</small></h2>
     <ul class="archives">
         <li class="future" title="奋然前行"><em class="fa-solid fa-chevron-up"></em></li>
-        <?php foreach ($grouped as $month => $monthPosts): ?>
+        <?php $displayedYear = null; foreach ($grouped as $month => $monthPosts): ?>
             <?php [$year, $monthNum] = array_map('intval', explode('-', $month) + ['', '']); ?>
             <?php $yearKey = (string)$year; ?>
-            <?php if ($yearKey !== '' && ($displayedYear ?? null) !== $yearKey): ?>
+            <?php if ($displayedYear !== $yearKey): ?>
                 <?php $displayedYear = $yearKey; ?>
                 <?php $yearCount = 0; foreach ($grouped as $m => $ps) { if (str_starts_with($m, $yearKey)) $yearCount += count($ps); } ?>
                 <li class="year"><h3 class="year"><?= $yearKey ?> 年（<?= $yearCount ?> 篇）</h3></li>

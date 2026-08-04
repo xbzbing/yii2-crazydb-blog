@@ -47,3 +47,7 @@ public/static/avatar
 # phpunit cache
 .phpunit.cache/
 public/static/upload/
+
+# admin SPA (Vite/React/antd) build artifacts
+admin-web/node_modules/
+public/admin/
