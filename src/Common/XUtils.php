@@ -112,7 +112,9 @@ final class XUtils
         $email = md5($email);
         $fileName = "{$email}-{$size}.png";
         $filePath = $aliases->get('@public') . '/static/avatar/' . $fileName;
-        $return = $aliases->get('@baseUrl') . 'static/avatar/' . $fileName;
+        // 注意：@baseUrl 运行时可能解析为空串（站点在根域），须用 '@baseUrl/...' 拼接模式，
+        // 直接字符串拼接会生成相对路径（/archive/ 下渲染时 404）。
+        $return = $aliases->get('@baseUrl/static/avatar/' . $fileName);
         $gravatar = "https://en.gravatar.com/avatar/{$email}?s={$size}&r=g";
 
         if (!is_file($filePath) || (filemtime($filePath) + 3 * 24 * 60 * 60 < time())) {
