@@ -21,11 +21,11 @@ $postUrl = $post->getUrl($urlGenerator);
         <h3>
             <?php if ($category['url'] !== null && $category['name'] !== ''): ?>
                 <a href="<?= Html::encode((string)$category['url']) ?>" class="pl-category" title="<?= Html::encode((string)$category['name']) ?>">
-                    <span class="badge text-bg-info"><?= Html::encode((string)$category['name']) ?></span>
+                    <span class="label label-info"><?= Html::encode((string)$category['name']) ?></span>
                 </a>
             <?php endif; ?>
             <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-                <span class="badge text-bg-warning"><i class="fa-solid fa-lock"></i></span>
+                <span class="label label-warning"><i class="fa-solid fa-lock"></i></span>
             <?php endif; ?>
             <a class="pl-title" href="<?= Html::encode((string)$postUrl) ?>" title="<?= Html::encode($post->title) ?>" rel="bookmark">
                 <?= Html::encode($post->title) ?>
@@ -34,7 +34,7 @@ $postUrl = $post->getUrl($urlGenerator);
     </header>
     <div class="entry-content">
         <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-            <div class="badge text-bg-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
+            <div class="label label-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
         <?php endif; ?>
         <?= $post->excerpt !== null && $post->excerpt !== ''
             ? \App\Common\XUtils::htmlPurify($post->excerpt)
@@ -45,13 +45,13 @@ $postUrl = $post->getUrl($urlGenerator);
             </a>
         </div>
     </div>
-    <footer class="entry-footer row">
+    <footer class="entry-footer">
         <span><i class="fa-solid fa-user"></i><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $post->author_name])) ?>"><?= Html::encode($post->author_name) ?></a></span>
         <span><i class="fa-solid fa-clock"></i><?= \App\Common\XUtils::xDateFormatter((int)$post->post_time) ?></span>
         <span><i class="fa-solid fa-eye"></i><?= (int)$post->view_count ?> 浏览</span>
         <span>
             <a href="<?= Html::encode((string)$postUrl) ?>#comments">
-                <span class="badge text-bg-secondary"><?= (int)$post->comment_count > 0 ? (int)$post->comment_count . ' 评论' : '抢沙发' ?></span>
+                <span class="badge"><?= (int)$post->comment_count > 0 ? (int)$post->comment_count . ' 评论' : '抢沙发' ?></span>
             </a>
         </span>
     </footer>

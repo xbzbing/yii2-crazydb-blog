@@ -71,7 +71,7 @@ $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
 </div>
 
 <?php if ($recentComments !== []): ?>
-<div class="widget aside-comments hidden-xs">
+<div class="widget aside-comments d-none d-lg-block">
     <h3 class="widget_title with-shadow"><i class="fa-solid fa-comment"></i>最新评论</h3>
     <ul class="with-shadow">
         <?php foreach ($recentComments as $comment): ?>
