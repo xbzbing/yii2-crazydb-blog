@@ -29,14 +29,18 @@ $this->setTitle('标签管理 - 后台管理');
     <tbody>
     <?php foreach ($tags as $tag): ?>
         <tr>
-            <td><?= Html::encode($tag['name']) ?></td>
+            <td><a href="<?= Html::encode($urlGenerator->generate('admin/post/list', [], ['tag' => $tag['name']])) ?>"><?= Html::encode($tag['name']) ?></a></td>
             <td><?= (int)$tag['totalCount'] ?></td>
             <td>
                 <a href="<?= Html::encode($urlGenerator->generate('tag/show', ['name' => $tag['name']])) ?>" target="_blank">查看</a>
-                <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/tag/delete', ['name' => $tag['name']])) ?>" class="admin-inline" onsubmit="return confirm('删除标签「<?= Html::encode($tag['name']) ?>」将解除全部关联文章？');">
-                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
-                    <button type="submit">删除</button>
-                </form>
+                <?php if ((int)$tag['totalCount'] > 0): ?>
+                    <button type="button" onclick="alert('该标签关联 <?= (int)$tag['totalCount'] ?> 篇文章，无法删除；请先在文章中移除该标签。')">删除</button>
+                <?php else: ?>
+                    <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/tag/delete', ['name' => $tag['name']])) ?>" class="admin-inline" onsubmit="return confirm('确认删除标签「<?= Html::encode($tag['name']) ?>」？');">
+                        <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                        <button type="submit">删除</button>
+                    </form>
+                <?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>

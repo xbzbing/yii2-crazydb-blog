@@ -97,4 +97,41 @@ final class Tag extends ActiveRecord
         );
         return $items;
     }
+
+    /**
+     * 删除标签（按名称）：同时清理各文章冗余的 tags 字符串中的该标签，
+     * 避免前台按标签访问出现 404（标签关联行已删但 post.tags 残留）。
+     */
+    public static function deleteByName(string $name, \Yiisoft\Cache\CacheInterface $cache): void
+    {
+        $before = (int)self::query()->max('id');
+        $cache->remove('__tags_0.' . $before);
+        $cache->remove('__tags_20.' . $before);
+
+        (new self())->deleteAll(['name' => $name]);
+
+        // 清理 post.tags 冗余字符串（"a,b,c" → 去掉 name，逗号规整）
+        $db = (new self())->db();
+        $rows = $db->createCommand(
+            'SELECT id, tags FROM {{%post}} WHERE tags LIKE :tag',
+            [':tag' => '%' . $name . '%'],
+        )->queryAll();
+        foreach ($rows as $row) {
+            $tags = array_values(array_filter(
+                array_map('trim', explode(',', (string)$row['tags'])),
+                static fn (string $t): bool => $t !== '' && $t !== $name,
+            ));
+            $clean = implode(',', $tags);
+            if ($clean !== (string)$row['tags']) {
+                $db->createCommand(
+                    'UPDATE {{%post}} SET tags = :tags WHERE id = :id',
+                    [':tags' => $clean, ':id' => (int)$row['id']],
+                )->execute();
+            }
+        }
+
+        $after = (int)self::query()->max('id');
+        $cache->remove('__tags_0.' . $after);
+        $cache->remove('__tags_20.' . $after);
+    }
 }
