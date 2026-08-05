@@ -203,10 +203,3 @@ CREATE TABLE IF NOT EXISTS `custom_config` (
   UNIQUE KEY `uk_category_key` (`category`, `key`),
   KEY `idx_priority` (`category`, `priority`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='自定义配置';
-
--- 初始化：CrazyDB 主题「关于我」侧栏内容（原写死在主题模板中，现提取到配置）
-INSERT INTO `custom_config` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
-SELECT 'ThemeDIY', 'aboutMe', '关于我',
-       '曾经是爱好网络安全的程序猿\n\n后来是爱好编程的安全攻城狮\n\n现在是爱好安全的摸鱼工程师\n\n**联系方式**：xbzbing#gmail.com',
-       'markdown', 100, '侧栏「关于我」内容（Markdown 渲染）', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()
-WHERE NOT EXISTS (SELECT 1 FROM `custom_config` WHERE `category` = 'ThemeDIY' AND `key` = 'aboutMe');
