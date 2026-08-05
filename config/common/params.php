@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Post\MarkdownRenderer;
 use App\Shared\ApplicationParams;
 use App\User\AuthService;
 use Yiisoft\Aliases\Aliases;
@@ -43,6 +44,7 @@ return [
             'currentRoute' => Reference::to(CurrentRoute::class),
             'flash' => Reference::to(FlashInterface::class),
             'authService' => Reference::to(AuthService::class),
+            'markdownRenderer' => Reference::to(MarkdownRenderer::class),
         ],
     ],
 

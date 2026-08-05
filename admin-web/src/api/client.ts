@@ -13,6 +13,8 @@ import type {
   CommentItem,
   ConfigData,
   ConfigValues,
+  CustomConfigCategory,
+  CustomConfigItem,
   DashboardData,
   EnvData,
   LogItem,
@@ -152,6 +154,21 @@ export const api = {
       `/logs?${new URLSearchParams(params as Record<string, string>)}`,
     ),
   logClear: () => request<{ message: string }>('/logs/clear', { method: 'POST' }),
+
+  customConfigCategories: () =>
+    request<{ items: CustomConfigCategory[] }>('/custom-configs/categories'),
+  customConfigs: (params: Record<string, string | number> = {}) =>
+    request<ListData<CustomConfigItem>>(
+      `/custom-configs?${new URLSearchParams(params as Record<string, string>)}`,
+    ),
+  customConfig: (id: number) =>
+    request<{ config: CustomConfigItem }>(`/custom-config/${id}`),
+  customConfigSave: (data: Record<string, unknown>) =>
+    request<ValidationResult>('/custom-config/save', { method: 'POST', body: data }),
+  customConfigUpdate: (id: number, data: Record<string, unknown>) =>
+    request<ValidationResult>(`/custom-config/update/${id}`, { method: 'POST', body: data }),
+  customConfigDelete: (id: number) =>
+    request<{ message: string }>(`/custom-config/delete/${id}`, { method: 'POST' }),
 
   config: () => request<ConfigData>('/config'),
   configSave: (data: ConfigValues) => request<ValidationResult>('/config/save', { method: 'POST', body: data }),

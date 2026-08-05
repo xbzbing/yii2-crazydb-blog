@@ -15,6 +15,8 @@ import NavForm from './pages/NavForm'
 import TagList from './pages/TagList'
 import UserList from './pages/UserList'
 import LogList from './pages/LogList'
+import CustomConfigList from './pages/CustomConfigList'
+import CarouselManage from './pages/CarouselManage'
 import BasicSettings from './pages/BasicSettings'
 import SeoSettings from './pages/SeoSettings'
 import CachePage from './pages/CachePage'
@@ -78,6 +80,8 @@ export default function App() {
         <Route path="/tags" element={<TagList />} />
         <Route path="/users" element={<UserList />} />
         <Route path="/logs" element={<LogList />} />
+        <Route path="/customize/config" element={<CustomConfigList />} />
+        <Route path="/customize/carousel" element={<CarouselManage />} />
         <Route path="/config" element={<NavigateToBasic />} />
         <Route path="/config/basic" element={<BasicSettings />} />
         <Route path="/config/seo" element={<SeoSettings />} />

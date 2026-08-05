@@ -139,6 +139,24 @@ export interface LogItem {
   create_time: number
 }
 
+export interface CustomConfigCategory {
+  category: string
+  count: number
+}
+
+export interface CustomConfigItem {
+  id: number
+  category: string
+  key: string
+  name: string
+  value: string
+  data_type: string
+  priority: number
+  description: string
+  create_time: number
+  update_time: number
+}
+
 export interface VisitTrendItem {
   date: string
   pv: number

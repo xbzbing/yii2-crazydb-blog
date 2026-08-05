@@ -16,7 +16,7 @@ use Yiisoft\Http\Method;
  */
 final readonly class Action
 {
-    private const MAX_SIZE = 2 * 1024 * 1024;
+    private const MAX_SIZE = 16 * 1024 * 1024;
     private const ALLOWED_EXT = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
 
     public function __construct(
@@ -40,7 +40,7 @@ final readonly class Action
             return $this->json(['code' => 1, 'msg' => '文件上传失败（错误码 ' . $uploaded->getError() . '）。']);
         }
         if ($uploaded->getSize() > self::MAX_SIZE) {
-            return $this->json(['code' => 1, 'msg' => '文件过大（最大 2MB）。']);
+            return $this->json(['code' => 1, 'msg' => '文件过大（最大 16MB）。']);
         }
 
         $ext = strtolower(pathinfo($uploaded->getClientFilename() ?? '', PATHINFO_EXTENSION));

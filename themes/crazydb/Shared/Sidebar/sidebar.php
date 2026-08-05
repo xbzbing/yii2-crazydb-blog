@@ -12,19 +12,27 @@ use Yiisoft\Html\Html;
  * @var array<int, array{name: string, desc: ?string, url: ?string, postCount: int}> $categorySummary
  * @var list<array{totalCount: int, name: string, create_time: int, url: string}> $tags
  * @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: ?string, create_time: ?int, email: string, avatar: string, title: string}> $recentComments
+ * @var \App\Post\MarkdownRenderer|null $markdownRenderer
  */
 
 $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
+
+// 「关于我」内容从自定义配置读取（ThemeDIY/aboutMe，markdown），未配置时回退默认文案
+$aboutMe = \App\CustomConfig\CustomConfig::value('ThemeDIY', 'aboutMe');
 ?>
 
 <div class="widget aside-about" id="about-me">
     <h3 class="widget_title with-shadow"><i class="fa-solid fa-user"></i>关于我</h3>
     <ul class="with-shadow">
         <li>
-            <p>曾经是爱好网络安全的程序猿</p>
-            <p>后来是爱好编程的安全攻城狮</p>
-            <p>现在是爱好安全的摸鱼工程师</p>
-            <address>xbzbing#gmail.com</address>
+            <?php if ($aboutMe !== null && $aboutMe !== '' && $markdownRenderer !== null): ?>
+                <div class="about-me-content"><?= $markdownRenderer->render($aboutMe) ?></div>
+            <?php else: ?>
+                <p>曾经是爱好网络安全的程序猿</p>
+                <p>后来是爱好编程的安全攻城狮</p>
+                <p>现在是爱好安全的摸鱼工程师</p>
+                <address>xbzbing#gmail.com</address>
+            <?php endif; ?>
         </li>
     </ul>
 </div>
