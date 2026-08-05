@@ -15,7 +15,7 @@ use Yiisoft\Router\HydratorAttribute\RouteArgument;
 /**
  * 后台用户 JSON API：
  * - GET  /admin/api/users?page=                  分页列表
- * - POST /admin/api/user/{action}/{id}           禁用/启用（ban/unban，站长 dabing 保护）
+ * - POST /admin/api/user/{action}/{id}           禁用/启用（ban/unban，站长账号保护）
  */
 final readonly class Action
 {
@@ -66,7 +66,7 @@ final readonly class Action
         if (!$user instanceof User) {
             return $this->jsonResponse->fail('用户不存在。', 404);
         }
-        if ($user->username === 'dabing') {
+        if ($user->isWebmaster()) {
             return $this->jsonResponse->fail('站长账号不可操作。', 422);
         }
         if ($action === 'ban' && $user->status !== User::STATUS_BANED) {
@@ -82,5 +82,52 @@ final readonly class Action
             return $this->jsonResponse->ok(['message' => '用户已启用。']);
         }
         return $this->jsonResponse->ok(['message' => '无需操作。']);
+    }
+
+    /**
+     * 编辑用户（昵称/角色）。站长账号不可编辑。
+     */
+    public function update(ServerRequestInterface $request, #[RouteArgument] int $id): ResponseInterface
+    {
+        $user = User::query()->findByPk($id);
+        if (!$user instanceof User) {
+            return $this->jsonResponse->fail('用户不存在。', 404);
+        }
+        if ($user->isWebmaster()) {
+            return $this->jsonResponse->fail('站长账号不可操作。', 422);
+        }
+
+        $body = $request->getParsedBody();
+        $data = is_array($body) ? $body : [];
+        $nickname = trim((string)($data['nickname'] ?? ''));
+        $role = (int)($data['role'] ?? 0);
+
+        $errors = [];
+        if ($nickname === '') {
+            $errors['nickname'] = '昵称不能为空。';
+        } elseif (mb_strlen($nickname) > 80) {
+            $errors['nickname'] = '昵称最多 80 个字符。';
+        } elseif (in_array($nickname, User::NAME_BLACKLIST, true)) {
+            $errors['nickname'] = '该昵称不可使用。';
+        } elseif (User::query()->where(['nickname' => $nickname])->andWhere(['!=', 'id', $id])->exists()) {
+            $errors['nickname'] = '昵称已存在，请重新输入。';
+        }
+        if (!in_array($role, [User::ROLE_MEMBER, User::ROLE_EDITOR, User::ROLE_ADMIN], true)) {
+            $errors['role'] = '角色不合法。';
+        }
+        if ($errors !== []) {
+            return $this->jsonResponse->ok(['ok' => false, 'errors' => $errors]);
+        }
+
+        $user->nickname = $nickname;
+        $user->role = $role;
+        $user->update_time = time();
+        try {
+            $user->save();
+        } catch (\Throwable) {
+            return $this->jsonResponse->fail('保存失败。');
+        }
+
+        return $this->jsonResponse->ok(['message' => '用户信息已更新。']);
     }
 }

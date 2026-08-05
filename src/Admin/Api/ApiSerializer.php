@@ -87,6 +87,7 @@ final class ApiSerializer
             'update_time' => (int)$u->update_time,
             'active_time' => (int)$u->active_time,
             'info' => $u->info,
+            'is_webmaster' => $u->isWebmaster(),
         ], $users);
     }
 

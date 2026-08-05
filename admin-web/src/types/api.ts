@@ -27,6 +27,7 @@ export interface User {
   update_time: number
   active_time: number
   info: string | null
+  is_webmaster?: boolean
 }
 
 export interface MeData {

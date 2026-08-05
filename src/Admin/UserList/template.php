@@ -55,7 +55,7 @@ $roleNames = [
             <td><?= Html::encode($statusNames[$user->status] ?? $user->status) ?></td>
             <td><?= date('Y-m-d', (int)$user->register_time) ?></td>
             <td>
-                <?php if ($user->username !== 'dabing'): ?>
+                <?php if (!$user->isWebmaster()): ?>
                     <?php if ($user->status !== User::STATUS_BANED): ?>
                         <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/user/action', ['action' => 'ban', 'id' => $user->id])) ?>" class="admin-inline" onsubmit="return confirm('禁用用户「<?= Html::encode($user->nickname) ?>」？');">
                             <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
@@ -67,6 +67,19 @@ $roleNames = [
                             <button type="submit">启用</button>
                         </form>
                     <?php endif; ?>
+                    <details class="admin-inline-details">
+                        <summary>编辑</summary>
+                        <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/user/action', ['action' => 'update', 'id' => $user->id])) ?>" class="admin-inline">
+                            <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                            <input type="text" name="nickname" value="<?= Html::encode($user->nickname) ?>" required maxlength="80" placeholder="昵称">
+                            <select name="role">
+                                <?php foreach ($roleNames as $roleValue => $roleName): ?>
+                                    <option value="<?= $roleValue ?>" <?= (int)$user->role === $roleValue ? 'selected' : '' ?>><?= Html::encode($roleName) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit">保存</button>
+                        </form>
+                    </details>
                 <?php else: ?>
                     <span>（站长）</span>
                 <?php endif; ?>

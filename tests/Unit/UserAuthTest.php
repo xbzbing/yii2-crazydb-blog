@@ -180,6 +180,30 @@ final class UserAuthTest extends TestCase
         self::assertNull($result['user']);
     }
 
+    public function testRegisterRejectsBlacklistedNickname(): void
+    {
+        $service = new RegisterService();
+        $result = $service->register([
+            'username' => 'normal_' . bin2hex(random_bytes(3)),
+            'nickname' => '管理员',
+            'email' => 'x' . bin2hex(random_bytes(3)) . '@example.com',
+            'password' => 'password123',
+            'password_repeat' => 'password123',
+        ]);
+        self::assertArrayHasKey('nickname', $result['errors']);
+        self::assertNull($result['user']);
+
+        $result2 = $service->register([
+            'username' => 'normal_' . bin2hex(random_bytes(3)),
+            'nickname' => '站长',
+            'email' => 'x' . bin2hex(random_bytes(3)) . '@example.com',
+            'password' => 'password123',
+            'password_repeat' => 'password123',
+        ]);
+        self::assertArrayHasKey('nickname', $result2['errors']);
+        self::assertNull($result2['user']);
+    }
+
     public function testRegisterRejectsDuplicateUsername(): void
     {
         $suffix = 'dup_' . bin2hex(random_bytes(3));
@@ -455,5 +479,62 @@ final class UserAuthTest extends TestCase
         } finally {
             $created['cleanup']();
         }
+    }
+
+    public function testAdminUserUpdate(): void
+    {
+        $suffix = 'edit_' . bin2hex(random_bytes(3));
+        $created = $this->createUser($suffix);
+        try {
+            $action = new \App\Admin\Api\UserList\Action(
+                new \App\Admin\Api\JsonResponse(new \HttpSoft\Message\ResponseFactory()),
+            );
+            $request = (new \HttpSoft\Message\ServerRequestFactory())
+                ->createServerRequest('POST', '/admin/api/user/update/' . $created['user']->id)
+                ->withParsedBody(['nickname' => '新昵称' . $suffix, 'role' => User::ROLE_EDITOR]);
+            $response = $action->update($request, (int)$created['user']->id);
+            self::assertSame(200, $response->getStatusCode());
+            $body = json_decode((string)$response->getBody(), true);
+            self::assertTrue($body['ok']);
+            $created['user']->refresh();
+            self::assertSame('新昵称' . $suffix, $created['user']->nickname);
+            self::assertSame(User::ROLE_EDITOR, $created['user']->role);
+
+            // 黑名单昵称被拒
+            $request2 = (new \HttpSoft\Message\ServerRequestFactory())
+                ->createServerRequest('POST', '/admin/api/user/update/' . $created['user']->id)
+                ->withParsedBody(['nickname' => '管理员', 'role' => User::ROLE_MEMBER]);
+            $response2 = $action->update($request2, (int)$created['user']->id);
+            $body2 = json_decode((string)$response2->getBody(), true);
+            self::assertFalse($body2['data']['ok']);
+            self::assertArrayHasKey('nickname', $body2['data']['errors']);
+
+            // 非法角色被拒
+            $request3 = (new \HttpSoft\Message\ServerRequestFactory())
+                ->createServerRequest('POST', '/admin/api/user/update/' . $created['user']->id)
+                ->withParsedBody(['nickname' => '正常昵称', 'role' => 99]);
+            $response3 = $action->update($request3, (int)$created['user']->id);
+            $body3 = json_decode((string)$response3->getBody(), true);
+            self::assertFalse($body3['data']['ok']);
+            self::assertArrayHasKey('role', $body3['data']['errors']);
+        } finally {
+            $created['cleanup']();
+        }
+    }
+
+    public function testAdminUserUpdateRejectsWebmaster(): void
+    {
+        $webmaster = User::query()->where(['username' => 'admin', 'role' => User::ROLE_ADMIN])->one();
+        if (!$webmaster instanceof User) {
+            self::markTestSkipped('测试库中无 admin 站长账号');
+        }
+        $action = new \App\Admin\Api\UserList\Action(
+            new \App\Admin\Api\JsonResponse(new \HttpSoft\Message\ResponseFactory()),
+        );
+        $request = (new \HttpSoft\Message\ServerRequestFactory())
+            ->createServerRequest('POST', '/admin/api/user/update/' . $webmaster->id)
+            ->withParsedBody(['nickname' => '新昵称', 'role' => User::ROLE_MEMBER]);
+        $response = $action->update($request, (int)$webmaster->id);
+        self::assertSame(422, $response->getStatusCode());
     }
 }

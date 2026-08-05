@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Tag, Tooltip, message, Modal, Descriptions } from 'antd'
-import { EyeOutlined, StopOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Button, Tag, Tooltip, message, Modal, Descriptions, Form, Input, Select, Space } from 'antd'
+import { EyeOutlined, StopOutlined, CheckCircleOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { User } from '../types/api'
@@ -22,7 +22,10 @@ const STATUS_MAP = {
 export default function UserList() {
   const actionRef = useRef<ActionType>(null)
   const [viewTarget, setViewTarget] = useState<User | null>(null)
+  const [editTarget, setEditTarget] = useState<User | null>(null)
   const [confirming, setConfirming] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [form] = Form.useForm()
 
   const handleToggle = async (action: string, id: number) => {
     setConfirming(true)
@@ -34,6 +37,31 @@ export default function UserList() {
       message.error(e instanceof Error ? e.message : String(e))
     } finally {
       setConfirming(false)
+    }
+  }
+
+  const handleEdit = (user: User) => {
+    setEditTarget(user)
+    form.setFieldsValue({ nickname: user.nickname, role: user.role })
+  }
+
+  const handleSave = async () => {
+    if (!editTarget) return
+    setSaving(true)
+    try {
+      const values = await form.validateFields()
+      const data = await api.userUpdate(editTarget.id, values)
+      if (data && data.ok === false) {
+        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
+        return
+      }
+      message.success(data?.message || '用户信息已更新。')
+      setEditTarget(null)
+      actionRef.current?.reload()
+    } catch (e) {
+      if (e instanceof Error) message.error(e.message)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -75,9 +103,16 @@ export default function UserList() {
       width: 40,
       search: false,
       render: (_, r) => (
-        <Tooltip title="查看详情">
-          <Button size="small" icon={<EyeOutlined />} onClick={() => setViewTarget(r)} />
-        </Tooltip>
+        <Space.Compact>
+          <Tooltip title="查看详情">
+            <Button size="small" icon={<EyeOutlined />} onClick={() => setViewTarget(r)} />
+          </Tooltip>
+          {!r.is_webmaster && (
+            <Tooltip title="编辑">
+              <Button size="small" icon={<EditOutlined />} onClick={() => handleEdit(r)} />
+            </Tooltip>
+          )}
+        </Space.Compact>
       ),
     },
   ]
@@ -156,6 +191,42 @@ export default function UserList() {
             <Descriptions.Item label="个人简介">{viewTarget.info || '-'}</Descriptions.Item>
           </Descriptions>
         )}
+      </Modal>
+
+      {/* 用户编辑弹窗（昵称/角色） */}
+      <Modal
+        title={`编辑用户：${editTarget?.username ?? ''}`}
+        open={editTarget !== null}
+        onCancel={() => setEditTarget(null)}
+        onOk={handleSave}
+        confirmLoading={saving}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+          <Form.Item
+            name="nickname"
+            label="昵称"
+            rules={[
+              { required: true, message: '请输入昵称' },
+              { max: 80, message: '昵称最多 80 个字符' },
+            ]}
+          >
+            <Input placeholder="用户昵称" />
+          </Form.Item>
+          <Form.Item
+            name="role"
+            label="角色"
+            rules={[{ required: true, message: '请选择角色' }]}
+          >
+            <Select
+              options={[
+                { value: 1, label: '会员' },
+                { value: 8, label: '编辑' },
+                { value: 16, label: '管理员' },
+              ]}
+            />
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   )
