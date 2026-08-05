@@ -7,6 +7,7 @@ namespace App\Admin\Api\LogList;
 use App\Admin\Api\ApiSerializer;
 use App\Admin\Api\JsonResponse;
 use App\Log\Log;
+use App\User\User;
 use App\Web\Pager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -48,11 +49,22 @@ final readonly class Action
             ->offset($pager->offset)
             ->all();
 
+        // 批量预取 uid → 昵称映射（避免逐条查询）
+        $uids = array_values(array_unique(array_map(static fn (Log $l): int => (int)$l->uid, $logs)));
+        $nicknameMap = [];
+        if ($uids !== []) {
+            /** @var list<User> $users */
+            $users = User::query()->where(['in', 'id', $uids])->all();
+            foreach ($users as $user) {
+                $nicknameMap[(int)$user->id] = $user->nickname !== '' ? $user->nickname : $user->username;
+            }
+        }
+
         /** @var list<array{type: string}> $typeRows */
         $typeRows = Log::query()->select('type')->distinct()->asArray()->all();
 
         return $this->jsonResponse->ok([
-            'items' => ApiSerializer::logs($logs),
+            'items' => ApiSerializer::logs($logs, $nicknameMap),
             'types' => array_column($typeRows, 'type'),
             'total' => $pager->totalCount,
             'page' => $pager->currentPage,

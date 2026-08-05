@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, message } from 'antd'
+import { Button, Popconfirm, message, Tooltip, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { LogItem } from '../types/api'
@@ -20,10 +20,30 @@ export default function LogList() {
 
   const columns: ProColumns<LogItem>[] = [
     { title: 'ID', dataIndex: 'id', width: 70, search: false },
-    { title: '类型', dataIndex: 'type', width: 160, valueType: 'select' },
-    { title: '用户', dataIndex: 'uid', width: 80, search: false },
+    { title: '类型', dataIndex: 'type', width: 130, valueType: 'select' },
+    {
+      title: '用户',
+      dataIndex: 'nickname',
+      width: 100,
+      search: false,
+      render: (_, r) =>
+        r.uid === 0 ? (
+          <span style={{ color: 'rgba(0,0,0,0.45)' }}>游客</span>
+        ) : (
+          <Tooltip title={`ID: ${r.uid}`}>
+            <span>{r.nickname || `用户 ${r.uid}`}</span>
+          </Tooltip>
+        ),
+    },
     { title: '动作', dataIndex: 'action', width: 180, ellipsis: true, search: false },
-    { title: '结果', dataIndex: 'result', width: 100, search: false },
+    {
+      title: '结果',
+      dataIndex: 'result',
+      width: 80,
+      search: false,
+      render: (_, r) =>
+        r.result === 'success' ? <Tag color="success">成功</Tag> : <Tag color="error">失败</Tag>,
+    },
     { title: '详情', dataIndex: 'detail', ellipsis: true, search: false },
     {
       title: '时间',

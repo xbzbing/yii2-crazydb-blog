@@ -162,13 +162,15 @@ final class ApiSerializer
 
     /**
      * @param list<\App\Log\Log> $logs
+     * @param array<int, string> $nicknameMap uid → 昵称（uid=0 游客）
      * @return list<array<string, mixed>>
      */
-    public static function logs(array $logs): array
+    public static function logs(array $logs, array $nicknameMap = []): array
     {
         return array_map(static fn (\App\Log\Log $l): array => [
             'id' => (int)$l->id,
             'uid' => (int)$l->uid,
+            'nickname' => (string)($nicknameMap[(int)$l->uid] ?? ''),
             'type' => $l->type,
             'action' => $l->action,
             'result' => $l->result,
