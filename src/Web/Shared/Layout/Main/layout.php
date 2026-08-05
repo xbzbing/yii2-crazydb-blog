@@ -84,6 +84,8 @@ $this->beginPage()
                 <?php $currentUser = $authService->currentUser(); ?>
                 <?php if ($currentUser !== null): ?>
                     <li><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a></li>
+                    <li><a href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a></li>
+                    <li><a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a></li>
                     <li>
                         <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
                             <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">

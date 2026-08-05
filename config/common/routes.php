@@ -45,7 +45,7 @@ return [
 
             // Users (static paths before /user/{name} — match order is significant)
             Route::get('/user/profile/{name}')->action(Web\UserShow\Action::class)->name('user/profile'),
-            Route::get('/user/profile')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile-me'),
+            Route::methods([Method::GET, Method::POST], '/user/profile')->action(Web\UserProfile\Action::class)->name('user/profile-edit'),
             Route::methods([Method::GET, Method::POST], '/user/modify-password')->action(Web\ModifyPassword\Action::class)->name('user/modify-password'),
             Route::get('/user/{name}')->action(Web\UserShow\Action::class)->name('user/show'),
             Route::get('/user/{name}/page/{page:\d+}')->action(Web\UserShow\Action::class)->name('user/show-page'),

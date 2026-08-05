@@ -592,3 +592,96 @@ a:hover {
         font-size: 16px;
     }
 }
+
+/* ============ 认证/表单卡片（登录/注册/修改密码/修改资料） ============ */
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+}
+
+.auth-card h1 {
+    font-size: 22px;
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+}
+
+.auth-card .auth-form label {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.auth-card .auth-form input,
+.auth-card .auth-form textarea {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 15px;
+    color: var(--ink);
+    background: #fff;
+    font-family: inherit;
+}
+
+.auth-card .auth-form input:focus,
+.auth-card .auth-form textarea:focus {
+    border-color: var(--accent);
+    outline: 0;
+}
+
+.auth-card .auth-form button[type="submit"] {
+    margin-top: 6px;
+    padding: 9px 26px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.auth-card .auth-form button[type="submit"]:hover {
+    opacity: 0.9;
+}
+
+.auth-card .form-error {
+    color: #a33d2a;
+    background: #fbeae7;
+    border: 1px solid #f2c9c0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.auth-card .auth-tip {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 16px;
+}
+
+/* 修改资料页头像 */
+.user-update .base-profile {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-update .base-profile img {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.user-update .base-profile h3 {
+    margin: 0;
+    font-size: 18px;
+}

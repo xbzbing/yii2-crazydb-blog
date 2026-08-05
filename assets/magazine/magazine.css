@@ -559,3 +559,28 @@ a:hover { text-decoration: underline; }
 .article-toc summary { cursor: pointer; font-weight: 600; font-family: var(--serif); }
 .article-toc ul { list-style: none; margin: 10px 0 0; padding-left: 8px; }
 .article-toc .toc-level-3 { padding-left: 18px; }
+
+/* ---------- 用户主页（user/show） ---------- */
+.user-avatar img {
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: block;
+}
+
+.article-card-header .user-avatar {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.user-info {
+    margin-top: 10px;
+    padding: 12px 0;
+    border-top: 1px dashed var(--line);
+    color: var(--ink-soft);
+    line-height: 1.9;
+}
+
+.article-meta a {
+    margin-right: 8px;
+}

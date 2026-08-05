@@ -62,6 +62,7 @@ $this->setParameter(
             <?php endif; ?>
             <?php $viewer = $authService->currentUser(); ?>
             <?php if ($viewer !== null && (int)$viewer->id === (int)$user->id): ?>
+                <span><a href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a></span>
                 <span><a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a></span>
             <?php endif; ?>
         </div>
