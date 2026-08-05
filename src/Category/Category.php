@@ -26,7 +26,7 @@ final class Category extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'category';
+        return '{{%category}}';
     }
 
     public function getChildren(): \Yiisoft\ActiveRecord\ActiveQuery

@@ -45,7 +45,7 @@ final class CustomConfig extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'custom_config';
+        return '{{%custom_config}}';
     }
 
     /**

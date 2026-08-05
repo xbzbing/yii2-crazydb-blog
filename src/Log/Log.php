@@ -30,7 +30,7 @@ final class Log extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'log';
+        return '{{%log}}';
     }
 
     /**

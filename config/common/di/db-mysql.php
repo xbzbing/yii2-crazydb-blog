@@ -18,5 +18,6 @@ return [
                 $params['yiisoft/db-mysql']['password'],
             ),
         ],
+        'setTablePrefix()' => [$params['yiisoft/db-mysql']['table_prefix']],
     ],
 ];

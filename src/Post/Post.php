@@ -49,7 +49,7 @@ final class Post extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'post';
+        return '{{%post}}';
     }
 
     /**

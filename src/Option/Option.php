@@ -24,6 +24,6 @@ final class Option extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'option';
+        return '{{%option}}';
     }
 }

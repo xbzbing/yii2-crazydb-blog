@@ -10,7 +10,7 @@ SET NAMES utf8mb4;
 -- 1. post 表：新增 format 列（幂等：先检查再添加）
 -- ============================================================
 SET @dbname = 'crazydb';
-SET @tablename = 'post';
+SET @tablename = 'blog_post';
 SET @columnname = 'format';
 SET @preparedStatement = (SELECT IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -30,7 +30,7 @@ DEALLOCATE PREPARE alterIfNotExists;
 -- ============================================================
 -- post
 SET @dbname = 'crazydb';
-SET @tablename = 'post';
+SET @tablename = 'blog_post';
 SET @indexname = 'idx_update_time';
 SET @indexcols = 'update_time';
 SET @preparedStatement = (SELECT IF(
@@ -47,7 +47,7 @@ EXECUTE createIndexIfNotExists;
 DEALLOCATE PREPARE createIndexIfNotExists;
 
 -- category
-SET @tablename = 'category';
+SET @tablename = 'blog_category';
 SET @preparedStatement = (SELECT IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
      WHERE TABLE_SCHEMA = @dbname
@@ -62,7 +62,7 @@ EXECUTE createIndexIfNotExists;
 DEALLOCATE PREPARE createIndexIfNotExists;
 
 -- comment
-SET @tablename = 'comment';
+SET @tablename = 'blog_comment';
 SET @preparedStatement = (SELECT IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
      WHERE TABLE_SCHEMA = @dbname
@@ -77,7 +77,7 @@ EXECUTE createIndexIfNotExists;
 DEALLOCATE PREPARE createIndexIfNotExists;
 
 -- option
-SET @tablename = 'option';
+SET @tablename = 'blog_option';
 SET @preparedStatement = (SELECT IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS
      WHERE TABLE_SCHEMA = @dbname
@@ -94,7 +94,7 @@ DEALLOCATE PREPARE createIndexIfNotExists;
 -- ============================================================
 -- 3. visit_daily 表（全新）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `visit_daily` (
+CREATE TABLE IF NOT EXISTS `blog_visit_daily` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `date` DATE NOT NULL COMMENT '日期',
     `pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '访问次数(PV)',
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `visit_daily` (
 -- ============================================================
 -- 4. custom_config 表（全新）
 -- ============================================================
-CREATE TABLE IF NOT EXISTS `custom_config` (
+CREATE TABLE IF NOT EXISTS `blog_custom_config` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `category` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '分类',
     `key` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '配置键（分类内唯一）',
@@ -127,11 +127,11 @@ CREATE TABLE IF NOT EXISTS `custom_config` (
 -- ============================================================
 -- 5. 初始化 custom_config 种子数据（幂等）
 -- ============================================================
-INSERT INTO `custom_config` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
+INSERT INTO `blog_custom_config` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
 SELECT 'ThemeDIY', 'aboutMe', '关于我',
        '曾经是爱好网络安全的程序猿\n\n后来是爱好编程的安全攻城狮\n\n现在是爱好安全的摸鱼工程师\n\n**联系方式**：xbzbing#gmail.com',
        'markdown', 100, '侧栏「关于我」内容（Markdown 渲染）', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()
-WHERE NOT EXISTS (SELECT 1 FROM `custom_config` WHERE `category` = 'ThemeDIY' AND `key` = 'aboutMe');
+WHERE NOT EXISTS (SELECT 1 FROM `blog_custom_config` WHERE `category` = 'ThemeDIY' AND `key` = 'aboutMe');
 
 -- ============================================================
 -- 6. 初始化 option 种子数据（幂等，已有则跳过）

@@ -18,7 +18,7 @@ final class Tag extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'tag';
+        return '{{%tag}}';
     }
 
     /**

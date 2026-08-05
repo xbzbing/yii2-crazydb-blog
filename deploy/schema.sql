@@ -10,7 +10,7 @@ SET NAMES utf8mb4;
 -- ------------------------------------------------------------
 -- 文章表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `post` (
+CREATE TABLE IF NOT EXISTS `blog_post` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `cid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '分类ID',
   `author_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '作者ID',
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `post` (
 -- ------------------------------------------------------------
 -- 分类表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `category` (
+CREATE TABLE IF NOT EXISTS `blog_category` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '分类名称',
   `alias` VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'URL别名',
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `category` (
 -- ------------------------------------------------------------
 -- 评论表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `comment` (
+CREATE TABLE IF NOT EXISTS `blog_comment` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '文章ID',
   `uid` INT UNSIGNED DEFAULT NULL COMMENT '用户ID',
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
 -- ------------------------------------------------------------
 -- 用户表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE IF NOT EXISTS `blog_user` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `nickname` VARCHAR(80) NOT NULL DEFAULT '' COMMENT '昵称',
   `username` VARCHAR(20) NOT NULL DEFAULT '' COMMENT '用户名',
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- ------------------------------------------------------------
 -- 标签表 (文章-标签关系)
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `tag` (
+CREATE TABLE IF NOT EXISTS `blog_tag` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '标签名',
   `pid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '文章ID',
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `tag` (
 -- ------------------------------------------------------------
 -- 导航表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `nav` (
+CREATE TABLE IF NOT EXISTS `blog_nav` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '父菜单',
   `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '名字',
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `nav` (
 -- ------------------------------------------------------------
 -- 站点配置表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `option` (
+CREATE TABLE IF NOT EXISTS `blog_option` (
   `type` VARCHAR(20) NOT NULL COMMENT '配置类型: sys/seo',
   `name` VARCHAR(50) NOT NULL COMMENT '配置名称',
   `value` TEXT COMMENT '值',
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `option` (
 -- ------------------------------------------------------------
 -- 操作日志表
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `log` (
+CREATE TABLE IF NOT EXISTS `blog_log` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `uid` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户ID',
   `type` VARCHAR(20) NOT NULL DEFAULT 'default' COMMENT '操作类型',
@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `log` (
 -- ------------------------------------------------------------
 -- 按日访问统计表（前台 PV/UV 聚合，由 visit/sync 定时任务落库）
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `visit_daily` (
+CREATE TABLE IF NOT EXISTS `blog_visit_daily` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `date` DATE NOT NULL COMMENT '日期',
   `pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '访问次数(PV)',
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `visit_daily` (
 -- ------------------------------------------------------------
 -- 自定义配置表（个性化设置：ThemeDIY/IndexCarousel 等分类）
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `custom_config` (
+CREATE TABLE IF NOT EXISTS `blog_custom_config` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `category` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '分类',
   `key` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '配置键（分类内唯一）',
