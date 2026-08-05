@@ -33,6 +33,7 @@ vim .env   # 按需修改
 
 - Docker + Docker Compose
 - Git
+- Node.js（≥18，编译后台 SPA）
 
 ### 步骤
 
@@ -59,9 +60,16 @@ cat deploy/seed.sql   | docker compose -f docker-compose-dev.yml exec -T mysql m
 #   已有数据库（Yii2 或旧 Yii3）：执行增量升级（幂等）
 docker compose -f docker-compose-dev.yml exec php php yii init/migrate
 
-# 5. 验证
+# 5. 编译后台 SPA（产物输出到 ../public/admin，nginx 托管 /admin）
+npm --prefix admin-web install
+npm --prefix admin-web run build
+
+# 6. 验证
 docker compose -f docker-compose-dev.yml exec php ./vendor/bin/phpunit
 ```
+
+> 后台前端开发调试：`npm --prefix admin-web run dev` 启动 Vite（:5173），
+> 已配置代理到本地 nginx（/admin/api、/static 同源），热更新。
 
 ### 服务访问
 
@@ -94,10 +102,15 @@ cp .env.example .env
 vim .env  # 填写数据库密码、DB_TABLE_PREFIX 等配置
 docker compose -f docker-compose-deploy.yml up -d
 
-# 4. 执行数据库升级（幂等，可重复执行）
+# 4. 编译后台 SPA（产物不入库，需在部署机执行）
+npm --prefix admin-web install
+npm --prefix admin-web run build
+#   换部署路径时用 VITE_ADMIN_BASE 覆盖（默认 /admin/）
+
+# 5. 执行数据库升级（幂等，可重复执行）
 docker compose -f docker-compose-deploy.yml exec php php yii init/migrate
 
-# 5. 验证
+# 6. 验证
 curl -I http://localhost  # 应返回 200
 ```
 
@@ -119,6 +132,7 @@ docker compose -f docker-compose-deploy.yml exec -T mysql sh -c \
   全新部署须先导入 `deploy/schema.sql` + `deploy/seed.sql`
 - `init/check` 可检测库结构是否符合预期，升级前先运行确认
 - 表前缀默认 `blog_`（Yii2 遗留命名），通过 env `DB_TABLE_PREFIX` 可覆盖；`DB_TABLE_PREFIX=` 置空则无前缀
+- 后台 SPA 构建产物 `public/admin/` 为 gitignored 运行时产物，**不在版本库**，部署时必须重新构建
 - 老文章（HTML 格式）不受影响，无需转换；新文章支持 Markdown
 - 静态资源（`web/upload/` 上传文件、`web/static/avatar/` 头像）为 gitignored 运行时数据，
   上线时需手动拷贝到新部署，保持路径不变
