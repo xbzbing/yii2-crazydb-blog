@@ -410,6 +410,44 @@ a:hover { text-decoration: underline; }
     font-size: 14px;
 }
 
+/* ---------- 加锁文章 ---------- */
+.article-locked-tip {
+    margin: 20px 0;
+    padding: 18px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    font-size: 14px;
+    color: var(--ink-soft);
+}
+.article-locked-tip .label { display: block; margin-bottom: 10px; }
+.article-locked-tip .alert-danger {
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: #FBE9E7;
+    color: #B3261E;
+    border: 1px solid #F5C6CB;
+}
+.article-locked-tip .input-group { display: flex; gap: 8px; max-width: 420px; }
+.article-locked-tip .form-control {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 14px;
+    background: #fff;
+}
+.article-locked-tip .btn {
+    padding: 8px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
 /* ---------- 分页 ---------- */
 .pager ul { list-style: none; display: flex; gap: 6px; margin: 28px 0; padding: 0; justify-content: center; }
 .pager li a, .pager li span {

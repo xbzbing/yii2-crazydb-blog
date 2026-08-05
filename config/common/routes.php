@@ -31,11 +31,10 @@ return [
             Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\CategoryShow\Action::class)->name('category/show-page'),
 
             // Posts
-            Route::get('/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
+            Route::methods([Method::GET, Method::POST], '/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
             Route::get('/posts')->action(Web\PostList\Action::class)->name('post/list'),
             Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
-            Route::get('/post/{id:\d+}')->action(Web\PostShow\Action::class)->name('post/view'),
-            Route::post('/post/unlock/{id:\d+}')->action(Web\PostUnlock\Action::class)->name('post/unlock'),
+            Route::methods([Method::GET, Method::POST], '/post/{id:\d+}')->action(Web\PostShow\Action::class)->name('post/view'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\ArchivesDate\Action::class)->name('post/archives-date'),
 

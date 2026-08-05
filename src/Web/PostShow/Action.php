@@ -34,7 +34,6 @@ final readonly class Action
         private CacheInterface $cache,
         private Aliases $aliases,
         private MarkdownRenderer $markdownRenderer,
-        private \Yiisoft\Session\SessionInterface $session,
     ) {}
 
     public function __invoke(
@@ -80,17 +79,23 @@ final readonly class Action
         }
         $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
         $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
-        // 加锁文章（password 非空）：未解锁时仅显示摘要，需输入密码才能查看全文
+        // 加锁文章（password 非空）：每次访问都需输入密码，不写入 session，登录也不绕过。
+        // 密码在本请求（POST 到本页）内校验：正确则直接渲染全文，错误则渲染摘要+表单+错误提示。
         $password = (string)$post->password;
         $unlocked = false;
+        $passwordError = false;
         if ($password !== '') {
-            $unlocked = $this->session->get('unlocked_post_' . (int)$post->id) === $password;
-            if (!$unlocked) {
-                $contentHtml = \Yiisoft\Html\Html::encode((string)$post->excerpt);
-                $toc = [];
-            } else {
+            $body = $request->getParsedBody();
+            $input = trim((string)(is_array($body) ? ($body['password'] ?? '') : ''));
+            $submitted = $request->getMethod() === 'POST' && $input !== '';
+            if ($submitted && hash_equals($password, $input)) {
+                $unlocked = true;
                 $contentHtml = $post->getContentProcessed($this->markdownRenderer);
                 $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
+            } else {
+                $passwordError = $submitted;
+                $contentHtml = $post->getExcerptProcessed($this->markdownRenderer);
+                $toc = [];
             }
         } else {
             $contentHtml = $post->getContentProcessed($this->markdownRenderer);
@@ -104,6 +109,7 @@ final readonly class Action
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
                 'unlocked' => $unlocked,
+                'passwordError' => $passwordError,
                 'comments' => $comments,
                 'replyMap' => $replyMap,
                 'commentTotal' => $total,

@@ -61,6 +61,21 @@ final class Post extends ActiveRecord
     }
 
     /**
+     * 按 format 分派渲染后的摘要 HTML：markdown 走渲染管线，html 老文章净化直出。
+     * （加锁文章未解锁时展示摘要即经此渲染，保证 markdown 语法生效。）
+     */
+    public function getExcerptProcessed(MarkdownRenderer $renderer): string
+    {
+        $excerpt = (string) $this->excerpt;
+        if ($excerpt === '') {
+            return '';
+        }
+        return $this->format === self::FORMAT_MARKDOWN
+            ? $renderer->render($excerpt, $this->update_time)
+            : \App\Common\XUtils::htmlPurify($excerpt);
+    }
+
+    /**
      * 前台可见状态集合（仅已发布；草稿/已删除不公开，对齐需求）。
      */
     public static function visibleStatuses(): array

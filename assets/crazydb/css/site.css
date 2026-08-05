@@ -1056,6 +1056,10 @@ a.badge:focus {
 }
 
 /* ============ 归档时间轴（提取自线上 archives.php 内联样式） ============ */
+#archives {
+    padding: 15px;
+}
+
 #archives h2 small {
     padding-left: 5px;
     color: #999999;
@@ -1070,12 +1074,17 @@ a.badge:focus {
     border-left: none;
 }
 
+/* Bootstrap 5 默认 ul padding-left 为 2rem(32px)，线上 Bootstrap 3 为 40px，显式还原以对齐时间轴 */
+.archives {
+    padding-left: 40px;
+}
+
 #archives .first {
     padding-top: 10px;
 }
 
 #archives .else {
-    padding-left: 25px;
+    padding: 10px 0 0 25px;
 }
 
 #archives .else em {
@@ -1134,7 +1143,6 @@ a.badge:focus {
 .archives time {
     color: #999999;
     font-size: 0.8em;
-    float: right;
 }
 
 .archives small {
@@ -1156,8 +1164,8 @@ a.badge:focus {
     background: orange;
 }
 
-.archives .year,
-.archives .month {
+.archives > li.year,
+.archives > li.month {
     padding-top: 10px;
 }
 
