@@ -6,6 +6,7 @@ namespace App\Tests\Unit;
 
 use App\Category\Category;
 use App\Comment\Comment;
+use App\Nav\Nav;
 use App\Post\Post;
 use App\Tag\Tag;
 use App\Tests\TestCase;
@@ -273,6 +274,29 @@ final class FrontendQueriesTest extends TestCase
             $comment->delete();
             $post->delete();
         }
+    }
+
+    public function testNavUrlBlocksDangerousScheme(): void
+    {
+        $dangerous = new Nav();
+        $dangerous->route = 0;
+        $dangerous->url = "java\nscript:alert(1)";
+        self::assertSame('#', $dangerous->getUrl(), 'control-char folded scheme must be blocked');
+
+        $folded = new Nav();
+        $folded->route = 0;
+        $folded->url = 'javascript:alert(1)';
+        self::assertSame('#', $folded->getUrl(), 'javascript: must be blocked');
+
+        $safe = new Nav();
+        $safe->route = 0;
+        $safe->url = 'https://example.com';
+        self::assertSame('https://example.com', $safe->getUrl());
+
+        $relative = new Nav();
+        $relative->route = 0;
+        $relative->url = '/about';
+        self::assertSame('/about', $relative->getUrl());
     }
 
     public function testPagerMath(): void
