@@ -134,17 +134,17 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
     onClick: async ({ key }: { key: string }) => {
       if (key === 'logout') {
         try {
-          // /site/logout 是 POST 路由，走 fetch + CSRF，成功后回登录页
-          await fetch('/site/logout', {
+          // /logout 是 POST 路由，走 fetch + CSRF，成功后跳前台登录页
+          await fetch('/logout', {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'X-CSRF-Token': getCsrfToken() || '' },
           })
         } catch {
-          /* 即使失败也回登录页 */
+          /* 即使失败也跳前台登录页 */
         }
         onLogout()
-        window.location.hash = '#/login'
+        window.location.href = `/login?redirect=${encodeURIComponent('/admin')}`
       }
     },
   }

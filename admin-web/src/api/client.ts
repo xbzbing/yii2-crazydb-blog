@@ -36,21 +36,6 @@ export function getCsrfToken(): string | null {
   return csrfToken
 }
 
-/** 从 /me 拉取 CSRF token（同步器模式，存 session；未登录时守卫也会返回 csrf） */
-export async function fetchCsrfToken(): Promise<string | null> {
-  const res = await fetch(`${BASE}/me`, { credentials: 'same-origin' })
-  const json = (await res.json().catch(() => null)) as ApiEnvelope<MeData> | null
-  if (json && typeof json.data?.csrf === 'string') {
-    csrfToken = json.data.csrf
-    return json.data.csrf
-  }
-  if (json && typeof json.error === 'string' && typeof json.csrf === 'string') {
-    csrfToken = json.csrf
-    return json.csrf
-  }
-  return null
-}
-
 /** 获取当前登录管理员（未登录返回 null，但会回写 401 响应里的 csrf） */
 export async function fetchMe(): Promise<MeData | null> {
   const res = await fetch(`${BASE}/me`, { credentials: 'same-origin' })

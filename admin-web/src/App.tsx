@@ -4,7 +4,6 @@ import { Spin } from 'antd'
 import { fetchMe } from './api/client'
 import type { MeData } from './types/api'
 import AdminLayout from './layouts/AdminLayout'
-import LoginPage from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import PostList from './pages/PostList'
 import PostForm from './pages/PostForm'
@@ -26,13 +25,12 @@ type MeUser = MeData['user']
 export default function App() {
   const [me, setMe] = useState<MeUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
 
   useEffect(() => {
-    // 401 事件 → 清态跳登录
+    // 401 事件 → 清态跳前台登录页（登录后 redirect 回后台）
     const onUnauthorized = () => {
       setMe(null)
-      navigate('/login', { replace: true })
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.hash)}`
     }
     window.addEventListener('admin:unauthorized', onUnauthorized)
     fetchMe()
@@ -50,11 +48,16 @@ export default function App() {
   }
 
   if (!me) {
+    // 未登录：跳前台登录页（session 登录，登录成功 redirect 回后台）
+    const target = `/login?redirect=${encodeURIComponent('/admin' + window.location.hash)}`
+    if (window.location.pathname !== '/login') {
+      window.location.replace(target)
+      return null
+    }
     return (
-      <Routes>
-        <Route path="/login" element={<LoginPage onLoggedIn={(user) => setMe(user)} />} />
-        <Route path="*" element={<NavigateToLogin />} />
-      </Routes>
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <Spin size="large" />
+      </div>
     )
   }
 
@@ -84,14 +87,6 @@ export default function App() {
       </Routes>
     </AdminLayout>
   )
-}
-
-function NavigateToLogin() {
-  const navigate = useNavigate()
-  useEffect(() => {
-    navigate('/login', { replace: true })
-  }, [])
-  return null
 }
 
 function NavigateToBasic() {
