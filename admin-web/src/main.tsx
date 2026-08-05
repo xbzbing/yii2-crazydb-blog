@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { App as AntApp, ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import dayjs from 'dayjs'
@@ -16,9 +16,11 @@ if (rootEl) {
     <React.StrictMode>
       <ConfigProvider locale={zhCN}>
         <AntApp>
-          <BrowserRouter basename="/admin">
+          {/* Hash 路由：后台内部跳转走 #/xxx，不依赖服务器 history 回退，
+              与前台（BrowserRouter）彻底解耦；/admin 前缀仅由 nginx 静态托管提供。 */}
+          <HashRouter>
             <App />
-          </BrowserRouter>
+          </HashRouter>
         </AntApp>
       </ConfigProvider>
     </React.StrictMode>,

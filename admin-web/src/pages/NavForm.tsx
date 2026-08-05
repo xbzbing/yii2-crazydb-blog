@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Card, Form, Input, InputNumber, Select, Switch, Button, Space, message, Spin } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 export default function NavForm() {
   const { id } = useParams()
   const isEdit = id !== undefined
+  usePageTitle(isEdit ? '编辑导航' : '新建导航')
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [parents, setParents] = useState<Array<{ id: number; name: string }>>([])

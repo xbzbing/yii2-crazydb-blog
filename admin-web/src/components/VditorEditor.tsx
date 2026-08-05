@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import { getCsrfToken } from '../api/client'
+import { ADMIN_BASE } from '../config'
 
 interface VditorEditorProps {
   value: string
@@ -58,7 +59,7 @@ export default function VditorEditor({
       value: value || '',
       cache: { enable: false },
       upload: {
-        url: '/admin/upload/image',
+        url: `${ADMIN_BASE}/upload/image`,
         fieldName: 'file',
         max: 2 * 1024 * 1024,
         accept: 'image/png, image/jpeg, image/gif, image/webp',

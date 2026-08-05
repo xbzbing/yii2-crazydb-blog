@@ -2,7 +2,7 @@
  * 后台 JSON API 客户端。
  *
  * 约定：
- * - 所有写请求（POST）自动携带 X-CSRF-Token header（从 /admin/api/me 获取）
+ * - 所有写请求（POST）自动携带 X-CSRF-Token header（从 <ADMIN_BASE>/api/me 获取）
  * - 响应包体统一 {ok, data, error}
  * - 401 时清空登录态并跳转登录页
  */
@@ -25,8 +25,9 @@ import type {
   User,
   ValidationResult,
 } from '../types/api'
+import { ADMIN_API_BASE } from '../config'
 
-const BASE = '/admin/api'
+const BASE = ADMIN_API_BASE
 
 let csrfToken: string | null = null
 

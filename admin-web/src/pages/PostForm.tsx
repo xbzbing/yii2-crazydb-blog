@@ -4,10 +4,13 @@ import { PlusOutlined, LoadingOutlined, FileDoneOutlined, SaveOutlined, Rollback
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, getCsrfToken } from '../api/client'
 import VditorEditor from '../components/VditorEditor'
+import { usePageTitle } from '../contexts/PageTitleContext'
+import { ADMIN_BASE } from '../config'
 
 export default function PostForm() {
   const { id } = useParams()
   const isEdit = id !== undefined
+  usePageTitle(isEdit ? '编辑文章' : '新建文章')
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [categories, setCategories] = useState({})
@@ -211,7 +214,7 @@ export default function PostForm() {
               accept="image/png, image/jpeg, image/gif, image/webp"
               listType="picture-card"
               showUploadList={false}
-              action="/admin/upload/image"
+              action={`${ADMIN_BASE}/upload/image`}
               headers={{ 'X-CSRF-Token': getCsrfToken() || '' }}
               onChange={(info) => {
                 if (info.file.status === 'uploading') {

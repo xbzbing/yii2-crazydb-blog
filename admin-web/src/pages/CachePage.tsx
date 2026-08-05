@@ -3,6 +3,7 @@ import { Card, Descriptions, Button, Popconfirm, message, Spin, Tag, Progress, S
 import { ClearOutlined, SyncOutlined } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { CacheStatus } from '../types/api'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 function formatBytes(bytes: number | undefined) {
   if (!bytes) return '0 B'
@@ -29,6 +30,7 @@ function formatUptime(sec: number | undefined) {
 }
 
 export default function CachePage() {
+  usePageTitle('缓存管理')
   const [data, setData] = useState<CacheStatus | null>(null)
   const [, setLoading] = useState(true)
 

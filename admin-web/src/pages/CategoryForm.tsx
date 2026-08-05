@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { Card, Form, Input, InputNumber, Select, Button, Space, message, Spin } from 'antd'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 const { TextArea } = Input
 
 export default function CategoryForm() {
   const { id } = useParams()
   const isEdit = id !== undefined
+  usePageTitle(isEdit ? '编辑分类' : '新建分类')
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(isEdit)
