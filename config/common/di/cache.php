@@ -6,8 +6,10 @@ use Predis\Client;
 use Predis\ClientInterface;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Cache\PrefixedCache;
 use Yiisoft\Cache\Redis\RedisCache;
 use Yiisoft\Definitions\Reference;
+use App\Common\CacheKeys;
 
 return [
     ClientInterface::class => [
@@ -29,10 +31,20 @@ return [
         'class' => RedisCache::class,
     ],
 
+    // 缓存 key 统一前缀：清理缓存时按前缀精准删除（SCAN），
+    // 不会误伤同 Redis 内的其他数据（如 visit:* 访问统计等）。
+    'cache.prefixed' => [
+        'class' => PrefixedCache::class,
+        '__construct()' => [
+            'cache' => Reference::to(RedisCache::class),
+            'prefix' => CacheKeys::PREFIX,
+        ],
+    ],
+
     CacheInterface::class => [
         'class' => Cache::class,
         '__construct()' => [
-            'handler' => Reference::to(RedisCache::class),
+            'handler' => Reference::to('cache.prefixed'),
         ],
     ],
 ];
