@@ -138,12 +138,21 @@ export interface LogItem {
   create_time: number
 }
 
+export interface VisitTrendItem {
+  date: string
+  pv: number
+  uv: number
+}
+
 export interface DashboardData {
   postTotal: number
   commentTotal: number
   pendingComments: number
   userTotal: number
   optionTotal: number
+  todayPv: number
+  todayUv: number
+  visitTrend: VisitTrendItem[]
 }
 
 export interface ConfigValues {

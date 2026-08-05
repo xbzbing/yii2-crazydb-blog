@@ -117,7 +117,7 @@ interface ListData<T> extends Pagination {
 
 export const api = {
   me: fetchMe,
-  dashboard: () => request<DashboardData>('/dashboard'),
+  dashboard: (days = 14) => request<DashboardData>(`/dashboard?days=${days}`),
 
   posts: (params: Record<string, string | number> = {}) =>
     request<ListData<PostItem>>(`/posts?${new URLSearchParams(params as Record<string, string>)}`),
