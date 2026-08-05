@@ -53,7 +53,7 @@ final readonly class Action
             'hits' => (int)($stats['keyspace_hits'] ?? 0),
             'misses' => (int)($stats['keyspace_misses'] ?? 0),
             'connectedClients' => (int)($raw['connected_clients'] ?? 0),
-            'db' => '1',
+            'db' => (string)CacheKeys::REDIS_DB,
         ]);
     }
 
