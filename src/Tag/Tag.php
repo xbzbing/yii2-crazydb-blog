@@ -56,6 +56,14 @@ final class Tag extends ActiveRecord
     }
 
     /**
+     * 使所有标签聚合缓存失效。文章保存和删除都必须调用此方法，避免仅删除记录时最大 ID 不变。
+     */
+    public static function invalidateCache(CacheInterface $cache): void
+    {
+        $cache->remove('__tags_version');
+    }
+
+    /**
      * 标签统计：按名称聚合计数，按计数降序；等价 Yii2 Tag::getTags。
      *
      * @return list<array{totalCount: int, name: string, create_time: int, url: string}>
@@ -66,7 +74,12 @@ final class Tag extends ActiveRecord
         bool $refresh = false,
         int $limit = 0,
     ): array {
-        $cacheKey = '__tags_' . $limit . '.' . (int)self::query()->max('id');
+        $version = $cache->getOrSet(
+            '__tags_version',
+            static fn (): string => bin2hex(random_bytes(16)),
+            31536000,
+        );
+        $cacheKey = '__tags_' . $limit . '.' . $version;
         if ($refresh) {
             $cache->remove($cacheKey);
         }
@@ -104,10 +117,6 @@ final class Tag extends ActiveRecord
      */
     public static function deleteByName(string $name, \Yiisoft\Cache\CacheInterface $cache): void
     {
-        $before = (int)self::query()->max('id');
-        $cache->remove('__tags_0.' . $before);
-        $cache->remove('__tags_20.' . $before);
-
         (new self())->deleteAll(['name' => $name]);
 
         // 清理 post.tags 冗余字符串（"a,b,c" → 去掉 name，逗号规整）
@@ -130,8 +139,6 @@ final class Tag extends ActiveRecord
             }
         }
 
-        $after = (int)self::query()->max('id');
-        $cache->remove('__tags_0.' . $after);
-        $cache->remove('__tags_20.' . $after);
+        self::invalidateCache($cache);
     }
 }

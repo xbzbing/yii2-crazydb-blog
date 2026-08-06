@@ -156,6 +156,19 @@ final class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * 在已成功校验密码后升级过时 hash，调用方负责持久化。
+     */
+    public function rehashPasswordIfNeeded(string $password): bool
+    {
+        if (!$this->validatePassword($password) || !password_needs_rehash($this->password, PASSWORD_DEFAULT)) {
+            return false;
+        }
+
+        $this->password = self::hashPassword($password);
+        return true;
+    }
+
+    /**
      * 生成 bcrypt 密码 hash。
      */
     public static function hashPassword(string $password): string

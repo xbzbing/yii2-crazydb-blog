@@ -11,6 +11,9 @@ use Yiisoft\Session\Flash\Flash;
 
 final class XUtils
 {
+    /** @var array<string, HTMLPurifier> */
+    private static array $htmlPurifiers = [];
+
     /**
      * 格式化时间：三天内显示具体发布时间，超过三天仅显示发布日期。
      */
@@ -51,28 +54,34 @@ final class XUtils
     }
 
     /**
-     * 获取客户端 IP 地址（优先 REMOTE_ADDR，其次转发头，取第一个有效 IP）。
+     * 获取客户端 IP。仅当直接连接地址属于明确的可信代理集合时，才解析 X-Forwarded-For。
+     *
+     * @param list<string>|null $trustedProxyIps null 时读取 TRUSTED_PROXY_IPS（逗号分隔）
      */
-    public static function getClientIP(?array $server = null): string
+    public static function getClientIP(?array $server = null, ?array $trustedProxyIps = null): string
     {
         $server ??= $_SERVER;
-        $ips = [];
-        if (isset($server['REMOTE_ADDR'])) {
-            $ips[] = $server['REMOTE_ADDR'];
+        $remote = filter_var(trim((string) ($server['REMOTE_ADDR'] ?? '')), FILTER_VALIDATE_IP);
+        if ($remote === false) {
+            return '0.0.0.0';
         }
-        if (isset($server['HTTP_CLIENT_IP'])) {
-            $ips[] = $server['HTTP_CLIENT_IP'];
+
+        $trustedProxyIps ??= array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) ($_ENV['TRUSTED_PROXY_IPS'] ?? getenv('TRUSTED_PROXY_IPS') ?: '')),
+        )));
+        if (!in_array($remote, $trustedProxyIps, true)) {
+            return $remote;
         }
-        if (isset($server['HTTP_X_FORWARDED_FOR'])) {
-            $ips = array_merge($ips, explode(',', $server['HTTP_X_FORWARDED_FOR']));
-        }
-        foreach ($ips as $value) {
-            $valid = filter_var(trim((string)$value), FILTER_VALIDATE_IP);
-            if ($valid !== false) {
-                return $valid;
+
+        foreach (explode(',', (string) ($server['HTTP_X_FORWARDED_FOR'] ?? '')) as $value) {
+            $forwarded = filter_var(trim($value), FILTER_VALIDATE_IP);
+            if ($forwarded !== false) {
+                return $forwarded;
             }
         }
-        return '0.0.0.0';
+
+        return $remote;
     }
 
     /**
@@ -86,11 +95,17 @@ final class XUtils
         if (isset($params['Attr.AllowedFrameTargets'])) {
             $params['Attr.AllowedFrameTargets'] = ['_blank'];
         }
-        $config = HTMLPurifier_Config::createDefault();
-        foreach ($params as $key => $value) {
-            $config->set($key, $value);
+        ksort($params);
+        $cacheKey = hash('sha256', serialize($params));
+        if (!isset(self::$htmlPurifiers[$cacheKey])) {
+            $config = HTMLPurifier_Config::createDefault();
+            foreach ($params as $key => $value) {
+                $config->set($key, $value);
+            }
+            self::$htmlPurifiers[$cacheKey] = new HTMLPurifier($config);
         }
-        return (new HTMLPurifier($config))->purify($content);
+
+        return self::$htmlPurifiers[$cacheKey]->purify($content);
     }
 
     /**

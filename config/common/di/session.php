@@ -19,6 +19,8 @@ use Yiisoft\Session\SessionInterface;
  */
 $sessionOptions = $params['yiisoft/session']['session']['options'] ?? [];
 $sessionOptions['cookie_secure'] = (bool) ($params['cookie']['remember_secure'] ?? false) ? 1 : 0;
+$sessionOptions['cookie_httponly'] = 1;
+$sessionOptions['cookie_samesite'] = 'Lax';
 
 return [
     SessionInterface::class => [

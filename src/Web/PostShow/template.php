@@ -109,6 +109,9 @@ if (str_contains($contentHtml, '<pre><code')) {
                 <?php if ($passwordError): ?>
                     <div class="alert alert-danger" role="alert"><i class="fa-solid fa-circle-exclamation"></i> 密码错误，请重新输入。</div>
                 <?php endif; ?>
+                <?php if ($passwordLocked): ?>
+                    <div class="alert alert-warning" role="alert"><i class="fa-solid fa-clock"></i> 尝试次数过多，请 15 分钟后再试。</div>
+                <?php endif; ?>
                 <div class="label label-warning"><i class="fa-solid fa-lock"></i> 该文章受密码保护，输入密码后可查看全文。</div>
                 <form method="post" action="<?= Html::encode((string)($post->getUrl($urlGenerator) ?? '')) ?>" class="hidden-post-form">
                     <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">

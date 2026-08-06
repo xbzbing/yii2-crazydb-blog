@@ -46,9 +46,18 @@ final class CommonComponentsTest extends TestCase
         self::assertSame('203.0.113.7', $ip);
     }
 
-    public function testGetClientIPFallsBackToForwarded(): void
+    public function testGetClientIPIgnoresForwardedHeaderWithoutTrustedProxy(): void
     {
         $ip = XUtils::getClientIP(['HTTP_X_FORWARDED_FOR' => '203.0.113.9, 198.51.100.2']);
+        self::assertSame('0.0.0.0', $ip);
+    }
+
+    public function testGetClientIPUsesForwardedHeaderFromTrustedProxy(): void
+    {
+        $ip = XUtils::getClientIP(
+            ['REMOTE_ADDR' => '10.0.0.2', 'HTTP_X_FORWARDED_FOR' => '203.0.113.9, 198.51.100.2'],
+            ['10.0.0.2'],
+        );
         self::assertSame('203.0.113.9', $ip);
     }
 

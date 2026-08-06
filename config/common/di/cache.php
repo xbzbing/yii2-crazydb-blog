@@ -22,7 +22,7 @@ return [
                 (string) ($_ENV['REDIS_PORT'] ?? getenv('REDIS_PORT')) ?: '6379',
                 CacheKeys::REDIS_DB,
                 (string) ($_ENV['REDIS_PASSWORD'] ?? getenv('REDIS_PASSWORD')) !== ''
-                    ? '?password=' . (string) ($_ENV['REDIS_PASSWORD'] ?? getenv('REDIS_PASSWORD'))
+                    ? '?password=' . rawurlencode((string) ($_ENV['REDIS_PASSWORD'] ?? getenv('REDIS_PASSWORD')))
                     : '',
             ),
         ],

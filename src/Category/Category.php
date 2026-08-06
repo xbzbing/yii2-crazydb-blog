@@ -24,6 +24,14 @@ final class Category extends ActiveRecord
     public string $keywords = '';
     public int $update_time = 0;
 
+    /**
+     * 文章变更不会改变分类表的 update_time，因此由文章写入口显式清除该版本键。
+     */
+    public static function invalidateSummaryCache(CacheInterface $cache): void
+    {
+        $cache->remove('__category_summary_version');
+    }
+
     public function tableName(): string
     {
         return '{{%category}}';
@@ -91,7 +99,11 @@ final class Category extends ActiveRecord
         bool $refresh = false,
     ): array {
         /** @var array<int, array{name: string, desc: ?string, url: ?string, postCount: int}> $summary */
-        $summary = self::cached($cache, '__category_summary', $refresh, static function () use ($urlGenerator): array {
+        $summary = self::cached(
+            $cache,
+            '__category_summary',
+            $refresh,
+            static function () use ($urlGenerator): array {
             $items = [];
             /** @var list<self> $categories */
             $categories = self::query()->all();
@@ -104,16 +116,30 @@ final class Category extends ActiveRecord
                 ];
             }
             return $items;
-        });
+            },
+            (string) $cache->getOrSet(
+                '__category_summary_version',
+                static fn (): string => bin2hex(random_bytes(16)),
+                31536000,
+            ),
+        );
         return $summary;
     }
 
     /**
      * @param callable(): array $callback
      */
-    private static function cached(CacheInterface $cache, string $key, bool $refresh, callable $callback): array
-    {
-        $version = (int)self::query()->max('update_time');
+    private static function cached(
+        CacheInterface $cache,
+        string $key,
+        bool $refresh,
+        callable $callback,
+        ?string $externalVersion = null,
+    ): array {
+        $version = (string) (int) self::query()->max('update_time');
+        if ($externalVersion !== null) {
+            $version .= '.' . $externalVersion;
+        }
         $cacheKey = $key . '.' . $version;
         if ($refresh) {
             $cache->remove($cacheKey);

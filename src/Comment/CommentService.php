@@ -154,6 +154,9 @@ final class CommentService
         }
         $post = $comment->getPost();
         $postTitle = $post?->title ?? '';
+        $escapedTitle = htmlspecialchars($postTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $escapedNickname = htmlspecialchars($comment->nickname, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $escapedContent = htmlspecialchars($comment->content, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         if ($sendMail && $approved && $comment->isReply()) {
             $replyTo = $comment->getReply();
@@ -162,7 +165,7 @@ final class CommentService
                     $replyTo->email,
                     $replyTo->nickname,
                     '你的留言有新的回复',
-                    "<p>{$comment->nickname} 在《{$postTitle}》上回复了你：</p><br><p>{$comment->content}</p>",
+                    "<p>{$escapedNickname} 在《{$escapedTitle}》上回复了你：</p><br><p>{$escapedContent}</p>",
                 );
             }
         }
@@ -171,7 +174,7 @@ final class CommentService
                 $this->adminEmail,
                 '网站管理员',
                 '网站有新的留言',
-                "<p>{$comment->nickname} 在《{$postTitle}》发表了评论：</p><br><p>{$comment->content}</p>",
+                "<p>{$escapedNickname} 在《{$escapedTitle}》发表了评论：</p><br><p>{$escapedContent}</p>",
             );
         }
     }

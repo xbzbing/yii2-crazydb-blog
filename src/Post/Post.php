@@ -119,6 +119,14 @@ final class Post extends ActiveRecord
     }
 
     /**
+     * 前后篇缓存版本。详情页会把同一版本传给前后两次查询，避免重复聚合。
+     */
+    public static function relatedCacheVersion(): int
+    {
+        return (int) self::query()->max('update_time');
+    }
+
+    /**
      * 上一篇/下一篇：relation = 'before'（较旧）| 'after'（较新）。
      * 等价 Yii2 getRelatedOne；简单模式只取 id/title/alias/status，缓存 key 按模式区分。
      */
@@ -128,14 +136,16 @@ final class Post extends ActiveRecord
         string $relation,
         bool $category = false,
         bool $simple = true,
+        ?int $cacheVersion = null,
     ): ?self {
         if (!in_array($relation, ['before', 'after'], true)) {
             return null;
         }
 
+        $cacheVersion ??= self::relatedCacheVersion();
         $cacheKey = ($simple ? 'simple' : 'all') . '_post_' . $relation . '_' . $this->id
             . ($category ? '_cat' : '')
-            . '.' . (int)self::query()->max('update_time');
+            . '.' . $cacheVersion;
 
         /** @var ?self|'none' $related */
         $related = $cache->getOrSet(
@@ -185,6 +195,50 @@ final class Post extends ActiveRecord
         return self::query()
             ->where(['id' => $id, 'status' => self::visibleStatuses()])
             ->one();
+    }
+
+    /**
+     * 文章访问密码持久化前使用 32 字符定长哈希：md5(md5(post_id) . password)，
+     * 兼容存量 varchar(32) 字段，同时避免密码明文落库。
+     */
+    public static function hashAccessPassword(int $postId, string $password): string
+    {
+        return md5(md5((string) $postId) . $password);
+    }
+
+    /**
+     * 校验文章访问密码；迁移窗口内兼容历史明文。
+     */
+    public function verifyAccessPassword(string $password): bool
+    {
+        $stored = (string) $this->password;
+        if ($stored === '') {
+            return false;
+        }
+
+        if (hash_equals($stored, self::hashAccessPassword((int) $this->id, $password))) {
+            return true;
+        }
+
+        // 历史明文兼容（迁移窗口）；新格式哈希与之碰撞的概率可忽略。
+        return hash_equals($stored, $password);
+    }
+
+    /**
+     * 历史明文密码首次验证成功后升级为哈希，调用方负责持久化。
+     */
+    public function rehashAccessPasswordIfNeeded(string $password): bool
+    {
+        $stored = (string) $this->password;
+        if ($stored === '' || hash_equals($stored, self::hashAccessPassword((int) $this->id, $password))) {
+            return false;
+        }
+        if (!hash_equals($stored, $password)) {
+            return false;
+        }
+
+        $this->password = self::hashAccessPassword((int) $this->id, $password);
+        return true;
     }
 
     /**

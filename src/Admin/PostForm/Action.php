@@ -68,7 +68,13 @@ final readonly class Action
             $post->excerpt = trim((string)($data['excerpt'] ?? '')) ?: null;
             $post->content = (string)($data['content'] ?? '');
             $post->is_top = (int)($data['is_top'] ?? 0) > 0 ? 1 : 0;
-            $post->password = trim((string)($data['password'] ?? '')) ?: null;
+            $accessPassword = trim((string)($data['password'] ?? ''));
+            $clearAccessPassword = filter_var($data['clear_password'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            if ($accessPassword !== '') {
+                $post->password = Post::hashAccessPassword((int)$post->id, $accessPassword);
+            } elseif ($isNew || $clearAccessPassword) {
+                $post->password = null;
+            }
             $post->post_time = (int)($data['post_time'] ?? time());
 
             if ($post->title === '') {
@@ -107,6 +113,14 @@ final readonly class Action
                     $errors['save'] = '保存失败，请检查字段内容。';
                 }
                 if ($errors === []) {
+                    if ($isNew && $post->password !== null && $post->password !== '') {
+                        // 新建时 id 尚未分配，保存后按真实 id 重新哈希（md5 依赖 post_id）。
+                        $post->password = Post::hashAccessPassword((int)$post->id, $accessPassword);
+                        try {
+                            $post->save();
+                        } catch (\Throwable) {
+                        }
+                    }
                     \App\Tag\Tag::post2tags($post->tags, (int)$post->id, (int)$post->cid);
                     $this->flash->set('flash_success', ['info' => $isNew ? '文章已创建。' : '文章已更新。']);
                     return $this->redirectList();

@@ -84,7 +84,13 @@ final readonly class Action
         $post->excerpt = trim((string)($data['excerpt'] ?? '')) ?: null;
         $post->content = (string)($data['content'] ?? '');
         $post->is_top = (int)($data['is_top'] ?? 0) > 0 ? 1 : 0;
-        $post->password = trim((string)($data['password'] ?? '')) ?: null;
+            $accessPassword = trim((string)($data['password'] ?? ''));
+            $clearAccessPassword = filter_var($data['clear_password'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            if ($accessPassword !== '') {
+                $post->password = Post::hashAccessPassword((int)$post->id, $accessPassword);
+            } elseif ($isNew || $clearAccessPassword) {
+                $post->password = null;
+            }
         // post_time：前端不传时新建取当前时间、编辑保留原值（发布时间功能已从前端移除）
         if (array_key_exists('post_time', $data)) {
             $post->post_time = (int)$data['post_time'];
@@ -141,7 +147,17 @@ final readonly class Action
         } catch (\Throwable) {
             return $this->jsonResponse->fail('保存失败，请检查字段内容。');
         }
+        if ($isNew && $post->password !== null && $post->password !== '') {
+            // 新建时 id 尚未分配，保存后按真实 id 重新哈希（md5 依赖 post_id）。
+            $post->password = Post::hashAccessPassword((int)$post->id, $accessPassword);
+            try {
+                $post->save();
+            } catch (\Throwable) {
+            }
+        }
         Tag::post2tags($post->tags, (int)$post->id, (int)$post->cid);
+        Tag::invalidateCache($this->cache);
+        Category::invalidateSummaryCache($this->cache);
 
         return $this->jsonResponse->ok([
             'id' => (int)$post->id,
