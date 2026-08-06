@@ -92,10 +92,15 @@ final readonly class Action
                 /** @var list<Category> $topCategories */
                 $topCategories = Category::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->limit(3)->all();
                 foreach ($topCategories as $category) {
+                    $childIds = Category::query()
+                        ->select('id')
+                        ->where(['pid' => (int)$category->id])
+                        ->column();
+                    $cids = array_merge([(int)$category->id], $childIds);
                     /** @var list<Post> $sectionPosts */
                     $sectionPosts = Post::query()
                         ->select('id,title,alias,cid,post_time')
-                        ->where(['cid' => (int)$category->id, 'status' => Post::visibleStatuses()])
+                        ->where(['cid' => $cids, 'status' => Post::visibleStatuses()])
                         ->orderBy(['post_time' => SORT_DESC])
                         ->limit(3)
                         ->all();
