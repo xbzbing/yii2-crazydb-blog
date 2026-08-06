@@ -493,6 +493,16 @@ a:hover {
     margin-bottom: 16px;
 }
 
+/* 与 crazydb 主题模板共用的面包屑结构（无图标字体时隐藏图标） */
+.breadcrumbs {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+}
+.breadcrumbs i {
+    display: none;
+}
+
 /* archives */
 .archives-year {
     font-size: 20px;
@@ -534,6 +544,22 @@ a:hover {
 }
 .flash-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 .flash-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+/* 浮层通知：固定在屏幕中央，不占文档流 */
+.flash-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    max-width: min(520px, 90vw);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+    animation: flash-pop 0.25s ease;
+}
+@keyframes flash-pop {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 
 /* comment reply nesting */
 .comment .reply-to {
@@ -611,7 +637,9 @@ a:hover {
 }
 
 .auth-card .auth-form label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     margin-bottom: 14px;
     color: var(--muted);
     font-size: 15px;
@@ -619,9 +647,9 @@ a:hover {
 
 .auth-card .auth-form input,
 .auth-card .auth-form textarea {
-    display: block;
-    width: 100%;
-    margin-top: 6px;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 6px;
@@ -638,7 +666,6 @@ a:hover {
 }
 
 .auth-card .auth-form button[type="submit"] {
-    margin-top: 6px;
     padding: 9px 26px;
     border: none;
     border-radius: 6px;
@@ -652,6 +679,18 @@ a:hover {
     opacity: 0.9;
 }
 
+.auth-card .auth-form-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+.auth-card .auth-form-actions p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+}
+
 .auth-card .form-error {
     color: #a33d2a;
     background: #fbeae7;
@@ -660,6 +699,23 @@ a:hover {
     padding: 8px 12px;
     margin-bottom: 10px;
     font-size: 14px;
+}
+
+.auth-card .auth-remember {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+    margin-top: 14px;
+}
+.auth-card .auth-remember input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2d6cdf;
+    cursor: pointer;
 }
 
 .auth-card .auth-tip {

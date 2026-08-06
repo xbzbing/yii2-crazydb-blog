@@ -28,6 +28,12 @@ $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('登录 - ' . $siteName);
 ?>
 
+<div class="breadcrumbs">
+    <i class="fa-solid fa-location-dot"></i>
+    <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
+    » 登录
+</div>
+
 <div class="auth-card">
     <h1>登录</h1>
     <?php if ($locked): ?>
@@ -38,15 +44,30 @@ $this->setTitle('登录 - ' . $siteName);
             <?php if ($redirect !== ''): ?>
                 <input type="hidden" name="redirect" value="<?= Html::encode($redirect) ?>">
             <?php endif; ?>
-            <label>用户名：<input type="text" name="username" value="<?= Html::encode($username) ?>" required autofocus></label>
-            <label>密码：<input type="password" name="password" required></label>
-            <label>验证码：
-                <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="验证码" class="auth-captcha">
-                <input type="text" name="captcha" required>
-            </label>
-            <label class="auth-remember"><input type="checkbox" name="rememberMe" value="1"> 记住我（30 天）</label>
-            <button type="submit">登录</button>
+            <div class="form-row">
+                <label for="login-username">用户名</label>
+                <input type="text" id="login-username" name="username" value="<?= Html::encode($username) ?>" required autofocus placeholder="请输入用户名">
+            </div>
+            <div class="form-row">
+                <label for="login-password">密码</label>
+                <input type="password" id="login-password" name="password" required placeholder="请输入密码">
+            </div>
+            <div class="form-row">
+                <label>验证码</label>
+                <div class="captcha-row">
+                    <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="验证码" class="auth-captcha" onclick="this.src+='?'+Date.now()" title="点击刷新">
+                    <div class="captcha-input">
+                        <input type="text" name="captcha" required placeholder="请输入验证码">
+                    </div>
+                </div>
+            </div>
+            <label class="remember-row"><input type="checkbox" name="rememberMe" value="1"> 记住我（30 天）</label>
+            <div class="form-submit">
+                <button type="submit">登录</button>
+                <?php if (($siteConfig['allow_register'] ?? '') === \App\Option\Option::STATUS_OPEN): ?>
+                    <p class="form-link">还没有账号？<a href="<?= Html::encode($urlGenerator->generate('site/register')) ?>">立即注册</a></p>
+                <?php endif; ?>
+            </div>
         </form>
-        <p>还没有账号？<a href="<?= Html::encode($urlGenerator->generate('site/register')) ?>">立即注册</a></p>
     <?php endif; ?>
 </div>

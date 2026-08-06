@@ -82,8 +82,8 @@ if (str_contains($contentHtml, '<pre><code')) {
             <?php if ((int)$post->is_top === 1): ?> <span class="article-top">置顶</span><?php endif; ?>
         </h1>
         <div class="article-meta">
-            <span>作者：<?= Html::encode($post->author_name) ?></span>
-            <span><?= XUtils::xDateFormatter((int)$post->post_time) ?></span>
+            <span>作者：<?= Html::encode($post->author_name !== '' ? $post->author_name : ($authorNickname ?? '')) ?></span>
+            <span><?= date('Y-m-d H:i', (int)$post->post_time) ?></span>
             <span><?= (int)$post->view_count ?> 浏览</span>
             <span>
                 <a href="#comments"><?= (int)$post->comment_count ?> 评论</a>

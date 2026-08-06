@@ -13,6 +13,7 @@ use App\Post\Post;
 use App\Post\PostViewKeys;
 use App\Tag\Tag;
 use App\User\LoginThrottle;
+use App\User\User;
 use App\Web\NotFound\NotFoundResponder;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -146,6 +147,7 @@ final readonly class Action
             __DIR__ . '/template',
             [
                 'post' => $post,
+                'authorNickname' => User::query()->findByPk((int)$post->author_id)?->nickname,
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
                 'unlocked' => $unlocked,

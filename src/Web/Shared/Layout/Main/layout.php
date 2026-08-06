@@ -94,7 +94,9 @@ $this->beginPage()
                     </li>
                 <?php else: ?>
                     <li><a href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
-                    <li><a href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                    <?php if (($siteConfig['allow_register'] ?? '') === \App\Option\Option::STATUS_OPEN): ?>
+                        <li><a href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                    <?php endif; ?>
                 <?php endif; ?>
             </ul>
         </nav>
@@ -105,9 +107,18 @@ $this->beginPage()
     <?php foreach (['flash_success', 'flash_error'] as $flashKey): ?>
         <?php if ($flash->has($flashKey)): ?>
             <?php $flashType = $flashKey === 'flash_success' ? 'flash-success' : 'flash-error'; ?>
-            <div class="flash <?= $flashType ?>"><?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?></div>
+            <div class="flash flash-toast <?= $flashType ?>"<?= $flashKey === 'flash_success' ? ' data-flash-toast' : '' ?>><?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?></div>
         <?php endif; ?>
     <?php endforeach; ?>
+    <script>
+        document.querySelectorAll('[data-flash-toast]').forEach(function (el) {
+            setTimeout(function () {
+                el.style.transition = 'opacity .6s ease';
+                el.style.opacity = '0';
+                setTimeout(function () { el.remove(); }, 600);
+            }, 3500);
+        });
+    </script>
     <div class="site-main<?= $showSidebar ? '' : ' site-main-full' ?>">
         <?= $content ?>
     </div>
