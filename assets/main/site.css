@@ -310,6 +310,10 @@ a:hover {
     color: var(--muted);
 }
 
+.about-me-content { font-size: 14px; line-height: 1.7; }
+.about-me-content p { margin: 0 0 8px; }
+.about-me-content a { color: var(--accent); }
+
 /* footer */
 .site-footer {
     background: var(--ink);

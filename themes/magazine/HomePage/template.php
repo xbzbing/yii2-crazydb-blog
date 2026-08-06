@@ -70,6 +70,9 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
                     <a href="<?= Html::encode((string)$section['category']->getUrl($urlGenerator)) ?>"><?= Html::encode($section['category']->name) ?></a>
                 </h2>
                 <ul class="section-list">
+                    <?php if ($section['posts'] === []): ?>
+                        <li class="section-empty">暂无文章</li>
+                    <?php endif; ?>
                     <?php foreach ($section['posts'] as $sectionPost): ?>
                         <li>
                             <div class="section-item-title">
@@ -79,7 +82,9 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
                         </li>
                     <?php endforeach; ?>
                 </ul>
-                <a class="section-more" href="<?= Html::encode((string)$section['category']->getUrl($urlGenerator)) ?>">更多文章 »</a>
+                <?php if ($section['posts'] !== []): ?>
+                    <a class="section-more" href="<?= Html::encode((string)$section['category']->getUrl($urlGenerator)) ?>">更多文章 »</a>
+                <?php endif; ?>
             </section>
         <?php endforeach; ?>
     </div>

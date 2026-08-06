@@ -176,6 +176,13 @@ a:hover { text-decoration: underline; }
 
 .section-more { font-size: 13px; display: inline-block; margin-top: 12px; }
 
+.section-empty {
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-style: italic;
+    border-bottom: none !important;
+}
+
 /* ---------- 文章卡片（网格） ---------- */
 .article-grid {
     display: grid;
@@ -368,6 +375,10 @@ a:hover { text-decoration: underline; }
 .magazine-sidebar ul { list-style: none; margin: 0; padding: 0; }
 .magazine-sidebar li { padding: 6px 0; font-size: 14px; border-bottom: 1px dotted var(--line); }
 .magazine-sidebar li:last-child { border-bottom: none; }
+
+.about-me-content { font-size: 14px; line-height: 1.7; }
+.about-me-content p { margin: 0 0 8px; }
+.about-me-content a { color: var(--accent); }
 
 .tag-cloud { line-height: 2.2; font-size: 14px; }
 

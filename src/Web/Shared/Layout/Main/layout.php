@@ -129,6 +129,7 @@ $this->beginPage()
                 'categorySummary' => $this->getParameter('categorySummary', []),
                 'tags' => $this->getParameter('sidebarTags', []),
                 'recentComments' => $this->getParameter('sidebarComments', []),
+                'markdownRenderer' => $this->getParameter('markdownRenderer', null),
             ]) ?>
         </aside>
     <?php endif; ?>

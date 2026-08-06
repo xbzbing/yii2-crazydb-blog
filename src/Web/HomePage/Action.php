@@ -90,7 +90,7 @@ final readonly class Action
             static function (): array {
                 $sections = [];
                 /** @var list<Category> $topCategories */
-                $topCategories = Category::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all();
+                $topCategories = Category::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->limit(3)->all();
                 foreach ($topCategories as $category) {
                     /** @var list<Post> $sectionPosts */
                     $sectionPosts = Post::query()
@@ -99,12 +99,10 @@ final readonly class Action
                         ->orderBy(['post_time' => SORT_DESC])
                         ->limit(3)
                         ->all();
-                    if ($sectionPosts !== []) {
-                        $sections[] = [
-                            'category' => $category,
-                            'posts' => $sectionPosts,
-                        ];
-                    }
+                    $sections[] = [
+                        'category' => $category,
+                        'posts' => $sectionPosts,
+                    ];
                 }
                 return $sections;
             },

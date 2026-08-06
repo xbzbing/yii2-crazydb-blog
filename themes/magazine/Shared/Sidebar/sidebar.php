@@ -17,8 +17,15 @@ use Yiisoft\Html\Html;
 
 <div class="widget widget-about">
     <h3>关于</h3>
-    <p>坚持写博客，记录技术点滴与生活思考。</p>
-    <p><?= Html::encode((string)($siteConfig['admin_email'] ?? '')) ?></p>
+    <?php
+    $aboutMe = \App\CustomConfig\CustomConfig::value('ThemeDIY', 'aboutMe');
+    ?>
+    <?php if ($aboutMe !== null && $aboutMe !== '' && isset($markdownRenderer) && $markdownRenderer !== null): ?>
+        <div class="about-me-content"><?= $markdownRenderer->render($aboutMe) ?></div>
+    <?php else: ?>
+        <p>坚持写博客，记录技术点滴与生活思考。</p>
+        <p><?= Html::encode((string)($siteConfig['admin_email'] ?? '')) ?></p>
+    <?php endif; ?>
 </div>
 
 <div class="widget widget-categories">
