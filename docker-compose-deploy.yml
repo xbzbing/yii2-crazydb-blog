@@ -18,10 +18,11 @@ services:
     container_name: blog-nginx
     environment:
       - TZ=Asia/Shanghai
+    command: /bin/sh -c "crond -f -l 2 & nginx -g 'daemon off;'"
     volumes:
       - ./config/sites-enabled:/etc/nginx/conf.d
       - ./:/opt/webroot
-      - ./data/nginx/log:/opt/log/nginx
+      - ./data/nginx/log:/var/log/nginx
       # SSL 证书（取消注释并配置路径）
       # - ${SSL_CERT_PATH:-./ssl/cert.pem}:/etc/nginx/ssl/cert.pem:ro
       # - ${SSL_KEY_PATH:-./ssl/key.pem}:/etc/nginx/ssl/key.pem:ro
