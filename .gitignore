@@ -51,3 +51,6 @@ public/static/upload/
 # admin SPA (Vite/React/antd) build artifacts
 admin-web/node_modules/
 public/admin/
+
+# local documentation (not tracked in git)
+/docs/
