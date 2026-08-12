@@ -23,6 +23,7 @@ use Yiisoft\Html\Html;
  * @var list<App\Post\Post> $posts
  * @var App\Web\Pager $pager
  * @var Yiisoft\Aliases\Aliases $aliases
+ * @var App\User\AuthService $authService
  */
 
 $this->setParameter('categorySummary', $categorySummary);
@@ -58,6 +59,10 @@ $this->setParameter(
             <span>共 <?= (int)$pager->totalCount ?> 篇文章</span>
             <?php if ($user->website !== null && $user->website !== ''): ?>
                 <span><a href="<?= Html::encode($user->website) ?>" rel="nofollow noopener" target="_blank">个人网站</a></span>
+            <?php endif; ?>
+            <?php $viewer = $authService->currentUser(); ?>
+            <?php if ($viewer !== null && (int)$viewer->id === (int)$user->id): ?>
+                <span><a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a></span>
             <?php endif; ?>
         </div>
     </header>

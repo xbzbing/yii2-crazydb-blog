@@ -37,5 +37,5 @@ $this->setTitle('修改密码 - ' . $siteName);
         <label>确认新密码：<input type="password" name="password_repeat" required></label>
         <button type="submit">确认修改</button>
     </form>
-    <p>修改成功后需使用新密码重新登录（已登录的设备将全部退出）。</p>
+    <p>修改成功后需使用新密码重新登录（所有设备的登录状态与记住我均失效）。</p>
 </div>

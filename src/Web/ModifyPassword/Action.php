@@ -56,8 +56,10 @@ final readonly class Action
             if ($errors === []) {
                 $error = $this->authService->changePassword($user, $oldPassword, $newPassword);
                 if ($error !== null) {
-                    $errors['password'] = $error;
+                    $errors['old_password'] = $error;
                 } else {
+                    // 改密成功：清除当前会话登录态（与"请重新登录"文案一致），旧记住我 token 已因 auth_key 轮换失效
+                    $this->authService->logout();
                     $this->flash->set('flash_success', ['info' => '密码已修改，请使用新密码重新登录。']);
                     return $this->responseFactory
                         ->createResponse(Status::FOUND)
