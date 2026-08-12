@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, Tag, message } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Nav } from '../types/api'
@@ -21,7 +21,7 @@ export default function NavList() {
   }
 
   const columns: ProColumns<Nav>[] = [
-    { title: 'ID', dataIndex: 'id', width: 70 },
+    { title: 'ID', dataIndex: 'id', width: 55 },
     {
       title: '名称',
       dataIndex: 'name',
@@ -38,15 +38,19 @@ export default function NavList() {
     {
       title: '操作',
       valueType: 'option',
-      width: 150,
-      render: (_, r) => [
-        <a key="edit" onClick={() => navigate(`/navs/${r.id}/edit`)}>
-          编辑
-        </a>,
-        <Popconfirm key="del" title="确认删除该导航？子导航将一并删除。" onConfirm={() => handleDelete(r.id)}>
-          <a style={{ color: '#ff4d4f' }}>删除</a>
-        </Popconfirm>,
-      ],
+      width: 72,
+      render: (_, r) => (
+        <Space.Compact>
+          <Tooltip title="编辑">
+            <Button size="small" icon={<EditOutlined />} onClick={() => navigate(`/navs/${r.id}/edit`)} />
+          </Tooltip>
+          <Popconfirm title="确认删除该导航？子导航将一并删除。" onConfirm={() => handleDelete(r.id)}>
+            <Tooltip title="删除">
+              <Button size="small" danger icon={<DeleteOutlined />} />
+            </Tooltip>
+          </Popconfirm>
+        </Space.Compact>
+      ),
     },
   ]
 

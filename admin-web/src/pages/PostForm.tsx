@@ -49,6 +49,7 @@ export default function PostForm() {
             tags: p.tags,
             author_name: p.author_name,
             is_top: p.is_top === 1,
+            password: p.password || '',
           })
         })
         .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
@@ -68,6 +69,7 @@ export default function PostForm() {
     tags?: string
     author_name?: string
     is_top?: boolean
+    password?: string
   }) => {
     setSubmitting(true)
     try {
@@ -84,6 +86,7 @@ export default function PostForm() {
         excerpt,
         content,
         is_top: values.is_top ? 1 : 0,
+        password: values.password || '',
         // post_time 由后端处理：新建取当前时间，编辑保持原值（不传则后端兜底）
       }
       const data = isEdit ? await api.postUpdate(Number(id), payload) : await api.postSave(payload)
@@ -111,9 +114,19 @@ export default function PostForm() {
               <Input placeholder="文章标题" />
             </Form.Item>
           </Col>
-          <Col span={24}>
-            <Form.Item name="alias" label="别名" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+          <Col span={8}>
+            <Form.Item name="alias" label="别名" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
               <Input placeholder="URL 别名（留空自动生成）" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name="author_name" label="笔名" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
+              <Input placeholder="作者笔名" />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name="is_top" label="置顶" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
+              <Switch />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -148,12 +161,7 @@ export default function PostForm() {
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item name="author_name" label="笔名" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Input placeholder="作者笔名" />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
+          <Col span={24}>
             <Form.Item
               name="tags"
               label={
@@ -161,15 +169,24 @@ export default function PostForm() {
                   <span>标签</span>
                 </Tooltip>
               }
-              labelCol={{ span: 7 }}
-              wrapperCol={{ span: 17 }}
+              labelCol={{ span: 2 }}
+              wrapperCol={{ span: 22 }}
             >
               <Input placeholder="如 php, yii3, 博客" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="is_top" label="置顶" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Switch />
+            <Form.Item
+              name="password"
+              label={
+                <Tooltip title="设为「隐藏」状态并填写密码后，前台需输入密码才能查看全文">
+                  <span>访问密码</span>
+                </Tooltip>
+              }
+              labelCol={{ span: 7 }}
+              wrapperCol={{ span: 17 }}
+            >
+              <Input.Password placeholder="留空表示无需密码" autoComplete="new-password" />
             </Form.Item>
           </Col>
         </Row>

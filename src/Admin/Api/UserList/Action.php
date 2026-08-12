@@ -29,9 +29,23 @@ final readonly class Action
     public function list(ServerRequestInterface $request, #[RouteArgument] ?string $page = null): ResponseInterface
     {
         $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
-        $pager = new Pager((int)User::query()->count(), self::PAGE_SIZE, $page);
+        $keyword = trim((string)($request->getQueryParams()['keyword'] ?? ''));
+        $countQuery = User::query();
+        if ($keyword !== '') {
+            $countQuery->andWhere(['like', 'username', $keyword])
+                ->orWhere(['like', 'nickname', $keyword])
+                ->orWhere(['like', 'email', $keyword]);
+        }
+        $pager = new Pager((int)$countQuery->count(), self::PAGE_SIZE, $page);
+
+        $query = User::query();
+        if ($keyword !== '') {
+            $query->where(['like', 'username', $keyword])
+                ->orWhere(['like', 'nickname', $keyword])
+                ->orWhere(['like', 'email', $keyword]);
+        }
         /** @var list<User> $users */
-        $users = User::query()
+        $users = $query
             ->orderBy(['id' => SORT_ASC])
             ->limit(self::PAGE_SIZE)
             ->offset($pager->offset)
