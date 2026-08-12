@@ -65,7 +65,7 @@ final readonly class Action
         $pager = new Pager((int)$total, self::PAGE_SIZE, $page);
         $posts = Post::query()
             ->where(['id' => $postIds, 'status' => Post::visibleStatuses()])
-            ->orderBy(['post_time' => SORT_DESC])
+            ->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC])
             ->limit(self::PAGE_SIZE)
             ->offset($pager->offset)
             ->all();

@@ -34,6 +34,7 @@ final readonly class Action
         private CacheInterface $cache,
         private Aliases $aliases,
         private MarkdownRenderer $markdownRenderer,
+        private \Yiisoft\Session\SessionInterface $session,
     ) {}
 
     public function __invoke(
@@ -79,10 +80,24 @@ final readonly class Action
         }
         $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
         $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
-        // 隐藏文章不公开全文，仅显示摘要（对齐 Yii2 实际行为：密码验证早已停用）
+        // 隐藏文章：有密码时需验证通过才显示全文，否则仅显示摘要（对齐 Yii2 加锁逻辑）
+        $unlocked = false;
         if ($post->status === Post::STATUS_HIDDEN) {
-            $contentHtml = \Yiisoft\Html\Html::encode((string)$post->excerpt);
-            $toc = [];
+            $password = (string)$post->password;
+            if ($password !== '') {
+                $unlocked = $this->session->get('unlocked_post_' . (int)$post->id) === $password;
+                if ($unlocked) {
+                    $contentHtml = $post->getContentProcessed($this->markdownRenderer);
+                    $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
+                } else {
+                    $contentHtml = \Yiisoft\Html\Html::encode((string)$post->excerpt);
+                    $toc = [];
+                }
+            } else {
+                // 无密码的隐藏文章：仍不公开全文（安全兜底）
+                $contentHtml = \Yiisoft\Html\Html::encode((string)$post->excerpt);
+                $toc = [];
+            }
         } else {
             $contentHtml = $post->getContentProcessed($this->markdownRenderer);
             $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
@@ -94,6 +109,7 @@ final readonly class Action
                 'post' => $post,
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
+                'unlocked' => $unlocked,
                 'comments' => $comments,
                 'replyMap' => $replyMap,
                 'commentTotal' => $total,
