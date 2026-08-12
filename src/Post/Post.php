@@ -185,11 +185,19 @@ final class Post extends ActiveRecord
     }
 
     /**
-     * 封面提取：渲染后取正文第一张图片（对齐 Yii2 getCoverImage，markdown 文章先渲染）。
+     * 封面提取：取正文第一张图片（对齐 Yii2 getCoverImage）。
+     * markdown 文章先渲染成 HTML 再取 <img>；同时兜底识别 markdown 图片语法 ![alt](url)。
      */
     public function getCoverImage(MarkdownRenderer $renderer): ?string
     {
-        preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $this->getContentProcessed($renderer), $matches);
-        return $matches[1][0] ?? null;
+        $html = $this->getContentProcessed($renderer);
+        if (preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"]/i', $html, $matches)) {
+            return $matches[1];
+        }
+        // markdown 兜底：![alt](url) / ![](url)
+        if (preg_match('/!\[[^\]]*\]\(\s*([^)\s]+)\s*\)/', $html, $m)) {
+            return $m[1];
+        }
+        return null;
     }
 }
