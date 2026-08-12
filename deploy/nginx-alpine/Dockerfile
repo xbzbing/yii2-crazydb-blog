@@ -2,22 +2,16 @@ FROM nginx:1.30-alpine
 
 ENV TZ Asia/Shanghai
 
-# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
-RUN apk update && apk add bash tzdata curl
-
+RUN apk update && apk add bash tzdata curl logrotate
 
 COPY config/nginx.conf /etc/nginx/nginx.conf
-
 COPY config/conf.d/* /etc/nginx/conf.d/
+COPY config/logrotate.conf /etc/logrotate.d/nginx
 
-RUN echo "0 0 * * * nginx -s reopen" >> /var/spool/cron/crontabs/root && echo "alias ll='ls -l'" >> /root/.bashrc
-
-RUN mkdir -p /opt/webroot/web && mkdir -p /opt/log/nginx && mkdir -p /opt/html/default
+RUN mkdir -p /var/log/nginx /opt/webroot/web /opt/html/default
 
 COPY config/index.html /opt/html/default
 
 WORKDIR /opt/webroot
-
-VOLUME ["/opt/webroot", "/opt/log/nginx", "/etc/nginx/conf.d"]
 
 EXPOSE 80 443
