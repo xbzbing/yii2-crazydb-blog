@@ -73,7 +73,7 @@
 - 前后端分离（React+AntD Pro SPA）
 
 ### G：验证
-- 165 tests / 452 assertions 全绿
+- phpunit 全绿
 - psalm exit 0
 - 全链路冒烟
 
@@ -172,7 +172,7 @@ docker-compose-dev.yml      # 开发 Docker
 完整部署步骤见 [deploy.md](./deploy.md)（含 `.env` 配置说明）。常用命令（宿主机需 PHP 环境，或在容器内执行）：
 
 ```bash
-# 测试（169 tests / 469 assertions）
+# 测试
 DB_HOST=127.0.0.1 DB_PORT=3306 DB_PASSWORD=mysql.password REDIS_PASSWORD=redis.password ./vendor/bin/phpunit
 
 # 数据库
