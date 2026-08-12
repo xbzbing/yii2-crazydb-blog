@@ -45,8 +45,8 @@ return [
             Route::get('/user/profile/{name}')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile'),
             Route::get('/user/profile')->action(Web\Placeholder\NotFoundAction::class)->name('user/profile-me'),
             Route::get('/user/modify-password')->action(Web\Placeholder\NotFoundAction::class)->name('user/modify-password'),
-            Route::get('/user/{name}')->action(Web\Placeholder\NotFoundAction::class)->name('user/show'),
-            Route::get('/user/{name}/page/{page:\d+}')->action(Web\Placeholder\NotFoundAction::class)->name('user/show-page'),
+            Route::get('/user/{name}')->action(Web\UserShow\Action::class)->name('user/show'),
+            Route::get('/user/{name}/page/{page:\d+}')->action(Web\UserShow\Action::class)->name('user/show-page'),
 
             // Comments
             Route::post('/comment/add/{id:\d+}')->action(Web\CommentAdd\Action::class)->name('comment/add'),
