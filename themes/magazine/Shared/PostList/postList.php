@@ -22,6 +22,7 @@ if ($posts === []): ?>
     <article class="article-card"><h1><?= \Yiisoft\Html\Html::encode($emptyText) ?></h1></article>
 <?php else: ?>
     <div class="article-grid">
+        <?php $excludeId ??= null; ?>
         <?php foreach ($posts as $post): ?>
             <?php if ($excludeId !== null && (int)$post->id === $excludeId): ?>
                 <?php continue; ?>
