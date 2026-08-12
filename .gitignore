@@ -41,6 +41,9 @@ public/static/avatar
 # graphify knowledge graph output
 /graphify-out
 
+# playwright-mcp snapshots
+.playwright-mcp/
+
 # phpunit cache
 .phpunit.cache/
 public/static/upload/

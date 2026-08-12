@@ -38,7 +38,7 @@ $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 ?>
 
-<div class="breadcrumbs with-shadow">
+<div class="breadcrumbs">
     <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     » <a href="<?= $urlGenerator->generate('post/archives') ?>">文章归档</a>

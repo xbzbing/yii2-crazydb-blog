@@ -40,17 +40,17 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
 $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
 ?>
 
-<div class="breadcrumbs with-shadow">
+<div class="breadcrumbs">
     <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     » 所有标签
 </div>
 
-<div class="list-header with-shadow">
+<div class="list-header">
     <h1><i class="fa-solid fa-tags"></i>所有标签</h1>
 </div>
 
-<div class="aside-tags with-shadow">
+<div class="aside-tags">
     <div class="content">
         <?php if ($tags === []): ?>
             <p>暂无标签。</p>
