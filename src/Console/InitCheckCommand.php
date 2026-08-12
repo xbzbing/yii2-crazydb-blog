@@ -425,16 +425,23 @@ final class InitCheckCommand extends Command
         $result = [];
 
         foreach ($tables as $table) {
-            $tableName = $table['TABLE_NAME'];
+            $rawTableName = $table['TABLE_NAME'];
 
-            // 获取列信息
+            // 剥离表前缀（blog_xxx → xxx），与 EXPECTED_SCHEMA 无前缀名对齐
+            $tableName = $rawTableName;
+            $prefix = $this->getTablePrefix();
+            if ($prefix !== '' && str_starts_with($rawTableName, $prefix)) {
+                $tableName = substr($rawTableName, strlen($prefix));
+            }
+
+            // 获取列信息（用原始表名查询）
             $stmt = $pdo->prepare('
                 SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, EXTRA
                 FROM information_schema.COLUMNS
                 WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
                 ORDER BY ORDINAL_POSITION
             ');
-            $stmt->execute([$database, $tableName]);
+            $stmt->execute([$database, $rawTableName]);
             $columns = $stmt->fetchAll();
 
             $columnMap = [];
@@ -442,7 +449,7 @@ final class InitCheckCommand extends Command
                 $columnMap[$col['COLUMN_NAME']] = $this->formatColumnType($col);
             }
 
-            // 获取索引信息
+            // 获取索引信息（用原始表名查询）
             $stmt = $pdo->prepare('
                 SELECT INDEX_NAME, GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) as INDEX_COLUMNS
                 FROM information_schema.STATISTICS
@@ -450,7 +457,7 @@ final class InitCheckCommand extends Command
                 GROUP BY INDEX_NAME
                 ORDER BY INDEX_NAME
             ');
-            $stmt->execute([$database, $tableName]);
+            $stmt->execute([$database, $rawTableName]);
             $indexes = $stmt->fetchAll();
 
             $indexMap = [];
@@ -515,6 +522,15 @@ final class InitCheckCommand extends Command
     private function getPassword(): string
     {
         return (string) ($_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD'));
+    }
+
+    /**
+     * 表前缀（Yii2 遗留 blog_），默认从 env DB_TABLE_PREFIX 读取。
+     */
+    private function getTablePrefix(): string
+    {
+        $raw = (string) ($_ENV['DB_TABLE_PREFIX'] ?? getenv('DB_TABLE_PREFIX'));
+        return $raw !== '' ? $raw : 'blog_';
     }
 
     private function hasMissingColumns(array $issues): bool

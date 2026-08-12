@@ -22,6 +22,9 @@ $mailerDebug = $mailerDebugRaw !== ''
 $cookieSecureRaw = (string) ($_ENV['COOKIE_SECURE'] ?? getenv('COOKIE_SECURE'));
 $cookieSecure = $cookieSecureRaw !== '' && filter_var($cookieSecureRaw, FILTER_VALIDATE_BOOLEAN);
 
+$tablePrefix = (string) ($_ENV['DB_TABLE_PREFIX'] ?? getenv('DB_TABLE_PREFIX'));
+$tablePrefix = $tablePrefix !== '' ? $tablePrefix : 'blog_';
+
 return [
     'application' => require __DIR__ . '/application.php',
 
@@ -65,6 +68,8 @@ return [
         ),
         'username' => (string) ($_ENV['DB_USER'] ?? getenv('DB_USER')) ?: 'root',
         'password' => (string) ($_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD')),
+        // 表前缀（Yii2 遗留 blog_），模型 tableName() 用 {{%xxx}} 占位
+        'table_prefix' => $tablePrefix,
     ],
 
     'mailer' => [

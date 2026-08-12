@@ -43,7 +43,7 @@ final class User extends ActiveRecord implements IdentityInterface
 
     public function tableName(): string
     {
-        return 'user';
+        return '{{%user}}';
     }
 
     public function getId(): ?string

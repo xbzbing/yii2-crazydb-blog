@@ -24,7 +24,7 @@ final class VisitDaily extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'visit_daily';
+        return '{{%visit_daily}}';
     }
 
     /**

@@ -30,6 +30,8 @@ use function strpos;
 )]
 final class InitMigrateCommand extends Command
 {
+    private string $tablePrefix = '';
+
     protected function configure(): void
     {
         $this->addOption('dry-run', null, InputOption::VALUE_NONE, '仅检查，不执行变更');
@@ -38,6 +40,7 @@ final class InitMigrateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $dryRun = $input->getOption('dry-run');
+        $this->tablePrefix = $this->getTablePrefix();
 
         $output->writeln('');
         $output->writeln('<info>🔄 数据库增量升级' . ($dryRun ? '（dry-run 模式）' : '') . '</info>');
@@ -54,29 +57,29 @@ final class InitMigrateCommand extends Command
         $skipped = 0;
 
         // Step 1: post 表新增 format 列
-        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, 'post', 'format', "VARCHAR(10) NOT NULL DEFAULT 'html' COMMENT '内容格式: html/markdown'", 'content');
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('post'), 'format', "VARCHAR(10) NOT NULL DEFAULT 'html' COMMENT '内容格式: html/markdown'", 'content');
         $applied += $result['applied'];
         $skipped += $result['skipped'];
 
         // Step 2: 新增索引
-        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, 'post', 'idx_update_time', ['update_time']);
+        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, $this->t('post'), 'idx_update_time', ['update_time']);
         $applied += $indexResult['applied'];
         $skipped += $indexResult['skipped'];
 
-        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, 'category', 'idx_update_time', ['update_time']);
+        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, $this->t('category'), 'idx_update_time', ['update_time']);
         $applied += $indexResult['applied'];
         $skipped += $indexResult['skipped'];
 
-        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, 'comment', 'idx_update_time', ['update_time']);
+        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, $this->t('comment'), 'idx_update_time', ['update_time']);
         $applied += $indexResult['applied'];
         $skipped += $indexResult['skipped'];
 
-        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, 'option', 'idx_update_time', ['update_time']);
+        $indexResult = $this->addIndexIfNotExists($pdo, $output, $dryRun, $this->t('option'), 'idx_update_time', ['update_time']);
         $applied += $indexResult['applied'];
         $skipped += $indexResult['skipped'];
 
         // Step 3: 创建 visit_daily 表
-        $tableResult = $this->createTableIfNotExists($pdo, $output, $dryRun, 'visit_daily', [
+        $tableResult = $this->createTableIfNotExists($pdo, $output, $dryRun, $this->t('visit_daily'), [
             '`id` INT UNSIGNED NOT NULL AUTO_INCREMENT',
             '`date` DATE NOT NULL COMMENT \'日期\'',
             '`pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT \'访问次数(PV)\'',
@@ -90,7 +93,7 @@ final class InitMigrateCommand extends Command
         $skipped += $tableResult['skipped'];
 
         // Step 4: 创建 custom_config 表
-        $tableResult = $this->createTableIfNotExists($pdo, $output, $dryRun, 'custom_config', [
+        $tableResult = $this->createTableIfNotExists($pdo, $output, $dryRun, $this->t('custom_config'), [
             '`id` INT UNSIGNED NOT NULL AUTO_INCREMENT',
             '`category` VARCHAR(100) NOT NULL DEFAULT \'\' COMMENT \'分类\'',
             '`key` VARCHAR(100) NOT NULL DEFAULT \'\' COMMENT \'配置键（分类内唯一）\'',
@@ -258,11 +261,12 @@ final class InitMigrateCommand extends Command
         $skipped = 0;
 
         // custom_config: ThemeDIY aboutMe
-        if ($this->recordExists($pdo, 'custom_config', 'category', 'ThemeDIY')) {
+        $customConfigTable = $this->t('custom_config');
+        if ($this->recordExists($pdo, $customConfigTable, 'category', 'ThemeDIY')) {
             $output->writeln('  <comment>✓</comment> custom_config.ThemeDIY 数据已存在，跳过');
             $skipped++;
         } else {
-            $sql = "INSERT INTO `custom_config` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
+            $sql = "INSERT INTO `{$customConfigTable}` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
                     VALUES ('ThemeDIY', 'aboutMe', '关于我', '曾经是爱好网络安全的程序猿\n\n后来是爱好编程的安全攻城狮\n\n现在是爱好安全的摸鱼工程师\n\n**联系方式**：xbzbing#gmail.com', 'markdown', 100, '侧栏「关于我」内容（Markdown 渲染）', UNIX_TIMESTAMP(), UNIX_TIMESTAMP())";
 
             if ($dryRun) {
@@ -280,12 +284,13 @@ final class InitMigrateCommand extends Command
         }
 
         // option 种子数据
-        $optionCount = $this->countRecords($pdo, 'option');
+        $optionTable = $this->t('option');
+        $optionCount = $this->countRecords($pdo, $optionTable);
         if ($optionCount >= 8) {
             $output->writeln(sprintf('  <comment>✓</comment> option 表已有 %d 条数据，跳过', $optionCount));
             $skipped++;
         } else {
-            $sql = "INSERT IGNORE INTO `option` (`type`, `name`, `value`, `update_time`) VALUES
+            $sql = "INSERT IGNORE INTO `{$optionTable}` (`type`, `name`, `value`, `update_time`) VALUES
                     ('sys', 'site_name', 'Crazydb-Blog', UNIX_TIMESTAMP()),
                     ('sys', 'admin_email', 'root@crazydb.com', UNIX_TIMESTAMP()),
                     ('sys', 'allow_comment', 'open', UNIX_TIMESTAMP()),
@@ -323,5 +328,19 @@ final class InitMigrateCommand extends Command
     {
         $stmt = $pdo->query(sprintf('SELECT COUNT(*) FROM `%s`', $table));
         return (int) $stmt->fetchColumn();
+    }
+
+    private function t(string $table): string
+    {
+        return $this->tablePrefix . $table;
+    }
+
+    /**
+     * 表前缀（Yii2 遗留 blog_），默认从 env DB_TABLE_PREFIX 读取。
+     */
+    private function getTablePrefix(): string
+    {
+        $raw = (string) ($_ENV['DB_TABLE_PREFIX'] ?? getenv('DB_TABLE_PREFIX'));
+        return $raw !== '' ? $raw : 'blog_';
     }
 }

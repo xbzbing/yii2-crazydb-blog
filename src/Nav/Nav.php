@@ -23,7 +23,7 @@ final class Nav extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'nav';
+        return '{{%nav}}';
     }
 
     public function getChildren(): ActiveQuery

@@ -35,7 +35,7 @@ final class Comment extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'comment';
+        return '{{%comment}}';
     }
 
     /**
