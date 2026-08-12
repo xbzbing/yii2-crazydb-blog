@@ -77,6 +77,72 @@ final class AuthService
         return $user instanceof User ? $user : null;
     }
 
+    /**
+     * 修改个人资料（对齐 Yii2 SCENARIO_MODIFY_PROFILE：nickname/email/website/info，
+     * 用户名与角色不可改）。
+     *
+     * @param array{nickname?: string, email?: string, website?: string, info?: string} $data
+     * @return array<string, string> 字段 => 错误信息（空 = 成功）
+     */
+    public function updateProfile(User $user, array $data): array
+    {
+        $nickname = trim((string)($data['nickname'] ?? ''));
+        $email = trim((string)($data['email'] ?? ''));
+        $website = trim((string)($data['website'] ?? ''));
+        $info = trim((string)($data['info'] ?? ''));
+
+        $errors = [];
+        if ($nickname === '') {
+            $errors['nickname'] = '昵称不能为空。';
+        } elseif (mb_strlen($nickname) > 80) {
+            $errors['nickname'] = '昵称最多 80 个字符。';
+        } elseif (in_array($nickname, User::NAME_BLACKLIST, true)) {
+            $errors['nickname'] = '该昵称不可使用。';
+        } elseif (User::query()->where(['nickname' => $nickname])->andWhere(['!=', 'id', (int)$user->id])->exists()) {
+            $errors['nickname'] = '昵称已存在，请重新输入。';
+        }
+
+        if ($email === '') {
+            $errors['email'] = '电子邮箱不能为空。';
+        } elseif (mb_strlen($email) > 100) {
+            $errors['email'] = '电子邮箱过长。';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = '邮箱格式不正确。';
+        } elseif (User::query()->where(['email' => $email])->andWhere(['!=', 'id', (int)$user->id])->exists()) {
+            $errors['email'] = '该邮箱已被其他账号使用。';
+        }
+
+        if ($website !== '') {
+            if (mb_strlen($website) > 100) {
+                $errors['website'] = '个人网站地址过长。';
+            } elseif (!in_array(strtolower((string)parse_url($website, PHP_URL_SCHEME)), ['http', 'https'], true)) {
+                $errors['website'] = '个人网站地址不合法，需要以http或https开头。';
+            } elseif (!filter_var($website, FILTER_VALIDATE_URL)) {
+                $errors['website'] = '个人网站地址格式不正确。';
+            }
+        }
+        if (mb_strlen($info) > 1000) {
+            $errors['info'] = '个人简介过长（最多 1000 字符）。';
+        }
+
+        if ($errors !== []) {
+            return $errors;
+        }
+
+        $user->nickname = $nickname;
+        $user->email = $email;
+        $user->website = $website === '' ? null : rtrim($website, "/\\\t\n\r\0 \x0B");
+        $user->info = $info === '' ? null : \App\Common\XUtils::htmlPurify($info, ['HTML.ForbiddenElements' => ['a']]);
+        $user->touch();
+        try {
+            $user->save();
+        } catch (\Throwable) {
+            // 并发唯一键冲突（nickname/email，username 不可改）：映射为表单错误
+            return ['nickname' => '昵称或邮箱已被其他账号使用，请重新输入。'];
+        }
+        return [];
+    }
+
     public function isLoggedIn(): bool
     {
         return $this->currentUser() !== null;

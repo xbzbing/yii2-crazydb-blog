@@ -51,7 +51,7 @@ final class RoutesCompatibilityTest extends TestCase
         yield [[ 'url' => '/user/dabing', 'route' => 'user/show' ]];
         yield [[ 'url' => '/user/dabing/page/2', 'route' => 'user/show-page' ]];
         yield [[ 'url' => '/user/profile/dabing', 'route' => 'user/profile' ]];
-        yield [[ 'url' => '/user/profile', 'route' => 'user/profile-me' ]];
+        yield [[ 'url' => '/user/profile', 'route' => 'user/profile-edit' ]];
         yield [[ 'url' => '/user/modify-password', 'route' => 'user/modify-password' ]];
         yield [[ 'url' => '/comment/add/42', 'method' => 'POST', 'route' => 'comment/add' ]];
         yield [[ 'url' => '/comment/7', 'route' => 'comment/view' ]];

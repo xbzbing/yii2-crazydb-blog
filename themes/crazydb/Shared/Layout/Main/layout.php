@@ -106,6 +106,7 @@ $this->beginPage()
                                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><?= Html::encode($currentUser->nickname) ?></a>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li><a class="dropdown-item" href="<?= Html::encode($urlGenerator->generate('user/profile', ['name' => $currentUser->nickname])) ?>">个人资料</a></li>
+                                                <li><a class="dropdown-item" href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a></li>
                                                 <li><a class="dropdown-item" href="<?= $urlGenerator->generate('user/modify-password') ?>">修改密码</a></li>
                                                 <?php if ($currentUser->isAdmin()): ?>
                                                     <li><hr class="dropdown-divider"></li>

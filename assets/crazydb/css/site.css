@@ -655,6 +655,190 @@ article.list-group-item:nth-of-type(1) {
     width: 100%;
 }
 
+/* ============ 用户主页（user/show 个人资料卡片，还原线上 author-info） ============ */
+.user-profile-card {
+    border: 1px solid #DDDDDD;
+    border-radius: 4px 4px 0 0;
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 0;
+}
+
+/* clearfix：包含浮动的头像，防止其溢出卡片区域 */
+.user-profile-card::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.user-profile-card .user-avatar {
+    float: left;
+    margin-right: 15px;
+}
+
+.user-profile-card .user-avatar img {
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    display: block;
+}
+
+.user-profile-card .user-meta {
+    overflow: hidden;
+}
+
+.user-profile-card .user-meta .user-nickname {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.3;
+}
+
+.user-profile-card .user-meta .user-detail {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.user-profile-card .user-meta .user-detail a {
+    margin-left: 8px;
+}
+
+.user-profile-card .user-info-body {
+    clear: both;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #E0E0E0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.user-profile-card .user-info-body:empty {
+    display: none;
+}
+
+/* 用户文章数 footer（还原线上 entry-footer row） */
+.user-post-count {
+    background: #fff;
+    border: 1px solid #DDDDDD;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 10px 15px;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.user-post-count strong {
+    color: #333;
+}
+
+/* ============ 认证表单（登录/注册/修改密码/修改资料卡片） ============ */
+.auth-card {
+    background: #fff;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 15px;
+}
+
+.auth-card h1 {
+    font-size: 20px;
+    margin: 0 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #EEEEEE;
+    color: #333;
+}
+
+.auth-card .auth-form label {
+    display: block;
+    margin-bottom: 14px;
+    color: #555;
+    font-size: 14px;
+}
+
+.auth-card .auth-form label input {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 7px 10px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.auth-card .auth-form label input:focus {
+    border-color: #66AFE9;
+    outline: 0;
+    box-shadow: 0 0 4px rgba(102, 175, 233, 0.4);
+}
+
+.auth-card .auth-form textarea {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 7px 10px;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.auth-card .auth-form button[type="submit"] {
+    margin-top: 6px;
+    padding: 7px 22px;
+    border: 1px solid #357EBD;
+    border-radius: 4px;
+    background: #337AB7;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.auth-card .auth-form button[type="submit"]:hover {
+    background: #286090;
+    border-color: #204D74;
+}
+
+.auth-card .form-error {
+    color: #A94442;
+    background: #F2DEDE;
+    border: 1px solid #EBCCD1;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.auth-card .auth-tip {
+    color: #999;
+    font-size: 13px;
+    margin-top: 16px;
+}
+
+/* 修改资料页头像 */
+.user-update .base-profile {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-update .base-profile img {
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+}
+
+.user-update .base-profile h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
 /* ============ 标签页 ============ */
 ul.tags {
     list-style: none;
