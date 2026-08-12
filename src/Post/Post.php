@@ -132,11 +132,11 @@ final class Post extends ActiveRecord
                     $query->andWhere(['cid' => $this->cid]);
                 }
                 if ($relation === 'before') {
-                    $query->andWhere(['<=', 'post_time', (int)$this->post_time])
-                        ->orderBy(['post_time' => SORT_DESC]);
+                    $query->andWhere(['<', 'post_time', (int)$this->post_time])
+                        ->orderBy(['post_time' => SORT_DESC, 'id' => SORT_DESC]);
                 } else {
-                    $query->andWhere(['>=', 'post_time', (int)$this->post_time])
-                        ->orderBy(['post_time' => SORT_ASC]);
+                    $query->andWhere(['>', 'post_time', (int)$this->post_time])
+                        ->orderBy(['post_time' => SORT_ASC, 'id' => SORT_ASC]);
                 }
                 if ($simple) {
                     $query->select('id,title,alias,status');

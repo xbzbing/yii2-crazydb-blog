@@ -9,9 +9,15 @@ use App\Nav\Nav;
 use App\Tests\TestCase;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
+use Yiisoft\Router\UrlGeneratorInterface;
 
 final class ModelCacheTest extends TestCase
 {
+    private function url(): UrlGeneratorInterface
+    {
+        return $this->container()->get(UrlGeneratorInterface::class);
+    }
+
     public function testGetAllCategoriesCacheAndDependencyInvalidation(): void
     {
         $cache = new Cache(new ArrayCache());
@@ -67,11 +73,12 @@ final class ModelCacheTest extends TestCase
         $cat->alias = '__summary_' . bin2hex(random_bytes(4));
         $cat->save();
         try {
-            $summary = Category::getCategorySummary($cache);
+            $summary = Category::getCategorySummary($cache, $this->url());
             self::assertArrayHasKey('name', $summary[$cat->id]);
             self::assertSame('__summary_cat__', $summary[$cat->id]['name']);
             self::assertArrayHasKey('postCount', $summary[$cat->id]);
             self::assertIsInt($summary[$cat->id]['postCount']);
+            self::assertNotNull($summary[$cat->id]['url'], 'category url must be generated');
         } finally {
             $cat->delete();
         }

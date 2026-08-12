@@ -39,14 +39,17 @@ final readonly class Action
         private MarkdownRenderer $markdownRenderer,
     ) {}
 
-    public function __invoke(ServerRequestInterface $request, #[RouteArgument] string $name): ResponseInterface
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        #[RouteArgument] string $name,
+        #[RouteArgument] ?string $page = null,
+    ): ResponseInterface {
         $tag = Tag::query()->where(['name' => $name])->one();
         if ($tag === null) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
         }
 
-        $page = max(1, (int)($request->getQueryParams()['page'] ?? 1));
+        $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
 
         /** @var list<array{pid: int}> $tagRows */
@@ -78,7 +81,7 @@ final readonly class Action
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache),
                 'showSidebar' => true,
-                'categorySummary' => Category::getCategorySummary($this->cache),
+                'categorySummary' => Category::getCategorySummary($this->cache, $this->urlGenerator),
                 'sidebarTags' => Tag::getTags($this->cache, $this->urlGenerator, false, 20),
                 'sidebarComments' => Comment::getRecentComments($this->cache, $this->urlGenerator, $this->aliases, 5),
             ],

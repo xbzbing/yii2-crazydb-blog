@@ -48,12 +48,16 @@ final readonly class Action
         $total = count($comments);
         $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
         $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
+        // 隐藏文章不公开全文，仅显示摘要（对齐 Yii2 实际行为：密码验证早已停用）
+        $contentHtml = $post->status === Post::STATUS_HIDDEN
+            ? \Yiisoft\Html\Html::encode((string)$post->excerpt)
+            : $post->getContentProcessed($this->markdownRenderer);
 
         return $this->viewRenderer->render(
             __DIR__ . '/template',
             [
                 'post' => $post,
-                'contentHtml' => $post->getContentProcessed($this->markdownRenderer),
+                'contentHtml' => $contentHtml,
                 'comments' => $comments,
                 'commentTotal' => $total,
                 'previous' => $previous,
@@ -63,7 +67,7 @@ final readonly class Action
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache),
                 'showSidebar' => true,
-                'categorySummary' => Category::getCategorySummary($this->cache),
+                'categorySummary' => Category::getCategorySummary($this->cache, $this->urlGenerator),
                 'sidebarTags' => Tag::getTags($this->cache, $this->urlGenerator, false, 20),
                 'sidebarComments' => Comment::getRecentComments($this->cache, $this->urlGenerator, $this->aliases, 5),
             ],
