@@ -37,7 +37,6 @@ final readonly class Action
         $siteUrl = $this->urlGenerator->generateAbsolute('site/index');
 
         /** @var list<Post> $posts */
-        /** @var list<Post> $posts */
         $posts = $this->cache->getOrSet(
             '__feed_rss.' . (int)Post::query()->max('update_time'),
             static fn (): array => Post::query()

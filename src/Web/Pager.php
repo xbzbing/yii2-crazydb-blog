@@ -22,7 +22,7 @@ final readonly class Pager
         $this->pageSize = max(1, $pageSize);
         $this->pageCount = max(1, (int)ceil($totalCount / $this->pageSize));
         $this->currentPage = min(max(1, $currentPage), $this->pageCount);
-        $this->offset = ($this->currentPage - 1) * $pageSize;
+        $this->offset = ($this->currentPage - 1) * $this->pageSize;
     }
 
     public function hasPrev(): bool

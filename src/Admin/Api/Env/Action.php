@@ -59,10 +59,10 @@ final readonly class Action
             'postMaxSize' => (string)ini_get('post_max_size'),
             'extensions' => implode(', ', get_loaded_extensions()),
             'currentMemoryUsage' => function_exists('memory_get_usage')
-                ? $this->dataFormat(memory_get_usage())
+                ? \App\Common\XUtils::dataFormat(memory_get_usage())
                 : '未知',
             'peakMemoryUsage' => function_exists('memory_get_peak_usage')
-                ? $this->dataFormat(memory_get_peak_usage())
+                ? \App\Common\XUtils::dataFormat(memory_get_peak_usage())
                 : '未知',
         ];
     }
@@ -91,7 +91,7 @@ final readonly class Action
         }
         return [
             'version' => (string)($version['version'] ?? '未知'),
-            'size' => $dbsize ? $this->dataFormat($dbsize) : '未知',
+            'size' => $dbsize ? \App\Common\XUtils::dataFormat($dbsize) : '未知',
             'tableCount' => $tableCount,
         ];
     }
@@ -129,12 +129,12 @@ final readonly class Action
             if (isset($lines['MemTotal'])) {
                 $used = $lines['MemTotal'] - (int)($lines['MemAvailable'] ?? $lines['MemFree']);
                 $memory = [
-                    'total' => $this->dataFormat($lines['MemTotal']),
-                    'used' => $this->dataFormat(max(0, $used)),
-                    'free' => $this->dataFormat((int)($lines['MemAvailable'] ?? $lines['MemFree'])),
+                    'total' => \App\Common\XUtils::dataFormat($lines['MemTotal']),
+                    'used' => \App\Common\XUtils::dataFormat(max(0, $used)),
+                    'free' => \App\Common\XUtils::dataFormat((int)($lines['MemAvailable'] ?? $lines['MemFree'])),
                     'usagePercent' => round($used / $lines['MemTotal'] * 100, 1),
-                    'swapTotal' => $this->dataFormat((int)($lines['SwapTotal'] ?? 0)),
-                    'swapFree' => $this->dataFormat((int)($lines['SwapFree'] ?? 0)),
+                    'swapTotal' => \App\Common\XUtils::dataFormat((int)($lines['SwapTotal'] ?? 0)),
+                    'swapFree' => \App\Common\XUtils::dataFormat((int)($lines['SwapFree'] ?? 0)),
                 ];
             }
         }
@@ -144,9 +144,9 @@ final readonly class Action
         $diskFreeBytes = @disk_free_space('/');
         if ($diskTotalBytes !== false && $diskTotalBytes > 0) {
             $disk = [
-                'total' => $this->dataFormat($diskTotalBytes),
-                'free' => $this->dataFormat((float)$diskFreeBytes),
-                'used' => $this->dataFormat($diskTotalBytes - (float)$diskFreeBytes),
+                'total' => \App\Common\XUtils::dataFormat($diskTotalBytes),
+                'free' => \App\Common\XUtils::dataFormat((float)$diskFreeBytes),
+                'used' => \App\Common\XUtils::dataFormat($diskTotalBytes - (float)$diskFreeBytes),
                 'usagePercent' => round(($diskTotalBytes - (float)$diskFreeBytes) / $diskTotalBytes * 100, 1),
             ];
         }
@@ -202,18 +202,5 @@ final readonly class Action
         if ($mins > 0) $parts[] = $mins . ' 分钟';
         $parts[] = $secs . ' 秒';
         return implode(' ', $parts);
-    }
-
-    private function dataFormat(float|int $size, int $dec = 2): string
-    {
-        /** @var array<int, string> */
-        $a = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-        $pos = 0;
-        $size = (float)$size;
-        while ($size >= 1024 && $pos < 5) {
-            $size /= 1024;
-            $pos++;
-        }
-        return round($size, $dec) . ' ' . $a[$pos];
     }
 }

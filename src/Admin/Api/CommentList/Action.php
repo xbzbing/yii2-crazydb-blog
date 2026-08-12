@@ -53,11 +53,21 @@ final readonly class Action
             ->offset($pager->offset)
             ->all();
 
-        // 为每条评论补充被评论文章信息（title + url）
+        // 批量预取被评论文章（避免逐条 getPost 查询，消除 N+1）
+        $pids = array_values(array_unique(array_map(static fn (Comment $c): int => (int)$c->pid, $comments)));
+        $postMap = [];
+        if ($pids !== []) {
+            /** @var list<Post> $postRows */
+            $postRows = Post::query()->where(['in', 'id', $pids])->all();
+            foreach ($postRows as $post) {
+                $postMap[(int)$post->id] = $post;
+            }
+        }
+
         $items = [];
         foreach ($comments as $comment) {
             $item = ApiSerializer::comment($comment);
-            $post = $comment->getPost();
+            $post = $postMap[(int)$comment->pid] ?? null;
             if ($post instanceof Post) {
                 $item['post_id'] = (int)$post->id;
                 $item['post_title'] = $post->title;

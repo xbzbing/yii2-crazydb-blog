@@ -16,10 +16,11 @@ return [
         'class' => Client::class,
         '__construct()' => [
             'parameters' => sprintf(
-                // 指定 DB 1 与应用隔离（避免多应用共享 Redis 时 key 碰撞/误删）
-                'tcp://%s:%s/1%s',
+                // 指定 DB 与 Visit 统计隔离（避免多应用共享 Redis 时 key 碰撞/误删）
+                'tcp://%s:%s/%d%s',
                 (string) ($_ENV['REDIS_HOST'] ?? getenv('REDIS_HOST')) ?: '127.0.0.1',
                 (string) ($_ENV['REDIS_PORT'] ?? getenv('REDIS_PORT')) ?: '6379',
+                CacheKeys::REDIS_DB,
                 (string) ($_ENV['REDIS_PASSWORD'] ?? getenv('REDIS_PASSWORD')) !== ''
                     ? '?password=' . (string) ($_ENV['REDIS_PASSWORD'] ?? getenv('REDIS_PASSWORD'))
                     : '',

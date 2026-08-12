@@ -12,6 +12,9 @@ namespace App\Common;
  */
 final class CacheKeys
 {
+    /** 应用缓存 Redis DB 号（与 config/common/di/cache.php 的 URI 路径 /1 保持一致） */
+    public const REDIS_DB = 1;
+
     /** 应用缓存 key 统一前缀（与 config/common/di/cache.php 的 PrefixedCache prefix 一致）。
      *  注意：不能含 RedisCache 校验黑名单字符 {}()/\@:（见 yiisoft/cache-redis validateKey） */
     public const PREFIX = 'crazydbcache_';

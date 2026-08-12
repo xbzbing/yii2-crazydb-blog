@@ -57,7 +57,7 @@ final readonly class Action
             ['info' => $result['info']],
         );
 
-        return $this->redirect($id);
+        return $this->redirect($post->alias);
     }
 
     private function currentUser(ServerRequestInterface $request): ?User
@@ -66,16 +66,13 @@ final readonly class Action
         return $identity instanceof User ? $identity : null;
     }
 
-    private function redirect(?int $postId): ResponseInterface
+    private function redirect(?string $alias): ResponseInterface
     {
-        if ($postId !== null) {
-            $post = Post::findVisibleById($postId);
-            if ($post !== null) {
-                $uri = $this->urlGenerator->generate('post/show', ['alias' => $post->alias]);
-                return $this->responseFactory
-                    ->createResponse(Status::FOUND)
-                    ->withHeader('Location', $uri);
-            }
+        if ($alias !== null && $alias !== '') {
+            $uri = $this->urlGenerator->generate('post/show', ['alias' => $alias]);
+            return $this->responseFactory
+                ->createResponse(Status::FOUND)
+                ->withHeader('Location', $uri);
         }
         return $this->responseFactory
             ->createResponse(Status::FOUND)
