@@ -14,6 +14,7 @@ use Yiisoft\Html\Html;
  * @var string|null $csrf
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  * @var App\User\AuthService $authService
+ * @var Yiisoft\Session\Flash\FlashInterface $flash
  */
 
 $assetManager->register(\App\Web\Shared\Layout\Main\MainAsset::class);
@@ -67,6 +68,12 @@ $this->beginPage()
         </ul>
     </aside>
     <main class="admin-main">
+        <?php foreach (['flash_success', 'flash_error'] as $flashKey): ?>
+            <?php if ($flash->has($flashKey)): ?>
+                <?php $flashType = $flashKey === 'flash_success' ? 'flash-success' : 'flash-error'; ?>
+                <div class="flash <?= $flashType ?>"><?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?></div>
+            <?php endif; ?>
+        <?php endforeach; ?>
         <?= $content ?>
     </main>
 </div>

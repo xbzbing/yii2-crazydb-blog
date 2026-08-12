@@ -13,6 +13,7 @@ use Yiisoft\Html\Html;
  * @var list<App\Comment\Comment> $comments
  * @var App\Web\Pager $pager
  * @var string $status
+ * @var string|null $csrf
  */
 
 $this->setTitle('评论管理 - 后台管理');
@@ -58,9 +59,15 @@ $statusNames = [
             <td><?= date('Y-m-d H:i', (int)$comment->create_time) ?></td>
             <td>
                 <?php if ($comment->status !== Comment::STATUS_APPROVED): ?>
-                    <a href="<?= Html::encode($urlGenerator->generate('admin/comment/action', ['action' => 'approve', 'id' => $comment->id])) ?>">通过</a>
+                    <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/comment/action', ['action' => 'approve', 'id' => $comment->id])) ?>" class="admin-inline">
+                        <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                        <button type="submit">通过</button>
+                    </form>
                 <?php endif; ?>
-                <a href="<?= Html::encode($urlGenerator->generate('admin/comment/action', ['action' => 'delete', 'id' => $comment->id])) ?>" onclick="return confirm('确定删除该评论？');">删除</a>
+                <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/comment/action', ['action' => 'delete', 'id' => $comment->id])) ?>" class="admin-inline" onsubmit="return confirm('确定删除该评论？');">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <button type="submit">删除</button>
+                </form>
             </td>
         </tr>
     <?php endforeach; ?>

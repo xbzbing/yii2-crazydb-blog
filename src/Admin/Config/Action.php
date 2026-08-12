@@ -52,14 +52,21 @@ final readonly class Action
         if ($request->getMethod() === Method::POST) {
             $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
+            $failed = [];
             foreach (self::FIELDS as $name => $field) {
                 $value = trim((string)($data[$name] ?? ''));
-                $this->saveOption($field['type'], $name, $value);
+                if (!$this->saveOption($field['type'], $name, $value)) {
+                    $failed[] = $name;
+                }
                 $values[$name] = $value;
             }
             CMSUtils::getSiteConfig($this->cache, 'sys', true);
             CMSUtils::getSiteConfig($this->cache, 'seo', true);
-            $this->flash->set('flash_success', ['info' => '配置已保存。']);
+            if ($failed === []) {
+                $this->flash->set('flash_success', ['info' => '配置已保存。']);
+            } else {
+                $this->flash->set('flash_error', ['info' => '部分配置保存失败：' . implode(', ', $failed)]);
+            }
             return $this->responseFactory
                 ->createResponse(Status::FOUND)
                 ->withHeader('Location', $this->urlGenerator->generate('admin/config'));
@@ -73,7 +80,7 @@ final readonly class Action
             );
     }
 
-    private function saveOption(string $type, string $name, string $value): void
+    private function saveOption(string $type, string $name, string $value): bool
     {
         /** @var ?Option $option */
         $option = Option::query()->where(['type' => $type, 'name' => $name])->one();
@@ -86,7 +93,9 @@ final readonly class Action
         $option->update_time = time();
         try {
             $option->save();
+            return true;
         } catch (\Throwable) {
+            return false;
         }
     }
 }

@@ -7,13 +7,15 @@ namespace App\Admin\CommentAction;
 use App\Comment\Comment;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Session\Flash\FlashInterface;
 
 /**
- * 后台评论操作：通过审核 / 删除（等价 Yii2 admin CommentController::actionApprove/actionDelete）。
+ * 后台评论操作：通过审核 / 删除（POST + CSRF，等价 Yii2 admin CommentController）。
  */
 final readonly class Action
 {
@@ -24,19 +26,22 @@ final readonly class Action
     ) {}
 
     public function __invoke(
-        #[RouteArgument] int $id,
+        ServerRequestInterface $request,
         #[RouteArgument] string $action,
+        #[RouteArgument] int $id,
     ): ResponseInterface {
-        $comment = Comment::query()->findByPk($id);
-        if ($comment instanceof Comment) {
-            if ($action === 'approve' && $comment->status !== Comment::STATUS_APPROVED) {
-                $comment->status = Comment::STATUS_APPROVED;
-                $comment->update_time = time();
-                $comment->save();
-                $this->flash->set('flash_success', ['info' => '评论已通过审核。']);
-            } elseif ($action === 'delete') {
-                $comment->delete();
-                $this->flash->set('flash_success', ['info' => '评论已删除。']);
+        if ($request->getMethod() === Method::POST) {
+            $comment = Comment::query()->findByPk($id);
+            if ($comment instanceof Comment) {
+                if ($action === 'approve' && $comment->status !== Comment::STATUS_APPROVED) {
+                    $comment->status = Comment::STATUS_APPROVED;
+                    $comment->update_time = time();
+                    $comment->save();
+                    $this->flash->set('flash_success', ['info' => '评论已通过审核。']);
+                } elseif ($action === 'delete') {
+                    $comment->delete();
+                    $this->flash->set('flash_success', ['info' => '评论已删除。']);
+                }
             }
         }
         return $this->responseFactory

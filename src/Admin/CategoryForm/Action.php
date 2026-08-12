@@ -32,15 +32,13 @@ final readonly class Action
 
     public function __invoke(
         ServerRequestInterface $request,
-        #[RouteArgument] string $action,
         #[RouteArgument] ?int $id = null,
     ): ResponseInterface {
-        if ($action === 'delete') {
-            return $this->delete($id);
-        }
-
         /** @var ?Category $category */
         $category = $id !== null ? Category::query()->findByPk($id) : null;
+        if ($id !== null && $category === null) {
+            return $this->redirectList();
+        }
         $isNew = $category === null;
         $category ??= new Category();
         $errors = [];
@@ -71,7 +69,6 @@ final readonly class Action
                     $errors['save'] = '保存失败。';
                 }
                 if ($errors === []) {
-                    $this->cache->remove('__category_summary.' . (int)Category::query()->max('update_time'));
                     $this->flash->set('flash_success', ['info' => $isNew ? '分类已创建。' : '分类已更新。']);
                     return $this->redirectList();
                 }
@@ -84,18 +81,6 @@ final readonly class Action
                 __DIR__ . '/template',
                 ['category' => $category, 'isNew' => $isNew, 'errors' => $errors],
             );
-    }
-
-    private function delete(?int $id): ResponseInterface
-    {
-        if ($id !== null) {
-            $category = Category::query()->findByPk($id);
-            if ($category instanceof Category) {
-                $category->delete();
-                $this->flash->set('flash_success', ['info' => '分类已删除。']);
-            }
-        }
-        return $this->redirectList();
     }
 
     private function redirectList(): ResponseInterface

@@ -10,6 +10,7 @@ use Yiisoft\Html\Html;
  * @var Yiisoft\View\WebView $this
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  * @var list<App\Category\Category> $categories
+ * @var string|null $csrf
  */
 
 $this->setTitle('分类管理 - 后台管理');
@@ -39,7 +40,10 @@ $this->setTitle('分类管理 - 后台管理');
             <td><?= $category->sort_order ?></td>
             <td>
                 <a href="<?= Html::encode($urlGenerator->generate('admin/category/update', ['id' => $category->id])) ?>">编辑</a>
-                <a href="<?= Html::encode($urlGenerator->generate('admin/category/delete', ['id' => $category->id])) ?>" onclick="return confirm('确定删除该分类？');">删除</a>
+                <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/category/delete', ['id' => $category->id])) ?>" class="admin-inline" onsubmit="return confirm('确定删除该分类？');">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <button type="submit">删除</button>
+                </form>
             </td>
         </tr>
     <?php endforeach; ?>

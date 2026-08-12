@@ -12,6 +12,7 @@ use Yiisoft\Html\Html;
  * @var list<App\Post\Post> $posts
  * @var App\Web\Pager $pager
  * @var string $status
+ * @var string|null $csrf
  */
 
 $this->setTitle('文章管理 - 后台管理');
@@ -58,9 +59,15 @@ $statusNames = [
             <td><?= date('Y-m-d', (int)$post->post_time) ?></td>
             <td><?= (int)$post->comment_count ?></td>
             <td>
-                <a href="<?= Html::encode($urlGenerator->generate('post/show', ['alias' => $post->alias])) ?>" target="_blank">查看</a>
+                <?php $viewUrl = $post->alias !== '' ? $urlGenerator->generate('post/show', ['alias' => $post->alias]) : null; ?>
+                <?php if ($viewUrl !== null): ?>
+                    <a href="<?= Html::encode($viewUrl) ?>" target="_blank">查看</a>
+                <?php endif; ?>
                 <a href="<?= Html::encode($urlGenerator->generate('admin/post/update', ['id' => $post->id])) ?>">编辑</a>
-                <a href="<?= Html::encode($urlGenerator->generate('admin/post/delete', ['id' => $post->id])) ?>" onclick="return confirm('确定删除该文章？');">删除</a>
+                <form method="post" action="<?= Html::encode($urlGenerator->generate('admin/post/delete', ['id' => $post->id])) ?>" class="admin-inline" onsubmit="return confirm('确定删除该文章？');">
+                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                    <button type="submit">删除</button>
+                </form>
             </td>
         </tr>
     <?php endforeach; ?>

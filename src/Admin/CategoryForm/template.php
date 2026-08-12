@@ -33,7 +33,8 @@ $formAction = $isNew
     <label>别名（URL 友好名，可选）：<input type="text" name="alias" value="<?= Html::encode($category->alias) ?>"></label>
     <label>描述（可选）：<textarea name="desc" rows="3"><?= Html::encode((string)$category->desc) ?></textarea></label>
     <label>关键词（SEO，可选）：<input type="text" name="keywords" value="<?= Html::encode($category->keywords) ?>"></label>
-    <label>排序（大在前）：<input type="number" name="sort_order" value="<?= $category->sort_order ?>"></label>
+    <label>父分类 ID（0 为顶级，可选）：<input type="number" name="pid" value="<?= (int)$category->pid ?>"></label>
+    <label>排序（大在前）：<input type="number" name="sort_order" value="<?= (int)$category->sort_order ?>"></label>
     <button type="submit">保存</button>
     <a href="<?= Html::encode($urlGenerator->generate('admin/category/list')) ?>">返回列表</a>
 </form>
