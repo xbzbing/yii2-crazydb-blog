@@ -53,8 +53,6 @@ final class CommentService
         $comment->pid = $postId;
         $comment->nickname = trim((string)($data['nickname'] ?? ''));
         $comment->email = trim((string)($data['email'] ?? ''));
-        $url = $data['url'] ?? null;
-        $comment->url = is_string($url) && $url !== '' ? $url : null;
         $comment->reply_to = isset($data['reply_to']) ? (int)$data['reply_to'] : null;
         $comment->content = (string)($data['content'] ?? '');
         $comment->status = $status;
@@ -83,21 +81,11 @@ final class CommentService
         if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
             return ['status' => 'fail', 'info' => '不是有效的E-mail地址。'];
         }
-        if ($comment->url !== null) {
-            $scheme = parse_url($comment->url, PHP_URL_SCHEME);
-            if (!is_string($scheme) || !in_array(strtolower($scheme), ['http', 'https'], true)) {
-                return ['status' => 'fail', 'info' => 'URL地址不合法，需要以http或https开头'];
-            }
-            if (!filter_var($comment->url, FILTER_VALIDATE_URL)) {
-                return ['status' => 'fail', 'info' => 'URL地址不合法，需要以http或https开头'];
-            }
-        }
 
         if ($currentUser !== null) {
             $comment->uid = $currentUser->id;
             $comment->nickname = $currentUser->nickname;
             $comment->email = $currentUser->email;
-            $comment->url = $currentUser->website ?: $comment->url;
         } else {
             $comment->uid = null;
             // 保护注册用户不被冒用身份

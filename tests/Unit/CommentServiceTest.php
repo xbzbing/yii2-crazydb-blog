@@ -131,29 +131,6 @@ final class CommentServiceTest extends TestCase
         $this->cleanOptions();
     }
 
-    public function testRejectsNonHttpUrlScheme(): void
-    {
-        $this->seedOption(Option::ALLOW_COMMENT, Option::STATUS_OPEN);
-        $this->seedOption(Option::AUDIT_ON_COMMENT, 'close');
-        $cache = new Cache(new ArrayCache());
-        $service = $this->service($cache, new StubMailer());
-        $created = $this->createPost();
-        try {
-            $result = $service->add($created['post']->id, [
-                'nickname' => '评论者丁',
-                'email' => 'commenter4@example.com',
-                'content' => '这是一条中文评论。',
-                'url' => 'javascript://alert(1)',
-            ], ['ip' => '203.0.113.12', 'userAgent' => 'TestAgent/1.0']);
-
-            self::assertSame('fail', $result['status']);
-            self::assertStringContainsString('http', $result['info']);
-        } finally {
-            $created['cleanup']();
-            $this->cleanOptions();
-        }
-    }
-
     public function testAntiSpamBlocksNonChineseContent(): void
     {
         $this->seedOption(Option::ALLOW_COMMENT, Option::STATUS_OPEN);

@@ -198,7 +198,6 @@ if (str_contains($contentHtml, '<pre><code')) {
         <input type="hidden" name="reply_to" id="comment-reply-to" value="">
         <label>昵称：<input type="text" name="nickname" required></label>
         <label>邮箱：<input type="email" name="email" required></label>
-        <label>网址：<input type="text" name="url" placeholder="http:// 或 https://"></label>
         <label>内容：<textarea name="content" required></textarea></label>
         <label>验证码：
             <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="验证码" class="auth-captcha">

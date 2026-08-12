@@ -80,7 +80,6 @@ $this->beginPage()
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>
-                <li><a href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a></li>
                 <?php $currentUser = $authService->currentUser(); ?>
                 <?php if ($currentUser !== null): ?>
                     <li><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a></li>
