@@ -170,3 +170,17 @@ CREATE TABLE IF NOT EXISTS `log` (
   KEY `idx_uid` (`uid`),
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='操作日志';
+
+-- ------------------------------------------------------------
+-- 按日访问统计表（前台 PV/UV 聚合，由 visit/sync 定时任务落库）
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `visit_daily` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `date` DATE NOT NULL COMMENT '日期',
+  `pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '访问次数(PV)',
+  `uv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '独立IP数(UV)',
+  `create_time` INT UNSIGNED NOT NULL DEFAULT 0,
+  `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_date` (`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='按日访问统计';
