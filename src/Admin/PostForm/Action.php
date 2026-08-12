@@ -87,8 +87,12 @@ final readonly class Action
                     $post->post_time = time();
                 }
                 $post->update_time = time();
-                $post->content = XUtils::htmlPurify($post->content);
-                $post->excerpt = $post->excerpt !== null ? XUtils::htmlPurify($post->excerpt) : null;
+                // markdown 源数据不做 HTMLPurifier（会破坏代码块/实体/链接）——
+                // 输出端 MarkdownRenderer::renderUncached 已统一净化；html 老文章保留净化
+                if ($post->format === Post::FORMAT_HTML) {
+                    $post->content = XUtils::htmlPurify($post->content);
+                    $post->excerpt = $post->excerpt !== null ? XUtils::htmlPurify($post->excerpt) : null;
+                }
                 try {
                     $post->save();
                 } catch (\Throwable) {
