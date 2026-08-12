@@ -29,7 +29,12 @@ $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('所有标签 - ' . $siteName);
-$this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
+$tagNames = array_slice(array_map(static fn (array $tag): string => (string)$tag['name'], $tags), 0, 20);
+$keywords = (string)($seoConfig['seo_keywords'] ?? '');
+if ($tagNames !== []) {
+    $keywords = implode(',', $tagNames) . ($keywords !== '' ? ',' . $keywords : '');
+}
+$this->setParameter('seo_keywords', $keywords);
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 ?>
 
