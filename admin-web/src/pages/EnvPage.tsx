@@ -108,7 +108,7 @@ export default function EnvPage() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card size="small" title="磁盘使用（/）">
+            <Card size="small" title="磁盘使用（根分区 /）">
               <Progress
                 percent={Number(diskPct)}
                 status={(diskPct ?? 0) > 90 ? 'exception' : (diskPct ?? 0) > 75 ? 'active' : 'normal'}

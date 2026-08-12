@@ -30,8 +30,8 @@ final readonly class Action
         #[RouteArgument] int $id,
     ): ResponseInterface {
         $post = Post::query()->findByPk($id);
-        if (!$post instanceof Post || $post->status !== Post::STATUS_HIDDEN) {
-            return $this->redirect($id, $request);
+        if (!$post instanceof Post) {
+            return $this->redirect($id);
         }
         $expected = (string)$post->password;
         $body = $request->getParsedBody();
@@ -39,10 +39,10 @@ final readonly class Action
         if ($expected !== '' && hash_equals($expected, $input)) {
             $this->session->set('unlocked_post_' . (int)$post->id, $expected);
         }
-        return $this->redirect($id, $request);
+        return $this->redirect($id);
     }
 
-    private function redirect(int $postId, ServerRequestInterface $request): ResponseInterface
+    private function redirect(int $postId): ResponseInterface
     {
         $post = Post::query()->findByPk($postId);
         $uri = $post instanceof Post ? ($post->getUrl($this->urlGenerator) ?: '/') : '/';

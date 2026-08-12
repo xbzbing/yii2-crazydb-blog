@@ -17,7 +17,7 @@ use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 final readonly class Action
 {
     private const PAGE_SIZE = 20;
-    private const STATUSES = [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN, Post::STATUS_DRAFT, Post::STATUS_DELETED];
+    private const STATUSES = [Post::STATUS_PUBLISHED, Post::STATUS_DRAFT, Post::STATUS_DELETED];
 
     public function __construct(
         private WebViewRenderer $viewRenderer,

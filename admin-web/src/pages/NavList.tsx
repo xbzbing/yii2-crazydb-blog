@@ -68,6 +68,12 @@ export default function NavList() {
       request={request}
       search={false}
       pagination={false}
+      columnsState={{
+        persistenceKey: 'admin-nav-list',
+        defaultValue: {
+          id: { show: false },
+        },
+      }}
       toolBarRender={() => [
         <Button key="create" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/navs/create')}>
           新建导航

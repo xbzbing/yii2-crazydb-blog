@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Card, Form, Input, Select, Switch, Button, Space, message, Spin, Upload, Row, Col, Tooltip, Checkbox } from 'antd'
-import { PlusOutlined, LoadingOutlined } from '@ant-design/icons'
+import { PlusOutlined, LoadingOutlined, FileDoneOutlined, SaveOutlined, RollbackOutlined } from '@ant-design/icons'
 import { useNavigate, useParams } from 'react-router-dom'
 import { api, getCsrfToken } from '../api/client'
 import VditorEditor from '../components/VditorEditor'
@@ -15,10 +15,11 @@ export default function PostForm() {
   const [submitting, setSubmitting] = useState(false)
   const [content, setContent] = useState('')
   const [excerpt, setExcerpt] = useState('')
-  const [format, setFormat] = useState('html')
+  const [format, setFormat] = useState<'markdown' | 'html'>('markdown')
   const [cover, setCover] = useState('')
   const [coverUploading, setCoverUploading] = useState(false)
   const [autoCover, setAutoCover] = useState(false)
+  const [passwordEnabled, setPasswordEnabled] = useState(false)
 
   useEffect(() => {
     // 拉分类下拉
@@ -39,13 +40,13 @@ export default function PostForm() {
           setContent(p.content || '')
           setExcerpt(p.excerpt || '')
           setCover(p.cover || '')
-          setFormat(p.format)
+          setFormat(p.format === 'html' ? 'html' : 'markdown')
+          setPasswordEnabled(!!p.password)
           form.setFieldsValue({
             title: p.title,
             alias: p.alias,
             cid: p.cid || undefined,
             status: p.status,
-            format: p.format,
             tags: p.tags,
             author_name: p.author_name,
             is_top: p.is_top === 1,
@@ -55,30 +56,37 @@ export default function PostForm() {
         .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
         .finally(() => setLoading(false))
     } else {
-      form.setFieldsValue({ status: 'draft', format: 'html', is_top: false })
+      // 新建：状态默认「空」，由底部「发布/存为草稿」按钮决定
+      form.setFieldsValue({ status: '', is_top: false, password: '' })
+      setFormat('markdown')
+      setPasswordEnabled(false)
       setLoading(false)
     }
   }, [id])
 
-  const onFinish = async (values: {
-    title: string
-    alias?: string
-    cid?: number
-    status: string
-    format: string
-    tags?: string
-    author_name?: string
-    is_top?: boolean
-    password?: string
-  }) => {
+  const submitWithStatus = async (status: string) => {
+    let values: {
+      title: string
+      alias?: string
+      cid?: number
+      tags?: string
+      author_name?: string
+      is_top?: boolean
+      password?: string
+    }
+    try {
+      values = await form.validateFields()
+    } catch {
+      return
+    }
     setSubmitting(true)
     try {
       const payload = {
         title: values.title,
         alias: values.alias || '',
         cid: values.cid || 0,
-        status: values.status,
-        format: values.format,
+        status,
+        format,
         tags: values.tags || '',
         author_name: values.author_name || '',
         cover,
@@ -86,7 +94,7 @@ export default function PostForm() {
         excerpt,
         content,
         is_top: values.is_top ? 1 : 0,
-        password: values.password || '',
+        password: passwordEnabled ? (values.password || '') : '',
         // post_time 由后端处理：新建取当前时间，编辑保持原值（不传则后端兜底）
       }
       const data = isEdit ? await api.postUpdate(Number(id), payload) : await api.postSave(payload)
@@ -107,30 +115,50 @@ export default function PostForm() {
 
   return (
     <Card title={isEdit ? '编辑文章' : '新建文章'}>
-      <Form form={form} layout="horizontal" onFinish={onFinish} style={{ maxWidth: 960 }}>
+      <Form form={form} layout="horizontal" onFinish={() => submitWithStatus('draft')} style={{ maxWidth: 960 }} labelCol={{ flex: '70px' }} wrapperCol={{ flex: 'auto' }}>
+        {/* 第一行：标题（带 label，与下方输入框对齐）+ 置顶 */}
         <Row gutter={[16, 0]}>
-          <Col span={24}>
-            <Form.Item name="title" label="标题" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }} rules={[{ required: true, message: '请输入标题' }]}>
+          <Col flex="auto">
+            <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题' }]}>
               <Input placeholder="文章标题" />
             </Form.Item>
           </Col>
+          <Col>
+            <Form.Item name="is_top" valuePropName="checked">
+              <Switch checkedChildren="置顶" unCheckedChildren="置顶" />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        {/* 第二行：别名、笔名、状态 */}
+        <Row gutter={[16, 0]}>
           <Col span={8}>
-            <Form.Item name="alias" label="别名" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Input placeholder="URL 别名（留空自动生成）" />
+            <Form.Item name="alias" label="别名">
+              <Input placeholder="留空自动生成" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="author_name" label="笔名" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
+            <Form.Item name="author_name" label="笔名">
               <Input placeholder="作者笔名" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="is_top" label="置顶" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Switch />
+            <Form.Item name="status" label="状态">
+              <Select
+                placeholder="状态"
+                options={[
+                  { value: 'published', label: '已发布' },
+                  { value: 'draft', label: '草稿' },
+                ]}
+              />
             </Form.Item>
           </Col>
+        </Row>
+
+        {/* 第三行：分类、标签、密码 */}
+        <Row gutter={[16, 0]}>
           <Col span={8}>
-            <Form.Item name="cid" label="分类" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
+            <Form.Item name="cid" label="分类">
               <Select
                 allowClear
                 placeholder="选择分类"
@@ -139,29 +167,6 @@ export default function PostForm() {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="status" label="状态" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Select
-                options={[
-                  { value: 'published', label: '已发布' },
-                  { value: 'draft', label: '草稿' },
-                  { value: 'hidden', label: '隐藏' },
-                  { value: 'deleted', label: '已删除' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item name="format" label="格式" labelCol={{ span: 7 }} wrapperCol={{ span: 17 }}>
-              <Select
-                onChange={setFormat}
-                options={[
-                  { value: 'html', label: 'HTML' },
-                  { value: 'markdown', label: 'Markdown' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
             <Form.Item
               name="tags"
               label={
@@ -169,28 +174,37 @@ export default function PostForm() {
                   <span>标签</span>
                 </Tooltip>
               }
-              labelCol={{ span: 2 }}
-              wrapperCol={{ span: 22 }}
             >
               <Input placeholder="如 php, yii3, 博客" />
             </Form.Item>
           </Col>
+          {/* 访问密码：开关 + 密码输入框组合（无 label，margin-left 对齐状态列） */}
           <Col span={8}>
-            <Form.Item
-              name="password"
-              label={
-                <Tooltip title="设为「隐藏」状态并填写密码后，前台需输入密码才能查看全文">
-                  <span>访问密码</span>
-                </Tooltip>
-              }
-              labelCol={{ span: 7 }}
-              wrapperCol={{ span: 17 }}
-            >
-              <Input.Password placeholder="留空表示无需密码" autoComplete="new-password" />
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Space.Compact style={{ marginLeft: 70 }}>
+                <Button
+                  type={passwordEnabled ? 'primary' : 'default'}
+                  onClick={() => setPasswordEnabled(!passwordEnabled)}
+                >
+                  {passwordEnabled ? '加锁' : '未加锁'}
+                </Button>
+                {passwordEnabled ? (
+                  <Form.Item
+                    name="password"
+                    noStyle
+                    rules={[{ required: true, message: '请输入访问密码' }]}
+                  >
+                    <Input.Password placeholder="输入访问密码" autoComplete="new-password" />
+                  </Form.Item>
+                ) : (
+                  <Input disabled placeholder="未加锁" />
+                )}
+              </Space.Compact>
             </Form.Item>
           </Col>
         </Row>
-        <Form.Item label="封面图片" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+
+        <Form.Item label="封面图片">
           <Space align="start">
             <Upload
               name="file"
@@ -254,28 +268,40 @@ export default function PostForm() {
           </Space>
         </Form.Item>
 
-        <Form.Item label="摘要" labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+        <Form.Item label="摘要" layout="vertical" labelCol={{ flex: 'none' }} style={{ marginBottom: 24 }}>
           {format === 'markdown' ? (
             <VditorEditor value={excerpt} onChange={setExcerpt} height={160} placeholder="摘要内容（可选）…" />
           ) : (
-            <Input.TextArea rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="文章摘要" />
+            <Input.TextArea rows={2} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="文章摘要（HTML 兼容旧文档）" />
           )}
         </Form.Item>
 
-        <Form.Item label="正文" required labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+        <Form.Item label="正文" required layout="vertical" labelCol={{ flex: 'none' }} style={{ marginBottom: 24 }}>
           {format === 'markdown' ? (
             <VditorEditor value={content} onChange={setContent} height={480} />
           ) : (
-            <Input.TextArea rows={16} value={content} onChange={(e) => setContent(e.target.value)} placeholder="正文内容（HTML）" />
+            <Input.TextArea rows={16} value={content} onChange={(e) => setContent(e.target.value)} placeholder="正文内容（HTML 兼容旧文档）" />
+          )}
+          {format === 'html' && (
+            <div style={{ marginTop: 8, color: '#999', fontSize: 13 }}>
+              该文章为旧版 HTML 格式，仅兼容编辑；新文章请使用 Markdown。
+            </div>
           )}
         </Form.Item>
 
-        <Space>
-          <Button type="primary" htmlType="submit" loading={submitting}>
-            保存
-          </Button>
-          <Button onClick={() => navigate('/posts')}>返回列表</Button>
-        </Space>
+        <Form.Item style={{ marginBottom: 0 }}>
+          <Space style={{ marginLeft: 70 }}>
+            <Button type="primary" icon={<FileDoneOutlined />} loading={submitting} onClick={() => submitWithStatus('published')}>
+              发布
+            </Button>
+            <Button icon={<SaveOutlined />} loading={submitting} onClick={() => submitWithStatus('draft')}>
+              存为草稿
+            </Button>
+            <Button icon={<RollbackOutlined />} onClick={() => navigate('/posts')}>
+              返回列表
+            </Button>
+          </Space>
+        </Form.Item>
       </Form>
     </Card>
   )

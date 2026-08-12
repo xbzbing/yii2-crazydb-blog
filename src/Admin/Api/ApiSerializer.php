@@ -14,13 +14,15 @@ final class ApiSerializer
 {
     /**
      * @param list<Post> $posts
+     * @param array<int, string> $categoryNames id => 名称（可选，用于列表展示分类名）
      * @return list<array<string, mixed>>
      */
-    public static function posts(array $posts): array
+    public static function posts(array $posts, array $categoryNames = []): array
     {
         return array_map(static fn (Post $p): array => [
             'id' => (int)$p->id,
             'cid' => (int)$p->cid,
+            'category_name' => $categoryNames[(int)$p->cid] ?? '',
             'author_id' => (int)$p->author_id,
             'author_name' => $p->author_name,
             'type' => $p->type,
@@ -32,6 +34,7 @@ final class ApiSerializer
             'comment_count' => (int)$p->comment_count,
             'view_count' => (int)$p->view_count,
             'is_top' => (int)$p->is_top,
+            'is_locked' => $p->password !== null && $p->password !== '',
             'post_time' => (int)$p->post_time,
             'create_time' => (int)$p->create_time,
             'update_time' => (int)$p->update_time,

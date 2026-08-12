@@ -21,8 +21,8 @@ $postUrl = $post->getUrl($urlGenerator);
             <a href="<?= Html::encode((string)$category['url']) ?>" class="article-category">
                 <?= Html::encode((string)$category['name']) ?>
             </a>
-            <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-                <span class="article-locked">隐藏文章</span>
+            <?php if ((string)$post->password !== ''): ?>
+                <span class="article-locked">密码保护</span>
             <?php endif; ?>
             <a class="article-title" href="<?= Html::encode((string)$postUrl) ?>" title="<?= Html::encode($post->title) ?>" rel="bookmark">
                 <?= Html::encode($post->title) ?>
@@ -30,8 +30,8 @@ $postUrl = $post->getUrl($urlGenerator);
         </h3>
     </header>
     <div class="article-card-content">
-        <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-            <div class="article-locked-tip">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
+        <?php if ((string)$post->password !== ''): ?>
+            <div class="article-locked-tip">该文章需要输入密码才能查看全文。</div>
         <?php endif; ?>
         <?= $post->excerpt !== null && $post->excerpt !== ''
             ? \App\Common\XUtils::htmlPurify($post->excerpt)

@@ -22,6 +22,7 @@ interface VditorOptions {
 interface VditorInstance {
   setValue: (value: string) => void
   getValue: () => string
+  destroy: () => void
 }
 
 interface VditorConstructor {

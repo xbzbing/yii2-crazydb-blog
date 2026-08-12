@@ -47,9 +47,9 @@ final class Category extends ActiveRecord
 
     public function getPostCount(): int
     {
-        return Post::query()
+        return (int)Post::query()
             ->where(['cid' => $this->id])
-            ->andWhere(['in', 'status', [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN]])
+            ->andWhere(['in', 'status', Post::visibleStatuses()])
             ->count();
     }
 

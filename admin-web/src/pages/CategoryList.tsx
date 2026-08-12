@@ -63,12 +63,18 @@ export default function CategoryList() {
     const list = res.items || []
     const nameById: Record<number, string> = {}
     list.forEach((c) => (nameById[c.id] = c.name))
-    // 按 pid 组织两级树：顶级在前，子分类跟随其父
-    const top = list.filter((c) => c.pid === 0)
-    const children = list.filter((c) => c.pid !== 0)
     const rows: CategoryRow[] = []
-    top.forEach((c) => rows.push({ ...c, parentName: undefined, depth: 0 }))
-    children.forEach((c) => rows.push({ ...c, parentName: nameById[c.pid] || '', depth: 1 }))
+    // 每个顶级分类后紧跟其子分类（按 sort_order 排序）
+    list
+      .filter((c) => c.pid === 0)
+      .sort((a, b) => b.sort_order - a.sort_order)
+      .forEach((top) => {
+        rows.push({ ...top, parentName: undefined, depth: 0 })
+        list
+          .filter((c) => c.pid === top.id)
+          .sort((a, b) => b.sort_order - a.sort_order)
+          .forEach((child) => rows.push({ ...child, parentName: nameById[child.pid] || '', depth: 1 }))
+      })
     return { data: rows, total: rows.length, success: true }
   }
 

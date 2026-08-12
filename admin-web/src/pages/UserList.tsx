@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Tag, Space, Tooltip, message, Modal, Descriptions } from 'antd'
-import { StopOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Button, Tag, Tooltip, message, Modal, Descriptions } from 'antd'
+import { EyeOutlined, StopOutlined, CheckCircleOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { User } from '../types/api'
@@ -21,7 +21,7 @@ const STATUS_MAP = {
 
 export default function UserList() {
   const actionRef = useRef<ActionType>(null)
-  const [banTarget, setBanTarget] = useState<User | null>(null)
+  const [viewTarget, setViewTarget] = useState<User | null>(null)
   const [confirming, setConfirming] = useState(false)
 
   const handleToggle = async (action: string, id: number) => {
@@ -29,7 +29,6 @@ export default function UserList() {
     try {
       const data = await api.userAction(action, id)
       message.success(data?.message || (action === 'ban' ? '用户已禁用。' : '用户已启用。'))
-      setBanTarget(null)
       actionRef.current?.reload()
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))
@@ -73,20 +72,12 @@ export default function UserList() {
     {
       title: '操作',
       valueType: 'option',
-      width: 72,
+      width: 40,
       search: false,
       render: (_, r) => (
-        <Space.Compact>
-          {r.status !== 4 ? (
-            <Tooltip title="禁用">
-              <Button size="small" danger icon={<StopOutlined />} onClick={() => setBanTarget(r)} />
-            </Tooltip>
-          ) : (
-            <Tooltip title="启用">
-              <Button size="small" icon={<CheckCircleOutlined />} onClick={() => handleToggle('unban', r.id)} />
-            </Tooltip>
-          )}
-        </Space.Compact>
+        <Tooltip title="查看详情">
+          <Button size="small" icon={<EyeOutlined />} onClick={() => setViewTarget(r)} />
+        </Tooltip>
       ),
     },
   ]
@@ -111,26 +102,58 @@ export default function UserList() {
         scroll={{ x: 'max-content' }}
       />
 
-      {/* 禁用确认弹窗 */}
+      {/* 用户详情弹窗（含禁用/启用操作） */}
       <Modal
-        title="确认禁用用户"
-        open={banTarget !== null}
-        onOk={() => banTarget && handleToggle('ban', banTarget.id)}
-        onCancel={() => setBanTarget(null)}
+        title="用户详情"
+        open={viewTarget !== null}
+        onCancel={() => setViewTarget(null)}
         confirmLoading={confirming}
-        okText="确认禁用"
-        okButtonProps={{ danger: true }}
-        cancelText="取消"
+        footer={[
+          <Button key="close" onClick={() => setViewTarget(null)}>
+            关闭
+          </Button>,
+          viewTarget && viewTarget.status !== 4 ? (
+            <Button
+              key="ban"
+              danger
+              icon={<StopOutlined />}
+              loading={confirming}
+              onClick={() => handleToggle('ban', viewTarget.id)}
+            >
+              禁用
+            </Button>
+          ) : (
+            <Button
+              key="unban"
+              icon={<CheckCircleOutlined />}
+              loading={confirming}
+              onClick={() => viewTarget && handleToggle('unban', viewTarget.id)}
+            >
+              启用
+            </Button>
+          ),
+        ]}
       >
-        {banTarget && (
+        {viewTarget && (
           <Descriptions column={1} size="small">
-            <Descriptions.Item label="用户名">{banTarget.username}</Descriptions.Item>
-            <Descriptions.Item label="昵称">{banTarget.nickname}</Descriptions.Item>
-            <Descriptions.Item label="邮箱">{banTarget.email || '-'}</Descriptions.Item>
-            <Descriptions.Item label="注册时间">
-              {banTarget.register_time ? dayjs.unix(banTarget.register_time).format('YYYY-MM-DD HH:mm') : '-'}
+            <Descriptions.Item label="ID">{viewTarget.id}</Descriptions.Item>
+            <Descriptions.Item label="用户名">{viewTarget.username}</Descriptions.Item>
+            <Descriptions.Item label="昵称">{viewTarget.nickname}</Descriptions.Item>
+            <Descriptions.Item label="邮箱">{viewTarget.email || '-'}</Descriptions.Item>
+            <Descriptions.Item label="网站">{viewTarget.website || '-'}</Descriptions.Item>
+            <Descriptions.Item label="角色">
+              {ROLE_MAP[viewTarget.role as keyof typeof ROLE_MAP]?.text ?? viewTarget.role}
             </Descriptions.Item>
-            <Descriptions.Item label="说明">禁用后该用户将无法登录与发表评论，确认继续？</Descriptions.Item>
+            <Descriptions.Item label="状态">
+              {STATUS_MAP[viewTarget.status as keyof typeof STATUS_MAP]?.text ?? viewTarget.status}
+            </Descriptions.Item>
+            <Descriptions.Item label="注册时间">
+              {viewTarget.register_time ? dayjs.unix(viewTarget.register_time).format('YYYY-MM-DD HH:mm') : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="最后活跃">
+              {viewTarget.active_time ? dayjs.unix(viewTarget.active_time).format('YYYY-MM-DD HH:mm') : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="个人简介">{viewTarget.info || '-'}</Descriptions.Item>
           </Descriptions>
         )}
       </Modal>

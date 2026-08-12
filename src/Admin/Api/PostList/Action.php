@@ -6,6 +6,7 @@ namespace App\Admin\Api\PostList;
 
 use App\Admin\Api\ApiSerializer;
 use App\Admin\Api\JsonResponse;
+use App\Category\Category;
 use App\Post\Post;
 use App\Web\Pager;
 use Psr\Http\Message\ResponseInterface;
@@ -18,7 +19,7 @@ use Yiisoft\Router\HydratorAttribute\RouteArgument;
 final readonly class Action
 {
     private const PAGE_SIZE = 20;
-    private const STATUSES = [Post::STATUS_PUBLISHED, Post::STATUS_HIDDEN, Post::STATUS_DRAFT, Post::STATUS_DELETED];
+    private const STATUSES = [Post::STATUS_PUBLISHED, Post::STATUS_DRAFT, Post::STATUS_DELETED];
 
     public function __construct(
         private JsonResponse $jsonResponse,
@@ -45,13 +46,21 @@ final readonly class Action
         }
         /** @var list<Post> $posts */
         $posts = $query
-            ->orderBy(['post_time' => SORT_DESC])
+            ->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC])
             ->limit(self::PAGE_SIZE)
             ->offset($pager->offset)
             ->all();
 
+        // 分类 id => 名称（列表展示用）
+        $categoryNames = [];
+        /** @var list<array{id: mixed, name: mixed}> $categoryRows */
+        $categoryRows = Category::query()->select('id,name')->asArray()->all();
+        foreach ($categoryRows as $cat) {
+            $categoryNames[(int)$cat['id']] = (string)$cat['name'];
+        }
+
         return $this->jsonResponse->ok([
-            'items' => ApiSerializer::posts($posts),
+            'items' => ApiSerializer::posts($posts, $categoryNames),
             'total' => $pager->totalCount,
             'page' => $pager->currentPage,
             'pageSize' => $pager->pageSize,

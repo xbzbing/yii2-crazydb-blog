@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Form, Input, Button, Space, message, Spin, Typography } from 'antd'
+import { Card, Form, Input, Button, Space, message, Spin } from 'antd'
 import { api } from '../api/client'
 import type { ConfigValues } from '../types/api'
 
@@ -48,7 +48,6 @@ export default function SeoSettings() {
   return (
     <Card title="SEO 设置">
       <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: 720 }}>
-        <Typography.Text strong>SEO 设置</Typography.Text>
         <Form.Item name="seo_title" label="SEO 标题">
           <Input placeholder="SEO 标题" />
         </Form.Item>
