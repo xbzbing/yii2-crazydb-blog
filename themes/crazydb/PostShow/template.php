@@ -73,11 +73,11 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
     <div class="entry-meta">
         <?php if ($category !== null && $category['url'] !== null): ?>
             <a href="<?= Html::encode((string)$category['url']) ?>" class="pl-category" title="<?= Html::encode((string)$category['name']) ?>">
-                <span class="badge label-info"><?= Html::encode((string)$category['name']) ?></span>
+                <span class="label label-info"><?= Html::encode((string)$category['name']) ?></span>
             </a>
         <?php endif; ?>
         <?php if ($post->tags !== ''): ?>
-            <span class="badge label-primary">
+            <span class="label label-primary">
                 <?php $tagList = array_filter(array_map('trim', explode(',', $post->tags))); ?>
                 <?php $tagCount = count($tagList); $tagIndex = 0; ?>
                 <?php foreach ($tagList as $tagName): ?>
@@ -92,7 +92,7 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
         <span><i class="fa-solid fa-clock"></i><?= XUtils::xDateFormatter((int)$post->post_time) ?></span>
         <span><i class="fa-solid fa-eye"></i><?= (int)$post->view_count ?> 浏览</span>
         <span>
-            <a href="#comments" title="查看评论"><span class="badge text-bg-secondary"><?= (int)$post->comment_count ?> 评论</span></a>
+            <a href="#comments" title="查看评论"><span class="badge"><?= (int)$post->comment_count ?> 评论</span></a>
         </span>
     </div>
     <div class="entry-content">
@@ -115,11 +115,11 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
             </details>
         <?php endif; ?>
         <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
-            <div class="badge text-bg-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
+            <div class="label label-warning">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
         <?php endif; ?>
         <?= $contentHtml ?>
     </div>
-    <footer class="entry-footer row">
+    <footer class="entry-footer">
         <?php if ($next !== null): ?>
             <h4 class="float-start"><i class="fa-solid fa-chevron-left"></i>
                 <a href="<?= Html::encode((string)$next->getUrl($urlGenerator)) ?>" title="较新的一篇"><?= Html::encode($next->title) ?></a>

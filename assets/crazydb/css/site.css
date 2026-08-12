@@ -203,9 +203,6 @@ a.read-more:hover {
 }
 
 .entry-header .pl-category {
-    font-size: 0.6em;
-    position: relative;
-    top: -4px;
     margin-right: 0.2em;
 }
 
@@ -680,6 +677,138 @@ ul.tags li {
 
 a .label:hover {
     opacity: 0.9;
+}
+
+/* Bootstrap 3 还原：h3 标题前的分类 label 更大、与标题留白 */
+.entry-header .pl-category .label,
+.entry-header h3 .label {
+    font-size: 0.9em;
+    top: -3px;
+    margin-right: 8px;
+    padding: 0.4em 0.8em;
+    vertical-align: middle;
+}
+
+/* Bootstrap 3 还原：评论数 badge（深灰胶囊，bootstrap 3 .badge 样式） */
+.badge {
+    display: inline-block;
+    min-width: 10px;
+    padding: 3px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color: #777;
+    border-radius: 10px;
+}
+.badge:empty {
+    display: none;
+}
+a.badge:hover,
+a.badge:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Bootstrap 3 还原：页脚 h3 顶部间距（bootstrap 3 的 h3 默认 margin-top: 20px） */
+#footer h3 {
+    margin-top: 20px;
+}
+
+/* Bootstrap 3 还原：primary 按钮蓝（#337ab7 系）与分页圆角样式 */
+.btn-primary {
+    --bs-btn-bg: #337ab7;
+    --bs-btn-border-color: #2e6da4;
+    --bs-btn-hover-bg: #286090;
+    --bs-btn-hover-border-color: #204d74;
+    --bs-btn-active-bg: #286090;
+    --bs-btn-active-border-color: #204d74;
+    --bs-btn-disabled-bg: #337ab7;
+    --bs-btn-disabled-border-color: #2e6da4;
+}
+
+.pagination > li {
+    display: inline-block;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+    position: relative;
+    float: left;
+    padding: 6px 12px;
+    line-height: 1.42857143;
+    text-decoration: none;
+    color: #337ab7;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin-left: -1px;
+}
+
+.pagination > li:first-child > a,
+.pagination > li:first-child > span {
+    margin-left: 0;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.pagination > li:last-child > a,
+.pagination > li:last-child > span {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.pagination > li > a:hover,
+.pagination > li > span:hover,
+.pagination > li > a:focus,
+.pagination > li > span:focus {
+    z-index: 2;
+    color: #23527c;
+    background-color: #eee;
+    border-color: #ddd;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+    z-index: 3;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #337ab7;
+    cursor: default;
+}
+
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover,
+.pagination > .disabled > span:focus,
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > a:focus {
+    color: #777;
+    background-color: #fff;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+/* Bootstrap 3 还原：navbar 下拉箭头 caret */
+.caret {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 4px dashed;
+    border-top: 4px solid \9;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+.dropdown-toggle .caret {
+    opacity: 0.7;
 }
 
 /* ============ 归档时间轴（提取自线上 archives.php 内联样式） ============ */
