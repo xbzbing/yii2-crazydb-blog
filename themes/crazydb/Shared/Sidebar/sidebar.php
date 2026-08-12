@@ -60,7 +60,7 @@ $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
         <?php foreach ($tags as $tag): ?>
             <?php $color = $tagColors[random_int(0, 5)]; ?>
             <a href="<?= Html::encode((string)$tag['url']) ?>" title="<?= Html::encode((string)$tag['name']) ?>(<?= (int)$tag['totalCount'] ?>)" target="_blank">
-                <span class="badge label-<?= $color ?>"><?= Html::encode((string)$tag['name']) ?></span>
+                <span class="label label-<?= $color ?>"><?= Html::encode((string)$tag['name']) ?></span>
             </a>
         <?php endforeach; ?>
         <div class="more-link">
