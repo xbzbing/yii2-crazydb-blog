@@ -19,6 +19,8 @@ use Yiisoft\Html\Html;
  * @var list<array{totalCount: int, name: string, create_time: int, url: string}> $sidebarTags
  * @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: ?string, create_time: ?int, email: string, avatar: string, title: string}> $sidebarComments
  * @var string $date
+ * @var int $year
+ * @var int $month
  * @var list<App\Post\Post> $posts
  * @var App\Web\Pager $pager
  */
@@ -57,5 +59,5 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
     'emptyText' => '该月份暂无文章。',
     'route' => 'post/archives-date',
     'pageRoute' => 'post/archives-date',
-    'routeArgs' => ['year' => substr($date, 0, 4), 'month' => (string)(int)substr($date, 5, 2)],
+    'routeArgs' => ['year' => sprintf('%04d', $year), 'month' => sprintf('%02d', $month)],
 ]) ?>

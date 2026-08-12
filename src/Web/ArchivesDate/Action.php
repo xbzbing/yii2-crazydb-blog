@@ -62,12 +62,14 @@ final readonly class Action
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
 
         $total = Post::query()
-            ->where(['between', 'post_time', $start, $end])
+            ->where(['>=', 'post_time', $start])
+            ->andWhere(['<', 'post_time', $end])
             ->andWhere(['status' => Post::visibleStatuses()])
             ->count();
         $pager = new Pager((int)$total, self::PAGE_SIZE, $page);
         $posts = Post::query()
-            ->where(['between', 'post_time', $start, $end])
+            ->where(['>=', 'post_time', $start])
+            ->andWhere(['<', 'post_time', $end])
             ->andWhere(['status' => Post::visibleStatuses()])
             ->orderBy(['post_time' => SORT_DESC])
             ->limit(self::PAGE_SIZE)
@@ -78,6 +80,8 @@ final readonly class Action
             __DIR__ . '/template',
             [
                 'date' => $date,
+                'year' => $year,
+                'month' => $month,
                 'posts' => $posts,
                 'pager' => $pager,
                 'markdownRenderer' => $this->markdownRenderer,
