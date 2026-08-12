@@ -31,6 +31,7 @@ $menu = [
     ['label' => '文章管理', 'route' => 'admin/post/list'],
     ['label' => '评论管理', 'route' => 'admin/comment/list'],
     ['label' => '分类管理', 'route' => 'admin/category/list'],
+    ['label' => '导航管理', 'route' => 'admin/nav/list'],
     ['label' => '站点配置', 'route' => 'admin/config'],
 ];
 $this->beginPage()

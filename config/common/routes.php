@@ -81,5 +81,9 @@ return [
             Route::methods([Method::GET, Method::POST], '/category/create')->action(\App\Admin\CategoryForm\Action::class)->name('admin/category/create'),
             Route::methods([Method::GET, Method::POST], '/category/update/{id:\d+}')->action(\App\Admin\CategoryForm\Action::class)->name('admin/category/update'),
             Route::post('/category/delete/{id:\d+}')->action(\App\Admin\CategoryDelete\Action::class)->name('admin/category/delete'),
+            Route::get('/navs')->action(\App\Admin\NavList\Action::class)->name('admin/nav/list'),
+            Route::methods([Method::GET, Method::POST], '/nav/create')->action(\App\Admin\NavForm\Action::class)->name('admin/nav/create'),
+            Route::methods([Method::GET, Method::POST], '/nav/update/{id:\d+}')->action(\App\Admin\NavForm\Action::class)->name('admin/nav/update'),
+            Route::post('/nav/delete/{id:\d+}')->action(\App\Admin\NavDelete\Action::class)->name('admin/nav/delete'),
         ),
 ];
