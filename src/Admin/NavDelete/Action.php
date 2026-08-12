@@ -35,7 +35,7 @@ final readonly class Action
             $nav = Nav::query()->findByPk($id);
             if ($nav instanceof Nav) {
                 $this->cache->remove('__nav_tree.' . (int)Nav::query()->max('update_time'));
-                (new Nav())->deleteAll(['pid' => $id]);
+                $this->deleteRecursive($id);
                 $nav->delete();
                 $this->cache->remove('__nav_tree.' . (int)Nav::query()->max('update_time'));
                 $this->flash->set('flash_success', ['info' => '导航已删除。']);
@@ -44,5 +44,18 @@ final readonly class Action
         return $this->responseFactory
             ->createResponse(Status::FOUND)
             ->withHeader('Location', $this->urlGenerator->generate('admin/nav/list'));
+    }
+
+    /**
+     * 递归删除子导航（含历史三级/孤儿数据，保证树干净）。
+     */
+    private function deleteRecursive(int $pid): void
+    {
+        /** @var list<Nav> $children */
+        $children = Nav::query()->where(['pid' => $pid])->all();
+        foreach ($children as $child) {
+            $this->deleteRecursive((int)$child->id);
+            $child->delete();
+        }
     }
 }

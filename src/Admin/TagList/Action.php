@@ -24,6 +24,7 @@ final readonly class Action
         private WebViewRenderer $viewRenderer,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private \Yiisoft\Cache\CacheInterface $cache,
         private FlashInterface $flash,
     ) {}
 
@@ -32,7 +33,12 @@ final readonly class Action
         #[RouteArgument] ?string $name = null,
     ): ResponseInterface {
         if ($name !== null && $request->getMethod() === Method::POST) {
+            // 删除不改变 max(id)（除非删到最大行），须显式失效前台标签缓存（before+after）
+            $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
+            $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
             (new Tag())->deleteAll(['name' => $name]);
+            $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
+            $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
             $this->flash->set('flash_success', ['info' => '标签已删除。']);
             return $this->responseFactory
                 ->createResponse(Status::FOUND)

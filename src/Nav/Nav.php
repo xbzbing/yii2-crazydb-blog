@@ -34,11 +34,16 @@ final class Nav extends ActiveRecord
     /**
      * 访问 URL：route=1 时 url 为路由名，经 UrlGenerator 解析；否则为普通链接。
      * 等价 Yii2 getUrl() 的 [$this->url] 数组形式（Url::to 解析路由）。
+     * 路由名不存在时降级输出原文（避免全站 500）。
      */
     public function getUrl(?UrlGeneratorInterface $urlGenerator = null): string
     {
         if ($this->route === 1 && $urlGenerator !== null) {
-            return $urlGenerator->generate($this->url);
+            try {
+                return $urlGenerator->generate($this->url);
+            } catch (\Throwable) {
+                return $this->url;
+            }
         }
         return $this->url;
     }
@@ -106,6 +111,7 @@ final class Nav extends ActiveRecord
                 return $items;
             },
             3600,
+            null,
         );
         return $items;
     }
