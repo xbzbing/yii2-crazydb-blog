@@ -37,12 +37,17 @@ final class RegisterService
         $user->nickname = $nickname;
         $user->email = $email;
         $user->website = $website === '' ? null : rtrim($website, "/\\\t\n\r\0 \x0B");
-        $user->info = $info === '' ? null : $info;
+        $user->info = $info === '' ? null : \App\Common\XUtils::htmlPurify($info, ['HTML.ForbiddenElements' => ['a']]);
         $user->password = $password;
         $user->role = User::ROLE_MEMBER;
         $user->status = User::STATUS_NORMAL;
         $user->fillDefaultsForInsert($registerIp);
-        $user->save();
+        try {
+            $user->save();
+        } catch (\Throwable) {
+            // 并发注册的唯一键冲突（username/email/nickname）映射为表单错误
+            return ['user' => null, 'errors' => ['username' => '该用户名或邮箱已被注册，请重新输入。']];
+        }
 
         return ['user' => $user, 'errors' => []];
     }
@@ -76,6 +81,8 @@ final class RegisterService
             $errors['nickname'] = '昵称最多 80 个字符。';
         } elseif (in_array($nickname, User::NAME_BLACKLIST, true)) {
             $errors['nickname'] = '该昵称不能被注册！';
+        } elseif (User::query()->where(['nickname' => $nickname])->exists()) {
+            $errors['nickname'] = '昵称 已经存在，请重新输入。';
         }
 
         if ($email === '') {
@@ -99,6 +106,8 @@ final class RegisterService
 
         if ($website !== '' && mb_strlen($website) > 100) {
             $errors['website'] = '个人网站地址过长。';
+        } elseif ($website !== '' && !in_array(strtolower((string)parse_url($website, PHP_URL_SCHEME)), ['http', 'https'], true)) {
+            $errors['website'] = '个人网站地址不合法，需要以http或https开头';
         } elseif ($website !== '' && !filter_var($website, FILTER_VALIDATE_URL)) {
             $errors['website'] = '个人网站地址格式不正确。';
         }

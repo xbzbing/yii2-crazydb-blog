@@ -30,8 +30,9 @@ final readonly class Action
     public function __invoke(): ResponseInterface
     {
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
+        $seoConfig = CMSUtils::getSiteConfig($this->cache, 'seo');
         $siteName = (string)($siteConfig['site_name'] ?? 'Blog');
-        $description = (string)($siteConfig['seo_description'] ?? '');
+        $description = (string)($seoConfig['seo_description'] ?? '');
         $feedUrl = $this->urlGenerator->generateAbsolute('feed/rss');
         $siteUrl = $this->urlGenerator->generateAbsolute('site/index');
 
@@ -56,12 +57,14 @@ final readonly class Action
         }
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">' . "\n"
+            . '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n"
             . "    <channel>\n"
             . '        <title>' . $this->cdata($siteName) . "</title>\n"
             . '        <link>' . $this->escape($siteUrl) . "</link>\n"
             . '        <description>' . $this->cdata($description) . "</description>\n"
-            . '        <atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="' . $this->escape($feedUrl) . '" rel="self" type="application/rss+xml"/>' . "\n"
+            . '        <language>zh-cn</language>' . "\n"
+            . '        <lastBuildDate>' . date('D, d M Y H:i:s O', time()) . "</lastBuildDate>\n"
+            . '        <atom:link href="' . $this->escape($feedUrl) . '" rel="self" type="application/rss+xml"/>' . "\n"
             . $items
             . "    </channel>\n"
             . '</rss>';

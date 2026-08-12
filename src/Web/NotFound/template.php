@@ -11,26 +11,23 @@ use Yiisoft\Html\Html;
  * @var Yiisoft\Router\CurrentRoute $currentRoute
  */
 
-$this->setTitle('404');
+$this->setTitle('404 - 页面不存在');
 ?>
 
 <div class="text-center">
-    <h1>
-        404
-    </h1>
+    <h1>404</h1>
 
     <p>
-        The page
-        <strong><?= Html::encode($currentRoute->getUri()?->getPath() ?? 'unknown') ?></strong>
-        not found.
+        页面
+        <strong><?= Html::encode($currentRoute->getUri()?->getPath() ?? '未知') ?></strong>
+        不存在。
     </p>
 
     <p>
-        The above error occurred while the Web server was processing your request.<br/>
-        Please contact us if you think this is a server error. Thank you.
+        您访问的页面可能已被删除或移动，请检查网址是否正确。
     </p>
 
     <p>
-        <a href="<?= $urlGenerator->generate('site/index') ?>">Go Back Home</a>
+        <a href="<?= $urlGenerator->generate('site/index') ?>">返回首页</a>
     </p>
 </div>

@@ -15,6 +15,7 @@ use Yiisoft\Html\Html;
  * @var App\Post\MarkdownRenderer $markdownRenderer
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  * @var array<string, string|null> $siteConfig
+ * @var array<string, string|null> $seoConfig
  * @var array<string, mixed> $navTree
  * @var bool $showSidebar
  * @var array<int, array{name: string, desc: ?string, url: ?string, postCount: int}> $categorySummary
@@ -34,10 +35,12 @@ $this->setParameter('categorySummary', $categorySummary);
 $this->setParameter('sidebarTags', $sidebarTags);
 $this->setParameter('sidebarComments', $sidebarComments);
 $this->setParameter('showSidebar', $showSidebar);
+$this->setParameter('siteConfig', $siteConfig);
+$this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($post->title . ' - ' . $siteName);
-$this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($siteConfig['seo_keywords'] ?? '')));
+$this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter(
     'seo_description',
     $post->status === App\Post\Post::STATUS_HIDDEN
@@ -101,14 +104,15 @@ $category = $categorySummary[(int)$post->cid] ?? null;
         <p>暂时还没有评论，赶紧抢沙发吧！</p>
     <?php endif; ?>
     <?php foreach ($comments as $i => $comment): ?>
+        <?php $replyTo = $comment->isReply() ? $comment->getReply() : null; ?>
         <div id="comment-<?= $comment->id ?>" class="comment">
             <div class="comment-meta">
                 <img src="<?= Html::encode(XUtils::getAvatar($aliases, (string)$comment->email, 32)) ?>" width="32" height="32" alt="">
                 <strong><?= Html::encode($comment->nickname) ?></strong>
                 <span><?= XUtils::xDateFormatter((int)$comment->create_time) ?></span>
-                <span>#<?= $commentTotal - $i ?></span>
-                <?php if ($comment->isReply() && $comment->getReply() !== null): ?>
-                    <span>回复 @<?= Html::encode((string)$comment->getReply()?->nickname) ?></span>
+                <span>#<?= $i + 1 ?></span>
+                <?php if ($replyTo !== null): ?>
+                    <span>回复 @<?= Html::encode((string)$replyTo->nickname) ?></span>
                 <?php endif; ?>
             </div>
             <div class="comment-content">

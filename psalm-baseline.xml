@@ -101,7 +101,6 @@
       <code><![CDATA[$user->nickname]]></code>
     </NoInterfaceProperties>
     <RedundantCastGivenDocblockType>
-      <code><![CDATA[(bool)($data['sendMail'] ?? false)]]></code>
       <code><![CDATA[(int)$data['reply_to']]]></code>
       <code><![CDATA[(string)($data['content'] ?? '')]]></code>
       <code><![CDATA[(string)($data['email'] ?? '')]]></code>

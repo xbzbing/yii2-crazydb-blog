@@ -321,4 +321,81 @@ final class UserAuthTest extends TestCase
             $created['cleanup']();
         }
     }
+
+    public function testRegisterRejectsNonHttpWebsiteScheme(): void
+    {
+        $suffix = 'wss_' . bin2hex(random_bytes(3));
+        $service = new RegisterService();
+        $result = $service->register([
+            'username' => 'wsuser_' . $suffix,
+            'nickname' => '网址用户' . $suffix,
+            'email' => 'wsuser_' . $suffix . '@example.com',
+            'password' => 'password123',
+            'password_repeat' => 'password123',
+            'website' => 'javascript:alert(1)',
+        ]);
+        self::assertArrayHasKey('website', $result['errors'], 'javascript: scheme must be rejected');
+        self::assertNull($result['user']);
+    }
+
+    public function testRegisterPurifiesInfoField(): void
+    {
+        $suffix = 'info_' . bin2hex(random_bytes(3));
+        $service = new RegisterService();
+        $result = $service->register([
+            'username' => 'infouser_' . $suffix,
+            'nickname' => '简介用户' . $suffix,
+            'email' => 'infouser_' . $suffix . '@example.com',
+            'password' => 'password123',
+            'password_repeat' => 'password123',
+            'info' => '<script>alert(1)</script><a href="http://evil.com">link</a><p>正文</p>',
+        ]);
+        self::assertSame([], $result['errors']);
+        try {
+            $user = $result['user'];
+            self::assertNotNull($user);
+            self::assertStringNotContainsString('<script>', (string)$user->info, 'script must be stripped');
+            self::assertStringNotContainsString('<a', (string)$user->info, 'a tag must be forbidden');
+            self::assertStringContainsString('<p>正文</p>', (string)$user->info, 'safe html kept');
+        } finally {
+            $result['user']?->delete();
+        }
+    }
+
+    public function testRegisterRejectsDuplicateNickname(): void
+    {
+        $suffix = 'nicdup_' . bin2hex(random_bytes(3));
+        $created = $this->createUser($suffix);
+        try {
+            $service = new RegisterService();
+            $result = $service->register([
+                'username' => 'other_' . bin2hex(random_bytes(3)),
+                'nickname' => '测试' . $suffix,
+                'email' => 'other_' . bin2hex(random_bytes(3)) . '@example.com',
+                'password' => 'password123',
+                'password_repeat' => 'password123',
+            ]);
+            self::assertArrayHasKey('nickname', $result['errors'], 'duplicate nickname must be rejected');
+            self::assertNull($result['user']);
+        } finally {
+            $created['cleanup']();
+        }
+    }
+
+    public function testPlainPasswordStartingWithBcryptPrefixIsHashedNotStored(): void
+    {
+        $suffix = 'prefix_' . bin2hex(random_bytes(3));
+        $user = new User();
+        $user->username = 'pfx_' . $suffix;
+        $user->nickname = '前缀' . $suffix;
+        $user->email = 'pfx_' . $suffix . '@example.com';
+        $user->password = '$2y$abc123';
+        $user->fillDefaultsForInsert();
+        try {
+            self::assertNotSame('$2y$abc123', $user->password, 'plain password must be hashed, not stored as-is');
+            self::assertTrue($user->validatePassword('$2y$abc123'));
+        } finally {
+            $user->delete();
+        }
+    }
 }

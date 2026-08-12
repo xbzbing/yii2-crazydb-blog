@@ -62,14 +62,12 @@ final class MarkdownRenderer
 
     /**
      * 按 post.format 分派渲染：markdown 走渲染管线，html 老文章仅净化。
+     * 两条路径均按内容寻址缓存（key 含 update_time，文章更新即失效）。
      */
     public function renderPost(Post $post): string
     {
         $content = (string) $post->content;
-        if ($post->format === Post::FORMAT_MARKDOWN) {
-            return $this->render($content, $post->update_time);
-        }
-        return $this->renderUncached($content);
+        return $this->render($content, $post->update_time);
     }
 
     /**
@@ -81,7 +79,9 @@ final class MarkdownRenderer
         return \App\Common\XUtils::htmlPurify($html, [
             'Attr.ClassUseCDATA' => true,
             'Attr.AllowedFrameTargets' => ['_blank'],
+            // HTML.Forms 仅为保留 task-list checkbox 而开启；form 标签本身禁止（防正文内嵌钓鱼表单）
             'HTML.Forms' => true,
+            'HTML.ForbiddenElements' => ['form'],
         ]);
     }
 }

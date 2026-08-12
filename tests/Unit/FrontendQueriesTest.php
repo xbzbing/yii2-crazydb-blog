@@ -197,6 +197,14 @@ final class FrontendQueriesTest extends TestCase
 
     public function testGetRecentCommentsReturnsExpectedStructure(): void
     {
+        $aliases = $this->container()->get(Aliases::class);
+        $avatarFile = $aliases->get('@public') . '/static/avatar/' . md5('rc@example.com') . '-40.png';
+        if (!is_dir(dirname($avatarFile))) {
+            mkdir(dirname($avatarFile), 0755, true);
+        }
+        if (!is_file($avatarFile)) {
+            file_put_contents($avatarFile, '');
+        }
         $post = new Post();
         $post->cid = 1;
         $post->author_id = 1;
@@ -252,7 +260,7 @@ final class FrontendQueriesTest extends TestCase
             self::assertSame('__rc_nick__', $found['nickname']);
             self::assertSame($post->title, $found['title']);
             self::assertStringContainsString('/archive/' . $post->alias . '#comment-' . $comment->id, $found['post_url']);
-            self::assertNotSame('', $found['avatar']);
+            self::assertStringContainsString('static/avatar/' . md5('rc@example.com'), $found['avatar']);
         } finally {
             $unapproved->delete();
             $comment->delete();

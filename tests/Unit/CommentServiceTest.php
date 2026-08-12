@@ -19,6 +19,8 @@ use Yiisoft\Mailer\StubMailer;
 
 final class CommentServiceTest extends TestCase
 {
+    /** @var array<string, string|null> 被 seedOption 覆写前的原始值（null = 原本不存在） */
+    private array $optionSnapshot = [];
 
     private function seedOption(string $name, string $value): void
     {
@@ -27,6 +29,9 @@ final class CommentServiceTest extends TestCase
             $option = new Option();
             $option->type = 'sys';
             $option->name = $name;
+            $this->optionSnapshot[$name] = null;
+        } elseif (!array_key_exists($name, $this->optionSnapshot)) {
+            $this->optionSnapshot[$name] = $option->value;
         }
         $option->value = $value;
         $option->update_time = time();
@@ -273,8 +278,21 @@ final class CommentServiceTest extends TestCase
     private function cleanOptions(): void
     {
         foreach ([Option::ALLOW_COMMENT, Option::AUDIT_ON_COMMENT] as $name) {
+            if (!array_key_exists($name, $this->optionSnapshot)) {
+                continue;
+            }
             $option = Option::query()->where(['type' => 'sys', 'name' => $name])->one();
-            $option?->delete();
+            if ($option === null) {
+                continue;
+            }
+            if ($this->optionSnapshot[$name] === null) {
+                $option->delete();
+            } else {
+                $option->value = $this->optionSnapshot[$name];
+                $option->update_time = time();
+                $option->save();
+            }
         }
+        $this->optionSnapshot = [];
     }
 }

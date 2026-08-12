@@ -33,7 +33,9 @@ $postUrl = $post->getUrl($urlGenerator);
         <?php if ($post->status === App\Post\Post::STATUS_HIDDEN): ?>
             <div class="article-locked-tip">这是一篇隐藏的文章，需要输入密码才能查看全文。</div>
         <?php endif; ?>
-        <?= $post->excerpt ?>
+        <?= $post->excerpt !== null && $post->excerpt !== ''
+            ? \App\Common\XUtils::htmlPurify($post->excerpt)
+            : '' ?>
         <div class="article-read-more">
             <a href="<?= Html::encode((string)$postUrl) ?>" title="<?= Html::encode($post->title) ?>">阅读全文</a>
         </div>

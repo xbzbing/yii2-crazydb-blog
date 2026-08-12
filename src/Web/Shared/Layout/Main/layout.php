@@ -31,6 +31,10 @@ $siteConfig = $this->getParameter('siteConfig', []);
 /** @var array<int, array{label: string, url: string, items: array<int, array{label: string, url: string}>}> $navTree */
 $navTree = $this->getParameter('navTree', []);
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
+$pageTitle = $this->getTitle();
+if ($pageTitle === '') {
+    $pageTitle = (string)($siteConfig['seo_title'] ?? $siteName);
+}
 $seoKeywords = (string)($this->getParameter('seo_keywords', ''));
 $seoDescription = (string)($this->getParameter('seo_description', ''));
 $showSidebar = (bool)$this->getParameter('showSidebar', true);
@@ -43,7 +47,7 @@ $this->beginPage()
     <meta charset="<?= Html::encode($applicationParams->charset) ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="<?= $aliases->get('@baseUrl/favicon.svg') ?>" type="image/svg+xml">
-    <title><?= Html::encode($this->getTitle()) ?></title>
+    <title><?= Html::encode($pageTitle) ?></title>
     <?php if ($seoKeywords !== ''): ?>
         <meta name="keywords" content="<?= Html::encode($seoKeywords) ?>">
     <?php endif; ?>
