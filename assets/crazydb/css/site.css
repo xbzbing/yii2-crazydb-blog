@@ -507,8 +507,12 @@ article.list-group-item:nth-of-type(1) {
 }
 
 #content .entry-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px 0;
     padding-right: 10px;
-    text-align: right;
     border-bottom: 2px dashed #DDDDDD;
     margin-top: -4px;
     padding-bottom: 10px;
@@ -517,7 +521,8 @@ article.list-group-item:nth-of-type(1) {
 }
 
 #content .entry-meta span {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     font-size: 12px;
     margin-right: 12px;
 }

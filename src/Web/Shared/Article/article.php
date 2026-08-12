@@ -18,9 +18,14 @@ $postUrl = $post->getUrl($urlGenerator);
 <article id="post-<?= $post->id ?>" class="article-card">
     <header class="article-card-header">
         <h3>
-            <a href="<?= Html::encode((string)$category['url']) ?>" class="article-category">
-                <?= Html::encode((string)$category['name']) ?>
-            </a>
+            <?php if ((int)$post->is_top === 1): ?>
+                <span class="article-top">置顶</span>
+            <?php endif; ?>
+            <?php if ($category['url'] !== null && $category['name'] !== ''): ?>
+                <a href="<?= Html::encode((string)$category['url']) ?>" class="article-category">
+                    <?= Html::encode((string)$category['name']) ?>
+                </a>
+            <?php endif; ?>
             <?php if ((string)$post->password !== ''): ?>
                 <span class="article-locked">密码保护</span>
             <?php endif; ?>

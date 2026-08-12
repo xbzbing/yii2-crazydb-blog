@@ -41,7 +41,7 @@ final readonly class Action
             static function (): array {
                 /** @var list<Post> $posts */
                 $posts = Post::query()
-                    ->select('id,title,alias,post_time')
+                    ->select('id,cid,title,alias,post_time')
                     ->where(['status' => Post::visibleStatuses()])
                     ->orderBy(['post_time' => SORT_DESC])
                     ->all();

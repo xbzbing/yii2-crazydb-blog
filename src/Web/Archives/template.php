@@ -41,12 +41,19 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
 
 <article class="article-card">
     <header class="article-card-header">
-        <h1>文章归档（共 <?= $total ?> 篇）</h1>
+        <h2>文章归档（共 <?= $total ?> 篇）</h2>
     </header>
     <div class="article-card-content">
-        <?php foreach ($grouped as $month => $monthPosts): ?>
+        <?php $displayedYear = null; foreach ($grouped as $month => $monthPosts): ?>
+            <?php [$year, $monthNum] = array_map('intval', explode('-', $month) + ['', '']); ?>
+            <?php $yearKey = (string)$year; ?>
+            <?php if ($displayedYear !== $yearKey): ?>
+                <?php $displayedYear = $yearKey; ?>
+                <?php $yearCount = 0; foreach ($grouped as $m => $ps) { if (str_starts_with($m, $yearKey)) $yearCount += count($ps); } ?>
+                <h3 class="archives-year"><?= $yearKey ?> 年（<?= $yearCount ?> 篇）</h3>
+            <?php endif; ?>
             <section class="archives-month">
-                <h2><?= Html::encode($month) ?>（<?= count($monthPosts) ?>）</h2>
+                <h4><?= $monthNum ?>月（<?= count($monthPosts) ?> 篇）</h4>
                 <ul>
                     <?php foreach ($monthPosts as $post): ?>
                         <li>

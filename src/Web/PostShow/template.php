@@ -53,6 +53,17 @@ $this->setParameter(
 
 $postUrl = $post->getUrl($urlGenerator);
 $category = $categorySummary[(int)$post->cid] ?? null;
+
+// highlight.js（复用 vditor 内置资源）
+if (str_contains($contentHtml, '<pre><code')) {
+    $hlBase = '/static/vditor/dist/js/highlight.js';
+    $this->registerCssFile($hlBase . '/styles/github.css');
+    $this->registerJsFile($hlBase . '/highlight.pack.js');
+    $this->registerJs(
+        'document.querySelectorAll("pre code").forEach(function(b){hljs.highlightBlock(b)});',
+        \Yiisoft\View\WebView::POSITION_READY,
+    );
+}
 ?>
 
 <nav class="breadcrumb">
@@ -67,6 +78,7 @@ $category = $categorySummary[(int)$post->cid] ?? null;
     <header class="article-card-header">
         <h1 class="article-title">
             <?= Html::encode($post->title) ?>
+            <?php if ((int)$post->is_top === 1): ?> <span class="article-top">置顶</span><?php endif; ?>
         </h1>
         <div class="article-meta">
             <span>作者：<?= Html::encode($post->author_name) ?></span>

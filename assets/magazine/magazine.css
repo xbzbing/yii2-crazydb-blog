@@ -217,6 +217,18 @@ a:hover { text-decoration: underline; }
 
 .article-card-meta .article-category { color: var(--accent); }
 
+.article-top {
+    display: inline-block;
+    font-size: 12px;
+    padding: 1px 6px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+    font-family: var(--sans);
+}
+
 /* ---------- 详情页阅读窄栏 ---------- */
 .article-detail {
     max-width: 720px;

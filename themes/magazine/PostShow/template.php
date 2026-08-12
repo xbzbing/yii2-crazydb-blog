@@ -53,6 +53,17 @@ $category = $categorySummary[(int)$post->cid] ?? null;
 $postUrl = $post->getUrl($urlGenerator);
 /** @var ?App\User\User $author */
 $author = $post->getAuthor()->one();
+
+// highlight.js（复用 vditor 内置资源）
+if (str_contains($contentHtml, '<pre><code')) {
+    $hlBase = '/static/vditor/dist/js/highlight.js';
+    $this->registerCssFile($hlBase . '/styles/github.css');
+    $this->registerJsFile($hlBase . '/highlight.pack.js');
+    $this->registerJs(
+        'document.querySelectorAll("pre code").forEach(function(b){hljs.highlightBlock(b)});',
+        \Yiisoft\View\WebView::POSITION_READY,
+    );
+}
 ?>
 
 <?php if ($post->cover !== null && $post->cover !== ''): ?>
@@ -63,7 +74,10 @@ $author = $post->getAuthor()->one();
 
 <article id="post-<?= $post->id ?>" class="article-detail">
     <header>
-        <h1 class="article-detail-title"><?= Html::encode($post->title) ?></h1>
+        <h1 class="article-detail-title">
+            <?= Html::encode($post->title) ?>
+            <?php if ((int)$post->is_top === 1): ?> <span class="article-top">置顶</span><?php endif; ?>
+        </h1>
         <div class="article-detail-meta">
             <?php if ($category !== null): ?>
                 <a href="<?= Html::encode((string)$category['url']) ?>"><?= Html::encode($category['name']) ?></a>

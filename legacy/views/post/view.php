@@ -121,26 +121,13 @@ $this->params['seo_description'] = strip_tags($post->excerpt);
     </article>
 <?php
 echo $this->render('//widget/comment', ['pid' => $post->id, 'comments' => $comments, 'asset' => $asset]);
-//优化JS加载
-if (empty($post->content) ? false : strpos($post->content, '<pre class=')) {
+// highlight.js（复用 vditor 内置资源）
+if (str_contains((string)$post->content, '<pre><code')) {
     $baseUrl = $asset->baseUrl;
-    $this->registerCssFile($baseUrl . '/plugins/sh/styles/shCore.css', []);
-    $this->registerCssFile($baseUrl . '/plugins/sh/styles/shCoreRDark.css');
-    $this->registerJsFile($baseUrl . '/plugins/sh/scripts/shCore.js');
-    $this->registerJsFile($baseUrl . '/plugins/sh/scripts/shAutoloader.js');
-    $script = <<<SCRIPT
-    SyntaxHighlighter.autoloader(
-        'java {$baseUrl}/plugins/sh/scripts/shBrushJava.js',
-        'php {$baseUrl}/plugins/sh/scripts/shBrushPhp.js',
-        'python {$baseUrl}/plugins/sh/scripts/shBrushPython.js',
-        'plain {$baseUrl}/plugins/sh/scripts/shBrushPlain.js',
-        'html xml {$baseUrl}/plugins/sh/scripts/shBrushXml.js',
-        'css {$baseUrl}/plugins/sh/scripts/shBrushCss.js',
-        'js jscript javascript {$baseUrl}/plugins/sh/scripts/shBrushJScript.js',
-        'bash shell {$baseUrl}/plugins/sh/scripts/shBrushBash.js',
-        'sql {$baseUrl}/plugins/sh/scripts/shBrushSql.js'
+    $this->registerCssFile($baseUrl . '/vditor/dist/js/highlight.js/styles/github.css');
+    $this->registerJsFile($baseUrl . '/vditor/dist/js/highlight.js/highlight.pack.js');
+    $this->registerJs(
+        'document.querySelectorAll("pre code").forEach(function(b){hljs.highlightBlock(b)});',
+        View::POS_READY,
     );
-    SyntaxHighlighter.all();
-SCRIPT;
-    $this->registerJs($script, View::POS_READY);
 }
