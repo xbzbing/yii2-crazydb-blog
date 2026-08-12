@@ -17,7 +17,7 @@ use Yiisoft\Html\Html;
  * @var Yiisoft\Session\Flash\FlashInterface $flash
  */
 
-$assetManager->register(\App\Web\Shared\Layout\Main\MainAsset::class);
+$assetManager->register(\App\Web\Shared\Layout\Admin\AdminAsset::class);
 
 $this->addCssFiles($assetManager->getCssFiles());
 $this->addCssStrings($assetManager->getCssStrings());

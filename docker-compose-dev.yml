@@ -40,6 +40,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis.password
+      # dev 模式验证码直通（CaptchaService::debug），便于本地验收/自动化测试
+      - CAPTCHA_DEBUG=1
     volumes:
       - ./:/opt/webroot
       - ~/data/blog-yii/risk-runtime:/opt/log/php
