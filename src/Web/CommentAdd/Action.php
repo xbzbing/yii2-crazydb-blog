@@ -53,7 +53,7 @@ final readonly class Action
         );
 
         $this->flash->set(
-            $result['status'] === 'success' ? 'comment_success' : 'comment_error',
+            $result['status'] === 'success' ? 'flash_success' : 'flash_error',
             ['info' => $result['info']],
         );
 
