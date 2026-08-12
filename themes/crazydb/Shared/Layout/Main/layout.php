@@ -98,7 +98,9 @@ $this->beginPage()
                                             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">用户</a>
                                             <ul class="dropdown-menu">
                                                 <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
-                                                <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                                                <?php if (($siteConfig['allow_register'] ?? '') === \App\Option\Option::STATUS_OPEN): ?>
+                                                    <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                                                <?php endif; ?>
                                             </ul>
                                         </li>
                                     <?php else: ?>
@@ -134,16 +136,25 @@ $this->beginPage()
     <div class="main">
         <div class="container">
             <div class="row">
-                <div class="col-md-9 post-list list-group no-padding with-shadow">
+                <div class="col-md-<?= $showSidebar ? 9 : 12 ?> post-list list-group no-padding with-shadow">
                     <?php foreach (['flash_success', 'flash_error'] as $flashKey): ?>
                         <?php if ($flash->has($flashKey)): ?>
                             <?php $flashType = $flashKey === 'flash_success' ? 'success' : 'danger'; ?>
-                            <div class="alert alert-<?= $flashType ?> alert-dismissible fade show" role="alert">
+                            <div class="alert alert-<?= $flashType ?> alert-dismissible fade show flash-toast" role="alert"<?= $flashKey === 'flash_success' ? ' data-flash-toast' : '' ?>>
                                 <?= Html::encode((string)($flash->get($flashKey)['info'] ?? '')) ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="关闭"></button>
                             </div>
                         <?php endif; ?>
                     <?php endforeach; ?>
+                    <script>
+                        document.querySelectorAll('[data-flash-toast]').forEach(function (el) {
+                            setTimeout(function () {
+                                el.style.transition = 'opacity .6s ease';
+                                el.style.opacity = '0';
+                                setTimeout(function () { el.remove(); }, 600);
+                            }, 3500);
+                        });
+                    </script>
                     <?= $content ?>
                 </div>
                 <?php if ($showSidebar): ?>

@@ -56,7 +56,9 @@ $this->setParameter(
 
 $postUrl = $post->getUrl($urlGenerator);
 $category = $categorySummary[(int)$post->cid] ?? null;
-$authorUrl = $urlGenerator->generate('user/show', ['name' => $post->author_name]);
+$authorNickname = $authorNickname ?? '';
+$authorDisplay = $post->author_name !== '' ? $post->author_name : $authorNickname;
+$authorUrl = $urlGenerator->generate('user/show', ['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]);
 $isOld = (int)$post->post_time <= strtotime('-1 years');
 
 // 正文含代码块时注册 highlight.js（复用 vditor 内置资源）
@@ -102,9 +104,9 @@ if (str_contains($contentHtml, '<pre><code')) {
             </span>
         <?php endif; ?>
         <span><i class="fa-solid fa-user"></i>
-            <a href="<?= Html::encode($authorUrl) ?>" title="<?= Html::encode($post->author_name) ?>"><?= Html::encode($post->author_name) ?></a>
+            <a href="<?= Html::encode($authorUrl) ?>" title="<?= Html::encode($authorDisplay) ?>"><?= Html::encode($authorDisplay) ?></a>
         </span>
-        <span><i class="fa-solid fa-clock"></i><?= XUtils::xDateFormatter((int)$post->post_time) ?></span>
+        <span><i class="fa-solid fa-clock"></i><?= date('Y-m-d H:i', (int)$post->post_time) ?></span>
         <span><i class="fa-solid fa-eye"></i><?= (int)$post->view_count ?> 浏览</span>
         <span>
             <a href="#comments" title="查看评论"><span class="badge"><?= (int)$post->comment_count ?> 评论</span></a>

@@ -465,10 +465,32 @@ a:hover { text-decoration: underline; }
 .breadcrumb a { color: var(--ink-soft); }
 .breadcrumb a:hover { color: var(--accent); }
 
+/* 与 crazydb 主题模板共用的面包屑结构（无图标字体时隐藏图标） */
+.breadcrumbs { font-size: 13px; color: var(--ink-soft); margin-bottom: 24px; }
+.breadcrumbs a { color: var(--ink-soft); }
+.breadcrumbs a:hover { color: var(--accent); }
+.breadcrumbs i { display: none; }
+
 /* ---------- flash ---------- */
 .flash { padding: 12px 18px; margin-bottom: 20px; border-radius: 3px; font-size: 14px; }
 .flash-success { background: #F0F4EC; color: #3A6B35; border: 1px solid #C9DCC0; }
 .flash-error { background: #F9EEEA; color: #A33D2A; border: 1px solid #E8C9BE; }
+
+/* 浮层通知：固定在屏幕中央，不占文档流 */
+.flash-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    max-width: min(520px, 90vw);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
+    animation: flash-pop 0.25s ease;
+}
+@keyframes flash-pop {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 
 /* ---------- 页脚 ---------- */
 .magazine-footer {
@@ -506,9 +528,11 @@ a:hover { text-decoration: underline; }
 
 .auth-card h1 { font-family: var(--serif); margin-top: 0; }
 
-.auth-form label { display: block; margin-top: 12px; font-size: 14px; }
+.auth-form label { display: flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 14px; }
 .auth-form input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     padding: 8px;
     border: 1px solid var(--line);
     border-radius: 3px;
@@ -516,7 +540,10 @@ a:hover { text-decoration: underline; }
     background: var(--paper);
 }
 .auth-captcha { vertical-align: middle; margin-right: 8px; border: 1px solid var(--line); }
-.auth-remember { font-size: 13px; }
+.auth-remember { font-size: 13px; display: flex; align-items: center; gap: 7px; color: var(--ink-soft); cursor: pointer; user-select: none; }
+.auth-remember input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2d6cdf; cursor: pointer; }
+.auth-form-actions { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
+.auth-form-actions p { margin: 0; font-size: 13px; color: var(--ink-soft); }
 .form-error { color: #A33D2A; font-size: 14px; }
 
 /* ---------- 响应式 ---------- */

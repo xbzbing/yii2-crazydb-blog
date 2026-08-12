@@ -83,8 +83,8 @@ if (str_contains($contentHtml, '<pre><code')) {
             <?php if ($category !== null): ?>
                 <a href="<?= Html::encode((string)$category['url']) ?>"><?= Html::encode($category['name']) ?></a>
             <?php endif; ?>
-            <span><?= Html::encode($post->author_name) ?></span>
-            <span><?= XUtils::xDateFormatter((int)$post->post_time) ?></span>
+            <span><?= Html::encode($post->author_name !== '' ? $post->author_name : ($authorNickname ?? '')) ?></span>
+            <span><?= date('Y-m-d H:i', (int)$post->post_time) ?></span>
             <span><?= (int)$post->view_count ?> 浏览</span>
             <span><a href="#comments"><?= (int)$post->comment_count ?> 评论</a></span>
         </div>

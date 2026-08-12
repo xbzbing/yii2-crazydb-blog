@@ -12,8 +12,12 @@ use Yiisoft\Html\Html;
  * @var array{name: string, desc: ?string, url: ?string, postCount: int} $category
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  * @var App\Post\MarkdownRenderer $markdownRenderer
+ * @var string $authorNickname
  */
 $postUrl = $post->getUrl($urlGenerator);
+$authorNickname = $authorNickname ?? '';
+$authorDisplay = $post->author_name !== '' ? $post->author_name : $authorNickname;
+$authorUrl = $urlGenerator->generate('user/show', ['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]);
 ?>
 
 <article id="post-<?= $post->id ?>" class="list-group-item">
@@ -49,7 +53,7 @@ $postUrl = $post->getUrl($urlGenerator);
         </div>
     </div>
     <footer class="entry-footer">
-        <span><i class="fa-solid fa-user"></i><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $post->author_name])) ?>"><?= Html::encode($post->author_name) ?></a></span>
+        <span><i class="fa-solid fa-user"></i><a href="<?= Html::encode($authorUrl) ?>"><?= Html::encode($authorDisplay) ?></a></span>
         <span><i class="fa-solid fa-clock"></i><?= \App\Common\XUtils::xDateFormatter((int)$post->post_time) ?></span>
         <span><i class="fa-solid fa-eye"></i><?= (int)$post->view_count ?> 浏览</span>
         <span>

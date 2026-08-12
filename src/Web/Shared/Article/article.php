@@ -46,7 +46,7 @@ $postUrl = $post->getUrl($urlGenerator);
         </div>
     </div>
     <footer class="article-card-footer">
-        <span>作者：<?= Html::encode($post->author_name) ?></span>
+        <span>作者：<?= Html::encode($post->author_name !== '' ? $post->author_name : ($authorNickname ?? '')) ?></span>
         <span><?= App\Common\XUtils::xDateFormatter((int)$post->post_time) ?></span>
         <span><?= (int)$post->view_count ?> 浏览</span>
         <span>
