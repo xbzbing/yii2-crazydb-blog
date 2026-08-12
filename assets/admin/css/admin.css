@@ -1,140 +1,25 @@
 @charset "utf-8";
 
-/* ===== 后台全局 ===== */
-body.admin-body {
-    margin: 0;
-    background: #f4f6f9;
-    color: #333;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-}
-a {
-    color: #2c6fd0;
-    text-decoration: none;
-}
-a:hover {
-    text-decoration: underline;
-}
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 16px;
-}
+/* ===== 后台细节样式（布局由 AdminLTE 4 提供） ===== */
 
-/* ===== 顶栏 ===== */
-.admin-header {
-    background: #1f2d3d;
-    color: #fff;
-}
-.admin-header .container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-}
-.admin-logo {
-    color: #fff;
-    font-size: 17px;
-    font-weight: 600;
-}
-.admin-logo:hover {
-    color: #9fc3f5;
-    text-decoration: none;
-}
-.admin-user {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.admin-user a {
-    color: #c6d4e4;
-}
-.inline-form {
-    display: inline;
-    margin: 0;
-}
-.link-button {
-    background: none;
-    border: none;
-    padding: 0;
-    color: #c6d4e4;
-    cursor: pointer;
-    font-size: 14px;
-}
-.link-button:hover {
-    color: #fff;
-    text-decoration: underline;
-}
-
-/* ===== 主布局 ===== */
-.admin-body.container {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-top: 20px;
-}
-.admin-sidebar {
-    width: 200px;
-    flex: 0 0 200px;
-    background: #fff;
-    border: 1px solid #e3e8ef;
-    border-radius: 6px;
-    overflow: hidden;
-}
-.admin-sidebar ul {
-    list-style: none;
-    margin: 0;
-    padding: 8px 0;
-}
-.admin-sidebar li a {
-    display: block;
-    padding: 10px 18px;
-    color: #333;
-    border-left: 3px solid transparent;
-}
-.admin-sidebar li a:hover {
-    background: #f0f4fa;
-    text-decoration: none;
-}
-.admin-sidebar li a[aria-current="page"],
-.admin-sidebar li a.current {
-    background: #eaf1fb;
-    border-left-color: #2c6fd0;
-    color: #1c4f9e;
-    font-weight: 600;
-}
-.admin-main {
-    flex: 1;
-    min-width: 0;
-    background: #fff;
-    border: 1px solid #e3e8ef;
-    border-radius: 6px;
-    padding: 20px 24px;
-}
-.admin-main h1 {
-    font-size: 20px;
-    margin: 0 0 16px;
-}
-
-/* ===== 表格 ===== */
+/* 表格 */
 .admin-table {
     width: 100%;
     border-collapse: collapse;
 }
 .admin-table th,
 .admin-table td {
-    border: 1px solid #e3e8ef;
+    border: 1px solid #dee2e6;
     padding: 8px 10px;
     text-align: left;
     vertical-align: middle;
 }
 .admin-table th {
-    background: #f7f9fc;
+    background: #f8f9fa;
     font-weight: 600;
 }
 .admin-table tr:nth-child(even) td {
-    background: #fbfcfe;
+    background: #fcfcfd;
 }
 .admin-table img {
     max-width: 80px;
@@ -151,37 +36,12 @@ a:hover {
     vertical-align: middle;
 }
 
-/* ===== 按钮 ===== */
-.btn {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 4px;
-    border: 1px solid #2c6fd0;
-    background: #2c6fd0;
-    color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-}
-.btn:hover {
-    background: #245bb0;
-    color: #fff;
-    text-decoration: none;
-}
-button.btn {
-    border-color: transparent;
-}
-.btn-link {
-    border-color: #c9d4e0;
-    background: #fff;
-    color: #333;
-}
-.btn-link:hover {
-    background: #f0f4fa;
-    color: #333;
-    text-decoration: none;
+/* 列表页操作按钮（admin-table 内） */
+.table-actions {
+    white-space: nowrap;
 }
 
-/* ===== 表单 ===== */
+/* 表单 */
 .admin-form {
     max-width: 720px;
 }
@@ -199,7 +59,7 @@ button.btn {
     width: 100%;
     margin-top: 4px;
     padding: 7px 10px;
-    border: 1px solid #c9d4e0;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
@@ -225,7 +85,7 @@ button.btn {
 .admin-field select {
     width: 100%;
     padding: 7px 10px;
-    border: 1px solid #c9d4e0;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
@@ -240,7 +100,7 @@ button.btn {
 .admin-filter input[type="text"],
 .admin-filter select {
     padding: 6px 10px;
-    border: 1px solid #c9d4e0;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     font-size: 14px;
 }
@@ -253,18 +113,18 @@ button.btn {
     margin-bottom: 12px;
 }
 
-/* ===== 统计卡 ===== */
+/* 统计卡（仪表盘） */
 .admin-stats {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 }
 .admin-stat {
     flex: 1;
     min-width: 160px;
-    background: #f7f9fc;
-    border: 1px solid #e3e8ef;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
     border-radius: 6px;
     padding: 16px;
     text-align: center;
@@ -277,19 +137,19 @@ button.btn {
     display: block;
     font-size: 26px;
     font-weight: 700;
-    color: #1f2d3d;
+    color: #212529;
 }
 .stat-label {
     display: block;
     margin-top: 4px;
-    color: #777;
+    color: #6c757d;
 }
 
-/* ===== 其他 ===== */
+/* 其他 */
 .admin-content {
     background: #fff;
     padding: 16px;
-    border: 1px solid #e3e8ef;
+    border: 1px solid #e9ecef;
     border-radius: 6px;
 }
 .admin-comment-content {
@@ -297,21 +157,6 @@ button.btn {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-.flash {
-    padding: 10px 14px;
-    border-radius: 4px;
-    margin-bottom: 14px;
-}
-.flash-success {
-    background: #e8f7ee;
-    border: 1px solid #b7e3c8;
-    color: #1e7e4a;
-}
-.flash-error {
-    background: #fdecea;
-    border: 1px solid #f5c6c2;
-    color: #c0392b;
 }
 .pagination {
     display: flex;
@@ -323,27 +168,16 @@ button.btn {
 .pagination span {
     display: inline-block;
     padding: 4px 10px;
-    border: 1px solid #c9d4e0;
+    border: 1px solid #ced4da;
     border-radius: 4px;
     background: #fff;
     color: #333;
 }
 .pagination span.current {
-    background: #2c6fd0;
-    border-color: #2c6fd0;
+    background: #0d6efd;
+    border-color: #0d6efd;
     color: #fff;
 }
 .muted {
     color: #888;
-}
-
-/* ===== 响应式 ===== */
-@media (max-width: 768px) {
-    .admin-body.container {
-        flex-direction: column;
-    }
-    .admin-sidebar {
-        width: 100%;
-        flex: auto;
-    }
 }
