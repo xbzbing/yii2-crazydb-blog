@@ -52,7 +52,7 @@ $this->beginPage()
 <head>
     <meta charset="<?= Html::encode($applicationParams->charset) ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="<?= $aliases->get('@baseUrl/favicon.svg') ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= $aliases->get('@baseUrl/favicon.ico') ?>" type="image/x-icon">
     <link rel="stylesheet" href="/static/fonts/noto-serif-sc.css">
     <title><?= Html::encode($pageTitle) ?></title>
     <?php if ($seoKeywords !== ''): ?>

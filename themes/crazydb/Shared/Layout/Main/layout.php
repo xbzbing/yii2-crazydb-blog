@@ -57,7 +57,7 @@ $this->beginPage()
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="renderer" content="webkit">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="<?= $aliases->get('@baseUrl/favicon.svg') ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= $aliases->get('@baseUrl/favicon.ico') ?>" type="image/x-icon">
     <title><?= Html::encode($pageTitle) ?></title>
     <?php if ($seoKeywords !== ''): ?>
         <meta name="keywords" content="<?= Html::encode($seoKeywords) ?>">
