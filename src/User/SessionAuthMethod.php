@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Auth\AuthenticationMethodInterface;
 use Yiisoft\Auth\IdentityInterface;
-use Yiisoft\Session\Session;
+use Yiisoft\Session\SessionInterface;
 
 /**
  * Session 登录态认证：登录时在 session 写入用户 id，后续请求从 session 恢复身份。
@@ -16,7 +16,7 @@ use Yiisoft\Session\Session;
 final class SessionAuthMethod implements AuthenticationMethodInterface
 {
     public function __construct(
-        private Session $session,
+        private SessionInterface $session,
         private UserRepository $userRepository,
         private string $sessionKey = 'authUserId',
     ) {

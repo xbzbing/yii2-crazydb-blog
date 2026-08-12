@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\User;
 
-use Yiisoft\Session\Session;
+use Yiisoft\Session\SessionInterface;
 
 /**
  * 登录/注销服务：session 登录态 + 记住我 token 生成。
@@ -13,7 +13,7 @@ use Yiisoft\Session\Session;
 final class AuthService
 {
     public function __construct(
-        private Session $session,
+        private SessionInterface $session,
         private UserRepository $userRepository,
         private string $sessionKey = 'authUserId',
     ) {

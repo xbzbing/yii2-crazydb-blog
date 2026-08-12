@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Captcha;
 
-use Yiisoft\Session\Session;
+use Yiisoft\Session\SessionInterface;
 
 /**
  * 简易验证码：GD 绘制 + session 存储（D7 决策：yiisoft/captcha 不存在，自实现）。
@@ -17,7 +17,7 @@ final class CaptchaService
     private const LENGTH = 4;
 
     public function __construct(
-        private Session $session,
+        private SessionInterface $session,
         private bool $debug = false,
     ) {
     }

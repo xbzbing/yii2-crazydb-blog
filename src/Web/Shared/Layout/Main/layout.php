@@ -16,6 +16,7 @@ use Yiisoft\Html\Html;
  * @var array<string, string|null> $siteConfig
  * @var array<string, mixed> $navTree
  * @var bool $showSidebar
+ * @var Yiisoft\Session\Flash\FlashInterface $flash
  */
 
 $assetManager->register(MainAsset::class);
@@ -85,6 +86,14 @@ $this->beginPage()
 </header>
 
 <div class="site-body container">
+    <?php $flashMessage = null; ?>
+    <?php foreach (['comment_success', 'comment_error'] as $flashKey): ?>
+        <?php if ($flash->has($flashKey)): ?>
+            <?php $flashMessage = $flash->get($flashKey)['info'] ?? null; ?>
+            <?php $flashType = $flashKey === 'comment_success' ? 'flash-success' : 'flash-error'; ?>
+            <div class="flash <?= $flashType ?>"><?= Html::encode((string)$flashMessage) ?></div>
+        <?php endif; ?>
+    <?php endforeach; ?>
     <div class="site-main<?= $showSidebar ? '' : ' site-main-full' ?>">
         <?= $content ?>
     </div>
