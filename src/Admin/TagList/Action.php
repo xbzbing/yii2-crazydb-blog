@@ -33,12 +33,15 @@ final readonly class Action
         #[RouteArgument] ?string $name = null,
     ): ResponseInterface {
         if ($name !== null && $request->getMethod() === Method::POST) {
-            // 删除不改变 max(id)（除非删到最大行），须显式失效前台标签缓存（before+after）
-            $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
-            $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
-            (new Tag())->deleteAll(['name' => $name]);
-            $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
-            $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
+            // 仅允许删除无关联文章的标签，避免前台按标签 404
+            $totalCount = (int)Tag::query()->where(['name' => $name])->count();
+            if ($totalCount > 0) {
+                $this->flash->set('flash_error', ['info' => sprintf('该标签关联 %d 篇文章，无法删除；请先在文章中移除该标签。', $totalCount)]);
+                return $this->responseFactory
+                    ->createResponse(Status::FOUND)
+                    ->withHeader('Location', $this->urlGenerator->generate('admin/tag/list'));
+            }
+            Tag::deleteByName($name, $this->cache);
             $this->flash->set('flash_success', ['info' => '标签已删除。']);
             return $this->responseFactory
                 ->createResponse(Status::FOUND)

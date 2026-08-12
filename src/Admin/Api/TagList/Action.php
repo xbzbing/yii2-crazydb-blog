@@ -38,11 +38,14 @@ final readonly class Action
 
     public function delete(ServerRequestInterface $request, #[RouteArgument] string $name): ResponseInterface
     {
-        $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
-        $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
-        (new Tag())->deleteAll(['name' => $name]);
-        $this->cache->remove('__tags_0.' . (int)Tag::query()->max('id'));
-        $this->cache->remove('__tags_20.' . (int)Tag::query()->max('id'));
+        $totalCount = (int)Tag::query()->where(['name' => $name])->count();
+        if ($totalCount > 0) {
+            return $this->jsonResponse->fail(
+                sprintf('该标签关联 %d 篇文章，无法删除；请先在文章中移除该标签。', $totalCount),
+                422,
+            );
+        }
+        Tag::deleteByName($name, $this->cache);
         return $this->jsonResponse->ok(['message' => '标签已删除。']);
     }
 }

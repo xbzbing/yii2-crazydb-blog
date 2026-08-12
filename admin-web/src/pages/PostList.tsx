@@ -1,8 +1,9 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
+import type { ProFormInstance } from '@ant-design/pro-form'
 import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { PostItem } from '../types/api'
@@ -16,6 +17,18 @@ const STATUS_MAP = {
 export default function PostList() {
   const navigate = useNavigate()
   const actionRef = useRef<ActionType>(null)
+  const formRef = useRef<ProFormInstance>(undefined)
+  const [searchParams] = useSearchParams()
+  const urlTag = searchParams.get('tag') || ''
+
+  // 从标签列表跳转带入的筛选：同步到搜索表单显示（onLoad 时表单已挂载）
+  const syncedTagRef = useRef(false)
+  const handleLoad = () => {
+    if (urlTag && !syncedTagRef.current) {
+      syncedTagRef.current = true
+      formRef.current?.setFieldsValue({ tag: urlTag })
+    }
+  }
 
   const handleDelete = async (id: number) => {
     try {
@@ -47,6 +60,28 @@ export default function PostList() {
       width: 100,
       search: false,
       render: (_, r) => r.category_name || <span style={{ color: '#bbb' }}>-</span>,
+    },
+    {
+      title: '标签',
+      dataIndex: 'tag',
+      width: 160,
+      ellipsis: true,
+      render: (_, r) =>
+        r.tags ? (
+          <span style={{ whiteSpace: 'nowrap' }}>
+            {r.tags
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+              .map((t) => (
+                <Tag key={t} color="blue" style={{ marginRight: 4 }}>
+                  {t}
+                </Tag>
+              ))}
+          </span>
+        ) : (
+          <span style={{ color: '#bbb' }}>-</span>
+        ),
     },
     {
       title: '状态',
@@ -120,7 +155,8 @@ export default function PostList() {
     const page = params.current || 1
     const pageSize = params.pageSize || 20
     const status = (params.status as string) || ''
-    const res = await api.posts({ page, status, pageSize })
+    const tag = (params.tag as string) || ''
+    const res = await api.posts({ page, status, tag, pageSize })
     return {
       data: res.items,
       total: res.total,
@@ -132,9 +168,13 @@ export default function PostList() {
     <ProTable
       headerTitle="文章列表"
       actionRef={actionRef}
+      formRef={formRef}
       rowKey="id"
       columns={columns}
       request={request}
+      params={{ tag: urlTag }}
+      onLoad={handleLoad}
+      search={{ labelWidth: 'auto' }}
       pagination={{ defaultPageSize: 20, showSizeChanger: false }}
       scroll={{ x: 'max-content' }}
       columnsState={{

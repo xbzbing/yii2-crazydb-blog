@@ -8,13 +8,14 @@ use App\Admin\Api\ApiSerializer;
 use App\Admin\Api\JsonResponse;
 use App\Category\Category;
 use App\Post\Post;
+use App\Tag\Tag;
 use App\Web\Pager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 
 /**
- * GET /admin/api/posts?page=&status=：文章列表（分页 + 状态过滤）。
+ * GET /admin/api/posts?page=&status=&tag=：文章列表（分页 + 状态/标签过滤）。
  */
 final readonly class Action
 {
@@ -33,17 +34,26 @@ final readonly class Action
         $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
         $status = (string)($request->getQueryParams()['status'] ?? '');
         $filtered = in_array($status, self::STATUSES, true);
+        $tag = trim((string)($request->getQueryParams()['tag'] ?? ''));
 
         $countQuery = Post::query();
+        $query = Post::query();
         if ($filtered) {
             $countQuery->where(['status' => $status]);
+            $query->where(['status' => $status]);
+        }
+        if ($tag !== '') {
+            // 标签为关联表：先按名称取文章 id 集合，再过滤主表
+            $postIds = Tag::query()->select('pid')->where(['name' => $tag])->column();
+            $postIds = array_map('intval', $postIds);
+            if ($postIds === []) {
+                $postIds = [0];
+            }
+            $countQuery->andWhere(['in', 'id', $postIds]);
+            $query->andWhere(['in', 'id', $postIds]);
         }
         $pager = new Pager((int)$countQuery->count(), self::PAGE_SIZE, $page);
 
-        $query = Post::query();
-        if ($filtered) {
-            $query->where(['status' => $status]);
-        }
         /** @var list<Post> $posts */
         $posts = $query
             ->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC])
@@ -66,6 +76,7 @@ final readonly class Action
             'pageSize' => $pager->pageSize,
             'pageCount' => $pager->pageCount,
             'status' => $status,
+            'tag' => $tag,
         ]);
     }
 }
