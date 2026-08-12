@@ -86,14 +86,11 @@ $this->beginPage()
                             </button>
                             <div class="collapse navbar-collapse" id="site-navbar">
                                 <ul class="navbar-nav me-auto">
-                                    <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('site/index') ?>">首页</a></li>
                                     <?php foreach ($navTree as $item): ?>
                                         <li class="nav-item">
                                             <a class="nav-link" href="<?= Html::encode((string)($item['url'] ?? '#')) ?>"><?= Html::encode((string)($item['label'])) ?></a>
                                         </li>
                                     <?php endforeach; ?>
-                                    <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('post/archives') ?>">归档</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a></li>
                                 </ul>
                                 <ul class="navbar-nav">
                                     <?php if ($currentUser === null): ?>
