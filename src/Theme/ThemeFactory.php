@@ -18,6 +18,7 @@ use Yiisoft\View\Theme;
  *
  * 当前可用主题（白名单）：
  * - ''       默认主题（src/Web 视图原样渲染）
+ * - crazydb  Crazydb 主题（themes/crazydb，提取自 Yii2 线上模板）
  * - magazine 墨刊主题（themes/magazine）
  *
  * 新增主题时：创建 themes/{name} 目录并加入 AVAILABLE_THEMES。
@@ -27,6 +28,7 @@ final class ThemeFactory
     /** @var array<string, string> 可用主题：配置值 => 主题目录名 */
     public const AVAILABLE_THEMES = [
         '' => '',
+        'crazydb' => 'crazydb',
         'magazine' => 'magazine',
     ];
 

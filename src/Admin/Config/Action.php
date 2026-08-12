@@ -39,6 +39,7 @@ final readonly class Action
     /** @var array<string, string> 主题显示名：配置值 => 下拉显示名（与 ThemeFactory::AVAILABLE_THEMES 单源对齐） */
     private const THEME_LABELS = [
         '' => '默认主题',
+        'crazydb' => 'Crazydb（经典 Yii2 风格）',
         'magazine' => '墨刊（杂志风格）',
     ];
 
