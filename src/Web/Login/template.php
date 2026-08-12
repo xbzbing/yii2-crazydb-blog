@@ -16,6 +16,7 @@ use Yiisoft\Html\Html;
  * @var string $username
  * @var bool $locked
  * @var int $lockRemaining
+ * @var string $redirect
  * @var string|null $csrf
  */
 
@@ -34,6 +35,9 @@ $this->setTitle('登录 - ' . $siteName);
     <?php else: ?>
         <form class="auth-form" method="post" action="<?= Html::encode($urlGenerator->generate('site/login')) ?>">
             <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+            <?php if ($redirect !== ''): ?>
+                <input type="hidden" name="redirect" value="<?= Html::encode($redirect) ?>">
+            <?php endif; ?>
             <label>用户名：<input type="text" name="username" value="<?= Html::encode($username) ?>" required autofocus></label>
             <label>密码：<input type="password" name="password" required></label>
             <label>验证码：

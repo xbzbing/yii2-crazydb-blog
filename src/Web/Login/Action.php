@@ -25,7 +25,7 @@ use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 /**
  * 登录（等价 Yii2 SiteController::actionLogin）：
  * 暴力破解防护（session 失败计数，5 次锁 15 分钟）→ 表单校验（验证码/密码）→
- * AuthService::login → Log 记录 → 回首页。
+ * AuthService::login → Log 记录 → 回首页或 redirect 目标（仅站内路径，防开放重定向）。
  */
 final readonly class Action
 {
@@ -46,8 +46,14 @@ final readonly class Action
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
+        // redirect 目标：GET 从 query、POST 从 body 读取；仅允许站内路径（防开放重定向）
+        $query = $request->getQueryParams();
+        $body = $request->getParsedBody();
+        $redirectRaw = (string)(is_array($body) && ($body['redirect'] ?? '') !== '' ? $body['redirect'] : ($query['redirect'] ?? ''));
+        $redirect = $this->normalizeRedirect($redirectRaw);
+
         if ($this->authService->isLoggedIn()) {
-            return $this->redirectHome();
+            return $this->redirectTo($redirect);
         }
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
@@ -55,7 +61,6 @@ final readonly class Action
         $locked = $this->lockRemaining() > 0;
 
         if (!$locked && $request->getMethod() === Method::POST) {
-            $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
             $username = trim((string)($data['username'] ?? ''));
             $password = (string)($data['password'] ?? '');
@@ -73,7 +78,7 @@ final readonly class Action
                         $this->session->remove('login_failures');
                         $this->session->remove('login_locked_until');
                         (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$user->id, Log::STATUS_SUCCESS, "用户「{$username}」成功!", (int)$user->id);
-                        $response = $this->redirectHome();
+                        $response = $this->redirectTo($redirect);
                         if ($token !== null) {
                             $response = $response->withHeader(
                                 'Set-Cookie',
@@ -94,6 +99,7 @@ final readonly class Action
                 'username' => $username,
                 'locked' => $locked,
                 'lockRemaining' => $this->lockRemaining(),
+                'redirect' => $redirect,
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => false,
@@ -131,5 +137,30 @@ final readonly class Action
         return $this->responseFactory
             ->createResponse(Status::FOUND)
             ->withHeader('Location', $this->urlGenerator->generate('site/index'));
+    }
+
+    private function redirectTo(string $redirect): ResponseInterface
+    {
+        return $redirect !== ''
+            ? $this->responseFactory->createResponse(Status::FOUND)->withHeader('Location', $redirect)
+            : $this->redirectHome();
+    }
+
+    /**
+     * 校验并归一化 redirect 目标：仅允许站内相对路径（以 / 开头且非 // 开头），
+     * 拒绝外链与协议相对 URL，防开放重定向。
+     */
+    private function normalizeRedirect(string $raw): string
+    {
+        $raw = trim($raw);
+        if ($raw === '' || $raw === '/') {
+            return '';
+        }
+        // 站内路径：以单个 / 开头，且不以 // 或 /\ 开头（防协议相对/反斜杠绕过）
+        if (str_starts_with($raw, '/') && !str_starts_with($raw, '//') && !str_starts_with($raw, '/\\')) {
+            // 限制长度避免异常超长输入
+            return mb_substr($raw, 0, 512);
+        }
+        return '';
     }
 }
