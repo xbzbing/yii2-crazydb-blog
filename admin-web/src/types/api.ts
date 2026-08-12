@@ -76,7 +76,7 @@ export interface PostDetail {
   format: string
   status: string
   tags: string
-  password: string
+  is_locked: boolean
   cover: string
   is_top: number
   post_time: number

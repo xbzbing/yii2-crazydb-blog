@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Yiisoft\Auth\IdentityWithTokenRepositoryInterface;
 use Yiisoft\Session\SessionInterface;
 
 /**
@@ -21,7 +22,7 @@ final readonly class RememberMeMiddleware implements MiddlewareInterface
     public const COOKIE_TTL = 30 * 24 * 3600;
 
     public function __construct(
-        private UserRepository $userRepository,
+        private IdentityWithTokenRepositoryInterface $userRepository,
         private SessionInterface $session,
         private string $sessionKey = User::SESSION_AUTH_KEY,
         private bool $cookieSecure = false,
@@ -35,21 +36,23 @@ final readonly class RememberMeMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
+        $clearInvalidCookie = false;
         $token = $request->getCookieParams()[self::COOKIE_NAME] ?? null;
-        $response = $handler->handle($request);
         if (is_string($token) && $token !== '') {
             $identity = $this->userRepository->findIdentityByToken($token);
             if ($identity instanceof User) {
-                $this->session->set($this->sessionKey, (string)$identity->id);
-                // 恢复登录态后轮换 session id（防会话固定；与 AuthService::login 对齐）
+                // 必须在下游 guard 执行前恢复身份，否则首次请求仍会被判定未登录。
+                $this->session->set($this->sessionKey, (string) $identity->id);
                 $this->session->regenerateId();
             } else {
-                // 无效/过期 token：附带清除 cookie，避免浏览器持续携带并每请求查库
-                $response = $response->withHeader('Set-Cookie', self::clearCookie($this->cookieSecure));
+                $clearInvalidCookie = true;
             }
         }
 
-        return $response;
+        $response = $handler->handle($request);
+        return $clearInvalidCookie
+            ? $response->withHeader('Set-Cookie', self::clearCookie($this->cookieSecure))
+            : $response;
     }
 
     /**

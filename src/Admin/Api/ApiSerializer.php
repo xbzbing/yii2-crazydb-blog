@@ -61,7 +61,7 @@ final class ApiSerializer
             'format' => $post->format,
             'status' => $post->status,
             'tags' => $post->tags,
-            'password' => (string)$post->password,
+            'is_locked' => $post->password !== null && $post->password !== '',
             'cover' => (string)$post->cover,
             'is_top' => (int)$post->is_top,
             'post_time' => (int)$post->post_time,

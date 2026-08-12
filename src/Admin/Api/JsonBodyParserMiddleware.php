@@ -15,16 +15,27 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final readonly class JsonBodyParserMiddleware implements MiddlewareInterface
 {
+    public function __construct(private JsonResponse $jsonResponse)
+    {
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $contentType = $request->getHeaderLine('Content-Type');
         if (stripos($contentType, 'application/json') !== false) {
-            $raw = (string)$request->getBody();
-            $data = json_decode($raw, true);
-            if (is_array($data)) {
-                $request = $request->withParsedBody($data);
-            } elseif ($raw === '') {
+            $raw = (string) $request->getBody();
+            if ($raw === '') {
                 $request = $request->withParsedBody([]);
+            } else {
+                try {
+                    $data = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+                } catch (\JsonException) {
+                    return $this->jsonResponse->fail('请求体不是有效的 JSON。');
+                }
+                if (!is_array($data)) {
+                    return $this->jsonResponse->fail('JSON 请求体必须为对象或数组。');
+                }
+                $request = $request->withParsedBody($data);
             }
         }
         return $handler->handle($request);

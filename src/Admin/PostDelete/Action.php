@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Admin\PostDelete;
 
+use App\Category\Category;
 use App\Comment\Comment;
 use App\Post\Post;
+use App\Tag\Tag;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
+use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Session\Flash\FlashInterface;
@@ -24,6 +27,7 @@ final readonly class Action
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
         private FlashInterface $flash,
+        private CacheInterface $cache,
     ) {}
 
     public function __invoke(
@@ -34,8 +38,10 @@ final readonly class Action
             $post = Post::query()->findByPk($id);
             if ($post instanceof Post) {
                 (new Comment())->deleteAll(['pid' => $id]);
-                (new \App\Tag\Tag())->deleteAll(['pid' => $id]);
+                (new Tag())->deleteAll(['pid' => $id]);
                 $post->delete();
+                Tag::invalidateCache($this->cache);
+                Category::invalidateSummaryCache($this->cache);
                 $this->flash->set('flash_success', ['info' => '文章已删除。']);
             }
         }

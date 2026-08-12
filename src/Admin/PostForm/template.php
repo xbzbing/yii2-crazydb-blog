@@ -65,7 +65,11 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
         <textarea name="content" rows="16" class="admin-content" id="post-content"><?= Html::encode((string)$post->content) ?></textarea>
         <div id="vditor-container"></div>
     </div>
-    <label>访问密码（可选，隐藏文章用）：<input type="text" name="password" value="<?= Html::encode((string)$post->password) ?>"></label>
+    <?php $isLocked = $post->password !== null && $post->password !== ''; ?>
+    <label>访问密码（可选，隐藏文章用）：<input type="text" name="password" value="" placeholder="<?= $isLocked ? '留空保持原密码' : '' ?>"<?= $isLocked ? ' autocomplete="new-password"' : '' ?>></label>
+    <?php if (!$isNew && $isLocked): ?>
+        <label class="admin-check"><input type="checkbox" name="clear_password" value="1"> 清除访问密码</label>
+    <?php endif; ?>
     <button type="submit">保存</button>
     <a href="<?= Html::encode($urlGenerator->generate('admin/post/list')) ?>">返回列表</a>
 </form>

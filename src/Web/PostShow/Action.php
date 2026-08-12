@@ -10,10 +10,13 @@ use App\Common\CMSUtils;
 use App\Nav\Nav;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
+use App\Post\PostViewKeys;
 use App\Tag\Tag;
+use App\User\LoginThrottle;
 use App\Web\NotFound\NotFoundResponder;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Predis\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\CacheInterface;
@@ -32,6 +35,8 @@ final readonly class Action
         private UrlGeneratorInterface $urlGenerator,
         private ResponseFactoryInterface $responseFactory,
         private CacheInterface $cache,
+        private ClientInterface $redis,
+        private LoginThrottle $loginThrottle,
         private Aliases $aliases,
         private MarkdownRenderer $markdownRenderer,
     ) {}
@@ -49,11 +54,14 @@ final readonly class Action
         }
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
-        // 浏览数自增（对齐 Yii2 actionShow；updateCounters 不触发全行 save）
+        // 热点文章详情只原子写 Redis；由 post-view/sync 增量合并到 MySQL。
         try {
-            $post->updateCounters(['view_count' => 1]);
+            $counterKey = PostViewKeys::counterKey((int) $post->id);
+            $this->redis->incr($counterKey);
+            $this->redis->expire($counterKey, 2592000);
             $post->view_count++;
         } catch (\Throwable) {
+            // 统计不可用不能影响文章访问。
         }
         $comments = $post->getComments()->all();
         $total = count($comments);
@@ -77,23 +85,55 @@ final readonly class Action
             } catch (\Throwable) {
             }
         }
-        $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
-        $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
+        $relatedCacheVersion = Post::relatedCacheVersion();
+        $previous = $post->getRelatedOne(
+            $this->urlGenerator,
+            $this->cache,
+            'before',
+            false,
+            false,
+            $relatedCacheVersion,
+        );
+        $next = $post->getRelatedOne(
+            $this->urlGenerator,
+            $this->cache,
+            'after',
+            false,
+            false,
+            $relatedCacheVersion,
+        );
         // 加锁文章（password 非空）：每次访问都需输入密码，不写入 session，登录也不绕过。
         // 密码在本请求（POST 到本页）内校验：正确则直接渲染全文，错误则渲染摘要+表单+错误提示。
-        $password = (string)$post->password;
+        $password = (string) $post->password;
         $unlocked = false;
         $passwordError = false;
+        $passwordLocked = false;
         if ($password !== '') {
             $body = $request->getParsedBody();
-            $input = trim((string)(is_array($body) ? ($body['password'] ?? '') : ''));
+            $input = trim((string) (is_array($body) ? ($body['password'] ?? '') : ''));
             $submitted = $request->getMethod() === 'POST' && $input !== '';
-            if ($submitted && hash_equals($password, $input)) {
+            $clientIp = \App\Common\XUtils::getClientIP($request->getServerParams());
+            $scope = 'post_password';
+            $subject = (string) $post->id;
+            $passwordLocked = $this->loginThrottle->remaining($subject, $clientIp, $scope) > 0;
+
+            if ($submitted && !$passwordLocked && $post->verifyAccessPassword($input)) {
                 $unlocked = true;
+                if ($post->rehashAccessPasswordIfNeeded($input)) {
+                    try {
+                        $post->save();
+                    } catch (\Throwable) {
+                        // 迁移写入失败不影响本次已完成的密码验证。
+                    }
+                }
+                $this->loginThrottle->clear($subject, $clientIp, $scope);
                 $contentHtml = $post->getContentProcessed($this->markdownRenderer);
                 $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
             } else {
-                $passwordError = $submitted;
+                if ($submitted && !$passwordLocked) {
+                    $passwordError = true;
+                    $passwordLocked = $this->loginThrottle->recordFailure($subject, $clientIp, $scope) > 0;
+                }
                 $contentHtml = $post->getExcerptProcessed($this->markdownRenderer);
                 $toc = [];
             }
@@ -110,6 +150,7 @@ final readonly class Action
                 'toc' => $toc,
                 'unlocked' => $unlocked,
                 'passwordError' => $passwordError,
+                'passwordLocked' => $passwordLocked,
                 'comments' => $comments,
                 'replyMap' => $replyMap,
                 'commentTotal' => $total,

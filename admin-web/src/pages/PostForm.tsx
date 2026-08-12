@@ -23,6 +23,7 @@ export default function PostForm() {
   const [coverUploading, setCoverUploading] = useState(false)
   const [autoCover, setAutoCover] = useState(false)
   const [passwordEnabled, setPasswordEnabled] = useState(false)
+  const [wasLocked, setWasLocked] = useState(false)
 
   useEffect(() => {
     // 拉分类下拉
@@ -44,7 +45,8 @@ export default function PostForm() {
           setExcerpt(p.excerpt || '')
           setCover(p.cover || '')
           setFormat(p.format === 'html' ? 'html' : 'markdown')
-          setPasswordEnabled(!!p.password)
+          setWasLocked(!!p.is_locked)
+          setPasswordEnabled(!!p.is_locked)
           form.setFieldsValue({
             title: p.title,
             alias: p.alias,
@@ -53,7 +55,7 @@ export default function PostForm() {
             tags: p.tags,
             author_name: p.author_name,
             is_top: p.is_top === 1,
-            password: p.password || '',
+            password: '',
           })
         })
         .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
@@ -62,6 +64,7 @@ export default function PostForm() {
       // 新建：状态默认「空」，由底部「发布/存为草稿」按钮决定
       form.setFieldsValue({ status: '', is_top: false, password: '' })
       setFormat('markdown')
+      setWasLocked(false)
       setPasswordEnabled(false)
       setLoading(false)
     }
@@ -84,6 +87,12 @@ export default function PostForm() {
     }
     setSubmitting(true)
     try {
+      // 密码语义：
+      // - passwordEnabled 且输入非空 → 设置/更换密码（后端哈希存储）
+      // - passwordEnabled 且输入空（编辑已加锁文章）→ 保持原密码
+      // - 未加锁但原文章加锁 → clear_password=1 显式解除
+      const passwordValue = passwordEnabled ? (values.password || '') : ''
+      const clearPassword = !passwordEnabled && wasLocked ? 1 : 0
       const payload = {
         title: values.title,
         alias: values.alias || '',
@@ -97,7 +106,8 @@ export default function PostForm() {
         excerpt,
         content,
         is_top: values.is_top ? 1 : 0,
-        password: passwordEnabled ? (values.password || '') : '',
+        password: passwordValue,
+        clear_password: clearPassword,
         // post_time 由后端处理：新建取当前时间，编辑保持原值（不传则后端兜底）
       }
       const data = isEdit ? await api.postUpdate(Number(id), payload) : await api.postSave(payload)
@@ -115,6 +125,11 @@ export default function PostForm() {
   }
 
   if (loading) return <Spin style={{ margin: 48 }} />
+
+  // 密码必填规则：仅「新建并启用加锁」或「编辑原本未加锁却启用加锁」时强制输入；
+  // 编辑已加锁文章留空表示保持原密码。
+  const passwordRequired = passwordEnabled && !(isEdit && wasLocked)
+  const passwordPlaceholder = isEdit && wasLocked ? '留空保持原密码' : '输入访问密码'
 
   return (
     <Card title={isEdit ? '编辑文章' : '新建文章'}>
@@ -195,9 +210,9 @@ export default function PostForm() {
                   <Form.Item
                     name="password"
                     noStyle
-                    rules={[{ required: true, message: '请输入访问密码' }]}
+                    rules={[{ required: passwordRequired, message: '请输入访问密码' }]}
                   >
-                    <Input.Password placeholder="输入访问密码" autoComplete="new-password" />
+                    <Input.Password placeholder={passwordPlaceholder} autoComplete="new-password" />
                   </Form.Item>
                 ) : (
                   <Input disabled placeholder="未加锁" />

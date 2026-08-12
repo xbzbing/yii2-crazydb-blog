@@ -13,10 +13,13 @@ use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 /**
- * XML Sitemap：固定页 + 文章（published）+ 分类 + 标签（版本化缓存 1h）。
+ * XML Sitemap：固定页 + 文章（published）+ 分类 + 标签（版本化缓存 1h，单文件最多 50,000 URL）。
  */
 final readonly class Action
 {
+    /** Sitemap XML 协议规定的单文件最大 URL 数。 */
+    private const MAX_URLS = 50000;
+
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
@@ -59,8 +62,12 @@ final readonly class Action
             ->select('id,alias,title,update_time')
             ->where(['status' => Post::STATUS_PUBLISHED])
             ->orderBy(['update_time' => SORT_DESC])
+            ->limit(self::MAX_URLS - count($urls))
             ->all();
         foreach ($posts as $post) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
             $url = $post->getUrl($this->urlGenerator, true);
             if ($url !== null) {
                 $urls[] = [
@@ -72,8 +79,11 @@ final readonly class Action
         }
 
         /** @var list<Category> $categories */
-        $categories = Category::query()->all();
+        $categories = Category::query()->limit(self::MAX_URLS - count($urls))->all();
         foreach ($categories as $category) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
             $urls[] = [
                 'loc' => $category->getUrl($this->urlGenerator),
                 'priority' => '0.7',
@@ -81,8 +91,16 @@ final readonly class Action
         }
 
         /** @var list<array{name: string}> $tagRows */
-        $tagRows = Tag::query()->select('name')->distinct()->asArray()->all();
+        $tagRows = Tag::query()
+            ->select('name')
+            ->distinct()
+            ->limit(self::MAX_URLS - count($urls))
+            ->asArray()
+            ->all();
         foreach ($tagRows as $row) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
             $urls[] = [
                 'loc' => $this->urlGenerator->generateAbsolute('tag/show', ['name' => (string)$row['name']]),
                 'priority' => '0.5',
