@@ -109,7 +109,7 @@ a:focus {
 }
 
 .main-container {
-    border-radius: 4px 4px 0 0;
+    border-radius: 10px 10px 0 0;
     background: #FFF;
     padding: 0 0 20px;
 }
@@ -131,7 +131,7 @@ a:focus {
 }
 
 .radius-10 {
-    border-radius: 4px 4px 0 0;
+    border-radius: 10px 10px 0 0;
 }
 
 .list-header h1 {
@@ -192,6 +192,7 @@ a.read-more:hover {
     margin-top: 50px;
     z-index: 1;
     border-radius: 4px;
+    padding-left: 15px;
 }
 
 .index-logo {
@@ -301,12 +302,12 @@ article.list-group-item:nth-of-type(1) {
 }
 
 .post-list {
-    border-radius: 4px 4px 0 0;
+    border-radius: 10px 10px 0 0;
     background: #FFFFFF;
 }
 
 .post-list .list-group-item:hover {
-    border-radius: 0 4px 0;
+    border-radius: 0 10px 0;
     padding-left: 11px;
     border-left: 5px solid #428BCA;
     background-color: #F8FCFE;
@@ -380,7 +381,7 @@ article.list-group-item:nth-of-type(1) {
 .widget h3 {
     background-color: #F7F7F7;
     border-bottom: 1px solid #EAEAEA;
-    border-radius: 4px 4px 0 0;
+    border-radius: 10px 10px 0 0;
     font-size: 15px;
     font-weight: 400;
     line-height: 2.5em;
@@ -471,7 +472,7 @@ article.list-group-item:nth-of-type(1) {
 /* ============ 文章详情页 ============ */
 #content {
     background: #FFF;
-    border-radius: 4px 4px 0 0;
+    border-radius: 10px 10px 0 0;
     margin-bottom: 8px;
     padding: 15px;
 }
@@ -481,10 +482,28 @@ article.list-group-item:nth-of-type(1) {
 }
 
 #content .entry-header h1 {
+    font-size: 28px;
     border-bottom: 2px dashed #DDDDDD;
     margin-top: 0;
     padding-bottom: 4px;
-    font-size: 26px;
+}
+
+.entry-content h2 {
+    font-size: 1.4rem;
+    margin: 1.2em 0 0.5em;
+    border-bottom: none;
+}
+
+.entry-content h3 {
+    font-size: 1.25rem;
+    margin: 1em 0 0.5em;
+    border-bottom: none;
+}
+
+.entry-content h4 {
+    font-size: 1.1rem;
+    margin: 1em 0 0.5em;
+    border-bottom: none;
 }
 
 #content .entry-meta {
@@ -531,6 +550,7 @@ article.list-group-item:nth-of-type(1) {
     font-size: 13px;
     line-height: 22px;
     clear: both;
+    margin-top: 20px;
 }
 
 .comment-list {
@@ -566,7 +586,14 @@ article.list-group-item:nth-of-type(1) {
 .leave-comment {
     position: relative;
     border-top: 2px dashed #DDDDDD;
-    margin-top: 15px;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+/* 还原 row 的负外边距，使 border-top 与 #content .entry-meta 对齐 */
+.leave-comment.row {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .leave-comment label {
@@ -576,12 +603,15 @@ article.list-group-item:nth-of-type(1) {
 
 .leave-comment .actionPanel {
     margin-top: 6px;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 #comments {
     border-bottom: 1px dashed #E6E6E6;
     padding-bottom: 5px;
+    font-size: 16px;
 }
 
 .comment-reply-link {
@@ -669,6 +699,165 @@ ul.tags li {
 
 .entry-content blockquote p {
     font-size: 1em;
+}
+
+/* ============ 目录（TOC） ============ */
+.article-toc {
+    background: #FFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.article-toc summary {
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 10px 16px;
+    background: #F7F7F7;
+    border-bottom: 1px solid #EAEAEA;
+    list-style: none;
+    position: relative;
+}
+.article-toc summary::-webkit-details-marker {
+    display: none;
+}
+.article-toc summary::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 12px;
+    color: #999;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s;
+}
+.article-toc[open] summary::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+.article-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.article-toc li {
+    padding: 0;
+    font-size: 14px;
+    border-bottom: 1px dashed #EEEEEE;
+}
+.article-toc li:last-child {
+    border-bottom: none;
+}
+.article-toc a {
+    color: #555;
+    text-decoration: none;
+    display: block;
+    padding: 8px 16px;
+    position: relative;
+    transition: all 0.15s;
+}
+.article-toc a:hover {
+    color: #428BCA;
+    background: #F8FCFE;
+    padding-left: 20px;
+}
+.toc-level-2 {
+    padding-left: 0;
+}
+.toc-level-2 a {
+    font-weight: 600;
+}
+.toc-level-3 {
+    padding-left: 20px;
+}
+.toc-level-3 a {
+    font-weight: 400;
+}
+.toc-level-3 a::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #428BCA;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* ============ 表情栏 ============ */
+.comment-smilie {
+    font-size: 14px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 24px;
+}
+.smilie-img {
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+    overflow: hidden;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.comment-smilie img {
+    cursor: pointer;
+    margin: 2px 2px 0;
+    display: inline-block;
+    height: 18px;
+    width: 20px;
+}
+#more_smilie {
+    color: #7399bf;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 4px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+/* ============ 邮件通知 ============ */
+.email-notify {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+.email-notify label {
+    font-weight: normal;
+    cursor: pointer;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* ============ 已登录用户信息 ============ */
+.comment-author {
+    text-align: center;
+    margin: 0 auto;
+}
+.comment-author .avatar-thumb {
+    display: block;
+    margin: 0 auto 6px;
+    border-radius: 4px;
+}
+.comment-author .nickname {
+    font-size: 15px;
+    color: #333;
+}
+
+/* ============ 提交按钮紧凑 ============ */
+.leave-comment .actionPanel .btn-primary {
+    padding: 4px 12px;
+    font-size: 13px;
+}
+
+/* ============ entry-footer h4 缩小 ============ */
+.post-view .entry-footer h4 {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
 }
 
 /* Bootstrap 5 兼容：label → badge（还原 Bootstrap 3 .label：75% 字号 + 0.2em/0.6em padding） */
@@ -957,12 +1146,6 @@ a.badge:focus {
 
 .post-view .entry-meta .label-primary a {
     color: #fff;
-}
-
-.comment-reply-hint {
-    color: #5699D0;
-    margin: 6px 0 0;
-    min-height: 1.2em;
 }
 
 .replyTarget,

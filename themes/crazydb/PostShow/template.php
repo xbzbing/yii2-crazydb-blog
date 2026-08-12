@@ -32,6 +32,7 @@ use Yiisoft\Html\Html;
  * @var ?App\Post\Post $next
  * @var Yiisoft\Aliases\Aliases $aliases
  * @var ?string $csrf
+ * @var App\User\AuthService $authService
  */
 
 $this->setParameter('categorySummary', $categorySummary);
@@ -55,6 +56,32 @@ $postUrl = $post->getUrl($urlGenerator);
 $category = $categorySummary[(int)$post->cid] ?? null;
 $authorUrl = $urlGenerator->generate('user/show', ['name' => $post->author_name]);
 $isOld = (int)$post->post_time <= strtotime('-1 years');
+
+// 正文含代码块时注册 SyntaxHighlighter（sh/ 资源，等价 Yii2 前台优化加载）
+if (str_contains($contentHtml, '<pre class=')) {
+    $shBase = '/static/plugins/sh';
+    $this->registerCssFile($shBase . '/styles/shCore.css');
+    $this->registerCssFile($shBase . '/styles/shCoreRDark.css');
+    $this->registerJsFile($shBase . '/scripts/shCore.js');
+    $this->registerJsFile($shBase . '/scripts/shAutoloader.js');
+    $this->registerJs(
+        <<<JS
+        SyntaxHighlighter.autoloader(
+            'java {$shBase}/scripts/shBrushJava.js',
+            'php {$shBase}/scripts/shBrushPhp.js',
+            'python {$shBase}/scripts/shBrushPython.js',
+            'plain {$shBase}/scripts/shBrushPlain.js',
+            'html xml {$shBase}/scripts/shBrushXml.js',
+            'css {$shBase}/scripts/shBrushCss.js',
+            'js jscript javascript {$shBase}/scripts/shBrushJScript.js',
+            'bash shell {$shBase}/scripts/shBrushBash.js',
+            'sql {$shBase}/scripts/shBrushSql.js'
+        );
+        SyntaxHighlighter.all();
+        JS,
+        \Yiisoft\View\WebView::POSITION_READY,
+    );
+}
 ?>
 
 <div class="breadcrumbs">
@@ -161,7 +188,19 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
                         <?php if ($replyTo !== null): ?>
                             <span class="replyTarget">回复 <a href="#comment-<?= (int)$replyTo->id ?>"><em><?= Html::encode((string)$replyTo->nickname) ?></em></a> : </span>
                         <?php endif; ?>
-                        <?= Html::encode((string)$comment->content) ?>
+                        <?php
+                        /** @var list<string> $smilieList */
+                        $smilieList = \App\Common\CMSUtils::getSmilies();
+                        $commentText = Html::encode((string)$comment->content);
+                        foreach ($smilieList as $smilie) {
+                            $commentText = str_replace(
+                                ':' . $smilie . ':',
+                                '<img src="/static/images/smilie/icon_' . $smilie . '.gif" alt="' . $smilie . '" width="18" height="16">',
+                                $commentText,
+                            );
+                        }
+                        echo $commentText;
+                        ?>
                     </div>
                 </div>
             </div>
@@ -173,7 +212,20 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
             <form class="leave-comment row" method="post" action="<?= Html::encode($urlGenerator->generate('comment/add', ['id' => $post->id])) ?>">
                 <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
                 <input type="hidden" name="reply_to" value="0" id="parentId">
+                <?php $currentUser = $authService->currentUser(); ?>
                 <div class="col-md-4">
+                    <?php if ($currentUser !== null): ?>
+                    <div class="comment-author">
+                        <img class="avatar-thumb img-thumbnail" src="<?= Html::encode(XUtils::getAvatar($aliases, $currentUser->email, 80)) ?>" width="80" alt="<?= Html::encode($currentUser->nickname) ?>">
+                        <span class="nickname"><?= Html::encode($currentUser->nickname) ?></span>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text captcha-cover">
+                            <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="点击换图" title="点击换图" style="cursor:pointer" height="32">
+                        </span>
+                        <input type="text" required="required" class="form-control" name="captcha" placeholder="验证码">
+                    </div>
+                    <?php else: ?>
                     <div class="input-group mb-3">
                         <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
                         <input type="text" required="required" class="form-control" name="nickname" placeholder="* 昵称">
@@ -183,20 +235,42 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
                         <input type="email" required="required" class="form-control" name="email" placeholder="* 邮箱">
                     </div>
                     <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="fa-solid fa-globe"></i></span>
-                        <input type="text" maxlength="80" class="form-control" name="url" placeholder="网站地址">
-                    </div>
-                    <div class="input-group mb-3">
                         <span class="input-group-text captcha-cover">
                             <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="点击换图" title="点击换图" style="cursor:pointer" height="32">
                         </span>
                         <input type="text" required="required" class="form-control" name="captcha" placeholder="验证码">
                     </div>
+                    <?php endif; ?>
                 </div>
                 <div class="col-md-8">
+                    <div class="comment-smilie">
+                        <span class="smilie-img" id="smilie-container">
+                            <?php
+                            /** @var list<string> $smilies */
+                            $smilies = \App\Common\CMSUtils::getSmilies();
+                            $smilieUrl = '/static/images/smilie';
+                            $randomSmilie = $smilies[array_rand($smilies)];
+                            // 随机表情放首位并带真实 src，其余无 src（点击"更多"才加载）
+                            foreach ([$randomSmilie] + $smilies as $s) {
+                                $isRandom = $s === $randomSmilie;
+                                echo '<img data-type="comment-smilie" data-smilie="' . $s . '"'
+                                    . ($isRandom ? ' src="' . $smilieUrl . '/icon_' . $s . '.gif"' : '')
+                                    . ' width="18" height="16" alt="' . $s . '"'
+                                    . ($isRandom ? '' : ' data-loaded="0"') . '>';
+                            }
+                            ?>
+                        </span>
+                        <span id="more_smilie" title="更多表情"><i class="fa-solid fa-chevron-right"></i></span>
+                    </div>
                     <textarea class="form-control" required="required" name="content" id="comment-content" rows="5" placeholder="留下你的看法，欢迎交流 :)"></textarea>
-                    <p id="comment-form-hint" class="comment-reply-hint"></p>
                     <div class="actionPanel">
+                        <?php if ($currentUser !== null): ?>
+                        <div class="email-notify checkbox">
+                            <label>
+                                <input name="sendMail" value="1" type="checkbox"> 邮件通知对方
+                            </label>
+                        </div>
+                        <?php endif; ?>
                         <button type="submit" class="btn btn-primary">提交留言 <i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -210,9 +284,53 @@ $isOld = (int)$post->post_time <= strtotime('-1 years');
 <script>
     document.querySelectorAll('[data-reply-to]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            document.getElementById('parentId').value = btn.dataset.replyTo;
-            document.getElementById('comment-form-hint').textContent = '正在回复 @' + btn.dataset.replyName + '（可取消）';
+            var parentId = document.getElementById('parentId');
+            if (parentId.value === btn.dataset.replyTo) {
+                parentId.value = '0';
+            } else {
+                parentId.value = btn.dataset.replyTo;
+            }
             window.scrollTo({top: document.getElementById('comment-area').offsetTop - 80, behavior: 'smooth'});
         });
     });
+
+    // 表情展开（优化：默认只加载 1 个随机表情，点击"更多"才加载全部）
+    var moreSmilie = document.getElementById('more_smilie');
+    var smilieUrl = '<?= $smilieUrl ?>';
+    if (moreSmilie) {
+        moreSmilie.addEventListener('click', function () {
+            this.remove();
+            document.querySelectorAll('img[data-type=comment-smilie]').forEach(function(img) {
+                if (img.dataset.loaded === '0') {
+                    img.src = smilieUrl + '/icon_' + img.dataset.smilie + '.gif';
+                }
+            });
+            var container = document.getElementById('smilie-container');
+            if (container) {
+                container.style.width = 'auto';
+                container.style.overflow = 'visible';
+            }
+        });
+    }
+
+    // 表情插入 textarea
+    document.querySelectorAll('img[data-type=comment-smilie]').forEach(function(img) {
+        img.addEventListener('click', function() {
+            var ta = document.getElementById('comment-content');
+            if (!ta) return;
+            var tag = ' :' + this.dataset.smilie + ': ';
+            var start = ta.selectionStart, end = ta.selectionEnd;
+            ta.value = ta.value.substring(0, start) + tag + ta.value.substring(end);
+            ta.selectionStart = ta.selectionEnd = start + tag.length;
+            ta.focus();
+        });
+    });
+
+    // 验证码点击刷新
+    var captchaImg = document.querySelector('.captcha-cover img');
+    if (captchaImg) {
+        captchaImg.addEventListener('click', function() {
+            this.src = this.src.split('?')[0] + '?t=' + Date.now();
+        });
+    }
 </script>
