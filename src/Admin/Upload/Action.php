@@ -51,15 +51,17 @@ final readonly class Action
         $stream = $uploaded->getStream();
         $tmpFileMeta = $stream->getMetadata('uri');
         $tmpFile = is_string($tmpFileMeta) ? $tmpFileMeta : null;
-        if ($tmpFile !== null && is_file($tmpFile)) {
-            $info = @getimagesize($tmpFile);
-            $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
-            if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
-                return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
-            }
-            if (($info[0] ?? 0) > 8000 || ($info[1] ?? 0) > 8000) {
-                return $this->json(['code' => 1, 'msg' => '图片尺寸过大（最大 8000×8000）。']);
-            }
+        // 临时文件不可读（非真实文件路径，如 php://temp 等流包装器）时无法做内容校验，拒绝上传
+        if ($tmpFile === null || !is_file($tmpFile)) {
+            return $this->json(['code' => 1, 'msg' => '无法读取上传文件，请重试。']);
+        }
+        $info = @getimagesize($tmpFile);
+        $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
+            return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
+        }
+        if (($info[0] ?? 0) > 8000 || ($info[1] ?? 0) > 8000) {
+            return $this->json(['code' => 1, 'msg' => '图片尺寸过大（最大 8000×8000）。']);
         }
 
         $dir = $this->aliases->get('@public') . '/static/upload/' . date('Y/m');

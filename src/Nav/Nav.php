@@ -35,6 +35,7 @@ final class Nav extends ActiveRecord
      * 访问 URL：route=1 时 url 为路由名，经 UrlGenerator 解析；否则为普通链接。
      * 等价 Yii2 getUrl() 的 [$this->url] 数组形式（Url::to 解析路由）。
      * 路由名不存在时降级输出原文（避免全站 500）。
+     * 自定义链接再做一次协议兜底（防存量库中的 javascript:/data: 等危险 scheme 直出）。
      */
     public function getUrl(?UrlGeneratorInterface $urlGenerator = null): string
     {
@@ -42,10 +43,14 @@ final class Nav extends ActiveRecord
             try {
                 return $urlGenerator->generate($this->url);
             } catch (\Throwable) {
-                return $this->url;
+                // 路由名不存在：降级输出原文，但同样走协议兜底（防存量脏数据直出危险 scheme）
             }
         }
-        return $this->url;
+        $cleaned = preg_replace('/[\x00-\x20\x7F]/', '', $this->url) ?? $this->url;
+        $scheme = strtolower((string)parse_url($cleaned, PHP_URL_SCHEME));
+        return $scheme === '' || in_array($scheme, ['http', 'https', 'mailto', 'tel'], true)
+            ? $this->url
+            : '#';
     }
 
     /**

@@ -24,6 +24,15 @@ import { usePageTitle } from '../contexts/PageTitleContext'
 
 const DATA_TYPES = ['text', 'markdown', 'html', 'image', 'url', 'base64', 'hex']
 
+/** 预览 iframe 样式（sandbox 无 allow-scripts/allow-same-origin，隔离脚本执行） */
+const PREVIEW_IFRAME_STYLE = {
+  width: '100%',
+  height: 320,
+  border: '1px solid #eee',
+  borderRadius: 6,
+  background: '#fff',
+} as const
+
 /** 按 data_type 渲染配置值 */
 function ConfigValueView({ item }: { item: CustomConfigItem }) {
   const value = item.value || ''
@@ -44,19 +53,17 @@ function ConfigValueView({ item }: { item: CustomConfigItem }) {
       )
     case 'html':
       return value ? (
-        <div
-          style={{ maxHeight: 400, overflow: 'auto', wordBreak: 'break-word' }}
-          dangerouslySetInnerHTML={{ __html: value }}
-        />
+        <iframe title={item.name} sandbox="" srcDoc={value} style={PREVIEW_IFRAME_STYLE} />
       ) : (
         <Typography.Text type="secondary">（空）</Typography.Text>
       )
     case 'markdown':
       return value ? (
-        <div
-          className="config-markdown-view"
-          style={{ maxHeight: 400, overflow: 'auto', wordBreak: 'break-word', lineHeight: 1.8 }}
-          dangerouslySetInnerHTML={{ __html: marked.parse(value) as string }}
+        <iframe
+          title={item.name}
+          sandbox=""
+          srcDoc={marked.parse(value) as string}
+          style={PREVIEW_IFRAME_STYLE}
         />
       ) : (
         <Typography.Text type="secondary">（空）</Typography.Text>
