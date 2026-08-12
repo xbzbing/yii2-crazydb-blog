@@ -199,7 +199,14 @@ a.read-more:hover {
     margin-top: 0;
     padding-bottom: 4px;
     border-bottom: 2px dashed #DDDDDD;
-    font-size: 20px;
+    font-size: 24px;
+}
+
+/* 还原线上 site.css：entry-header 内 span（含分类 label）0.6em + 上移 4px */
+.entry-header span {
+    font-size: 0.6em;
+    position: relative;
+    top: -4px;
 }
 
 .entry-header .pl-category {
@@ -210,8 +217,8 @@ a.read-more:hover {
     text-decoration: none;
 }
 
-.pl-category:hover .badge {
-    background-color: #5CB85C !important;
+.pl-category:hover span {
+    background-color: #5CB85C;
 }
 
 .entry-content p {
@@ -635,14 +642,14 @@ ul.tags li {
     font-size: 1em;
 }
 
-/* Bootstrap 5 兼容：label → badge */
+/* Bootstrap 5 兼容：label → badge（还原 Bootstrap 3 .label：75% 字号 + 0.2em/0.6em padding） */
 .label {
     display: inline-block;
-    padding: 0.35em 0.65em;
-    font-size: 0.75em;
+    padding: 0.2em 0.6em 0.3em;
+    font-size: 75%;
     font-weight: 700;
     line-height: 1;
-    border-radius: 0.375rem;
+    border-radius: 0.25em;
 }
 
 .label-info {
@@ -677,16 +684,6 @@ ul.tags li {
 
 a .label:hover {
     opacity: 0.9;
-}
-
-/* Bootstrap 3 还原：h3 标题前的分类 label 更大、与标题留白 */
-.entry-header .pl-category .label,
-.entry-header h3 .label {
-    font-size: 0.9em;
-    top: -3px;
-    margin-right: 8px;
-    padding: 0.4em 0.8em;
-    vertical-align: middle;
 }
 
 /* Bootstrap 3 还原：评论数 badge（深灰胶囊，bootstrap 3 .badge 样式） */

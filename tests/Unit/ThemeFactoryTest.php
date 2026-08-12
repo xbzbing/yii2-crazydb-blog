@@ -36,8 +36,15 @@ final class ThemeFactoryTest extends TestCase
             $restore->type = $this->backupTheme->type;
             $restore->name = $this->backupTheme->name;
             $restore->value = $this->backupTheme->value;
-            $restore->update_time = $this->backupTheme->update_time;
+            // 恢复时用全新 update_time（当前 max+1）：若复用原值，缓存 key 会回到旧值，
+            // 命中测试期间残留的 config_sys 缓存（magazine/空值）→ 前台主题被"打回默认"。
+            $restore->update_time = (int)Option::query()->max('update_time') + 1;
             $restore->save();
+            // 测试期间 factoryWithOption 用 max+1 建过 key 并重建缓存（残留测试值），
+            // 这里清掉对应 key，前台下次访问从 DB 重建。
+            /** @var CacheInterface $cache */
+            $cache = $this->container()->get(CacheInterface::class);
+            $cache->remove('config_sys.' . $restore->update_time);
         }
         parent::tearDown();
     }
