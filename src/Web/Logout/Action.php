@@ -20,6 +20,7 @@ final readonly class Action
         private AuthService $authService,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private bool $rememberCookieSecure = false,
     ) {}
 
     public function __invoke(): ResponseInterface
@@ -28,9 +29,6 @@ final readonly class Action
         return $this->responseFactory
             ->createResponse(Status::FOUND)
             ->withHeader('Location', $this->urlGenerator->generate('site/index'))
-            ->withHeader(
-                'Set-Cookie',
-                RememberMeMiddleware::COOKIE_NAME . '=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax',
-            );
+            ->withHeader('Set-Cookie', RememberMeMiddleware::clearCookie($this->rememberCookieSecure));
     }
 }

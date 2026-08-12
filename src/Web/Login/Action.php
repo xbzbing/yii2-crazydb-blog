@@ -9,6 +9,7 @@ use App\Common\CMSUtils;
 use App\Log\Log;
 use App\Nav\Nav;
 use App\User\AuthService;
+use App\User\RememberMeMiddleware;
 use App\User\User;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -40,6 +41,7 @@ final readonly class Action
         private AuthService $authService,
         private CaptchaService $captcha,
         private FlashInterface $flash,
+        private bool $rememberCookieSecure = false,
     ) {}
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
@@ -75,9 +77,7 @@ final readonly class Action
                         if ($token !== null) {
                             $response = $response->withHeader(
                                 'Set-Cookie',
-                                \App\User\RememberMeMiddleware::COOKIE_NAME . '=' . rawurlencode($token)
-                                    . '; Path=/; Max-Age=' . \App\User\RememberMeMiddleware::COOKIE_TTL
-                                    . '; HttpOnly; SameSite=Lax',
+                                RememberMeMiddleware::buildCookie($token, $this->rememberCookieSecure),
                             );
                         }
                         return $response;
