@@ -19,7 +19,7 @@ vim .env   # 按需修改
 | `REDIS_PASSWORD` | 是 | Redis 密码 |
 | `NGINX_HTTP_PORT` / `NGINX_HTTPS_PORT` | 否 | 对外端口，默认 80/443 |
 | `MAILER_DSN` | 否 | SMTP DSN（symfony/mailer 格式），默认 `null://` 不发送 |
-| `COOKIE_SECURE` | 否 | HTTPS 部署设为 `true`（记住我 cookie Secure 标记） |
+| `COOKIE_SECURE` | 否 | HTTPS 部署设为 `true`（session 与记住我 cookie 均启用 Secure 标记） |
 | `CAPTCHA_DEBUG` | 否 | 仅开发环境设 `true`（验证码直通） |
 
 > 说明：生产部署由 `docker compose -f docker-compose-deploy.yml` 通过 `env_file: .env`

@@ -86,7 +86,7 @@ Yii2 版本无单元测试。Yii3 版本新增 phpunit 12 测试套件（自写�
 | 文件 | 覆盖内容 |
 |---|---|
 | UserActiveRecordTest | 用户 AR 读写、状态常量、密码验证 |
-| UserAuthTest | 登录/注册/登出/记住我/黑名单 |
+| UserAuthTest | 登录/注册/登出/记住我/黑名单/用户编辑 |
 | CommentServiceTest | 评论发布全流程（审核/防冒用/验证码/通知） |
 | MarkdownRendererTest | Markdown 渲染/缓存失效/format 分派 |
 | RoutesCompatibilityTest | 29 条 URL 兼容性基线 |
@@ -172,7 +172,7 @@ docker-compose-dev.yml      # 开发 Docker
 完整部署步骤见 [deploy.md](./deploy.md)（含 `.env` 配置说明）。常用命令（宿主机需 PHP 环境，或在容器内执行）：
 
 ```bash
-# 测试（165 tests / 452 assertions）
+# 测试（169 tests / 469 assertions）
 DB_HOST=127.0.0.1 DB_PORT=3306 DB_PASSWORD=mysql.password REDIS_PASSWORD=redis.password ./vendor/bin/phpunit
 
 # 数据库
