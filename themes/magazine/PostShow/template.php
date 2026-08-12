@@ -23,6 +23,7 @@ use Yiisoft\Html\Html;
  * @var string $contentHtml
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
+ * @var array<int, App\Comment\Comment> $replyMap
  * @var int $commentTotal
  * @var ?App\Post\Post $previous
  * @var ?App\Post\Post $next
@@ -137,7 +138,7 @@ $author = $post->getAuthor()->one();
         <p>暂时还没有评论，赶紧抢沙发吧！</p>
     <?php endif; ?>
     <?php foreach ($comments as $i => $comment): ?>
-        <?php $replyTo = $comment->isReply() ? $comment->getReply() : null; ?>
+        <?php $replyTo = isset($comment->reply_to) ? ($replyMap[(int)$comment->reply_to] ?? null) : null; ?>
         <div id="comment-<?= $comment->id ?>" class="comment">
             <div class="comment-meta">
                 <img src="<?= Html::encode(XUtils::getAvatar($aliases, (string)$comment->email, 32)) ?>" width="32" height="32" alt="">

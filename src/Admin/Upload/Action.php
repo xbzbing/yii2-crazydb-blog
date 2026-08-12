@@ -49,8 +49,9 @@ final readonly class Action
         }
         // 内容级校验（扩展名可伪造）：真实图片 magic bytes 校验
         $stream = $uploaded->getStream();
-        $tmpFile = $stream->getMetadata('uri');
-        if (is_string($tmpFile) && is_file($tmpFile)) {
+        $tmpFileMeta = $stream->getMetadata('uri');
+        $tmpFile = is_string($tmpFileMeta) ? $tmpFileMeta : null;
+        if ($tmpFile !== null && is_file($tmpFile)) {
             $info = @getimagesize($tmpFile);
             $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
             if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
@@ -65,8 +66,15 @@ final readonly class Action
         do {
             $fileName = date('YmdHis') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
         } while (file_exists($dir . '/' . $fileName));
+        $target = $dir . '/' . $fileName;
         try {
-            $uploaded->moveTo($dir . '/' . $fileName);
+            $reencoded = $tmpFile !== null ? $this->stripMetadata($tmpFile, $ext) : null;
+            if ($reencoded !== null) {
+                // GD 重编码成功（剥离 EXIF/GPS 等元数据），写入重编码结果
+                file_put_contents($target, $reencoded);
+            } else {
+                $uploaded->moveTo($target);
+            }
         } catch (\Throwable) {
             return $this->json(['code' => 1, 'msg' => '保存文件失败。']);
         }
@@ -76,6 +84,38 @@ final readonly class Action
             'data' => ['url' => '/static/upload/' . date('Y/m') . '/' . $fileName],
             'msg' => '',
         ]);
+    }
+
+    /**
+     * GD 重编码剥离元数据（EXIF/GPS/评论等）。失败返回 null（回退原文件）。
+     */
+    private function stripMetadata(string $file, string $ext): ?string
+    {
+        $image = match ($ext) {
+            'png' => @imagecreatefrompng($file),
+            'gif' => @imagecreatefromgif($file),
+            'webp' => @imagecreatefromwebp($file),
+            default => @imagecreatefromjpeg($file),
+        };
+        if ($image === false) {
+            return null;
+        }
+        ob_start();
+        try {
+            $ok = match ($ext) {
+                'png' => imagepng($image),
+                'gif' => imagegif($image),
+                'webp' => imagewebp($image),
+                default => imagejpeg($image, null, 90),
+            };
+            $data = (string) ob_get_clean();
+        } catch (\Throwable) {
+            ob_end_clean();
+            imagedestroy($image);
+            return null;
+        }
+        imagedestroy($image);
+        return $ok ? $data : null;
     }
 
     /**
