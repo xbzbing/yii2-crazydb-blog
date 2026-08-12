@@ -93,5 +93,6 @@ return [
             Route::get('/users')->action(\App\Admin\UserList\Action::class)->name('admin/user/list'),
             Route::get('/users/page/{page:\d+}')->action(\App\Admin\UserList\Action::class)->name('admin/user/list-page'),
             Route::post('/user/{action}/{id:\d+}')->action(\App\Admin\UserList\Action::class)->name('admin/user/action'),
+            Route::post('/upload/image')->action(\App\Admin\Upload\Action::class)->name('admin/upload/image'),
         ),
 ];
