@@ -30,11 +30,21 @@ final class UserActiveRecordTest extends TestCase
 
     public function testReadExistingRecord(): void
     {
-        $user = User::query()->findByPk(1);
+        // Create a test user to verify read operations
+        $user = new User();
+        $user->username = $this->username;
+        $user->nickname = 'test-nickname';
+        $user->email = $this->username . '@example.com';
+        $user->password = 'hash';
+        $user->save();
 
-        self::assertNotNull($user);
-        self::assertSame('dabing', $user->username);
-        self::assertSame('管理员', $user->nickname);
+        $id = $user->id;
+        self::assertNotNull($id);
+
+        $loaded = User::query()->findByPk($id);
+        self::assertNotNull($loaded);
+        self::assertSame($this->username, $loaded->username);
+        self::assertSame('test-nickname', $loaded->nickname);
     }
 
     public function testCreateAndUpdateAndDelete(): void

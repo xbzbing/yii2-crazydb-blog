@@ -7,4 +7,8 @@ use App\Console;
 return [
     'hello' => Console\HelloCommand::class,
     'visit/sync' => Console\VisitSyncCommand::class,
+    'init/env' => Console\InitEnvCommand::class,
+    'init/admin' => Console\InitAdminCommand::class,
+    'init/check' => Console\InitCheckCommand::class,
+    'init/migrate' => Console\InitMigrateCommand::class,
 ];
