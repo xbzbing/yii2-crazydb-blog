@@ -25,11 +25,13 @@
         <RedundantCast>
             <errorLevel type="suppress">
                 <directory name="src/Web" />
+                <directory name="src/Admin" />
             </errorLevel>
         </RedundantCast>
         <RedundantCastGivenDocblockType>
             <errorLevel type="suppress">
                 <directory name="src/Web" />
+                <directory name="src/Admin" />
             </errorLevel>
         </RedundantCastGivenDocblockType>
     </issueHandlers>
