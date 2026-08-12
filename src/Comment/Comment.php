@@ -11,7 +11,6 @@ use App\Option\Option;
 use App\Post\Post;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Cache\Dependency\CallbackDependency;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Comment extends ActiveRecord
@@ -88,8 +87,8 @@ final class Comment extends ActiveRecord
      * 最新评论列表（等价 Yii2 getRecentComments）：包含头像/文章链接，按 create_time 降序。
      *
      * @return list<array{
-     *     id: int, nickname: string, website: ?string, pid: int, post_url: ?string,
-     *     content: ?string, create_time: int, email: string, avatar: string, title: string
+     *     id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string,
+     *     content: ?string, create_time: ?int, email: string, avatar: string, title: string
      * }>
      */
     public static function getRecentComments(
@@ -100,12 +99,12 @@ final class Comment extends ActiveRecord
         bool $refresh = false,
         int $size = 40,
     ): array {
-        $key = '__recentComments';
+        $cacheKey = '__recentComments.' . (int)self::query()->max('update_time');
         if ($refresh) {
-            $cache->remove($key);
+            $cache->remove($cacheKey);
         }
-        return $cache->getOrSet(
-            $key,
+        /** @var list<array{id: ?int, nickname: string, website: ?string, pid: ?int, post_url: ?string, content: string, create_time: ?int, email: string, avatar: string, title: string}> $items */        $items = $cache->getOrSet(
+            $cacheKey,
             static function () use ($urlGenerator, $aliases, $limit, $size): array {
                 $items = [];
                 $comments = self::query()
@@ -130,10 +129,8 @@ final class Comment extends ActiveRecord
                 return $items;
             },
             3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('update_time'),
-            ),
         );
+        return $items;
     }
 
     /**

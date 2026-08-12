@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Common;
 
 use App\Option\Option;
-use Psr\SimpleCache\CacheInterface;
+use Yiisoft\Cache\CacheInterface;
 
 final class CMSUtils
 {
@@ -22,26 +22,28 @@ final class CMSUtils
     }
 
     /**
-     * 获取 Option 配置：PSR-16 缓存（TTL 3600）。
+     * 获取 Option 配置：缓存（TTL 3600，依赖 option 表 MAX(update_time)）。
      *
      * @return array<string, string|null>
      */
     public static function getSiteConfig(CacheInterface $cache, string $type = 'sys', bool $refresh = false): array
     {
-        $cacheKey = "config_{$type}";
-        if (!$refresh) {
-            $cached = $cache->get($cacheKey);
-            if (is_array($cached)) {
-                return $cached;
-            }
+        $cacheKey = 'config_' . $type . '.' . (int)Option::query()->max('update_time');
+        if ($refresh) {
+            $cache->remove($cacheKey);
         }
-
-        $config = [];
-        foreach (Option::query()->where(['type' => $type])->all() as $option) {
-            $config[$option->name] = $option->value;
-        }
-        $cache->set($cacheKey, $config, self::CACHE_TTL);
-
+        /** @var array<string, string|null> $config */
+        $config = $cache->getOrSet(
+            $cacheKey,
+            static function () use ($type): array {
+                $config = [];
+                foreach (Option::query()->where(['type' => $type])->all() as $option) {
+                    $config[$option->name] = $option->value;
+                }
+                return $config;
+            },
+            self::CACHE_TTL,
+        );
         return $config;
     }
 

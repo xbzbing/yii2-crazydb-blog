@@ -26,16 +26,6 @@
     <LessSpecificReturnStatement>
       <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
     </LessSpecificReturnStatement>
-    <MixedReturnStatement>
-      <code><![CDATA[$cache->getOrSet(
-            $key,
-            $callback,
-            3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
-        )]]></code>
-    </MixedReturnStatement>
     <MixedReturnTypeCoercion>
       <code><![CDATA[array<int, array{name: string, desc: ?string, url: ?string, postCount: int}>]]></code>
       <code><![CDATA[array<int, string>]]></code>
@@ -67,9 +57,6 @@
       <code><![CDATA[$category->id]]></code>
       <code><![CDATA[$category->name]]></code>
     </NoInterfaceProperties>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$callback]]></code>
-    </PossiblyInvalidArgument>
     <PossiblyInvalidMethodCall>
       <code><![CDATA[getPostCount]]></code>
     </PossiblyInvalidMethodCall>
@@ -80,9 +67,6 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Comment/Comment.php">
-    <InvalidArgument>
-      <code><![CDATA[$cache]]></code>
-    </InvalidArgument>
     <InvalidPropertyFetch>
       <code><![CDATA[$comment->content]]></code>
       <code><![CDATA[$comment->create_time]]></code>
@@ -109,38 +93,6 @@
     <MixedPropertyFetch>
       <code><![CDATA[$post?->title]]></code>
     </MixedPropertyFetch>
-    <MixedReturnStatement>
-      <code><![CDATA[$cache->getOrSet(
-            $key,
-            static function () use ($urlGenerator, $aliases, $limit, $size): array {
-                $items = [];
-                $comments = self::query()
-                    ->orderBy(['create_time' => SORT_DESC])
-                    ->limit($limit)
-                    ->all();
-                foreach ($comments as $comment) {
-                    $post = $comment->getPost();
-                    $items[] = [
-                        'id' => $comment->id,
-                        'nickname' => $comment->nickname,
-                        'website' => $comment->url,
-                        'pid' => $comment->pid,
-                        'post_url' => $post?->getUrl($urlGenerator) . '#comment-' . $comment->id,
-                        'content' => $comment->content,
-                        'create_time' => $comment->create_time,
-                        'email' => $comment->email,
-                        'avatar' => XUtils::getAvatar($aliases, $comment->email, $size),
-                        'title' => $post?->title ?? '',
-                    ];
-                }
-                return $items;
-            },
-            3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('update_time'),
-            ),
-        )]]></code>
-    </MixedReturnStatement>
     <NoInterfaceProperties>
       <code><![CDATA[$comment->content]]></code>
       <code><![CDATA[$comment->create_time]]></code>
@@ -188,15 +140,6 @@
       <code><![CDATA[$option->name]]></code>
       <code><![CDATA[$option->value]]></code>
     </InvalidPropertyFetch>
-    <InvalidReturnStatement>
-      <code><![CDATA[$config]]></code>
-    </InvalidReturnStatement>
-    <InvalidReturnType>
-      <code><![CDATA[array<string, string|null>]]></code>
-    </InvalidReturnType>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[$cached]]></code>
-    </MixedReturnTypeCoercion>
     <NoInterfaceProperties>
       <code><![CDATA[$option->name]]></code>
       <code><![CDATA[$option->value]]></code>
@@ -231,47 +174,6 @@
     <MixedPropertyFetch>
       <code><![CDATA[$child->name]]></code>
     </MixedPropertyFetch>
-    <MixedReturnStatement>
-      <code><![CDATA[$cache->getOrSet(
-            '__nav_tree',
-            static function (): array {
-                $items = [];
-                foreach (self::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all() as $node) {
-                    $children = [];
-                    foreach ($node->getChildren()->all() as $child) {
-                        $children[] = [
-                            'label' => $child->name,
-                            'url' => $child->getUrl(),
-                        ];
-                    }
-                    $items[$node->id] = [
-                        'label' => $node->name,
-                        'url' => $node->getUrl(),
-                        'items' => $children,
-                    ];
-                }
-                return $items;
-            },
-            3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
-        )]]></code>
-      <code><![CDATA[$cache->getOrSet(
-            '__parent_nav',
-            static function (): array {
-                $items = [];
-                foreach (self::query()->select('id,name')->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->asArray()->all() as $row) {
-                    $items[(int)$row['id']] = (string)$row['name'];
-                }
-                return $items;
-            },
-            3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
-        )]]></code>
-    </MixedReturnStatement>
     <MoreSpecificReturnType>
       <code><![CDATA[ActiveQuery]]></code>
     </MoreSpecificReturnType>
@@ -308,32 +210,6 @@
       <code><![CDATA[orderBy]]></code>
     </MixedMethodCall>
     <MixedReturnStatement>
-      <code><![CDATA[$cache->getOrSet(
-            $key,
-            function () use ($relation, $category, $simple): ?self {
-                $query = self::query()
-                    ->where(['in', 'status', self::visibleStatuses()])
-                    ->andWhere(['!=', 'id', $this->id]);
-                if ($category) {
-                    $query->andWhere(['cid' => $this->cid]);
-                }
-                if ($relation === 'before') {
-                    $query->andWhere(['<=', 'post_time', (int)$this->post_time])
-                        ->orderBy(['post_time' => SORT_DESC]);
-                } else {
-                    $query->andWhere(['>=', 'post_time', (int)$this->post_time])
-                        ->orderBy(['post_time' => SORT_ASC]);
-                }
-                if ($simple) {
-                    $query->select('id,title,alias,status');
-                }
-                return $query->one();
-            },
-            3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('update_time'),
-            ),
-        )]]></code>
       <code><![CDATA[$this->hasMany(Comment::class, ['pid' => 'id'])
             ->andOnCondition(['status' => Comment::STATUS_APPROVED])
             ->orderBy(['create_time' => SORT_ASC])]]></code>
@@ -350,35 +226,6 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Tag/Tag.php">
-    <MixedReturnStatement>
-      <code><![CDATA[$cache->getOrSet(
-            $key,
-            static function () use ($urlGenerator, $limit): array {
-                $query = self::query()
-                    ->select('name, COUNT(*) as totalCount, MAX(create_time) as create_time')
-                    ->groupBy('name')
-                    ->orderBy(['totalCount' => SORT_DESC]);
-                if ($limit > 0) {
-                    $query->limit($limit);
-                }
-                $items = [];
-                foreach ($query->asArray()->all() as $row) {
-                    $name = (string)$row['name'];
-                    $items[] = [
-                        'totalCount' => (int)$row['totalCount'],
-                        'name' => $name,
-                        'create_time' => (int)$row['create_time'],
-                        'url' => self::getUrl($urlGenerator, $name),
-                    ];
-                }
-                return $items;
-            },
-            3600,
-            new CallbackDependency(
-                static fn (): int => (int)self::query()->max('id'),
-            ),
-        )]]></code>
-    </MixedReturnStatement>
     <UndefinedInterfaceMethod>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>

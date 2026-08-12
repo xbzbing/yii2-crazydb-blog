@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Post\MarkdownRenderer;
-use Psr\SimpleCache\CacheInterface;
+use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Definitions\Reference;
 
 return [

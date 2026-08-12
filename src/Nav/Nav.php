@@ -7,7 +7,6 @@ namespace App\Nav;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Cache\Dependency\CallbackDependency;
 
 final class Nav extends ActiveRecord
 {
@@ -46,11 +45,13 @@ final class Nav extends ActiveRecord
      */
     public static function getParentNav(CacheInterface $cache, bool $refresh = false): array
     {
+        $cacheKey = '__parent_nav.' . (int)self::query()->max('update_time');
         if ($refresh) {
-            $cache->remove('__parent_nav');
+            $cache->remove($cacheKey);
         }
-        return $cache->getOrSet(
-            '__parent_nav',
+        /** @var array<int, string> $items */
+        $items = $cache->getOrSet(
+            $cacheKey,
             static function (): array {
                 $items = [];
                 foreach (self::query()->select('id,name')->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->asArray()->all() as $row) {
@@ -59,10 +60,8 @@ final class Nav extends ActiveRecord
                 return $items;
             },
             3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
         );
+        return $items;
     }
 
     /**
@@ -73,11 +72,13 @@ final class Nav extends ActiveRecord
      */
     public static function getNavTree(CacheInterface $cache, bool $refresh = false): array
     {
+        $cacheKey = '__nav_tree.' . (int)self::query()->max('update_time');
         if ($refresh) {
-            $cache->remove('__nav_tree');
+            $cache->remove($cacheKey);
         }
-        return $cache->getOrSet(
-            '__nav_tree',
+        /** @var array<int, array{label: string, url: string, items: array<int, array{label: string, url: string}>}> $items */
+        $items = $cache->getOrSet(
+            $cacheKey,
             static function (): array {
                 $items = [];
                 foreach (self::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all() as $node) {
@@ -97,9 +98,7 @@ final class Nav extends ActiveRecord
                 return $items;
             },
             3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
         );
+        return $items;
     }
 }

@@ -9,7 +9,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\Footnote\FootnoteExtension;
 use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
 use League\CommonMark\MarkdownConverter;
-use Psr\SimpleCache\CacheInterface;
+use Yiisoft\Cache\CacheInterface;
 
 /**
  * Markdown 渲染管线：commonmark(GFM) + SyntaxHighlighter 兼容代码块 + HTMLPurifier 净化。
@@ -51,12 +51,12 @@ final class MarkdownRenderer
     public function render(string $markdown, int $version = 0): string
     {
         $key = 'md.' . $version . '.' . sha1($markdown);
-        $cached = $this->cache->get($key);
-        if (is_string($cached)) {
-            return $cached;
-        }
-        $html = $this->renderUncached($markdown);
-        $this->cache->set($key, $html, self::CACHE_TTL);
+        /** @var string $html */
+        $html = $this->cache->getOrSet(
+            $key,
+            fn (): string => $this->renderUncached($markdown),
+            self::CACHE_TTL,
+        );
         return $html;
     }
 

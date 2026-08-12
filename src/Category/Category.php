@@ -7,7 +7,6 @@ namespace App\Category;
 use App\Post\Post;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Cache\Dependency\CallbackDependency;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Category extends ActiveRecord
@@ -97,16 +96,13 @@ final class Category extends ActiveRecord
      */
     private static function cached(CacheInterface $cache, string $key, bool $refresh, callable $callback): array
     {
+        $version = (int)self::query()->max('update_time');
+        $cacheKey = $key . '.' . $version;
         if ($refresh) {
-            $cache->remove($key);
+            $cache->remove($cacheKey);
         }
-        return $cache->getOrSet(
-            $key,
-            $callback,
-            3600,
-            new CallbackDependency(
-                static fn(): int => (int)self::query()->max('update_time'),
-            ),
-        );
+        /** @var array $value */
+        $value = $cache->getOrSet($cacheKey, static fn (): array => $callback(), 3600);
+        return $value;
     }
 }
