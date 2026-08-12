@@ -14,6 +14,7 @@ use Yiisoft\Router\Route;
 return [
     Group::create()
         ->routes(
+            Route::get('/sitemap.xml')->action(Web\Sitemap\Action::class)->name('sitemap'),
             // Home
             Route::get('/')->action(Web\HomePage\Action::class)->name('site/index'),
             Route::get('/page/{page:\d+}')->action(Web\HomePage\Action::class)->name('site/index-page'),
