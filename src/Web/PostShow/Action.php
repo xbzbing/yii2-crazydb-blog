@@ -46,6 +46,14 @@ final readonly class Action
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
         $comments = $post->getComments()->all();
         $total = count($comments);
+        // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）
+        if ($total !== (int)$post->comment_count) {
+            $post->comment_count = $total;
+            try {
+                $post->save();
+            } catch (\Throwable) {
+            }
+        }
         $previous = $post->getRelatedOne($this->urlGenerator, $this->cache, 'before', false, false);
         $next = $post->getRelatedOne($this->urlGenerator, $this->cache, 'after', false, false);
         // 隐藏文章不公开全文，仅显示摘要（对齐 Yii2 实际行为：密码验证早已停用）

@@ -90,16 +90,14 @@ final class CommentService
                 ->where(['or', ['email' => $comment->email], ['nickname' => $comment->nickname]])
                 ->one();
             if ($user !== null) {
-                $info = '<p>留言失败！</p>';
-                $safeEmail = htmlspecialchars($comment->email, ENT_QUOTES);
-                $safeNickname = htmlspecialchars($comment->nickname, ENT_QUOTES);
+                $info = '留言失败！';
                 if ($user->email === $comment->email) {
-                    $info .= "<p>当前邮箱&lt;{$safeEmail}&gt;已经被注册，</p>";
+                    $info .= " 当前邮箱<{$comment->email}>已经被注册，";
                 }
                 if ($user->nickname === $comment->nickname) {
-                    $info .= "<p>当前用户昵称&lt;{$safeNickname}&gt;已经被注册，</p>";
+                    $info .= " 当前用户昵称<{$comment->nickname}>已经被注册，";
                 }
-                $info .= '<p>为防止用户身份被冒用，请登录后再留言。</p>';
+                $info .= ' 为防止用户身份被冒用，请登录后再留言。';
                 return ['status' => 'fail', 'info' => $info];
             }
         }
@@ -115,7 +113,7 @@ final class CommentService
         try {
             $comment->save();
         } catch (\Throwable) {
-            return ['status' => 'fail', 'info' => '<p>留言失败！</p>'];
+            return ['status' => 'fail', 'info' => '留言失败！'];
         }
 
         $this->notify($comment, filter_var($data['sendMail'] ?? false, FILTER_VALIDATE_BOOLEAN), $display === 1);

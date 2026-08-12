@@ -11,11 +11,10 @@ use App\User\User;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Session\Flash\Flash;
+use Yiisoft\Session\Flash\FlashInterface;
 
 /**
  * 评论发布（POST）：调 CommentService 全流程，结果 flash 后重定向回文章页。
@@ -27,7 +26,7 @@ final readonly class Action
         private CommentService $commentService,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
-        private Flash $flash,
+        private FlashInterface $flash,
         private SessionAuthMethod $authMethod,
     ) {}
 
@@ -35,10 +34,6 @@ final readonly class Action
         ServerRequestInterface $request,
         #[RouteArgument] int $id,
     ): ResponseInterface {
-        if ($request->getMethod() !== Method::POST) {
-            return $this->redirect($id);
-        }
-
         $post = Post::findVisibleById($id);
         if ($post === null) {
             return $this->redirect(null);
@@ -73,16 +68,17 @@ final readonly class Action
 
     private function redirect(?int $postId): ResponseInterface
     {
-        if ($postId === null) {
-            $uri = $this->urlGenerator->generate('site/index');
-        } else {
+        if ($postId !== null) {
             $post = Post::findVisibleById($postId);
-            $uri = $post !== null && $post->alias !== ''
-                ? $this->urlGenerator->generate('post/show', ['alias' => $post->alias])
-                : $this->urlGenerator->generate('site/index');
+            if ($post !== null) {
+                $uri = $this->urlGenerator->generate('post/show', ['alias' => $post->alias]);
+                return $this->responseFactory
+                    ->createResponse(Status::FOUND)
+                    ->withHeader('Location', $uri);
+            }
         }
         return $this->responseFactory
             ->createResponse(Status::FOUND)
-            ->withHeader('Location', $uri);
+            ->withHeader('Location', $this->urlGenerator->generate('site/index'));
     }
 }
