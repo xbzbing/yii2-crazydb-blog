@@ -61,9 +61,30 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
     <label class="admin-check"><input type="checkbox" name="is_top" value="1"<?= $post->is_top ? ' checked' : '' ?>> 置顶</label>
     <label>摘要（可选）：<textarea name="excerpt" rows="3"><?= Html::encode((string)$post->excerpt) ?></textarea></label>
     <label>正文：
-        <textarea name="content" rows="16" class="admin-content"><?= Html::encode((string)$post->content) ?></textarea>
+        <textarea name="content" rows="16" class="admin-content" id="post-content"><?= Html::encode((string)$post->content) ?></textarea>
+        <div id="vditor-container"></div>
     </label>
     <label>访问密码（可选，隐藏文章用）：<input type="text" name="password" value="<?= Html::encode((string)$post->password) ?>"></label>
     <button type="submit">保存</button>
     <a href="<?= Html::encode($urlGenerator->generate('admin/post/list')) ?>">返回列表</a>
 </form>
+
+<?php if ($post->format === App\Post\Post::FORMAT_MARKDOWN): ?>
+    <link rel="stylesheet" href="/static/vditor/index.css">
+    <link rel="stylesheet" href="/static/vditor/css/github.css">
+    <script src="/static/vditor/index.min.js"></script>
+    <script>
+        (function () {
+            var content = document.getElementById('post-content');
+            var vditor = new Vditor('vditor-container', {
+                cdn: '/static/vditor',
+                mode: 'ir',
+                height: 420,
+                lang: 'zh_CN',
+                value: content.value,
+                input: function (value) { content.value = value; },
+                after: function () { content.style.display = 'none'; }
+            });
+        })();
+    </script>
+<?php endif; ?>
