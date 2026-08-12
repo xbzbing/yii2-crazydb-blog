@@ -47,12 +47,24 @@ final readonly class Action
         if (!in_array($ext, self::ALLOWED_EXT, true)) {
             return $this->json(['code' => 1, 'msg' => '仅支持 png/jpg/gif/webp 图片。']);
         }
+        // 内容级校验（扩展名可伪造）：真实图片 magic bytes 校验
+        $stream = $uploaded->getStream();
+        $tmpFile = $stream->getMetadata('uri');
+        if (is_string($tmpFile) && is_file($tmpFile)) {
+            $info = @getimagesize($tmpFile);
+            $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+            if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
+                return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
+            }
+        }
 
         $dir = $this->aliases->get('@public') . '/static/upload/' . date('Y/m');
         if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
             return $this->json(['code' => 1, 'msg' => '无法创建上传目录。']);
         }
-        $fileName = date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        do {
+            $fileName = date('YmdHis') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+        } while (file_exists($dir . '/' . $fileName));
         try {
             $uploaded->moveTo($dir . '/' . $fileName);
         } catch (\Throwable) {

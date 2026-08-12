@@ -43,3 +43,4 @@ public/static/avatar
 
 # phpunit cache
 .phpunit.cache/
+public/static/upload/

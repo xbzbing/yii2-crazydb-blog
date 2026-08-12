@@ -9,20 +9,43 @@ use App\Post\Post;
 use App\Tag\Tag;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 /**
- * XML Sitemap：固定页 + 文章（published）+ 分类 + 标签。
+ * XML Sitemap：固定页 + 文章（published）+ 分类 + 标签（版本化缓存 1h）。
  */
 final readonly class Action
 {
     public function __construct(
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private CacheInterface $cache,
     ) {
     }
 
     public function __invoke(): ResponseInterface
+    {
+        $version = max(
+            (int)Post::query()->max('update_time'),
+            (int)Category::query()->max('update_time'),
+            (int)Tag::query()->max('id'),
+        );
+        /** @var string $body */
+        $body = $this->cache->getOrSet(
+            '__sitemap.' . $version,
+            fn (): string => $this->buildXml(),
+            3600,
+        );
+
+        $response = $this->responseFactory->createResponse();
+        $response->getBody()->write($body);
+        return $response
+            ->withHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->withHeader('Cache-Control', 'public, max-age=3600');
+    }
+
+    private function buildXml(): string
     {
         $urls = [
             ['loc' => $this->urlGenerator->generateAbsolute('site/index'), 'priority' => '1.0'],
@@ -52,7 +75,7 @@ final readonly class Action
         $categories = Category::query()->all();
         foreach ($categories as $category) {
             $urls[] = [
-                'loc' => $this->urlGenerator->generateAbsolute('category/show', ['alias' => $category->alias]),
+                'loc' => $category->getUrl($this->urlGenerator),
                 'priority' => '0.7',
             ];
         }
@@ -77,11 +100,7 @@ final readonly class Action
         }
         $body .= '</urlset>';
 
-        $response = $this->responseFactory->createResponse();
-        $response->getBody()->write($body);
-        return $response
-            ->withHeader('Content-Type', 'application/xml; charset=UTF-8')
-            ->withHeader('Cache-Control', 'no-cache');
+        return $body;
     }
 
     private function escape(string $text): string
