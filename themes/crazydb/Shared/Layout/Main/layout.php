@@ -96,17 +96,33 @@ $this->beginPage()
                                     <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a></li>
                                 </ul>
                                 <ul class="navbar-nav">
-                                    <?php if ($currentUser !== null): ?>
-                                        <li class="nav-item"><a class="nav-link" href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a></li>
-                                        <li class="nav-item">
-                                            <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="d-inline">
-                                                <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
-                                                <button type="submit" class="btn btn-link nav-link">退出</button>
-                                            </form>
+                                    <?php if ($currentUser === null): ?>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">用户 <span class="caret"></span></a>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
+                                                <li><a class="dropdown-item" href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                                            </ul>
                                         </li>
                                     <?php else: ?>
-                                        <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>
-                                        <li class="nav-item"><a class="nav-link" href="<?= $urlGenerator->generate('site/register') ?>">注册</a></li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false"><?= Html::encode($currentUser->nickname) ?> <span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" href="<?= Html::encode($urlGenerator->generate('user/profile', ['name' => $currentUser->nickname])) ?>">个人资料</a></li>
+                                                <li><a class="dropdown-item" href="<?= $urlGenerator->generate('user/modify-password') ?>">修改密码</a></li>
+                                                <?php if ($currentUser->isAdmin()): ?>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" href="<?= $urlGenerator->generate('admin/index') ?>">管理后台</a></li>
+                                                <?php endif; ?>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="m-0" id="logout-form">
+                                                        <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                                                        <button type="submit" class="dropdown-item">退出</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </li>
                                     <?php endif; ?>
                                 </ul>
                             </div>

@@ -36,10 +36,12 @@ if ($tagNames !== []) {
 }
 $this->setParameter('seo_keywords', $keywords);
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
+
+$tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
 ?>
 
-<div class="breadcrumbs">
-    <i class="fa-solid fa-angle-right"></i>
+<div class="breadcrumbs with-shadow">
+    <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     » 所有标签
 </div>
@@ -54,8 +56,9 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
             <p>暂无标签。</p>
         <?php endif; ?>
         <?php foreach ($tags as $tag): ?>
+            <?php $color = $tagColors[random_int(0, 5)]; ?>
             <a href="<?= Html::encode($tag['url']) ?>" title="<?= Html::encode($tag['name']) ?>（<?= (int)$tag['totalCount'] ?> 篇文章）" target="_blank">
-                <span class="badge text-bg-primary"><?= Html::encode($tag['name']) ?></span>
+                <span class="badge label-<?= $color ?>"><?= Html::encode($tag['name']) ?></span>
             </a>
         <?php endforeach; ?>
     </div>

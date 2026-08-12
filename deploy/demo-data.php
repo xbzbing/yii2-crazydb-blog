@@ -370,7 +370,7 @@ echo "插入评论...\n";
 $comments = [
     // [文章idx, 昵称, 邮箱, 内容, 状态, replyToIdx(0=无)]
     [0, '访客小明', 'xiaoming@example.com', '迁移到 Yii3 的收益这么明显吗？我正在犹豫要不要从 Yii2 升级。', 'approved', 0],
-    [0, 'dabing', 'dabing@example.com', '如果项目还在活跃开发，强烈建议迁移；纯维护的话可以再等等。', 'approved', 0],
+    [0, 'dabing', 'dabing@example.com', '如果项目还在活跃开发，强烈建议迁移；纯维护的话可以再等等。', 'approved', 1],
     [0, '路过的人', 'passer@example.com', '感谢分享，路由从配置到代码这个变化最直观。', 'approved', 0],
     [1, 'DBA老王', 'laowang@example.com', '覆盖索引那一段太实用了，我们线上也有类似的慢查询。', 'approved', 0],
     [2, '缓存小白', 'cache@example.com', '版本化 key 这个思路很妙，学习了！', 'approved', 0],
@@ -379,7 +379,7 @@ $comments = [
     [6, '面试者', 'job@example.com', 'match 表达式真的比 switch 优雅太多了。', 'approved', 0],
     [6, '待审核用户', 'spam@example.com', '（这是一条待审核评论，用来测试后台审核流程）', 'unapproved', 0],
     [8, '强迫症', 'ocd@example.com', '手冲 1:15 是不是浓了点？我喜欢 1:16.5。', 'approved', 0],
-    [8, 'dabing', 'dabing@example.com', '看豆子，浅烘我会用 1:16，深烘 1:14 左右。', 'approved', 0],
+    [8, 'dabing', 'dabing@example.com', '看豆子，浅烘我会用 1:16，深烘 1:14 左右。', 'approved', 10],
 ];
 $commentIds = [];
 foreach ($comments as [$pidx, $nick, $email, $content, $status, $replyIdx]) {
@@ -430,11 +430,6 @@ foreach ($navs as [$name, $url, $route, $sort]) {
     echo "  - $name ($url)\n";
 }
 
-// 确保墨刊主题仍在（验收默认外观）
-$cmd->setSql(
-    "INSERT INTO `option` (`type`, `name`, `value`, `update_time`) VALUES ('sys', 'theme', 'magazine', :ut)
-     ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `update_time` = VALUES(`update_time`)",
-)->bindValues([':ut' => $now])->execute();
+// 主题是站点配置而非演示数据，保持现状（后台 配置-前台主题 可切换）
 
 echo "\n完成！分类 " . count($cats) . ' 个、文章 ' . count($posts) . ' 篇、标签 ' . $tagCount . ' 条、评论 ' . count($comments) . ' 条、导航 ' . count($navs) . ' 条。' . PHP_EOL;
-echo "主题：magazine（墨刊）。\n";

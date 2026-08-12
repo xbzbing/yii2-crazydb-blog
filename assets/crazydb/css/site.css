@@ -681,3 +681,156 @@ ul.tags li {
 a .label:hover {
     opacity: 0.9;
 }
+
+/* ============ 归档时间轴（提取自线上 archives.php 内联样式） ============ */
+#archives h2 small {
+    padding-left: 5px;
+    color: #999999;
+}
+
+#archives ul,
+#archives ol {
+    list-style: none;
+}
+
+#archives ol li {
+    border-left: none;
+}
+
+#archives .first {
+    padding-top: 10px;
+}
+
+#archives .else {
+    padding-left: 25px;
+}
+
+#archives .else em {
+    display: none !important;
+}
+
+.archives > li {
+    font-size: 1.1em;
+    border-left: 6px solid #0FABF8;
+    line-height: 1.5em;
+}
+
+.archives li em {
+    border-radius: 50%;
+    background: #0FABF8;
+    height: 40px;
+    width: 40px;
+    line-height: 40px;
+    color: #FFFFFF;
+    text-align: center;
+    display: inline-block;
+    margin-left: -23px;
+    margin-right: 8px;
+    padding-right: 3px;
+}
+
+.archives li:hover > a {
+    text-shadow: 0 1px 0 #37a4ff;
+}
+
+.archives h4,
+.archives h3 {
+    background: #0FABF8;
+    border-radius: 20px;
+    height: 40px;
+    margin: 0 auto 0 -23px;
+    line-height: 40px;
+    text-align: center;
+    color: white;
+    font-weight: bolder;
+    font-size: 16px;
+}
+
+.archives h3 {
+    position: relative;
+    width: 80%;
+    min-width: 180px;
+    padding-top: 0;
+}
+
+.archives h4 {
+    width: 30%;
+    min-width: 120px;
+}
+
+.archives time {
+    color: #999999;
+    font-size: 0.8em;
+    float: right;
+}
+
+.archives small {
+    margin-left: 10px;
+    color: #999999;
+}
+
+.archives small a {
+    color: #999999;
+}
+
+.archives small:hover,
+.archives small:hover a {
+    color: #4a4a4a;
+}
+
+.archives .year:hover h3,
+.archives .month:hover h4 {
+    background: orange;
+}
+
+.archives .year,
+.archives .month {
+    padding-top: 10px;
+}
+
+.archives .future em {
+    position: relative;
+    top: -4px;
+}
+
+/* ============ 详情页细节 ============ */
+.post-view .entry-meta .pl-category {
+    font-size: 0.9em;
+    top: 0;
+    margin-right: 6px;
+}
+
+.post-view .entry-meta .label-primary a {
+    color: #fff;
+}
+
+.comment-reply-hint {
+    color: #5699D0;
+    margin: 6px 0 0;
+    min-height: 1.2em;
+}
+
+.replyTarget,
+.replyTarget a {
+    color: #A0A0A0;
+}
+
+.comment-panel .avatar {
+    float: left;
+    margin-right: 10px;
+}
+
+.comment-panel.reply-to {
+    margin-left: 40px;
+    border-left: 2px dashed #DDDDDD;
+    padding-left: 10px;
+}
+
+.captcha-cover {
+    padding: 0 3px;
+}
+
+/* 隐藏文章密码提示 */
+.badge.text-bg-warning a {
+    color: inherit;
+}

@@ -38,16 +38,16 @@ $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 ?>
 
-<div class="breadcrumbs">
-    <i class="fa-solid fa-angle-right"></i>
+<div class="breadcrumbs with-shadow">
+    <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
     » <a href="<?= $urlGenerator->generate('post/archives') ?>">文章归档</a>
     » <?= Html::encode($date) ?>
 </div>
 
-<div class="list-header with-shadow">
-    <h1><i class="fa-solid fa-calendar-days"></i>文章归档：<?= Html::encode($date) ?></h1>
-</div>
+<header class="tag-info list-header">
+    <h1><i class="fa-solid fa-calendar-days"></i>文章归档：<?= Html::encode($date) ?> <small>共 <?= (int)$pager->totalCount ?> 篇</small></h1>
+</header>
 
 <?= $this->render('PostList/postList.php', [
     'posts' => $posts,

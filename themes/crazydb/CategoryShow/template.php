@@ -36,15 +36,16 @@ $this->setParameter('seo_keywords', (string)($category->keywords !== '' ? $categ
 $this->setParameter('seo_description', (string)($category->desc ?? ''));
 ?>
 
-<div class="breadcrumbs">
-    <i class="fa-solid fa-angle-right"></i>
+<div class="breadcrumbs with-shadow">
+    <i class="fa-solid fa-location-dot"></i>
     <a href="<?= $urlGenerator->generate('site/index') ?>">首页</a>
-    » <?= Html::encode($category->name) ?>
+    » <a href="<?= $urlGenerator->generate('post/archives') ?>">文章归档</a>
+    » 分类文章
 </div>
 
-<div class="list-header with-shadow">
-    <h1><i class="fa-solid fa-folder-open"></i><?= Html::encode($category->name) ?></h1>
-</div>
+<header class="tag-info list-header">
+    <h1><i class="fa-solid fa-list"></i><?= Html::encode($category->name) ?> <small>共 <?= (int)$pager->totalCount ?> 篇</small></h1>
+</header>
 
 <?= $this->render('PostList/postList.php', [
     'posts' => $posts,
