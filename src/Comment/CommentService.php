@@ -1,0 +1,155 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Comment;
+
+use App\Captcha\CaptchaService;
+use App\Common\CMSUtils;
+use App\Common\XUtils;
+use App\Log\Log;
+use App\Mail\NoticeService;
+use App\Option\Option;
+use App\Post\Post;
+use App\User\User;
+use Yiisoft\Cache\CacheInterface;
+
+/**
+ * 评论发布服务：对齐 Yii2 CommentController::actionAdd 全流程
+ * （选项开关 → 身份填充/防冒用 → antiSpam → 保存 → 邮件通知）。
+ */
+final class CommentService
+{
+    public function __construct(
+        private CacheInterface $cache,
+        private CaptchaService $captcha,
+        private NoticeService $noticeService,
+        private string $adminEmail,
+    ) {
+    }
+
+    /**
+     * @param array{content?: string, nickname?: string, email?: string, url?: string, reply_to?: int, sendMail?: bool} $data
+     * @param array{ip: string, userAgent: string} $request
+     * @return array{status: string, info: string, comment?: Comment, display?: int}
+     */
+    public function add(int $postId, array $data, array $request, ?User $currentUser = null): array
+    {
+        if (CMSUtils::getSysConfig($this->cache->psr(), Option::ALLOW_COMMENT) !== Option::STATUS_OPEN) {
+            return ['status' => 'fail', 'info' => '留言功能已被关闭。'];
+        }
+
+        $info = '留言成功！';
+        $display = 1;
+        $status = Comment::STATUS_UNAPPROVED;
+        if (CMSUtils::getSysConfig($this->cache->psr(), Option::AUDIT_ON_COMMENT) === Option::STATUS_OPEN) {
+            $info .= '您的留言需要经过管理员的审核才可以显示出来。';
+            $display = 0;
+        } else {
+            $status = Comment::STATUS_APPROVED;
+        }
+
+        $comment = new Comment();
+        $comment->pid = $postId;
+        $comment->nickname = trim((string)($data['nickname'] ?? ''));
+        $comment->email = trim((string)($data['email'] ?? ''));
+        $comment->url = $data['url'] ?? null;
+        $comment->reply_to = isset($data['reply_to']) ? (int)$data['reply_to'] : null;
+        $comment->content = (string)($data['content'] ?? '');
+        $comment->status = $status;
+
+        if ($comment->nickname === '' || $comment->email === '' || $comment->content === '') {
+            return ['status' => 'fail', 'info' => '请填写留言内容'];
+        }
+        if (!$this->captcha->validate((string)($data['captcha'] ?? ''))) {
+            return ['status' => 'fail', 'info' => '验证码错误'];
+        }
+        if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
+            return ['status' => 'fail', 'info' => '不是有效的E-mail地址。'];
+        }
+        if ($comment->url !== null && $comment->url !== '') {
+            $scheme = parse_url($comment->url, PHP_URL_SCHEME);
+            if (!is_string($scheme) || !in_array(strtolower($scheme), ['http', 'https'], true)) {
+                return ['status' => 'fail', 'info' => 'URL地址不合法，需要以http或https开头'];
+            }
+            if (!filter_var($comment->url, FILTER_VALIDATE_URL)) {
+                return ['status' => 'fail', 'info' => 'URL地址不合法，需要以http或https开头'];
+            }
+        }
+
+        if ($currentUser !== null) {
+            $comment->uid = $currentUser->id;
+            $comment->nickname = $currentUser->nickname;
+            $comment->email = $currentUser->email;
+            $comment->url = $currentUser->website ?: $comment->url;
+        } else {
+            $comment->uid = null;
+            // 保护注册用户不被冒用身份
+            $user = User::query()
+                ->where(['or', ['email' => $comment->email], ['nickname' => $comment->nickname]])
+                ->one();
+            if ($user !== null) {
+                $info = '<p>留言失败！</p>';
+                $safeEmail = htmlspecialchars($comment->email, ENT_QUOTES);
+                $safeNickname = htmlspecialchars($comment->nickname, ENT_QUOTES);
+                if ($user->email === $comment->email) {
+                    $info .= "<p>当前邮箱&lt;{$safeEmail}&gt;已经被注册，</p>";
+                }
+                if ($user->nickname === $comment->nickname) {
+                    $info .= "<p>当前用户昵称&lt;{$safeNickname}&gt;已经被注册，</p>";
+                }
+                $info .= '<p>为防止用户身份被冒用，请登录后再留言。</p>';
+                return ['status' => 'fail', 'info' => $info];
+            }
+        }
+
+        $log = new Log();
+        if (!$comment->passAntiSpam($log)) {
+            return ['status' => 'fail', 'info' => 'Your message is blocked by anti-spam policy, please try again.'];
+        }
+
+        $comment->sanitize();
+        $comment->fillDefaultsForInsert($request['ip'], $request['userAgent']);
+
+        try {
+            $comment->save();
+        } catch (\Throwable) {
+            return ['status' => 'fail', 'info' => '<p>留言失败！</p>'];
+        }
+
+        $this->notify($comment, (bool)($data['sendMail'] ?? false), $display === 1);
+        return ['status' => 'success', 'info' => $info, 'comment' => $comment, 'display' => $display];
+    }
+
+    /**
+     * 邮件通知：回复者 + 管理员（对齐 Yii2 通知逻辑）。
+     */
+    private function notify(Comment $comment, bool $sendMail, bool $approved): void
+    {
+        if (!$this->noticeService->isEnabled()) {
+            return;
+        }
+        $post = $comment->getPost();
+        $postTitle = $post?->title ?? '';
+
+        if ($sendMail && $approved && $comment->isReply()) {
+            $replyTo = $comment->getReply();
+            if ($replyTo !== null && $replyTo->email !== $comment->email && $replyTo->email !== $this->adminEmail) {
+                $this->noticeService->sendNotice(
+                    $replyTo->email,
+                    $replyTo->nickname,
+                    '你的留言有新的回复',
+                    "<p>{$comment->nickname} 在《{$postTitle}》上回复了你：</p><br><p>{$comment->content}</p>",
+                );
+            }
+        }
+        if ($this->adminEmail !== $comment->email) {
+            $this->noticeService->sendNotice(
+                $this->adminEmail,
+                '网站管理员',
+                '网站有新的留言',
+                "<p>{$comment->nickname} 在《{$postTitle}》发表了评论：</p><br><p>{$comment->content}</p>",
+            );
+        }
+    }
+}
