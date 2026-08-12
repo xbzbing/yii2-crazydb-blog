@@ -54,6 +54,16 @@ final class Category extends ActiveRecord
     }
 
     /**
+     * 前台按 alias 取分类（对齐 Yii2 Category::findByAlias）。
+     */
+    public static function findByAlias(string $alias): ?self
+    {
+        /** @var ?self $model */
+        $model = self::query()->where(['alias' => $alias])->one();
+        return $model;
+    }
+
+    /**
      * 获取所有的文章分类（id => name）。
      * 等价 Yii2 Category::getAllCategories，DbDependency 用 CallbackDependency 实现。
      *
