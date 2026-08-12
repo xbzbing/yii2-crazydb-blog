@@ -18,6 +18,9 @@ final class User extends ActiveRecord implements IdentityInterface
     public const ROLE_EDITOR = 8;
     public const ROLE_ADMIN = 16;
 
+    /** Session 登录态 key（AuthService/SessionAuthMethod/RememberMeMiddleware 共用） */
+    public const SESSION_AUTH_KEY = 'authUserId';
+
     /** 注册黑名单（用户名/昵称） */
     public const NAME_BLACKLIST = ['admin'];
 

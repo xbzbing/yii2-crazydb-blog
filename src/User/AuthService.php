@@ -15,7 +15,7 @@ final class AuthService
     public function __construct(
         private SessionInterface $session,
         private UserRepository $userRepository,
-        private string $sessionKey = 'authUserId',
+        private string $sessionKey = User::SESSION_AUTH_KEY,
     ) {
     }
 

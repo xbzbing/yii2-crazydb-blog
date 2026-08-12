@@ -67,11 +67,20 @@ final readonly class Action
                     $this->recordFailure($request, $username, '用户名和密码不匹配。');
                 } else {
                     try {
-                        $this->authService->login($user, $rememberMe);
+                        $token = $this->authService->login($user, $rememberMe);
                         $this->session->remove('login_failures');
                         $this->session->remove('login_locked_until');
                         (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$user->id, Log::STATUS_SUCCESS, "用户「{$username}」成功!", (int)$user->id);
-                        return $this->redirectHome();
+                        $response = $this->redirectHome();
+                        if ($token !== null) {
+                            $response = $response->withHeader(
+                                'Set-Cookie',
+                                \App\User\RememberMeMiddleware::COOKIE_NAME . '=' . rawurlencode($token)
+                                    . '; Path=/; Max-Age=' . \App\User\RememberMeMiddleware::COOKIE_TTL
+                                    . '; HttpOnly; SameSite=Lax',
+                            );
+                        }
+                        return $response;
                     } catch (\App\Common\CMSException $e) {
                         $this->recordFailure($request, $username, $e->getMessage());
                     }
