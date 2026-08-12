@@ -8,6 +8,7 @@ use App\Post\Post;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Cache\Dependency\CallbackDependency;
+use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Category extends ActiveRecord
 {
@@ -32,6 +33,17 @@ final class Category extends ActiveRecord
     public function getChildren(): \Yiisoft\ActiveRecord\ActiveQuery
     {
         return $this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
+    }
+
+    /**
+     * 分类 URL：alias 走 category/show（绝对 URL，对齐 Yii2 强制 true）；无 alias 按 id。
+     */
+    public function getUrl(UrlGeneratorInterface $urlGenerator, bool $schema = true): string
+    {
+        if ($this->alias !== '') {
+            return $urlGenerator->generateAbsolute('category/show', ['alias' => $this->alias]);
+        }
+        return $urlGenerator->generate('category/view', ['id' => $this->id]);
     }
 
     public function getPostCount(): int

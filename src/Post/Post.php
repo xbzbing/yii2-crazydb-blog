@@ -4,7 +4,14 @@ declare(strict_types=1);
 
 namespace App\Post;
 
+use App\Category\Category;
+use App\Comment\Comment;
+use App\User\User;
+use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Cache\Dependency\CallbackDependency;
+use Yiisoft\Router\UrlGeneratorInterface;
 
 final class Post extends ActiveRecord
 {
@@ -52,6 +59,114 @@ final class Post extends ActiveRecord
     public function getContentProcessed(MarkdownRenderer $renderer): string
     {
         return $renderer->renderPost($this);
+    }
+
+    /**
+     * 前台可见状态集合（published + hidden，对齐 Yii2）。
+     */
+    public static function visibleStatuses(): array
+    {
+        return [self::STATUS_PUBLISHED, self::STATUS_HIDDEN];
+    }
+
+    public function getCategory(): ActiveQuery
+    {
+        return $this->hasOne(Category::class, ['id' => 'cid']);
+    }
+
+    public function getAuthor(): ActiveQuery
+    {
+        return $this->hasOne(User::class, ['id' => 'author_id']);
+    }
+
+    public function getComments(): ActiveQuery
+    {
+        return $this->hasMany(Comment::class, ['pid' => 'id'])
+            ->andOnCondition(['status' => Comment::STATUS_APPROVED])
+            ->orderBy(['create_time' => SORT_ASC]);
+    }
+
+    /**
+     * 前台文章 URL：alias 优先（post/show），否则按 id（post/view）；对齐 Yii2 getUrl。
+     */
+    public function getUrl(UrlGeneratorInterface $urlGenerator, bool $schema = false): ?string
+    {
+        if ($this->isNew()) {
+            return null;
+        }
+        if ($this->alias !== '') {
+            return $schema
+                ? $urlGenerator->generateAbsolute('post/show', ['alias' => $this->alias])
+                : $urlGenerator->generate('post/show', ['alias' => $this->alias]);
+        }
+        return $schema
+            ? $urlGenerator->generateAbsolute('post/view', ['id' => $this->id])
+            : $urlGenerator->generate('post/view', ['id' => $this->id]);
+    }
+
+    /**
+     * 上一篇/下一篇：relation = 'before'（较旧）| 'after'（较新）。
+     * 等价 Yii2 getRelatedOne；简单模式只取 id/title/alias/status，缓存 key 按模式区分。
+     */
+    public function getRelatedOne(
+        UrlGeneratorInterface $urlGenerator,
+        CacheInterface $cache,
+        string $relation,
+        bool $category = false,
+        bool $simple = true,
+    ): ?self {
+        if (!in_array($relation, ['before', 'after'], true)) {
+            return null;
+        }
+
+        $key = ($simple ? 'simple' : 'all') . '_post_' . $relation . '_' . $this->id;
+
+        return $cache->getOrSet(
+            $key,
+            function () use ($relation, $category, $simple): ?self {
+                $query = self::query()
+                    ->where(['in', 'status', self::visibleStatuses()])
+                    ->andWhere(['!=', 'id', $this->id]);
+                if ($category) {
+                    $query->andWhere(['cid' => $this->cid]);
+                }
+                if ($relation === 'before') {
+                    $query->andWhere(['<=', 'post_time', (int)$this->post_time])
+                        ->orderBy(['post_time' => SORT_DESC]);
+                } else {
+                    $query->andWhere(['>=', 'post_time', (int)$this->post_time])
+                        ->orderBy(['post_time' => SORT_ASC]);
+                }
+                if ($simple) {
+                    $query->select('id,title,alias,status');
+                }
+                return $query->one();
+            },
+            3600,
+            new CallbackDependency(
+                static fn (): int => (int)self::query()->max('update_time'),
+            ),
+        );
+    }
+
+    /**
+     * 前台查询：别名取文章（published/hidden），对齐 Yii2 findModelByAlias。
+     */
+    public static function findVisibleByAlias(string $alias): ?self
+    {
+        return self::query()
+            ->where(['alias' => $alias, 'status' => self::visibleStatuses()])
+            ->one();
+    }
+
+    /**
+     * 前台查询：ID 取文章（published/hidden），对齐 Yii2 findModel。
+     */
+    public static function findVisibleById(int $id): ?self
+    {
+        return self::query()
+            ->where(['id' => $id, 'status' => self::visibleStatuses()])
+            ->one();
     }
 
     /**
