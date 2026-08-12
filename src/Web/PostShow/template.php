@@ -24,6 +24,7 @@ use Yiisoft\Html\Html;
  * @var App\Post\Post $post
  * @var string $contentHtml
  * @var bool $unlocked
+ * @var bool $passwordError
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var array<int, App\Comment\Comment> $replyMap
@@ -102,10 +103,14 @@ if (str_contains($contentHtml, '<pre><code')) {
                 </ul>
             </details>
         <?php endif; ?>
+        <?= $contentHtml ?>
         <?php if ((string)$post->password !== '' && !$unlocked): ?>
             <div class="article-locked-tip">
+                <?php if ($passwordError): ?>
+                    <div class="alert alert-danger" role="alert"><i class="fa-solid fa-circle-exclamation"></i> 密码错误，请重新输入。</div>
+                <?php endif; ?>
                 <div class="label label-warning"><i class="fa-solid fa-lock"></i> 该文章受密码保护，输入密码后可查看全文。</div>
-                <form method="post" action="<?= Html::encode($urlGenerator->generate('post/unlock', ['id' => $post->id])) ?>" class="hidden-post-form">
+                <form method="post" action="<?= Html::encode((string)($post->getUrl($urlGenerator) ?? '')) ?>" class="hidden-post-form">
                     <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
                     <div class="input-group">
                         <input type="password" class="form-control" name="password" placeholder="请输入访问密码" required="required" autocomplete="off">
@@ -116,7 +121,6 @@ if (str_contains($contentHtml, '<pre><code')) {
                 </form>
             </div>
         <?php endif; ?>
-        <?= $contentHtml ?>
     </div>
     <footer class="article-card-footer">
         <?php if ($post->tags !== ''): ?>
