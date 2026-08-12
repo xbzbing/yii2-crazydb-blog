@@ -21,8 +21,11 @@ final class User extends ActiveRecord implements IdentityInterface
     /** Session 登录态 key（AuthService/SessionAuthMethod/RememberMeMiddleware 共用） */
     public const SESSION_AUTH_KEY = 'authUserId';
 
-    /** 注册黑名单（用户名/昵称） */
-    public const NAME_BLACKLIST = ['admin'];
+    /** 注册黑名单（用户名/昵称不可用：站长保护名 + 管理类称呼） */
+    public const NAME_BLACKLIST = ['admin', 'root', 'administrator', '管理员', '站长', '超级管理员'];
+
+    /** 站长账号保护名单（不可被禁用/删除，需与 NAME_BLACKLIST 保持同步） */
+    public const WEBMASTER_NAMES = ['admin', 'root'];
 
     public ?int $id = null;
     public string $nickname = '';
@@ -76,6 +79,14 @@ final class User extends ActiveRecord implements IdentityInterface
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    /**
+     * 站长账号：管理员角色且在保护名单内（如 admin/root），后台不可被禁用/删除。
+     */
+    public function isWebmaster(): bool
+    {
+        return $this->isAdmin() && in_array($this->username, self::WEBMASTER_NAMES, true);
     }
 
     public function isEditor(): bool

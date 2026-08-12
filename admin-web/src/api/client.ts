@@ -148,6 +148,8 @@ export const api = {
     request<ListData<User>>(`/users?${new URLSearchParams(params as Record<string, string>)}`),
   userAction: (action: string, id: number) =>
     request<{ message: string }>(`/user/${action}/${id}`, { method: 'POST' }),
+  userUpdate: (id: number, data: Record<string, unknown>) =>
+    request<ValidationResult>(`/user/update/${id}`, { method: 'POST', body: data }),
 
   logs: (params: Record<string, string | number> = {}) =>
     request<ListData<LogItem> & { types?: string[]; type?: string }>(

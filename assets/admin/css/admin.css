@@ -36,6 +36,29 @@
     vertical-align: middle;
 }
 
+/* 行内编辑（用户管理等 details 展开） */
+.admin-inline-details {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.admin-inline-details summary {
+    cursor: pointer;
+    color: #337ab7;
+    font-size: 13px;
+}
+.admin-inline-details form {
+    margin-top: 6px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fafafa;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 /* 列表页操作按钮（admin-table 内） */
 .table-actions {
     white-space: nowrap;

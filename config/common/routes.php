@@ -134,6 +134,7 @@ return [
             Route::post('/tag/delete/{name}')->action([\App\Admin\Api\TagList\Action::class, 'delete'])->name('admin/api/tag/delete'),
             Route::get('/users')->action([\App\Admin\Api\UserList\Action::class, 'list'])->name('admin/api/user/list'),
             Route::get('/users/page/{page:\d+}')->action([\App\Admin\Api\UserList\Action::class, 'list'])->name('admin/api/user/list-page'),
+            Route::post('/user/update/{id:\d+}')->action([\App\Admin\Api\UserList\Action::class, 'update'])->name('admin/api/user/update'),
             Route::post('/user/{action}/{id:\d+}')->action([\App\Admin\Api\UserList\Action::class, 'toggle'])->name('admin/api/user/action'),
             Route::get('/logs')->action([\App\Admin\Api\LogList\Action::class, 'list'])->name('admin/api/log/list'),
             Route::get('/logs/page/{page:\d+}')->action([\App\Admin\Api\LogList\Action::class, 'list'])->name('admin/api/log/list-page'),
