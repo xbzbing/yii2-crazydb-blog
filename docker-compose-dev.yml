@@ -1,5 +1,3 @@
-version: "3"
-
 networks:
   frontend:
   backend:
@@ -9,7 +7,7 @@ services:
   nginx:
     build:
       context: ./deploy/nginx-alpine
-    image: blog-nginx:1.19-alpine
+    image: blog-nginx:1.30-alpine
     container_name: blog-nginx
     environment:
       - TZ=Asia/Shanghai
@@ -28,8 +26,8 @@ services:
 
   php:
     build:
-      context: ./deploy/php7-alpine
-    image: blog-php:7.4-fpm-alpine
+      context: ./deploy/php8-alpine
+    image: blog-php:8.5-fpm-alpine
     container_name: blog-php
     environment:
       - TZ=Asia/Shanghai
@@ -46,12 +44,11 @@ services:
 
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.4
     container_name: blog-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=mysql.password
       - TZ=Asia/Shanghai
-    command: ['mysqld', '--character-set-server=utf8mb4']
     volumes:
       - ~/data/blog-mysql:/var/lib/mysql
     ports:
@@ -61,7 +58,7 @@ services:
 
 
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
     container_name: blog-redis
     environment:
       - TZ=Asia/Shanghai

@@ -9,30 +9,34 @@ nbproject
 .project
 .settings
 
+# sublime text project / workspace files
+*.sublime-project
+*.sublime-workspace
+
 # windows thumbnail cache
 Thumbs.db
-
-# composer vendor dir
-/vendor
-
-# composer itself is not needed
-composer.phar
 
 # Mac DS_Store Files
 .DS_Store
 
-# phpunit itself is not needed
+# composer vendor dir
+/vendor
+
+# Codeception C3
+c3.php
+
+# Local environment configuration
+.env
+
+# legacy (Yii2 era) entries preserved
+composer.phar
 phpunit.phar
-# local phpunit config
-/phpunit.xml
-
-# tests 目录
-/tests
-
-# composer.lock 文件
-composer.lock
-
 *-local.php
-
 web/ugc
 online
+
+# graphify knowledge graph output
+/graphify-out
+
+# phpunit cache
+.phpunit.cache/

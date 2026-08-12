@@ -1,4 +1,4 @@
-FROM nginx:1.19-alpine
+FROM nginx:1.30-alpine
 
 ENV TZ Asia/Shanghai
 
