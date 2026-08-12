@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Card, Form, Input, Button, Space, message, Spin } from 'antd'
 import { api } from '../api/client'
 import type { ConfigValues } from '../types/api'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 const { TextArea } = Input
 
 /** 站点配置 - SEO 设置 */
 export default function SeoSettings() {
+  usePageTitle('SEO 设置')
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, Descriptions, Tag, Spin, message, Progress, Row, Col, Divider } from 'antd'
 import { api } from '../api/client'
 import type { EnvData } from '../types/api'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 /**
  * 系统负载配色：按 负载/CPU核数 比值分档。
@@ -21,6 +22,7 @@ function LoadCell({ load, cores }: { load: number; cores: number | null }) {
 }
 
 export default function EnvPage() {
+  usePageTitle('环境信息')
   const [data, setData] = useState<EnvData | null>(null)
   const [loading, setLoading] = useState(true)
 

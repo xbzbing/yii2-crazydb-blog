@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Card, Form, Input, Select, Button, Space, message, Spin } from 'antd'
 import { api } from '../api/client'
 import type { ConfigValues } from '../types/api'
+import { usePageTitle } from '../contexts/PageTitleContext'
 
 /** 站点配置 - 基本设置 */
 export default function BasicSettings() {
+  usePageTitle('基本设置')
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)

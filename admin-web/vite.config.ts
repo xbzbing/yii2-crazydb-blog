@@ -1,10 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// 后台 SPA 构建：产物输出到 ../public/admin（nginx 直接托管 /admin）
+// 后台 SPA 构建：产物输出到 ../public/admin（nginx 直接托管 /admin）。
+// 换部署目录时用 VITE_ADMIN_BASE 环境变量（与 src/config.ts 保持一致）。
+const adminBase = process.env.VITE_ADMIN_BASE || '/admin/'
+
 export default defineConfig({
   plugins: [react()],
-  base: '/admin/',
+  base: adminBase,
   build: {
     outDir: '../public/admin',
     emptyOutDir: true,

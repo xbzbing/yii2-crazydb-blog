@@ -44,7 +44,15 @@ body,
   background-color: #fff !important;
 }
 
-/* 后台内容区 padding 收窄（默认 32px 40px → 20px） */
+/* 后台内容区 padding 收窄（默认 32px 40px → 顶部 8px，左右 20px） */
 .ant-layout-content.ant-pro-layout-content {
-  padding: 20px !important;
+  padding: 8px 20px 20px !important;
+}
+
+/* 面包屑与顶部间距收紧（antd PageHeader 默认 breadcrumb 顶部 18px、page-header 顶部 8px） */
+.ant-pro-page-container .ant-page-header-breadcrumb {
+  padding-top: 2px !important;
+}
+.ant-pro-page-container .ant-page-header {
+  padding-top: 4px !important;
 }

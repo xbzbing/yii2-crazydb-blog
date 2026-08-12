@@ -44,7 +44,7 @@ export default function LoginPage({ onLoggedIn }: LoginProps) {
         const meJson = await fetchMe()
         if (meJson?.user) {
           onLoggedIn(meJson.user)
-          window.location.replace('/admin/')
+          window.location.hash = '#/'
           return
         }
         throw new Error('账号无管理员权限。')
