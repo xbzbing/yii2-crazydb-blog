@@ -94,6 +94,17 @@ final class XUtils
     }
 
     /**
+     * 生成 URL 别名（对齐 Yii2 beforeSave：空时用标题，空格/%/斜杠归一化为连字符，去标签转义）。
+     */
+    public static function generateAlias(string $text): string
+    {
+        $alias = $text === '' ? 'untitled' : $text;
+        $alias = str_replace([' ', '%', '/', '\\'], ['-', '-', '-', '-'], trim($alias));
+        $alias = strip_tags($alias);
+        return htmlspecialchars($alias, ENT_QUOTES);
+    }
+
+    /**
      * 获取头像：本地缓存（@public/static/avatar/{md5}-{size}.png），超过三天远程获取 gravatar。
      */
     public static function getAvatar(Aliases $aliases, string $email, int $size = 40): string

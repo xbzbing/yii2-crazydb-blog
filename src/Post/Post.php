@@ -122,10 +122,10 @@ final class Post extends ActiveRecord
             . ($category ? '_cat' : '')
             . '.' . (int)self::query()->max('update_time');
 
-        /** @var ?self $related */
+        /** @var ?self|'none' $related */
         $related = $cache->getOrSet(
             $cacheKey,
-            function () use ($relation, $category, $simple): ?self {
+            function () use ($relation, $category, $simple): self|string {
                 $query = self::query()
                     ->where(['in', 'status', self::visibleStatuses()])
                     ->andWhere(['!=', 'id', $this->id]);
@@ -142,11 +142,14 @@ final class Post extends ActiveRecord
                 if ($simple) {
                     $query->select('id,title,alias,status');
                 }
-                return $query->one();
+                // 空结果以哨兵缓存，避免边界文章（最新/最旧）每请求 SQL 穿透
+                /** @var ?self $one */
+                $one = $query->one();
+                return $one ?? 'none';
             },
             3600,
         );
-        return $related;
+        return $related === 'none' ? null : $related;
     }
 
     /**

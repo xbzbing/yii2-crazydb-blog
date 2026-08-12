@@ -37,11 +37,15 @@ final readonly class Action
         $feedUrl = $this->urlGenerator->generateAbsolute('feed/atom');
 
         /** @var list<Post> $posts */
-        $posts = Post::query()
-            ->where(['status' => Post::STATUS_PUBLISHED])
-            ->orderBy(['post_time' => SORT_DESC, 'update_time' => SORT_DESC])
-            ->limit(self::LIMIT)
-            ->all();
+        $posts = $this->cache->getOrSet(
+            '__feed_atom.' . (int)Post::query()->max('update_time'),
+            static fn (): array => Post::query()
+                ->where(['status' => Post::STATUS_PUBLISHED])
+                ->orderBy(['post_time' => SORT_DESC, 'update_time' => SORT_DESC])
+                ->limit(self::LIMIT)
+                ->all(),
+            300,
+        );
 
         // feed.updated 须 ≥ 所有 entry.updated（Atom 规范），取全量 MAX(update_time)
         $updated = (int)(Post::query()->where(['status' => Post::STATUS_PUBLISHED])->max('update_time') ?? time());

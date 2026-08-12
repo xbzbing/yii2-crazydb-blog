@@ -60,10 +60,11 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
     <label>发布时间（时间戳，留空为当前）：<input type="number" name="post_time" value="<?= $post->post_time ?: '' ?>" placeholder="<?= time() ?>"></label>
     <label class="admin-check"><input type="checkbox" name="is_top" value="1"<?= $post->is_top ? ' checked' : '' ?>> 置顶</label>
     <label>摘要（可选）：<textarea name="excerpt" rows="3"><?= Html::encode((string)$post->excerpt) ?></textarea></label>
-    <label>正文：
+    <div class="admin-field">
+        <label for="post-content">正文：</label>
         <textarea name="content" rows="16" class="admin-content" id="post-content"><?= Html::encode((string)$post->content) ?></textarea>
         <div id="vditor-container"></div>
-    </label>
+    </div>
     <label>访问密码（可选，隐藏文章用）：<input type="text" name="password" value="<?= Html::encode((string)$post->password) ?>"></label>
     <button type="submit">保存</button>
     <a href="<?= Html::encode($urlGenerator->generate('admin/post/list')) ?>">返回列表</a>
@@ -80,7 +81,7 @@ $formats = ['html' => 'HTML（老文章）', 'markdown' => 'Markdown'];
                 mode: 'ir',
                 height: 420,
                 lang: 'zh_CN',
-                value: <?= json_encode((string)$post->content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+                value: <?= json_encode((string)$post->content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
                 input: function (value) { content.value = value; },
                 after: function () { content.style.display = 'none'; }
             });

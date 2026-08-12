@@ -53,6 +53,14 @@ final readonly class Action
             $data = is_array($body) ? $body : [];
             $post->title = trim((string)($data['title'] ?? ''));
             $post->alias = trim((string)($data['alias'] ?? ''));
+            if ($post->alias === '') {
+                $post->alias = \App\Common\XUtils::generateAlias($post->title);
+                $base = $post->alias;
+                $n = 2;
+                while (Post::query()->where(['alias' => $post->alias])->andWhere(['!=', 'id', (int)$post->id])->exists()) {
+                    $post->alias = $base . '-' . $n++;
+                }
+            }
             $post->cid = (int)($data['cid'] ?? 0);
             $post->status = (string)($data['status'] ?? Post::STATUS_DRAFT);
             $post->format = (string)($data['format'] ?? Post::FORMAT_HTML);
@@ -99,6 +107,7 @@ final readonly class Action
                     $errors['save'] = '保存失败，请检查字段内容。';
                 }
                 if ($errors === []) {
+                    \App\Tag\Tag::post2tags($post->tags, (int)$post->id, (int)$post->cid);
                     $this->flash->set('flash_success', ['info' => $isNew ? '文章已创建。' : '文章已更新。']);
                     return $this->redirectList();
                 }

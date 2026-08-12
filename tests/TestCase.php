@@ -31,6 +31,20 @@ abstract class TestCase extends BaseTestCase
         $this->aliases = $this->container()->get(Aliases::class);
     }
 
+    protected function tearDown(): void
+    {
+        // 清理测试生成的头像缓存文件（getAvatar 测试产物不入库）
+        $avatarDir = $this->aliases->get('@public') . '/static/avatar';
+        if (is_dir($avatarDir)) {
+            foreach (glob($avatarDir . '/*.png') ?: [] as $file) {
+                if (filesize($file) === 0) {
+                    @unlink($file);
+                }
+            }
+        }
+        parent::tearDown();
+    }
+
     protected function sharedSession(): Session
     {
         if (self::$sharedSession === null) {

@@ -451,3 +451,16 @@ a:hover {
     text-align: center;
     padding: 40px 0;
 }
+
+/* inline form（退出登录等） */
+.inline-form { display: inline; margin: 0; }
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--accent, #b4432c);
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+}
+.comment-reply-hint { font-size: 13px; color: #b4432c; min-height: 1.2em; }

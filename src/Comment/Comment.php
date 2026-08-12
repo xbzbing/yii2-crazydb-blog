@@ -177,7 +177,8 @@ final class Comment extends ActiveRecord
     {
         $now = time();
         $this->ip = $ip;
-        $this->user_agent = htmlspecialchars($userAgent, ENT_QUOTES);
+        // UA 列 VARCHAR(255)，超长截断避免入库失败
+        $this->user_agent = mb_substr(htmlspecialchars($userAgent, ENT_QUOTES), 0, 255);
         $this->create_time = $now;
         $this->update_time = $now;
     }

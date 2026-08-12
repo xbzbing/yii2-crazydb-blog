@@ -8,12 +8,12 @@ endif
 
 ifeq ($(PRIMARY_GOAL),test-local)
 test-local: ## Run PHPUnit on the host (MySQL via 127.0.0.1:3306).
-	DB_HOST=127.0.0.1 DB_PORT=3306 ./vendor/bin/phpunit $(CLI_ARGS)
+	DB_HOST=127.0.0.1 DB_PORT=3306 REDIS_PASSWORD=redis.password ./vendor/bin/phpunit $(CLI_ARGS)
 endif
 
 ifeq ($(PRIMARY_GOAL),test)
 test: ## Alias for test-local.
-	DB_HOST=127.0.0.1 DB_PORT=3306 ./vendor/bin/phpunit $(CLI_ARGS)
+	DB_HOST=127.0.0.1 DB_PORT=3306 REDIS_PASSWORD=redis.password ./vendor/bin/phpunit $(CLI_ARGS)
 endif
 
 ifeq ($(PRIMARY_GOAL),composer)

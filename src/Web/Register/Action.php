@@ -76,7 +76,7 @@ final readonly class Action
                 'errors' => $errors,
                 'form' => $form,
                 'siteConfig' => $siteConfig,
-                'navTree' => Nav::getNavTree($this->cache),
+                'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => false,
             ],
         );

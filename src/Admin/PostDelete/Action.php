@@ -34,6 +34,7 @@ final readonly class Action
             $post = Post::query()->findByPk($id);
             if ($post instanceof Post) {
                 (new Comment())->deleteAll(['pid' => $id]);
+                (new \App\Tag\Tag())->deleteAll(['pid' => $id]);
                 $post->delete();
                 $this->flash->set('flash_success', ['info' => '文章已删除。']);
             }

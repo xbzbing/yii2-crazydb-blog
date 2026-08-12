@@ -86,6 +86,20 @@ final class MarkdownRendererTest extends TestCase
         self::assertStringNotContainsString('<script>', $html);
     }
 
+    public function testHtmlFormatPostNotRewrittenByMarkdownSyntax(): void
+    {
+        $post = new Post();
+        $post->format = Post::FORMAT_HTML;
+        $post->content = '<p>foo_bar 变量、*星号*、~~删除线~~ 保持原样</p>';
+        $post->update_time = 1700000000;
+        $html = $this->renderer()->renderPost($post);
+        self::assertStringContainsString('foo_bar', $html, 'underscores must not become em');
+        self::assertStringContainsString('*星号*', $html, 'asterisks must not become em');
+        self::assertStringContainsString('~~删除线~~', $html, 'tildes must not become del');
+        self::assertStringNotContainsString('<em>', $html);
+        self::assertStringNotContainsString('<del>', $html);
+    }
+
     public function testMarkdownFormatPostRendersThroughPipeline(): void
     {
         $post = new Post();

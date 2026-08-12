@@ -35,8 +35,10 @@ final readonly class Action
             $category = Category::query()->findByPk($id);
             if ($category instanceof Category) {
                 $this->cache->remove('__category_summary.' . (int)Category::query()->max('update_time'));
+                $this->cache->remove('__categories.' . (int)Category::query()->max('update_time'));
                 $category->delete();
                 $this->cache->remove('__category_summary.' . (int)Category::query()->max('update_time'));
+                $this->cache->remove('__categories.' . (int)Category::query()->max('update_time'));
                 $this->flash->set('flash_success', ['info' => '分类已删除。']);
             }
         }
