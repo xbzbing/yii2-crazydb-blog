@@ -12,6 +12,7 @@ use Yiisoft\Html\Html;
  * @var App\Shared\ApplicationParams $applicationParams
  * @var list<App\Post\Post> $posts
  * @var ?App\Post\Post $latest
+ * @var ?int $latestId
  * @var list<array{category: App\Category\Category, posts: list<App\Post\Post>}> $sections
  * @var App\Web\Pager $pager
  * @var App\Post\MarkdownRenderer $markdownRenderer
@@ -94,4 +95,5 @@ $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ??
     'route' => 'site/index',
     'pageRoute' => 'site/index-page',
     'routeArgs' => [],
+    'excludeId' => $latestId,
 ]) ?>

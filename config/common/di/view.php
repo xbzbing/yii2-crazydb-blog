@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Yiisoft\Aliases\Aliases;
+use Yiisoft\Definitions\Contract\ReferenceInterface;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\View\Theme;

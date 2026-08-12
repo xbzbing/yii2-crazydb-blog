@@ -74,6 +74,11 @@ $this->beginPage()
         <nav class="magazine-nav">
             <?php foreach ($navTree as $item): ?>
                 <a href="<?= Html::encode((string)($item['url'] ?? '#')) ?>"><?= Html::encode((string)($item['label'])) ?></a>
+                <?php if (!empty($item['items'])): ?>
+                    <?php foreach ($item['items'] as $sub): ?>
+                        <a class="magazine-nav-sub" href="<?= Html::encode((string)($sub['url'] ?? '#')) ?>"><?= Html::encode((string)($sub['label'])) ?></a>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             <?php endforeach; ?>
             <a href="<?= $urlGenerator->generate('post/archives') ?>">归档</a>
             <a href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a>
