@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+
+# 部署时把下面这行替换为实际域名（Sitemap 要求绝对 URL）
+# Sitemap: https://example.com/sitemap.xml

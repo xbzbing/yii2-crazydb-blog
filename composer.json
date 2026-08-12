@@ -1,77 +1,114 @@
 {
-    "name": "xbzbing/yii2-crazydb-blog",
-    "description": "crazydb-blog的Yii2重构版本",
-    "keywords": ["yii2", "basic", "crazydb","blog"],
-    "homepage": "https://www.crazydb.com/",
+    "name": "yiisoft/app",
     "type": "project",
+    "description": "Yii3 web application template",
+    "keywords": [
+        "yii3",
+        "app"
+    ],
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/xbzbing/yii2-crazydb-blog/issues?state=open",
-        "source": "https://github.com/xbzbing/yii2-crazydb-blog"
+        "issues": "https://github.com/yiisoft/app/issues?state=open",
+        "source": "https://github.com/yiisoft/app",
+        "forum": "https://www.yiiframework.com/forum/",
+        "wiki": "https://www.yiiframework.com/wiki/",
+        "irc": "ircs://irc.libera.chat:6697/yii",
+        "chat": "https://t.me/yii3en"
     },
-    "minimum-stability": "stable",
+    "funding": [
+        {
+            "type": "opencollective",
+            "url": "https://opencollective.com/yiisoft"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/yiisoft"
+        }
+    ],
+    "scripts": {
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php ./yii serve"
+        ],
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-text"
+    },
     "require": {
-        "php": ">=7.4.0",
-        "yiisoft/yii2": "~2.0.14",
-        "yiisoft/yii2-bootstrap": "~2.0.0",
-        "yiisoft/yii2-swiftmailer": "^2.1.0",
-        "yiisoft/yii2-redis": "~2.0.0",
-        "crazydb/yii2-ueditor": "~1.6",
-        "almasaeed2010/adminlte": "~2.4",
-        "fortawesome/font-awesome": "^4.7.0",
-        "mibe/feedwriter": "~1.1.1"
+        "php": "8.2 - 8.5",
+        "ext-ctype": "*",
+        "ext-filter": "*",
+        "ext-gd": "*",
+        "ext-mbstring": "*",
+        "ezyang/htmlpurifier": "^4.19",
+        "httpsoft/http-message": "^1.1.6",
+        "league/commonmark": "^2.8",
+        "predis/predis": "^2.1",
+        "psr/container": "^2.0.2",
+        "psr/http-factory": "^1.1",
+        "psr/http-message": "^2.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/simple-cache": "^3.0",
+        "psr/http-server-handler": "^1.0.2",
+        "psr/log": "^3.0.2",
+        "symfony/console": "^7.4.7 || ^8.0.7",
+        "symfony/mailer": "^8.1",
+        "yiisoft/active-record": "^1.1",
+        "yiisoft/aliases": "^3.1.1",
+        "yiisoft/assets": "^5.1.2",
+        "yiisoft/auth": "^3.2",
+        "yiisoft/cache-redis": "^2.0",
+        "yiisoft/config": "^1.6.2",
+        "yiisoft/csrf": "^2.2.3",
+        "yiisoft/db": "^2.0",
+        "yiisoft/db-mysql": "^2.0",
+        "yiisoft/definitions": "^3.4.1",
+        "yiisoft/di": "^1.4.1",
+        "yiisoft/error-handler": "^4.3.2",
+        "yiisoft/html": "^4",
+        "yiisoft/http": "^1.3",
+        "yiisoft/input-http": "^1.0.1",
+        "yiisoft/log": "^2.2.0",
+        "yiisoft/mailer": "^6.1",
+        "yiisoft/mailer-symfony": "^4.0",
+        "yiisoft/middleware-dispatcher": "^5.4",
+        "yiisoft/request-provider": "^1.3",
+        "yiisoft/router": "^4.0.2",
+        "yiisoft/router-fastroute": "^4.0.3",
+        "yiisoft/session": "^3.0.1",
+        "yiisoft/view": "^12.2.4",
+        "yiisoft/yii-console": "^2.4.2",
+        "yiisoft/yii-http": "^1.1.1",
+        "yiisoft/yii-runner-console": "^2.2.1",
+        "yiisoft/yii-runner-http": "^3.2.1",
+        "yiisoft/yii-view-renderer": "^7.4.1"
     },
     "require-dev": {
-        "yiisoft/yii2-debug": "~2.1.0",
-        "yiisoft/yii2-gii": "~2.2.0",
-        "yiisoft/yii2-faker": "~2.0.0",
-        "phpunit/phpunit": "~9.5.0",
-        "codeception/codeception": "^5.0.0 || ^4.0",
-        "codeception/lib-innerbrowser": "^4.0 || ^3.0 || ^1.1",
-        "codeception/module-asserts": "^3.0 || ^1.1",
-        "codeception/module-yii2": "^1.1",
-        "codeception/module-filesystem": "^3.0 || ^2.0 || ^1.1",
-        "codeception/verify": "^3.0 || ^2.2",
-        "symfony/browser-kit": "^6.0 || >=2.7 <=4.2.4"
+        "vlucas/phpdotenv": "^5.6",
+        "friendsofphp/php-cs-fixer": "^3.94.2",
+        "phpunit/phpunit": "^12.5.33",
+        "rector/rector": "^2.3.9",
+        "shipmonk/composer-dependency-analyser": "^1.8.4",
+        "vimeo/psalm": "^6.16.1"
     },
-    "scripts": {
-        "post-install-cmd": [
-            "yii\\composer\\Installer::postInstall"
-        ],
-        "post-create-project-cmd": [
-            "yii\\composer\\Installer::postCreateProject",
-            "yii\\composer\\Installer::postInstall"
-        ]
+    "autoload": {
+        "psr-4": {
+            "App\\": "src"
+        }
     },
-    "config": {
-        "process-timeout": 1800,
-        "fxp-asset": {
-            "enabled": false
-        },
-        "allow-plugins": {
-            "yiisoft/yii2-composer": true
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests"
         }
     },
     "extra": {
-        "yii\\composer\\Installer::postCreateProject": {
-            "setPermission": [
-                {
-                    "runtime": "0777",
-                    "web/assets": "0777",
-                    "yii": "0755",
-                    "web/upload": "0777",
-                    "web/static/avatar": "0777"
-                }
-            ],
-            "generateCookieValidationKey": [
-                "config/web.php"
-            ]
-        }
+        "config-plugin-file": "config/configuration.php"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
+    "config": {
+        "sort-packages": true,
+        "bump-after-update": true,
+        "allow-plugins": {
+            "yiisoft/config": true,
+            "composer/installers": true
         }
-    ]
+    }
 }

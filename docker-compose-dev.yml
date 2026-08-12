@@ -1,5 +1,3 @@
-version: "3"
-
 networks:
   frontend:
   backend:
@@ -9,7 +7,7 @@ services:
   nginx:
     build:
       context: ./deploy/nginx-alpine
-    image: blog-nginx:1.19-alpine
+    image: blog-nginx:1.30-alpine
     container_name: blog-nginx
     environment:
       - TZ=Asia/Shanghai
@@ -28,46 +26,71 @@ services:
 
   php:
     build:
-      context: ./deploy/php7-alpine
-    image: blog-php:7.4-fpm-alpine
+      context: ./deploy/php8-alpine
+    image: blog-php:8.5-fpm-alpine
     container_name: blog-php
     environment:
       - TZ=Asia/Shanghai
       - DBGP_IDEKEY=docker-php-debug
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=crazydb
+      - DB_USER=root
+      - DB_PASSWORD=mysql.password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis.password
+      # dev 模式验证码直通（CaptchaService::debug），便于本地验收/自动化测试
+      - CAPTCHA_DEBUG=1
     volumes:
       - ./:/opt/webroot
       - ~/data/blog-yii/risk-runtime:/opt/log/php
+      - ./deploy/php8-alpine/php-uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
     networks:
       - frontend
       - backend
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8.4
     container_name: blog-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=mysql.password
       - TZ=Asia/Shanghai
-    command: ['mysqld', '--character-set-server=utf8mb4']
     volumes:
       - ~/data/blog-mysql:/var/lib/mysql
     ports:
       - "127.0.0.1:3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pmysql.password"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
     networks:
       - backend
 
 
   redis:
-    image: redis:6-alpine
+    image: redis:7-alpine
     container_name: blog-redis
     environment:
       - TZ=Asia/Shanghai
     command: "redis-server --requirepass redis.password"
     volumes:
       - ~/data/blog-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis.password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"
     networks:

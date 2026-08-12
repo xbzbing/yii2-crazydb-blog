@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
+  <file src="src/Captcha/CaptchaService.php">
+    <PossiblyFalseArgument>
+      <code><![CDATA[$bg]]></code>
+      <code><![CDATA[$color]]></code>
+      <code><![CDATA[$dot]]></code>
+      <code><![CDATA[$line]]></code>
+    </PossiblyFalseArgument>
+  </file>
+  <file src="src/Category/Category.php">
+    <LessSpecificReturnStatement>
+      <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
+    </LessSpecificReturnStatement>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[array<int, string>]]></code>
+      <code><![CDATA[self::cached($cache, '__categories', $refresh, static function (): array {
+            $items = [];
+            foreach (self::query()->select('id,name')->asArray()->all() as $row) {
+                $items[(int)$row['id']] = (string)$row['name'];
+            }
+            return $items;
+        })]]></code>
+    </MixedReturnTypeCoercion>
+    <MoreSpecificReturnType>
+      <code><![CDATA[\Yiisoft\ActiveRecord\ActiveQuery]]></code>
+    </MoreSpecificReturnType>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Comment/Comment.php">
+    <InvalidPropertyFetch>
+      <code><![CDATA[$comment->content]]></code>
+      <code><![CDATA[$comment->create_time]]></code>
+      <code><![CDATA[$comment->email]]></code>
+      <code><![CDATA[$comment->id]]></code>
+      <code><![CDATA[$comment->nickname]]></code>
+      <code><![CDATA[$comment->pid]]></code>
+      <code><![CDATA[$comment->url]]></code>
+    </InvalidPropertyFetch>
+    <InvalidReturnStatement>
+      <code><![CDATA[Post::query()->findByPk($this->pid)]]></code>
+      <code><![CDATA[self::query()->findByPk($this->reply_to)]]></code>
+    </InvalidReturnStatement>
+    <MixedArgument>
+      <code><![CDATA[$comment->email]]></code>
+    </MixedArgument>
+    <MixedMethodCall>
+      <code><![CDATA[getUrl]]></code>
+    </MixedMethodCall>
+    <MixedOperand>
+      <code><![CDATA[$comment->id]]></code>
+      <code><![CDATA[$post?->getUrl($urlGenerator)]]></code>
+    </MixedOperand>
+    <MixedPropertyFetch>
+      <code><![CDATA[$post?->title]]></code>
+    </MixedPropertyFetch>
+    <NoInterfaceProperties>
+      <code><![CDATA[$comment->content]]></code>
+      <code><![CDATA[$comment->create_time]]></code>
+      <code><![CDATA[$comment->email]]></code>
+      <code><![CDATA[$comment->id]]></code>
+      <code><![CDATA[$comment->nickname]]></code>
+      <code><![CDATA[$comment->pid]]></code>
+      <code><![CDATA[$comment->url]]></code>
+    </NoInterfaceProperties>
+    <PossiblyInvalidMethodCall>
+      <code><![CDATA[getPost]]></code>
+    </PossiblyInvalidMethodCall>
+    <PossiblyNullArgument>
+      <code><![CDATA[$this->reply_to]]></code>
+    </PossiblyNullArgument>
+    <PossiblyNullOperand>
+      <code><![CDATA[$this->content]]></code>
+    </PossiblyNullOperand>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[getPost]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Comment/CommentService.php">
+    <InvalidPropertyFetch>
+      <code><![CDATA[$user->email]]></code>
+      <code><![CDATA[$user->nickname]]></code>
+    </InvalidPropertyFetch>
+    <NoInterfaceProperties>
+      <code><![CDATA[$user->email]]></code>
+      <code><![CDATA[$user->nickname]]></code>
+    </NoInterfaceProperties>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int)$data['reply_to']]]></code>
+      <code><![CDATA[(string)($data['content'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['email'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['nickname'] ?? '')]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Common/CMSUtils.php">
+    <InvalidPropertyFetch>
+      <code><![CDATA[$option->name]]></code>
+      <code><![CDATA[$option->value]]></code>
+    </InvalidPropertyFetch>
+    <NoInterfaceProperties>
+      <code><![CDATA[$option->name]]></code>
+      <code><![CDATA[$option->value]]></code>
+    </NoInterfaceProperties>
+  </file>
+  <file src="src/Common/XUtils.php">
+    <InvalidArrayOffset>
+      <code><![CDATA[$a[$pos]]]></code>
+    </InvalidArrayOffset>
+    <MixedArgument>
+      <code><![CDATA[$server['HTTP_X_FORWARDED_FOR']]]></code>
+    </MixedArgument>
+    <MixedOperand>
+      <code><![CDATA[$a[$pos]]]></code>
+    </MixedOperand>
+    <PossiblyFalseOperand>
+      <code><![CDATA[filemtime($filePath)]]></code>
+    </PossiblyFalseOperand>
+  </file>
+  <file src="src/Nav/Nav.php">
+    <InvalidPropertyFetch>
+      <code><![CDATA[$node->id]]></code>
+      <code><![CDATA[$node->name]]></code>
+    </InvalidPropertyFetch>
+    <LessSpecificReturnStatement>
+      <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
+    </LessSpecificReturnStatement>
+    <MixedMethodCall>
+      <code><![CDATA[all]]></code>
+      <code><![CDATA[getUrl]]></code>
+    </MixedMethodCall>
+    <MixedPropertyFetch>
+      <code><![CDATA[$child->name]]></code>
+    </MixedPropertyFetch>
+    <MoreSpecificReturnType>
+      <code><![CDATA[ActiveQuery]]></code>
+    </MoreSpecificReturnType>
+    <NoInterfaceProperties>
+      <code><![CDATA[$node->id]]></code>
+      <code><![CDATA[$node->name]]></code>
+    </NoInterfaceProperties>
+    <PossiblyInvalidMethodCall>
+      <code><![CDATA[getChildren]]></code>
+      <code><![CDATA[getUrl]]></code>
+    </PossiblyInvalidMethodCall>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[getChildren]]></code>
+      <code><![CDATA[getUrl]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Post/Post.php">
+    <InvalidReturnStatement>
+      <code><![CDATA[self::query()
+            ->where(['alias' => $alias, 'status' => self::visibleStatuses()])
+            ->one()]]></code>
+      <code><![CDATA[self::query()
+            ->where(['id' => $id, 'status' => self::visibleStatuses()])
+            ->one()]]></code>
+    </InvalidReturnStatement>
+    <LessSpecificReturnStatement>
+      <code><![CDATA[$this->hasOne(Category::class, ['id' => 'cid'])]]></code>
+      <code><![CDATA[$this->hasOne(User::class, ['id' => 'author_id'])]]></code>
+    </LessSpecificReturnStatement>
+    <MoreSpecificReturnType>
+      <code><![CDATA[ActiveQuery]]></code>
+      <code><![CDATA[ActiveQuery]]></code>
+    </MoreSpecificReturnType>
+    <PossiblyNullOperand>
+      <code><![CDATA[$this->id]]></code>
+    </PossiblyNullOperand>
+  </file>
+  <file src="src/Tag/Tag.php">
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/User/RegisterService.php">
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(string)($data['email'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['info'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['nickname'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['password'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['password_repeat'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['username'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['website'] ?? '')]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/User/User.php">
+    <InvalidReturnStatement>
+      <code><![CDATA[self::query()->where(['username' => $username])->one()]]></code>
+    </InvalidReturnStatement>
+  </file>
+  <file src="src/User/UserRepository.php">
+    <PossiblyFalseArgument>
+      <code><![CDATA[$decoded]]></code>
+    </PossiblyFalseArgument>
+    <PossiblyNullOperand>
+      <code><![CDATA[$user->id]]></code>
+    </PossiblyNullOperand>
+    <PossiblyUndefinedArrayOffset>
+      <code><![CDATA[$authKey]]></code>
+    </PossiblyUndefinedArrayOffset>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(string)$authKey]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+</files>

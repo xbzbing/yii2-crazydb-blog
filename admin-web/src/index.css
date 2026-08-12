@@ -1,0 +1,58 @@
+:root {
+  --ant-primary: #1677ff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Vditor 全屏时覆盖 ProLayout header/aside 的 z-index（header=100, aside 更高） */
+.vditor--fullscreen {
+  z-index: 999 !important;
+}
+
+.vditor--fullscreen .vditor-toolbar,
+.vditor--fullscreen .vditor-panel,
+.vditor--fullscreen .vditor-tip,
+.vditor--fullscreen .vditor-dialog {
+  z-index: 1000 !important;
+}
+
+/* 侧边栏：不透明背景，避免滑动时透过 aside 显示底层内容 */
+.ant-pro-sider,
+.ant-pro-sider > .ant-layout-sider-children {
+  background-color: #fff !important;
+}
+
+.ant-pro-sider.ant-pro-sider-fixed .ant-pro-sider-logo {
+  background-color: #fff !important;
+}
+
+/* mix 布局下侧边栏的菜单容器同样盖住背景 */
+.ant-pro-sider .ant-menu {
+  background-color: #fff !important;
+}
+
+/* 后台内容区 padding 收窄（默认 32px 40px → 顶部 8px，左右 20px） */
+.ant-layout-content.ant-pro-layout-content {
+  padding: 8px 20px 20px !important;
+}
+
+/* 面包屑与顶部间距收紧（antd PageHeader 默认 breadcrumb 顶部 18px、page-header 顶部 8px） */
+.ant-pro-page-container .ant-page-header-breadcrumb {
+  padding-top: 2px !important;
+}
+.ant-pro-page-container .ant-page-header {
+  padding-top: 4px !important;
+}

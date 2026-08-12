@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Web\Sitemap;
+
+use App\Category\Category;
+use App\Post\Post;
+use App\Tag\Tag;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Router\UrlGeneratorInterface;
+
+/**
+ * XML Sitemap：固定页 + 文章（published）+ 分类 + 标签（版本化缓存 1h，单文件最多 50,000 URL）。
+ */
+final readonly class Action
+{
+    /** Sitemap XML 协议规定的单文件最大 URL 数。 */
+    private const MAX_URLS = 50000;
+
+    public function __construct(
+        private ResponseFactoryInterface $responseFactory,
+        private UrlGeneratorInterface $urlGenerator,
+        private CacheInterface $cache,
+    ) {
+    }
+
+    public function __invoke(): ResponseInterface
+    {
+        $version = max(
+            (int)Post::query()->max('update_time'),
+            (int)Category::query()->max('update_time'),
+            (int)Tag::query()->max('id'),
+        );
+        /** @var string $body */
+        $body = $this->cache->getOrSet(
+            '__sitemap.' . $version,
+            fn (): string => $this->buildXml(),
+            3600,
+        );
+
+        $response = $this->responseFactory->createResponse();
+        $response->getBody()->write($body);
+        return $response
+            ->withHeader('Content-Type', 'application/xml; charset=UTF-8')
+            ->withHeader('Cache-Control', 'public, max-age=3600');
+    }
+
+    private function buildXml(): string
+    {
+        $urls = [
+            ['loc' => $this->urlGenerator->generateAbsolute('site/index'), 'priority' => '1.0'],
+            ['loc' => $this->urlGenerator->generateAbsolute('post/list'), 'priority' => '0.8'],
+            ['loc' => $this->urlGenerator->generateAbsolute('post/archives'), 'priority' => '0.6'],
+            ['loc' => $this->urlGenerator->generateAbsolute('tag/list'), 'priority' => '0.6'],
+        ];
+
+        /** @var list<Post> $posts */
+        $posts = Post::query()
+            ->select('id,alias,title,update_time')
+            ->where(['status' => Post::STATUS_PUBLISHED])
+            ->orderBy(['update_time' => SORT_DESC])
+            ->limit(self::MAX_URLS - count($urls))
+            ->all();
+        foreach ($posts as $post) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
+            $url = $post->getUrl($this->urlGenerator, true);
+            if ($url !== null) {
+                $urls[] = [
+                    'loc' => $url,
+                    'lastmod' => date('c', (int)$post->update_time),
+                    'priority' => '0.9',
+                ];
+            }
+        }
+
+        /** @var list<Category> $categories */
+        $categories = Category::query()->limit(self::MAX_URLS - count($urls))->all();
+        foreach ($categories as $category) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
+            $urls[] = [
+                'loc' => $category->getUrl($this->urlGenerator),
+                'priority' => '0.7',
+            ];
+        }
+
+        /** @var list<array{name: string}> $tagRows */
+        $tagRows = Tag::query()
+            ->select('name')
+            ->distinct()
+            ->limit(self::MAX_URLS - count($urls))
+            ->asArray()
+            ->all();
+        foreach ($tagRows as $row) {
+            if (count($urls) >= self::MAX_URLS) {
+                break;
+            }
+            $urls[] = [
+                'loc' => $this->urlGenerator->generateAbsolute('tag/show', ['name' => (string)$row['name']]),
+                'priority' => '0.5',
+            ];
+        }
+
+        $body = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        foreach ($urls as $url) {
+            $body .= "  <url>\n"
+                . '    <loc>' . $this->escape($url['loc']) . "</loc>\n"
+                . (isset($url['lastmod']) ? '    <lastmod>' . $this->escape($url['lastmod']) . "</lastmod>\n" : '')
+                . '    <priority>' . $url['priority'] . "</priority>\n"
+                . "  </url>\n";
+        }
+        $body .= '</urlset>';
+
+        return $body;
+    }
+
+    private function escape(string $text): string
+    {
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $text) ?? $text;
+        return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    }
+}
