@@ -178,4 +178,32 @@ final class ApiSerializer
             'create_time' => (int)$l->create_time,
         ], $logs);
     }
+
+    /**
+     * @param list<\App\CustomConfig\CustomConfig> $configs
+     * @return list<array<string, mixed>>
+     */
+    public static function customConfigs(array $configs): array
+    {
+        return array_map(static fn (\App\CustomConfig\CustomConfig $c): array => self::customConfig($c), $configs);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function customConfig(\App\CustomConfig\CustomConfig $c): array
+    {
+        return [
+            'id' => (int)$c->id,
+            'category' => $c->category,
+            'key' => $c->key,
+            'name' => $c->name,
+            'value' => (string)$c->value,
+            'data_type' => $c->data_type,
+            'priority' => (int)$c->priority,
+            'description' => $c->description,
+            'create_time' => (int)$c->create_time,
+            'update_time' => (int)$c->update_time,
+        ];
+    }
 }

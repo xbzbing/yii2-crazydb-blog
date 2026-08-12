@@ -61,7 +61,7 @@ export default function VditorEditor({
       upload: {
         url: `${ADMIN_BASE}/upload/image`,
         fieldName: 'file',
-        max: 2 * 1024 * 1024,
+        max: 16 * 1024 * 1024,
         accept: 'image/png, image/jpeg, image/gif, image/webp',
         withCredentials: false,
         headers: {

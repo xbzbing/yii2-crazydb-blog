@@ -184,3 +184,29 @@ CREATE TABLE IF NOT EXISTS `visit_daily` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='按日访问统计';
+
+-- ------------------------------------------------------------
+-- 自定义配置表（个性化设置：ThemeDIY/IndexCarousel 等分类）
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `custom_config` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `category` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '分类',
+  `key` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '配置键（分类内唯一）',
+  `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '名称',
+  `value` TEXT NULL COMMENT '配置值',
+  `data_type` VARCHAR(20) NOT NULL DEFAULT 'text' COMMENT '值类型: text/markdown/html/image/url/base64/hex',
+  `priority` INT NOT NULL DEFAULT 0 COMMENT '优先级（越大越靠前）',
+  `description` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '描述',
+  `create_time` INT UNSIGNED NOT NULL DEFAULT 0,
+  `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_category_key` (`category`, `key`),
+  KEY `idx_priority` (`category`, `priority`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='自定义配置';
+
+-- 初始化：CrazyDB 主题「关于我」侧栏内容（原写死在主题模板中，现提取到配置）
+INSERT INTO `custom_config` (`category`, `key`, `name`, `value`, `data_type`, `priority`, `description`, `create_time`, `update_time`)
+SELECT 'ThemeDIY', 'aboutMe', '关于我',
+       '曾经是爱好网络安全的程序猿\n\n后来是爱好编程的安全攻城狮\n\n现在是爱好安全的摸鱼工程师\n\n**联系方式**：xbzbing#gmail.com',
+       'markdown', 100, '侧栏「关于我」内容（Markdown 渲染）', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()
+WHERE NOT EXISTS (SELECT 1 FROM `custom_config` WHERE `category` = 'ThemeDIY' AND `key` = 'aboutMe');

@@ -45,6 +45,7 @@ services:
     volumes:
       - ./:/opt/webroot
       - ~/data/blog-yii/risk-runtime:/opt/log/php
+      - ./deploy/php8-alpine/php-uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
     networks:
       - frontend
       - backend

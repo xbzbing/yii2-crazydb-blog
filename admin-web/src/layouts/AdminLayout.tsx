@@ -9,6 +9,7 @@ import {
   TeamOutlined,
   HistoryOutlined,
   SettingOutlined,
+  SlidersOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
@@ -41,6 +42,16 @@ const menuItems: MenuItem[] = [
   { key: '/tags', path: '/tags', name: '标签管理', icon: <TagsOutlined /> },
   { key: '/users', path: '/users', name: '用户管理', icon: <TeamOutlined /> },
   { key: '/logs', path: '/logs', name: '日志管理', icon: <HistoryOutlined /> },
+  {
+    key: '/customize',
+    name: '个性化设置',
+    icon: <SlidersOutlined />,
+    path: '/customize',
+    routes: [
+      { key: '/customize/config', path: '/customize/config', name: '自定义配置' },
+      { key: '/customize/carousel', path: '/customize/carousel', name: '轮播图片' },
+    ],
+  },
   {
     key: '/config',
     name: '站点配置',
