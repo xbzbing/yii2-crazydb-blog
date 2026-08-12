@@ -457,6 +457,10 @@ article.list-group-item:nth-of-type(1) {
     margin: 0 -10px -10px -10px;
 }
 
+.about-me-content { font-size: 14px; line-height: 1.7; color: #666; }
+.about-me-content p { margin: 0 0 8px; }
+.about-me-content a { color: #337AB7; }
+
 .rss-feed {
     position: relative;
     top: 1px;
