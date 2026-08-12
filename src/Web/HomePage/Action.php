@@ -50,10 +50,32 @@ final readonly class Action
             ->offset($pager->offset)
             ->all();
 
+        // 栏目分区数据（墨刊主题：按分类取最新 3 篇）
+        $sections = [];
+        /** @var list<Category> $topCategories */
+        $topCategories = Category::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all();
+        foreach ($topCategories as $category) {
+            /** @var list<Post> $sectionPosts */
+            $sectionPosts = Post::query()
+                ->where(['cid' => (int)$category->id, 'status' => Post::visibleStatuses()])
+                ->orderBy(['post_time' => SORT_DESC])
+                ->limit(3)
+                ->all();
+            if ($sectionPosts !== []) {
+                $sections[] = [
+                    'category' => $category,
+                    'posts' => $sectionPosts,
+                ];
+            }
+        }
+        $latest = $posts[0] ?? null;
+
         return $this->viewRenderer->render(
             __DIR__ . '/template',
             [
                 'posts' => $posts,
+                'latest' => $latest,
+                'sections' => $sections,
                 'pager' => $pager,
                 'markdownRenderer' => $this->markdownRenderer,
                 'urlGenerator' => $this->urlGenerator,
