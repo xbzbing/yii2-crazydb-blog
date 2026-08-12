@@ -131,6 +131,7 @@ export interface Tag {
 export interface LogItem {
   id: number
   uid: number
+  nickname: string
   type: string
   action: string
   result: string

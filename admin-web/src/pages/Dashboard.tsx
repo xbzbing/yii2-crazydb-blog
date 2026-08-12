@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Row, Col, Statistic, Spin, Segmented } from 'antd'
+import { Card, Row, Col, Statistic, Spin, Segmented, Tooltip } from 'antd'
 import { Line } from '@ant-design/plots'
 import {
   FileTextOutlined,
@@ -8,6 +8,7 @@ import {
   DatabaseOutlined,
   EyeOutlined,
   UserOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { DashboardData } from '../types/api'
@@ -57,7 +58,14 @@ export default function Dashboard() {
 
       <Col span={24}>
         <Card
-          title="访问趋势"
+          title={
+            <>
+              访问趋势
+              <Tooltip title="数据每 10 分钟更新一次">
+                <QuestionCircleOutlined style={{ marginLeft: 6, fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'help' }} />
+              </Tooltip>
+            </>
+          }
           extra={
             <Segmented
               options={[
