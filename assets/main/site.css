@@ -464,3 +464,15 @@ a:hover {
     text-decoration: underline;
 }
 .comment-reply-hint { font-size: 13px; color: #b4432c; min-height: 1.2em; }
+
+/* TOC */
+.article-toc {
+    border: 1px solid var(--line, #e8e4dc);
+    background: #fff;
+    padding: 12px 16px;
+    margin: 0 0 24px;
+    font-size: 14px;
+}
+.article-toc summary { cursor: pointer; font-weight: 600; }
+.article-toc ul { list-style: none; margin: 8px 0 0; padding-left: 8px; }
+.article-toc .toc-level-3 { padding-left: 16px; }

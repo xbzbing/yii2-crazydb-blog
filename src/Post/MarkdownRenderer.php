@@ -97,4 +97,37 @@ final class MarkdownRenderer
             'HTML.ForbiddenElements' => ['form'],
         ]);
     }
+
+    /**
+     * 为正文 h2/h3 标题生成锚点 id，并提取目录（TOC）。
+     *
+     * @param string $html 已渲染的正文 HTML（会被原地改写：标题加 id）
+     * @return list<array{id: string, level: int, text: string}> 目录项（h2/h3，按出现顺序）
+     */
+    public function attachTocAnchors(string &$html): array
+    {
+        $toc = [];
+        $counter = 0;
+        $html = preg_replace_callback(
+            '/<h([123])([^>]*)>(.*?)<\/h\1>/is',
+            function (array $m) use (&$toc, &$counter): string {
+                $level = (int)$m[1];
+                $attrs = $m[2];
+                $inner = $m[3];
+                $text = trim(html_entity_decode(strip_tags($inner), ENT_QUOTES, 'UTF-8'));
+                $id = 'toc-' . ++$counter;
+                if (!preg_match('/\bid=/i', $attrs)) {
+                    $attrs .= ' id="' . $id . '"';
+                } else {
+                    $id = '';
+                }
+                if ($id !== '' && $text !== '') {
+                    $toc[] = ['id' => $id, 'level' => $level, 'text' => $text];
+                }
+                return "<h{$level}{$attrs}>{$inner}</h{$level}>";
+            },
+            $html,
+        ) ?? $html;
+        return $toc;
+    }
 }
