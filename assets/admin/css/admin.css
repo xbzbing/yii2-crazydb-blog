@@ -1,0 +1,206 @@
+@charset "utf-8";
+
+/* ===== 后台细节样式（布局由 AdminLTE 4 提供） ===== */
+
+/* 表格 */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.admin-table th,
+.admin-table td {
+    border: 1px solid #dee2e6;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+}
+.admin-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+.admin-table tr:nth-child(even) td {
+    background: #fcfcfd;
+}
+.admin-table img {
+    max-width: 80px;
+    max-height: 60px;
+}
+.admin-table a {
+    margin-right: 6px;
+}
+.admin-check {
+    text-align: center;
+}
+.admin-inline {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* 行内编辑（用户管理等 details 展开） */
+.admin-inline-details {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.admin-inline-details summary {
+    cursor: pointer;
+    color: #337ab7;
+    font-size: 13px;
+}
+.admin-inline-details form {
+    margin-top: 6px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fafafa;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 列表页操作按钮（admin-table 内） */
+.table-actions {
+    white-space: nowrap;
+}
+
+/* 表单 */
+.admin-form {
+    max-width: 720px;
+}
+.admin-form label {
+    display: block;
+    margin-bottom: 14px;
+    color: #555;
+}
+.admin-form label input[type="text"],
+.admin-form label input[type="password"],
+.admin-form label input[type="email"],
+.admin-form label select,
+.admin-form label textarea {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 7px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.admin-form label textarea {
+    font-family: inherit;
+}
+.admin-form label select {
+    width: auto;
+    min-width: 200px;
+}
+.admin-field {
+    margin-bottom: 14px;
+}
+.admin-field label {
+    display: block;
+    margin-bottom: 4px;
+    color: #555;
+}
+.admin-field input[type="text"],
+.admin-field input[type="password"],
+.admin-field textarea,
+.admin-field select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+.admin-filter {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.admin-filter input[type="text"],
+.admin-filter select {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.form-error {
+    color: #c0392b;
+    background: #fdecea;
+    border: 1px solid #f5c6c2;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+}
+
+/* 统计卡（仪表盘） */
+.admin-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+.admin-stat {
+    flex: 1;
+    min-width: 160px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+}
+.admin-stat-warn {
+    background: #fff7e8;
+    border-color: #f0d9a8;
+}
+.stat-num {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    color: #212529;
+}
+.stat-label {
+    display: block;
+    margin-top: 4px;
+    color: #6c757d;
+}
+
+/* 其他 */
+.admin-content {
+    background: #fff;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+}
+.admin-comment-content {
+    max-width: 420px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pagination {
+    display: flex;
+    gap: 6px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.pagination a,
+.pagination span {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+}
+.pagination span.current {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+.muted {
+    color: #888;
+}
