@@ -13,19 +13,19 @@ networks:
 services:
   nginx:
     build:
-      context: ./deploy/nginx-alpine
+      context: ${APP_SRC_DIR:-.}/deploy/nginx-alpine
     image: blog-nginx:1.30-alpine
     container_name: blog-nginx
     environment:
       - TZ=Asia/Shanghai
     command: /bin/sh -c "crond -f -l 2 & nginx -g 'daemon off;'"
     volumes:
-      - ./config/sites-enabled:/etc/nginx/conf.d
-      - ./:/opt/webroot
-      - ./data/nginx/log:/var/log/nginx
+      - ${APP_SRC_DIR:-.}/config/sites-enabled:/etc/nginx/conf.d
+      - ${APP_SRC_DIR:-.}:/opt/webroot
+      - ${DEPLOY_DATA_DIR:-./data}/nginx/log:/var/log/nginx
       # SSL 证书（取消注释并配置路径）
-      # - ${SSL_CERT_PATH:-./ssl/cert.pem}:/etc/nginx/ssl/cert.pem:ro
-      # - ${SSL_KEY_PATH:-./ssl/key.pem}:/etc/nginx/ssl/key.pem:ro
+      # - ${DEPLOY_DATA_DIR:-./data}/ssl/cert.pem:/etc/nginx/ssl/cert.pem:ro
+      # - ${DEPLOY_DATA_DIR:-./data}/ssl/key.pem:/etc/nginx/ssl/key.pem:ro
     depends_on:
       - php
     networks:
@@ -37,16 +37,16 @@ services:
 
   php:
     build:
-      context: ./deploy/php8-alpine
+      context: ${APP_SRC_DIR:-.}/deploy/php8-alpine
     image: blog-php:8.5-fpm-alpine
     container_name: blog-php
     env_file: .env
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - ./:/opt/webroot
-      - ./data/blog-yii/risk-runtime:/opt/log/php
-      - ./deploy/php8-alpine/php-uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
+      - ${APP_SRC_DIR:-.}:/opt/webroot
+      - ${DEPLOY_DATA_DIR:-./data}/blog-yii/risk-runtime:/opt/log/php
+      - ${APP_SRC_DIR:-.}/deploy/php8-alpine/php-uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
     networks:
       - frontend
       - backend
@@ -64,7 +64,7 @@ services:
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - TZ=Asia/Shanghai
     volumes:
-      - ./data/blog-mysql:/var/lib/mysql
+      - ${DEPLOY_DATA_DIR:-./data}/blog-mysql:/var/lib/mysql
     ports:
       - "${DB_PORT_EXPOSE:-127.0.0.1:3306}:3306"
     healthcheck:
@@ -83,7 +83,7 @@ services:
       - TZ=Asia/Shanghai
     command: "redis-server --requirepass ${REDIS_PASSWORD}"
     volumes:
-      - ./data/blog-redis:/data
+      - ${DEPLOY_DATA_DIR:-./data}/blog-redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -104,7 +104,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
     volumes:
-      - ./:/opt/webroot
+      - ${APP_SRC_DIR:-.}:/opt/webroot
     networks:
       - backend
     depends_on:

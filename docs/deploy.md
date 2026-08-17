@@ -21,6 +21,8 @@ vim .env   # 按需修改
 | `MAILER_DSN` | 否 | SMTP DSN（symfony/mailer 格式），默认 `null://` 不发送 |
 | `COOKIE_SECURE` | 否 | HTTPS 部署设为 `true`（session 与记住我 cookie 均启用 Secure 标记） |
 | `CAPTCHA_DEBUG` | 否 | 仅开发环境设 `true`（验证码直通） |
+| `APP_SRC_DIR` | 否 | 源码目录，默认 `.`（仅 docker-compose-deploy.yml 使用） |
+| `DEPLOY_DATA_DIR` | 否 | 持久化数据目录，默认 `./data`（仅 docker-compose-deploy.yml 使用） |
 
 > 说明：生产部署由 `docker compose -f docker-compose-deploy.yml` 通过 `env_file: .env`
 > 注入容器；开发环境容器内已内置默认 DB/Redis 环境变量（见 docker-compose-dev.yml），
