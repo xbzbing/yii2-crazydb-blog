@@ -435,6 +435,8 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     width: 260px;
     flex-shrink: 0;
     font-size: 14px;
+    /* 与左侧 .site-main 顶部对齐（padding: 24px 0 48px） */
+    padding: 24px 0 48px;
 }
 
 /* 侧栏组件（模板输出 .widget，Yii2 遗留类名） */
