@@ -13,10 +13,13 @@ export default defineConfig({
     emptyOutDir: true,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
+      maxParallelFileOps: 2,
       output: {
+        // 只拆分 react 与图表引擎。antd 走默认 tree-shaking（ESM 按需），
+        // 不强制整包拆分，避免单 chunk 过大导致低内存机器构建 OOM。
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          antd: ['antd', '@ant-design/icons', '@ant-design/pro-components'],
+          charts: ['@ant-design/plots'],
         },
       },
     },
