@@ -138,13 +138,17 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     border-radius: 999px;
     transition: background var(--transition);
 }
-/* 名字后的菜单图标（▾），明确表示这是可展开菜单 */
+/* 名字后的菜单图标（实心三角），明确表示这是可展开菜单 */
 .site-nav .user-menu-toggle::after {
-    content: '▾';
-    font-size: 11px;
-    line-height: 1;
-    margin-left: 2px;
-    opacity: .85;
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    margin-left: 6px;
+    margin-top: 2px;
+    opacity: .9;
 }
 .site-nav .user-menu-toggle:hover {
     background: var(--accent-hover);

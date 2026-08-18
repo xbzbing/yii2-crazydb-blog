@@ -97,11 +97,15 @@ a:hover { text-decoration: underline; }
     transition: background 0.2s, color 0.2s;
 }
 .magazine-user-toggle::after {
-    content: '▾';
-    font-size: 11px;
-    line-height: 1;
-    margin-left: 2px;
-    opacity: .8;
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    margin-left: 6px;
+    margin-top: 2px;
+    opacity: .9;
 }
 .magazine-user-toggle:hover {
     background: var(--accent);
