@@ -170,7 +170,7 @@ final class InitEnvCommand extends Command
         $output->writeln('');
         $output->writeln('<info>下一步：</info>');
         $output->writeln('<info>  docker compose up -d     # 启动服务</info>');
-        $output->writeln('<info>  docker compose run init  # 初始化数据库（首次）</info>');
+        $output->writeln('<info>  docker compose exec php php yii init/migrate  # 初始化数据库（首次）</info>');
         $output->writeln('');
 
         return ExitCode::OK;

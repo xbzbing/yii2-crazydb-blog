@@ -3,7 +3,7 @@
 # 用法：
 #   1. cp .env.example .env && vim .env   # 填写必填配置
 #   2. docker compose up -d               # 启动服务
-#   3. docker compose run init             # 首次初始化数据库（可选）
+#   3. docker compose exec php php yii init/migrate   # 首次初始化数据库（可选）
 # ============================================================
 
 networks:
@@ -23,9 +23,8 @@ services:
       - ${APP_SRC_DIR:-.}/config/sites-enabled:/etc/nginx/conf.d
       - ${APP_SRC_DIR:-.}:/opt/webroot
       - ${DEPLOY_DATA_DIR:-./data}/nginx/log:/var/log/nginx
-      # SSL 证书（取消注释并配置路径）
-      # - ${DEPLOY_DATA_DIR:-./data}/ssl/cert.pem:/etc/nginx/ssl/cert.pem:ro
-      # - ${DEPLOY_DATA_DIR:-./data}/ssl/key.pem:/etc/nginx/ssl/key.pem:ro
+      # SSL 证书目录（内含 cert.pem / key.pem）
+      - ${DEPLOY_DATA_DIR:-./data}/ssl:/etc/nginx/ssl
     depends_on:
       - php
     networks:
@@ -45,8 +44,8 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ${APP_SRC_DIR:-.}:/opt/webroot
-      - ${DEPLOY_DATA_DIR:-./data}/blog-yii/risk-runtime:/opt/log/php
       - ${APP_SRC_DIR:-.}/deploy/php8-alpine/php-uploads.ini:/usr/local/etc/php/conf.d/zz-uploads.ini:ro
+      - ${DEPLOY_DATA_DIR:-./data}/blog-yii/risk-runtime:/opt/log/php
     networks:
       - frontend
       - backend
@@ -95,21 +94,3 @@ services:
     networks:
       - backend
 
-  # 一次性初始化容器：docker compose run init
-  # 通过 Yii3 控制台命令检查数据库状态并自动执行升级
-  init:
-    image: blog-php:8.5-fpm-alpine
-    container_name: blog-init
-    env_file: .env
-    environment:
-      - TZ=Asia/Shanghai
-    volumes:
-      - ${APP_SRC_DIR:-.}:/opt/webroot
-    networks:
-      - backend
-    depends_on:
-      mysql:
-        condition: service_healthy
-    working_dir: /opt/webroot
-    command: ["php", "yii", "init/migrate"]
-    restart: "no"
