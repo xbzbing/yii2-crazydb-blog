@@ -10,6 +10,7 @@ import {
   HistoryOutlined,
   SettingOutlined,
   SlidersOutlined,
+  SafetyCertificateOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
@@ -59,6 +60,7 @@ const menuItems: MenuItem[] = [
     path: '/config',
     routes: [
       { key: '/config/basic', path: '/config/basic', name: '基本设置' },
+      { key: '/config/auth', path: '/config/auth', name: '认证配置', icon: <SafetyCertificateOutlined /> },
       { key: '/config/seo', path: '/config/seo', name: 'SEO 设置' },
       { key: '/config/cache', path: '/config/cache', name: '缓存管理' },
       { key: '/config/env', path: '/config/env', name: '环境信息' },

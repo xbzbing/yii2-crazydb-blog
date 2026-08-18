@@ -75,9 +75,9 @@ export default function OtpSettings() {
   if (loading) return <Spin />
 
   return (
-    <Card title="二次验证（OTP）" style={{ marginTop: 16 }}>
+    <Card title="二次验证（OTP）">
       <p style={{ color: '#666', marginBottom: 16 }}>
-        开启后，登录时除密码外还需输入 Authenticator App（如 Google Authenticator）生成的 6 位验证码。
+        为<strong>当前账号</strong>开启二次验证后，登录时除密码外还需输入 Authenticator App（如 Google Authenticator）生成的 6 位验证码。此绑定仅对当前账号生效，不影响其他账号。
       </p>
 
       {!otpEnabled && !showSetup && (
