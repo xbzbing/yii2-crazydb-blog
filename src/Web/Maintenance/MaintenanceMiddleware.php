@@ -14,13 +14,19 @@ use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 /**
- * 维护模式中间件：站点状态为「维护中」时，除 /admin（后台+后台 API）
- * 与 /login（管理员登录入口）外的所有前台请求统一返回维护页。
+ * 维护模式中间件：站点状态为「维护中」时，除维护放行路径外的所有前台请求返回维护页。
  *
- * 放行 /login 避免死锁：维护模式下管理员需要登录后台才能恢复运行中状态。
+ * 放行路径（防死锁 + 功能依赖）：
+ * - /admin*        后台 + 后台 API
+ * - /login         管理员登录入口（session 过期后需登录取消维护）
+ * - /tool/captcha  登录验证码（登录表单依赖）
+ * - /site/captcha  备用验证码路径
  */
 final readonly class MaintenanceMiddleware implements MiddlewareInterface
 {
+    /** 维护模式下放行的精确路径（/admin 以外） */
+    private const PASS_THROUGH_PATHS = ['/login', '/tool/captcha', '/site/captcha'];
+
     public function __construct(
         private CacheInterface $cache,
         private WebViewRenderer $viewRenderer,
@@ -31,9 +37,7 @@ final readonly class MaintenanceMiddleware implements MiddlewareInterface
     {
         $path = $request->getUri()->getPath();
 
-        // 后台 + 后台 API：直接放行（维护期间后台仍可用）
-        // 登录页：放行，否则管理员 session 过期后无法登录后台取消维护，形成死锁
-        if (str_starts_with($path, '/admin') || $path === '/login' || $path === '/login/') {
+        if ($this->isPassThrough($path)) {
             return $handler->handle($request);
         }
 
@@ -49,5 +53,18 @@ final readonly class MaintenanceMiddleware implements MiddlewareInterface
                 'maintenanceMessage' => (string)($siteConfig[Option::MAINTENANCE_MESSAGE] ?? Option::MAINTENANCE_MESSAGE_DEFAULT),
             ],
         );
+    }
+
+    /**
+     * 判断路径是否在维护模式下放行。
+     *
+     * /admin 走前缀匹配（覆盖后台 + API），其余路径精确匹配。
+     */
+    private function isPassThrough(string $path): bool
+    {
+        if (str_starts_with($path, '/admin')) {
+            return true;
+        }
+        return in_array($path, self::PASS_THROUGH_PATHS, true);
     }
 }
