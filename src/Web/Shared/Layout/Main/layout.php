@@ -82,14 +82,24 @@ $this->beginPage()
                 <?php endforeach; ?>
                 <?php $currentUser = $authService->currentUser(); ?>
                 <?php if ($currentUser !== null): ?>
-                    <li><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a></li>
-                    <li><a href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a></li>
-                    <li><a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a></li>
-                    <li>
-                        <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
-                            <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
-                            <button type="submit" class="link-button">退出</button>
-                        </form>
+                    <li class="user-menu">
+                        <a href="#" class="user-menu-toggle"><?= Html::encode($currentUser->nickname) ?></a>
+                        <ul class="user-dropdown">
+                            <li><a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>">个人资料</a></li>
+                            <li><a href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a></li>
+                            <li><a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a></li>
+                            <?php if ($currentUser->isAdmin()): ?>
+                                <li class="user-dropdown-divider"></li>
+                                <li><a href="<?= Html::encode($urlGenerator->generate('admin/index')) ?>">管理后台</a></li>
+                            <?php endif; ?>
+                            <li class="user-dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
+                                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                                    <button type="submit" class="link-button">退出</button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                 <?php else: ?>
                     <li><a href="<?= $urlGenerator->generate('site/login') ?>">登录</a></li>

@@ -77,6 +77,73 @@ a:hover { text-decoration: underline; }
 .magazine-nav a { color: var(--ink); }
 .magazine-nav a:hover { color: var(--accent); text-decoration: none; }
 
+/* ---------- 用户下拉菜单（登录后） ---------- */
+.magazine-user-menu {
+    position: relative;
+    display: inline-block;
+}
+.magazine-user-toggle {
+    display: inline-block;
+    padding: 4px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    color: var(--accent) !important;
+    font-weight: 600;
+    letter-spacing: .5px;
+    transition: background 0.2s, color 0.2s;
+}
+.magazine-user-toggle::after {
+    content: '▾';
+    margin-left: 6px;
+    font-size: 12px;
+}
+.magazine-user-toggle:hover {
+    background: var(--accent);
+    color: #fff !important;
+}
+.magazine-user-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 150px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: 0 6px 24px rgba(31, 29, 26, .1);
+    padding: 6px 0;
+    z-index: 20;
+}
+.magazine-user-menu:hover .magazine-user-dropdown,
+.magazine-user-menu:focus-within .magazine-user-dropdown {
+    display: block;
+}
+.magazine-user-dropdown a,
+.magazine-user-dropdown .link-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--ink);
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    cursor: pointer;
+    text-decoration: none;
+}
+.magazine-user-dropdown a:hover,
+.magazine-user-dropdown .link-button:hover {
+    background: var(--paper);
+    color: var(--accent);
+    text-decoration: none;
+}
+.magazine-user-divider {
+    display: block;
+    height: 1px;
+    background: var(--line);
+    margin: 5px 0;
+}
+
 /* ---------- 布局 ---------- */
 .magazine-layout {
     display: grid;

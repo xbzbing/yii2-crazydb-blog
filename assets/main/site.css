@@ -119,6 +119,80 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 }
 .site-nav li:hover .sub-nav { display: block; }
 
+/* --- 用户下拉菜单（登录后） --- */
+.site-nav .user-menu {
+    position: relative;
+    margin-left: 8px;
+}
+.site-nav .user-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 999px;
+    transition: background var(--transition);
+}
+.site-nav .user-menu-toggle::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+    opacity: .8;
+}
+.site-nav .user-menu-toggle:hover {
+    background: var(--accent-hover);
+    color: #fff;
+}
+.site-nav .user-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--card-bg);
+    min-width: 150px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--line);
+    padding: 6px;
+    z-index: 20;
+}
+.site-nav .user-menu:hover .user-dropdown,
+.site-nav .user-menu:focus-within .user-dropdown {
+    display: block;
+}
+.site-nav .user-dropdown a,
+.site-nav .user-dropdown .link-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--ink);
+    font-size: 14px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+}
+.site-nav .user-dropdown a:hover,
+.site-nav .user-dropdown .link-button:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+.site-nav .user-dropdown .user-dropdown-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 5px 8px;
+    padding: 0;
+}
+
 /* ============================================================
    Body / Main
    ============================================================ */
@@ -362,6 +436,75 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     flex-shrink: 0;
     font-size: 14px;
 }
+
+/* 侧栏组件（模板输出 .widget，Yii2 遗留类名） */
+.site-sidebar .widget {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+}
+.site-sidebar .widget h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+.site-sidebar .widget h3 a {
+    font-size: 12px;
+    font-weight: 400;
+}
+.site-sidebar .widget ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.site-sidebar .widget li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+.site-sidebar .widget li:last-child {
+    margin-bottom: 0;
+}
+.site-sidebar .widget a { color: var(--muted); }
+.site-sidebar .widget a:hover { color: var(--accent); }
+.site-sidebar .about-me-content {
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--muted);
+}
+.site-sidebar .about-me-content p { margin: 0 0 8px; }
+.site-sidebar .about-me-content p:last-child { margin-bottom: 0; }
+.site-sidebar .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.site-sidebar .tag-cloud a {
+    display: inline-block;
+    padding: 2px 10px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    transition: all var(--transition);
+}
+.site-sidebar .tag-cloud a:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+    text-decoration: none;
+}
+
+/* 兼容旧类名（若有模板使用） */
 .sidebar-section { margin-bottom: 28px; }
 .sidebar-section h3 {
     font-size: 14px;
