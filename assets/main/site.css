@@ -88,6 +88,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     margin: 0;
     padding: 0;
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     gap: 2px;
 }
@@ -128,22 +129,22 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 16px;
+    padding: 8px 16px; /* 垂直 padding 与普通导航项一致，保证文字基线对齐 */
     background: var(--accent);
     color: #fff;
     font-size: 14px;
     font-weight: 500;
+    line-height: 1.75;
     border-radius: 999px;
     transition: background var(--transition);
 }
+/* 名字后的菜单图标（▾），明确表示这是可展开菜单 */
 .site-nav .user-menu-toggle::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    transform: rotate(45deg) translateY(-2px);
-    opacity: .8;
+    content: '▾';
+    font-size: 11px;
+    line-height: 1;
+    margin-left: 2px;
+    opacity: .85;
 }
 .site-nav .user-menu-toggle:hover {
     background: var(--accent-hover);

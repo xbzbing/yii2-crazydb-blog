@@ -68,6 +68,7 @@ a:hover { text-decoration: underline; }
 .magazine-nav {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 28px;
     padding-top: 14px;
     font-size: 14px;
@@ -83,19 +84,24 @@ a:hover { text-decoration: underline; }
     display: inline-block;
 }
 .magazine-user-toggle {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 4px 14px;
     border: 1px solid var(--accent);
     border-radius: 2px;
     color: var(--accent) !important;
     font-weight: 600;
     letter-spacing: .5px;
+    line-height: 1.7; /* 与 .magazine-nav 文字行高一致，保证基线对齐 */
     transition: background 0.2s, color 0.2s;
 }
 .magazine-user-toggle::after {
     content: '▾';
-    margin-left: 6px;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1;
+    margin-left: 2px;
+    opacity: .8;
 }
 .magazine-user-toggle:hover {
     background: var(--accent);
