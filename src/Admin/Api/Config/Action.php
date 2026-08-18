@@ -27,9 +27,17 @@ final readonly class Action
         'allow_register' => ['label' => '允许注册（open/close）', 'type' => 'sys'],
         'need_approve' => ['label' => '评论需审核（open/close）', 'type' => 'sys'],
         'theme' => ['label' => '前台主题', 'type' => 'sys'],
+        Option::SITE_STATUS => ['label' => '站点状态', 'type' => 'sys'],
+        Option::MAINTENANCE_MESSAGE => ['label' => '维护文案', 'type' => 'sys'],
         'seo_title' => ['label' => 'SEO 标题', 'type' => 'seo'],
         'seo_keywords' => ['label' => 'SEO 关键词', 'type' => 'seo'],
         'seo_description' => ['label' => 'SEO 描述', 'type' => 'seo'],
+    ];
+
+    /** 配置默认值（DB 未存储时返回） */
+    private const DEFAULTS = [
+        Option::SITE_STATUS => Option::STATUS_RUNNING,
+        Option::MAINTENANCE_MESSAGE => Option::MAINTENANCE_MESSAGE_DEFAULT,
     ];
 
     /** @var array<string, string> */
@@ -49,7 +57,8 @@ final readonly class Action
     {
         $values = [];
         foreach (self::FIELDS as $name => $field) {
-            $values[$name] = CMSUtils::getSysConfig($this->cache, $name, true) ?? '';
+            $value = CMSUtils::getSysConfig($this->cache, $name, true);
+            $values[$name] = ($value !== null && $value !== '') ? $value : (self::DEFAULTS[$name] ?? '');
         }
         return $this->jsonResponse->ok([
             'values' => $values,
@@ -73,6 +82,10 @@ final readonly class Action
             }
             if ($name === 'theme' && !isset(ThemeFactory::AVAILABLE_THEMES[$value])) {
                 $failed[] = $name . '（未知主题）';
+                continue;
+            }
+            if ($name === Option::SITE_STATUS && !in_array($value, [Option::STATUS_RUNNING, Option::STATUS_MAINTENANCE], true)) {
+                $failed[] = $name . '（须为 running/maintenance）';
                 continue;
             }
             if (!$this->saveOption($field['type'], $name, $value)) {

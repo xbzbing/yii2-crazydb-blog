@@ -182,6 +182,8 @@ export interface ConfigValues {
   allow_register?: string
   need_approve?: string
   theme?: string
+  site_status?: string
+  maintenance_message?: string
   seo_title?: string
   seo_keywords?: string
   seo_description?: string

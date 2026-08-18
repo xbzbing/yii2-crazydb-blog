@@ -11,6 +11,7 @@ export default function BasicSettings() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [themeOptions, setThemeOptions] = useState({})
+  const siteStatus = Form.useWatch('site_status', form) ?? 'running'
 
   useEffect(() => {
     api
@@ -56,6 +57,19 @@ export default function BasicSettings() {
         <Form.Item name="theme" label="前台主题">
           <Select options={Object.entries(themeOptions).map(([v, l]) => ({ value: v, label: l }))} />
         </Form.Item>
+        <Form.Item name="site_status" label="站点状态">
+          <Select
+            options={[
+              { value: 'running', label: '运行中' },
+              { value: 'maintenance', label: '维护中' },
+            ]}
+          />
+        </Form.Item>
+        {siteStatus === 'maintenance' && (
+          <Form.Item name="maintenance_message" label="维护文案" extra="站点处于维护中时，前台首页会显示该文案">
+            <Input placeholder="系统升级中" />
+          </Form.Item>
+        )}
         <Form.Item name="allow_comment" label="允许评论">
           <Select options={[{ value: 'open', label: '开启' }, { value: 'close', label: '关闭' }]} />
         </Form.Item>

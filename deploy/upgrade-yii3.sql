@@ -148,6 +148,11 @@ UPDATE `blog_log` SET `user_agent` = ''  WHERE `user_agent` IS NULL;
 -- blog_option
 UPDATE `blog_option` SET `type` = 'sys'  WHERE `type` IS NULL OR `type` = '';
 
+-- 站点状态（运行中/维护中）与维护文案默认值（幂等：已有则跳过）
+INSERT IGNORE INTO `blog_option` (`type`, `name`, `value`, `update_time`) VALUES
+('sys', 'site_status', 'running', UNIX_TIMESTAMP()),
+('sys', 'maintenance_message', '系统升级中', UNIX_TIMESTAMP());
+
 -- ============================================================
 -- 2. 结构对齐：blog_post
 -- ============================================================

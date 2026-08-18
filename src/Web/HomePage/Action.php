@@ -8,6 +8,7 @@ use App\Category\Category;
 use App\Comment\Comment;
 use App\Common\CMSUtils;
 use App\Nav\Nav;
+use App\Option\Option;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Tag\Tag;
@@ -38,6 +39,18 @@ final readonly class Action
     ): ResponseInterface {
         $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
+
+        // 维护模式：首页渲染维护页（title 维护中 + 维护文案）
+        if (($siteConfig[Option::SITE_STATUS] ?? Option::STATUS_RUNNING) === Option::STATUS_MAINTENANCE) {
+            return $this->viewRenderer->renderPartial(
+                __DIR__ . '/maintenance',
+                [
+                    'siteConfig' => $siteConfig,
+                    'maintenanceMessage' => (string)($siteConfig[Option::MAINTENANCE_MESSAGE] ?? Option::MAINTENANCE_MESSAGE_DEFAULT),
+                    'urlGenerator' => $this->urlGenerator,
+                ],
+            );
+        }
 
         $total = Post::query()
             ->where(['status' => Post::visibleStatuses()])
