@@ -20,10 +20,10 @@ services:
       - TZ=Asia/Shanghai
     command: /bin/sh -c "crond -f -l 2 & nginx -g 'daemon off;'"
     volumes:
-      - ${APP_SRC_DIR:-.}/config/sites-enabled:/etc/nginx/conf.d
       - ${APP_SRC_DIR:-.}:/opt/webroot
+      - ${DEPLOY_DATA_DIR:-./data}/nginx/sites-enabled:/etc/nginx/conf.d
       - ${DEPLOY_DATA_DIR:-./data}/nginx/log:/var/log/nginx
-      # SSL 证书目录（内含 cert.pem / key.pem）
+      # SSL 证书目录（预留目录）
       - ${DEPLOY_DATA_DIR:-./data}/ssl:/etc/nginx/ssl
     depends_on:
       - php
