@@ -31,15 +31,25 @@ final class LoginOtpTest extends TestCase
     {
         parent::setUp();
         $this->totpService = new UserTotpService();
+        // 兜底：清理之前中断运行可能残留的 otp_% 测试用户（防 Duplicate entry）。
+        // 注意：AR 的 like 条件默认转义 %/_（Literal 匹配），这里用原生 SQL 保证通配符生效。
+        $this->db()->createCommand('DELETE FROM {{%user}} WHERE username LIKE :pattern')
+            ->bindValue(':pattern', 'otp\_%')
+            ->execute();
     }
 
     /**
      * 创建启用 OTP 的测试用户。
      *
+     * 用户名后缀随机（对齐 UserAuthTest 惯例），避免固定后缀在
+     * 测试进程被中断、cleanup 未执行时与下次运行的残留冲突。
+     *
      * @return array{user: User, totp: TOTP, cleanup: callable}
      */
     private function createOtpUser(string $suffix): array
     {
+        $suffix = $suffix . '_' . bin2hex(random_bytes(3));
+
         $user = new User();
         $user->username = 'otp_' . $suffix;
         $user->nickname = 'OTP测试' . $suffix;

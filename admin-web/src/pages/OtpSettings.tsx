@@ -81,6 +81,13 @@ export default function OtpSettings() {
     setDisableOpen(true)
   }
 
+  /** 关闭任一 Modal：清空验证码输入，避免下次打开残留 */
+  const closeModal = (which: 'setup' | 'disable') => {
+    setOtpCode('')
+    if (which === 'setup') setSetupOpen(false)
+    else setDisableOpen(false)
+  }
+
   if (loading) return <Spin />
 
   return (
@@ -108,7 +115,7 @@ export default function OtpSettings() {
       <Modal
         title="绑定 OTP 二次验证"
         open={setupOpen}
-        onCancel={() => setSetupOpen(false)}
+        onCancel={() => closeModal('setup')}
         okText="确认启用"
         cancelText="取消"
         confirmLoading={submitting}
@@ -145,7 +152,7 @@ export default function OtpSettings() {
       <Modal
         title="关闭 OTP 二次验证"
         open={disableOpen}
-        onCancel={() => setDisableOpen(false)}
+        onCancel={() => closeModal('disable')}
         okText="确认关闭"
         okButtonProps={{ danger: true, disabled: otpCode.length !== 6 }}
         cancelText="取消"
