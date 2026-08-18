@@ -136,7 +136,7 @@ WHERE NOT EXISTS (SELECT 1 FROM `blog_custom_config` WHERE `category` = 'ThemeDI
 -- ============================================================
 -- 6. 初始化 option 种子数据（幂等，已有则跳过）
 -- ============================================================
-INSERT IGNORE INTO `option` (`type`, `name`, `value`, `update_time`) VALUES
+INSERT IGNORE INTO `blog_option` (`type`, `name`, `value`, `update_time`) VALUES
 ('sys', 'site_name', 'Crazydb-Blog', UNIX_TIMESTAMP()),
 ('sys', 'admin_email', 'root@crazydb.com', UNIX_TIMESTAMP()),
 ('sys', 'allow_comment', 'open', UNIX_TIMESTAMP()),
