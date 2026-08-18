@@ -1,3 +1,10 @@
+# ============================================================
+# PHP 8.5 FPM 镜像（alpine）
+# 运行用户：compose 中 php 服务以宿主机 uid:gid（默认 1001:1001）运行，
+# 非 root 启动时 FPM 忽略 www.conf 的 user 指令，worker 即为该 uid，
+# 对 bind mount 的源码目录保持写权限。宿主机 uid 不同时覆盖
+# compose 的 user 即可，无需改镜像。
+# ============================================================
 FROM php:8.5-fpm-alpine
 
 ENV TZ Asia/Shanghai

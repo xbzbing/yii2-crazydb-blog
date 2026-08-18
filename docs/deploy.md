@@ -132,9 +132,15 @@ docker compose -f docker-compose-deploy.yml exec -T mysql sh -c \
 
 - `init/migrate` 是**增量升级**：表已存在则跳过，可重复执行；**但不会创建基础表**，
   全新部署须先导入 `deploy/schema.sql` + `deploy/seed.sql`
+- **已有 Yii2 旧库升级**：先执行 `deploy/upgrade-yii3.sql`（幂等）对齐到 Yii3 schema
+  （InnoDB、NOT NULL DEFAULT、复合主键、utf8mb4_unicode_ci），完成后用 `init/check` 校验
+- **php 容器运行用户**：`docker-compose-*.yml` 中 php 服务以宿主机 uid:gid
+  （默认 `user: "1001:1001"`）运行，保证 bind mount 源码目录可写；宿主机 uid
+  不同时覆盖为 `user: "<uid>:<gid>"`。详见 `deploy/php8-alpine/Dockerfile` 头部说明
 - `init/check` 可检测库结构是否符合预期，升级前先运行确认
 - 表前缀默认 `blog_`（Yii2 遗留命名），通过 env `DB_TABLE_PREFIX` 可覆盖；`DB_TABLE_PREFIX=` 置空则无前缀
-- 后台 SPA 构建产物 `public/admin/` 为 gitignored 运行时产物，**不在版本库**，部署时必须重新构建
+- 后台 SPA 构建产物 `public/admin/` 为 gitignored 运行时产物，**不在版本库**，部署时必须重新构建：
+  `npm --prefix admin-web install && npm --prefix admin-web run build`
 - 老文章（HTML 格式）不受影响，无需转换；新文章支持 Markdown
 - 静态资源（`web/upload/` 上传文件、`web/static/avatar/` 头像）为 gitignored 运行时数据，
   上线时需手动拷贝到新部署，保持路径不变

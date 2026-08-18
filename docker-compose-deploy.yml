@@ -39,6 +39,9 @@ services:
       context: ${APP_SRC_DIR:-.}/deploy/php8-alpine
     image: blog-php:8.5-fpm-alpine
     container_name: blog-php
+    # 以宿主机 uid:gid 运行（默认 1001:1001），保证 bind mount 源码目录可写；
+    # 宿主机 uid 不同时覆盖为 user: "<uid>:<gid>"
+    user: "1001:1001"
     env_file: .env
     environment:
       - TZ=Asia/Shanghai
