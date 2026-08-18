@@ -263,3 +263,14 @@ export interface ValidationResult {
   failed?: string[]
   values?: ConfigValues
 }
+
+/** OTP 状态 */
+export interface OtpStatus {
+  otp_enabled: boolean
+}
+
+/** OTP setup 响应 */
+export interface OtpSetupData {
+  uri: string
+  secret: string
+}

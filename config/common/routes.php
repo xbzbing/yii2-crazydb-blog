@@ -144,5 +144,10 @@ return [
             Route::get('/cache')->action([\App\Admin\Api\Cache\Action::class, 'status'])->name('admin/api/cache'),
             Route::post('/cache/clear')->action([\App\Admin\Api\Cache\Action::class, 'clear'])->name('admin/api/cache/clear'),
             Route::get('/env')->action(\App\Admin\Api\Env\Action::class)->name('admin/api/env'),
+            Route::get('/otp/status')->action([\App\Admin\Api\Otp\Action::class, 'status'])->name('admin/api/otp/status'),
+            Route::post('/otp/setup')->action([\App\Admin\Api\Otp\Action::class, 'setup'])->name('admin/api/otp/setup'),
+            Route::get('/otp/qr')->action([\App\Admin\Api\Otp\Action::class, 'qr'])->name('admin/api/otp/qr'),
+            Route::post('/otp/enable')->action([\App\Admin\Api\Otp\Action::class, 'enable'])->name('admin/api/otp/enable'),
+            Route::post('/otp/disable')->action([\App\Admin\Api\Otp\Action::class, 'disable'])->name('admin/api/otp/disable'),
         ),
 ];

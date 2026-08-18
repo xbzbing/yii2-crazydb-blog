@@ -3,6 +3,7 @@ import { Card, Form, Input, Select, Button, Space, message, Spin } from 'antd'
 import { api } from '../api/client'
 import type { ConfigValues } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
+import OtpSettings from './OtpSettings'
 
 /** 站点配置 - 基本设置 */
 export default function BasicSettings() {
@@ -85,6 +86,7 @@ export default function BasicSettings() {
           </Button>
         </Space>
       </Form>
+      <OtpSettings />
     </Card>
   )
 }

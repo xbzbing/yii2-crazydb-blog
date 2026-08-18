@@ -38,6 +38,9 @@ final class AuthService
     public function logout(): void
     {
         $this->session->remove($this->sessionKey);
+        // 清理 OTP setup 临时状态（未 enable 就登出时，防止下一登录者继承上一位的密钥）
+        $this->session->remove(UserTotpService::SESSION_SETUP_SECRET);
+        $this->session->remove(UserTotpService::SESSION_SETUP_URI);
         $this->session->regenerateId();
     }
 

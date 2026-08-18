@@ -41,6 +41,8 @@ final class User extends ActiveRecord implements IdentityInterface
     public int $active_time = 0;
     public string $auth_key = '';
     public int $status = 1;
+    public ?string $otp_secret = null;
+    public int $otp_enabled = 0;
     public ?string $info = null;
     public ?string $ext = null;
 

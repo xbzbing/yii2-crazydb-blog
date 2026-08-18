@@ -99,6 +99,8 @@ CREATE TABLE IF NOT EXISTS `blog_user` (
   `active_time` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '最后活跃时间',
   `auth_key` VARCHAR(64) NOT NULL DEFAULT '' COMMENT '记住我cookie key',
   `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '状态位: 1正常/2未激活/4封禁/8删除',
+  `otp_secret` VARCHAR(255) DEFAULT NULL COMMENT 'TOTP 密钥（Base32，NULL=未启用）',
+  `otp_enabled` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'OTP 二次验证（0/1）',
   `info` TEXT COMMENT '个人简介',
   `ext` TEXT COMMENT '扩展信息',
   PRIMARY KEY (`id`),
