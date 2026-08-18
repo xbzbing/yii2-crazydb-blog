@@ -11,7 +11,6 @@ use Yiisoft\Html\Html;
  * @var App\Shared\ApplicationParams $applicationParams
  * @var array<string, string|null> $siteConfig
  * @var string $maintenanceMessage
- * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
  */
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
@@ -77,7 +76,7 @@ $message = $maintenanceMessage !== '' ? $maintenanceMessage : '系统升级中';
             border: 3px solid #d8d2c8;
             border-top-color: #b4432c;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 4s linear infinite;
             vertical-align: -3px;
             margin-right: 6px;
         }

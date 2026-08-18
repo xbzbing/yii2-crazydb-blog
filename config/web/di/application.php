@@ -31,6 +31,7 @@ return [
                         \App\User\RememberMeMiddleware::class,
                         CsrfTokenMiddleware::class,
                         RequestCatcherMiddleware::class,
+                        \App\Web\Maintenance\MaintenanceMiddleware::class,
                         \App\Visit\VisitTrackingMiddleware::class,
                         Router::class,
                     ],
