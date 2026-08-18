@@ -84,11 +84,23 @@ $this->beginPage()
             <a href="<?= $urlGenerator->generate('post/archives') ?>">归档</a>
             <a href="<?= $urlGenerator->generate('feed/rss') ?>">RSS</a>
             <?php if ($currentUser !== null): ?>
-                <a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>"><?= Html::encode($currentUser->nickname) ?></a>
-                <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
-                    <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
-                    <button type="submit" class="link-button">退出</button>
-                </form>
+                <div class="magazine-user-menu">
+                    <a href="#" class="magazine-user-toggle"><?= Html::encode($currentUser->nickname) ?></a>
+                    <div class="magazine-user-dropdown">
+                        <a href="<?= Html::encode($urlGenerator->generate('user/show', ['name' => $currentUser->nickname])) ?>">个人资料</a>
+                        <a href="<?= Html::encode($urlGenerator->generate('user/profile-edit')) ?>">修改资料</a>
+                        <a href="<?= Html::encode($urlGenerator->generate('user/modify-password')) ?>">修改密码</a>
+                        <?php if ($currentUser->isAdmin()): ?>
+                            <span class="magazine-user-divider"></span>
+                            <a href="<?= Html::encode($urlGenerator->generate('admin/index')) ?>">管理后台</a>
+                        <?php endif; ?>
+                        <span class="magazine-user-divider"></span>
+                        <form method="post" action="<?= $urlGenerator->generate('site/logout') ?>" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
+                            <button type="submit" class="link-button">退出</button>
+                        </form>
+                    </div>
+                </div>
             <?php else: ?>
                 <a href="<?= $urlGenerator->generate('site/login') ?>">登录</a>
                 <?php if (($siteConfig['allow_register'] ?? '') === \App\Option\Option::STATUS_OPEN): ?>

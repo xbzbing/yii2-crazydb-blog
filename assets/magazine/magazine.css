@@ -68,6 +68,7 @@ a:hover { text-decoration: underline; }
 .magazine-nav {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 28px;
     padding-top: 14px;
     font-size: 14px;
@@ -76,6 +77,82 @@ a:hover { text-decoration: underline; }
 
 .magazine-nav a { color: var(--ink); }
 .magazine-nav a:hover { color: var(--accent); text-decoration: none; }
+
+/* ---------- 用户下拉菜单（登录后） ---------- */
+.magazine-user-menu {
+    position: relative;
+    display: inline-block;
+}
+.magazine-user-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    color: var(--accent) !important;
+    font-weight: 600;
+    letter-spacing: .5px;
+    line-height: 1.7; /* 与 .magazine-nav 文字行高一致，保证基线对齐 */
+    transition: background 0.2s, color 0.2s;
+}
+.magazine-user-toggle::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    margin-left: 6px;
+    margin-top: 2px;
+    opacity: .9;
+}
+.magazine-user-toggle:hover {
+    background: var(--accent);
+    color: #fff !important;
+}
+.magazine-user-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 150px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: 0 6px 24px rgba(31, 29, 26, .1);
+    padding: 6px 0;
+    z-index: 20;
+}
+.magazine-user-menu:hover .magazine-user-dropdown,
+.magazine-user-menu:focus-within .magazine-user-dropdown {
+    display: block;
+}
+.magazine-user-dropdown a,
+.magazine-user-dropdown .link-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--ink);
+    border: none;
+    background: none;
+    font-family: var(--sans);
+    cursor: pointer;
+    text-decoration: none;
+}
+.magazine-user-dropdown a:hover,
+.magazine-user-dropdown .link-button:hover {
+    background: var(--paper);
+    color: var(--accent);
+    text-decoration: none;
+}
+.magazine-user-divider {
+    display: block;
+    height: 1px;
+    background: var(--line);
+    margin: 5px 0;
+}
 
 /* ---------- 布局 ---------- */
 .magazine-layout {
@@ -533,30 +610,150 @@ a:hover { text-decoration: underline; }
 .auth-card {
     background: #fff;
     border: 1px solid var(--line);
-    padding: 32px 40px;
+    border-radius: 4px;
+    padding: 36px 40px;
     max-width: 460px;
-    margin: 24px auto;
+    margin: 28px auto;
 }
 
-.auth-card h1 { font-family: var(--serif); margin-top: 0; }
+.auth-card h1 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
 
-.auth-form label { display: flex; align-items: center; gap: 12px; margin-top: 12px; font-size: 14px; }
-.auth-form input {
-    flex: 1;
-    min-width: 0;
-    width: auto;
-    padding: 8px;
+.auth-card .auth-card-sub {
+    color: var(--ink-soft);
+    font-size: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+}
+
+/* form-row */
+.auth-form .form-row { margin-bottom: 18px; }
+.auth-form .form-row label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #444;
+    font-family: var(--sans);
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"],
+.auth-form input[type="email"],
+.auth-form input[type="url"],
+.auth-form textarea {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 3px;
     font-size: 14px;
+    color: var(--ink);
     background: var(--paper);
+    font-family: var(--sans);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
-.auth-captcha { vertical-align: middle; margin-right: 8px; border: 1px solid var(--line); }
+.auth-form input:focus,
+.auth-form textarea:focus {
+    border-color: var(--accent);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(180, 67, 44, 0.08);
+    background: #fff;
+}
+
+/* captcha */
+.captcha-row { display: flex; align-items: center; gap: 12px; }
+.captcha-input { flex: 1; min-width: 0; }
+.captcha-input input { display: block; width: 100%; }
+.auth-captcha {
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    background: var(--paper);
+    transition: border-color 0.2s;
+}
+.auth-captcha:hover { border-color: var(--accent); }
+
+/* remember */
+.auth-form .remember-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    user-select: none;
+}
+.auth-form .remember-row input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* submit */
+.auth-form .form-submit { margin-top: 0; }
+.auth-form button[type="submit"],
+.auth-form .form-submit button {
+    display: block;
+    width: 100%;
+    padding: 11px 24px;
+    border: none;
+    border-radius: 3px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--serif);
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: .3px;
+}
+.auth-form button[type="submit"]:hover,
+.auth-form .form-submit button:hover {
+    background: #9a3824;
+}
+
+.auth-form .form-link {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+}
+.auth-form .form-link a { color: var(--accent); }
+
+/* error */
+.form-error {
+    color: #A33D2A;
+    background: #FDF5F3;
+    border: 1px solid #F0C8C1;
+    border-radius: 3px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+/* tip */
+.auth-card .auth-tip {
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-top: 16px;
+}
+
+/* 旧的 auth-remember 兼容 */
 .auth-remember { font-size: 13px; display: flex; align-items: center; gap: 7px; color: var(--ink-soft); cursor: pointer; user-select: none; }
 .auth-remember input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2d6cdf; cursor: pointer; }
 .auth-form-actions { display: flex; align-items: center; gap: 16px; margin-top: 16px; }
 .auth-form-actions p { margin: 0; font-size: 13px; color: var(--ink-soft); }
-.form-error { color: #A33D2A; font-size: 14px; }
 
 /* ---------- 响应式 ---------- */
 @media (max-width: 900px) {

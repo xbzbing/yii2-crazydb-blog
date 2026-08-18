@@ -12,6 +12,7 @@ use App\User\AuthService;
 use App\User\LoginThrottle;
 use App\User\RememberMeMiddleware;
 use App\User\User;
+use App\User\UserTotpService;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,6 +30,9 @@ use Yiisoft\Yii\View\Renderer\WebViewRenderer;
  */
 final readonly class Action
 {
+    /** 防重放 TTL（秒）：同一 OTP 码在此窗口内不可重复使用（与 TOTP period 对齐） */
+    private const OTP_REPLAY_TTL = 30;
+
     public function __construct(
         private WebViewRenderer $viewRenderer,
         private ResponseFactoryInterface $responseFactory,
@@ -37,6 +41,7 @@ final readonly class Action
         private LoginThrottle $loginThrottle,
         private AuthService $authService,
         private CaptchaService $captcha,
+        private UserTotpService $totpService,
         private FlashInterface $flash,
         private bool $rememberCookieSecure = false,
     ) {}
@@ -71,7 +76,10 @@ final readonly class Action
             } else {
                 $user = $username !== '' ? User::findByUsername($username) : null;
                 if ($user === null || !$user->validatePassword($password)) {
-                    $this->recordFailure($request, $username, '用户名和密码不匹配。');
+                    // 统一文案（与 OTP 失败同串）：避免区分「密码错误」与「密码正确但验证码错」，防密码确认 oracle
+                    $this->recordFailure($request, $username, '用户名、密码或验证码不正确。');
+                } elseif ($user->otp_enabled && !$this->validateOtp($user, (string)($data['otp_code'] ?? ''))) {
+                    $this->recordFailure($request, $username, '用户名、密码或验证码不正确。');
                 } else {
                     try {
                         if ($user->rehashPasswordIfNeeded($password)) {
@@ -107,6 +115,32 @@ final readonly class Action
                 'showSidebar' => false,
             ],
         );
+    }
+
+    /**
+     * OTP 校验 + 防重放。
+     *
+     * 防重放：通过校验的码以 otp_last_code.{userId} 写入缓存（TTL=OTP_REPLAY_TTL），
+     * 同一码在 TTL 内再次提交视为重放拒绝。缓存不可用时降级为不防重放
+     * （与 LoginThrottle 的降级策略一致：Redis 故障不阻断正常登录）。
+     */
+    private function validateOtp(User $user, string $code): bool
+    {
+        if (!$this->totpService->verifyCode((string)$user->otp_secret, $code)) {
+            return false;
+        }
+        try {
+            $psr = $this->cache->psr();
+            $key = 'otp_last_code.' . (string)$user->id;
+            $last = $psr->get($key, '');
+            if ($last !== '' && hash_equals((string)$last, $code)) {
+                return false;
+            }
+            $psr->set($key, $code, self::OTP_REPLAY_TTL);
+        } catch (\Throwable) {
+            // 缓存不可用：降级放行，不阻断登录
+        }
+        return true;
     }
 
     /**

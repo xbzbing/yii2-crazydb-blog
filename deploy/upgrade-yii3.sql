@@ -154,6 +154,27 @@ INSERT IGNORE INTO `blog_option` (`type`, `name`, `value`, `update_time`) VALUES
 ('sys', 'maintenance_message', '系统升级中', UNIX_TIMESTAMP());
 
 -- ============================================================
+-- 1.1 blog_user：OTP 二次验证列（幂等，先检查再添加）
+--    注意：使用 DATABASE() 而非硬编码库名（与文件内其他过程一致，
+--    兼容 .env 自定义 DB_NAME，否则幂等检查会查错库导致重复 ALTER 失败）
+-- ============================================================
+SET @tablename = 'blog_user';
+SET @preparedStatement = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+     AND TABLE_NAME = @tablename
+     AND COLUMN_NAME = 'otp_secret'
+    ) > 0,
+    'SELECT 1',
+    CONCAT('ALTER TABLE `', @tablename, '`',
+           ' ADD COLUMN `otp_secret` VARCHAR(255) DEFAULT NULL COMMENT \'TOTP 密钥（Base32，NULL=未启用）\' AFTER `status`,',
+           ' ADD COLUMN `otp_enabled` TINYINT(1) NOT NULL DEFAULT 0 COMMENT \'OTP 二次验证（0/1）\' AFTER `otp_secret`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- ============================================================
 -- 2. 结构对齐：blog_post
 -- ============================================================
 CALL `upg_modify_column`('blog_post', 'id',           '`id` INT UNSIGNED NOT NULL AUTO_INCREMENT', 'int unsigned', 'NO', NULL);

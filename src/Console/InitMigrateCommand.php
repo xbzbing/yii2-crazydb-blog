@@ -116,6 +116,15 @@ final class InitMigrateCommand extends Command
         $applied += $seedResult['applied'];
         $skipped += $seedResult['skipped'];
 
+        // Step 6: user 表新增 OTP 二次验证列
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('user'), 'otp_secret', "VARCHAR(255) DEFAULT NULL COMMENT 'TOTP 密钥（Base32，NULL=未启用）'", 'status');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
+
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('user'), 'otp_enabled', "TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'OTP 二次验证（0/1）'", 'otp_secret');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
+
         // 3. 输出结果
         $output->writeln('');
         $output->writeln('<info>━━━ 升级完成 ━━━</info>');
@@ -178,6 +187,9 @@ final class InitMigrateCommand extends Command
         return (int) $stmt->fetchColumn() > 0;
     }
 
+    /**
+     * @return array{applied: int, skipped: int}
+     */
     private function addColumnIfNotExists(PDO $pdo, OutputInterface $output, bool $dryRun, string $table, string $column, string $definition, string $after): array
     {
         if ($this->columnExists($pdo, $table, $column)) {
@@ -203,6 +215,10 @@ final class InitMigrateCommand extends Command
         }
     }
 
+    /**
+     * @param list<string> $columns
+     * @return array{applied: int, skipped: int}
+     */
     private function addIndexIfNotExists(PDO $pdo, OutputInterface $output, bool $dryRun, string $table, string $indexName, array $columns): array
     {
         if ($this->indexExists($pdo, $table, $indexName)) {
@@ -229,6 +245,10 @@ final class InitMigrateCommand extends Command
         }
     }
 
+    /**
+     * @param list<string> $columns
+     * @return array{applied: int, skipped: int}
+     */
     private function createTableIfNotExists(PDO $pdo, OutputInterface $output, bool $dryRun, string $table, array $columns, string $comment): array
     {
         if ($this->tableExists($pdo, $table)) {

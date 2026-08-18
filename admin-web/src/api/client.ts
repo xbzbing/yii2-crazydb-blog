@@ -20,6 +20,8 @@ import type {
   LogItem,
   MeData,
   Nav,
+  OtpSetupData,
+  OtpStatus,
   Pagination,
   PostDetail,
   PostItem,
@@ -179,4 +181,9 @@ export const api = {
   cacheClear: () => request<{ message: string }>('/cache/clear', { method: 'POST' }),
 
   env: () => request<EnvData>('/env'),
+
+  otpStatus: () => request<OtpStatus>('/otp/status'),
+  otpSetup: () => request<OtpSetupData>('/otp/setup', { method: 'POST' }),
+  otpEnable: (otpCode: string) => request<{ message: string }>('/otp/enable', { method: 'POST', body: { otp_code: otpCode } }),
+  otpDisable: (otpCode: string) => request<{ message: string }>('/otp/disable', { method: 'POST', body: { otp_code: otpCode } }),
 }
