@@ -124,10 +124,14 @@ final class HtmlToMarkdownService
         $xp = new \DOMXPath($dom);
         foreach ($xp->query('//span | //font') as $node) {
             /** @var \DOMElement $node */
-            while ($node->firstChild !== null) {
-                $node->parentNode->insertBefore($node->firstChild, $node);
+            $parent = $node->parentNode;
+            if ($parent === null) {
+                continue; // 防御：文档根等极端情况下无父节点
             }
-            $node->parentNode->removeChild($node);
+            while ($node->firstChild !== null) {
+                $parent->insertBefore($node->firstChild, $node);
+            }
+            $parent->removeChild($node);
         }
 
         $body = $dom->getElementsByTagName('body')->item(0);

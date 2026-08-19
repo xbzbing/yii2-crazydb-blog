@@ -89,6 +89,7 @@ final class CommentService
         } else {
             $comment->uid = null;
             // 保护注册用户不被冒用身份
+            /** @var ?User $user */
             $user = User::query()
                 ->where(['or', ['email' => $comment->email], ['nickname' => $comment->nickname]])
                 ->one();
@@ -141,10 +142,10 @@ final class CommentService
             return;
         }
         $post = $comment->getPost();
-        $postTitle = $post?->title ?? '';
+        $postTitle = $post === null ? '' : $post->title;
         $escapedTitle = htmlspecialchars($postTitle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $escapedNickname = htmlspecialchars($comment->nickname, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $escapedContent = htmlspecialchars($comment->content, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $escapedContent = htmlspecialchars((string)$comment->content, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 
         if ($sendMail && $approved && $comment->isReply()) {
             $replyTo = $comment->getReply();

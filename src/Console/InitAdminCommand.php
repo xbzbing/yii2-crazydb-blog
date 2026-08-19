@@ -124,11 +124,11 @@ final class InitAdminCommand extends Command
         $user->active_time = time();
         $user->auth_key = bin2hex(random_bytes(32));
 
-        if (!$user->save()) {
-            $output->writeln('<error>创建用户失败</error>');
-            foreach ($user->getErrors() as $error) {
-                $output->writeln(sprintf('<error>  %s</error>', $error));
-            }
+        // Yii3 ActiveRecord::save() 为 void：失败时抛异常，而不是返回 false
+        try {
+            $user->save();
+        } catch (\Throwable $e) {
+            $output->writeln('<error>创建用户失败：' . $e->getMessage() . '</error>');
             return ExitCode::UNSPECIFIED_ERROR;
         }
 

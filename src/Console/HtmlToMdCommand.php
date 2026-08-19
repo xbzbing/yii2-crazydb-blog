@@ -43,6 +43,7 @@ final class HtmlToMdCommand extends Command
         if ($targetId !== null) {
             $query->andWhere(['id' => $targetId]);
         }
+        /** @var list<Post> $posts */
         $posts = $query->all();
 
         if ($posts === []) {
@@ -114,6 +115,6 @@ final class HtmlToMdCommand extends Command
             $output->writeln('<comment>（dry-run 模式，未写入数据库）</comment>');
         }
 
-        return $errors > 0 ? ExitCode::IO_ERROR : ExitCode::OK;
+        return $errors > 0 ? ExitCode::IOERR : ExitCode::OK;
     }
 }
