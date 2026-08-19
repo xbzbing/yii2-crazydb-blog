@@ -144,3 +144,9 @@ docker compose -f docker-compose-deploy.yml exec -T mysql sh -c \
 - 老文章（HTML 格式）不受影响，无需转换；新文章支持 Markdown
 - 静态资源（`web/upload/` 上传文件、`web/static/avatar/` 头像）为 gitignored 运行时数据，
   上线时需手动拷贝到新部署，保持路径不变
+- **访问统计**依赖定时同步：建议 crontab 每 10 分钟执行 `php yii visit/sync`
+  （Redis 实时 PV/UV/爬虫/脚本 → MySQL visit_daily）。`visit_daily` 新增的
+  `pv_crawler` / `pv_script` 列由 `init/migrate` 幂等补齐（无需手工 ALTER）
+- **爬虫/脚本访问关键词**：默认 `spider,bingbot,bot.html` / `python-,curl,wget,axios,java-http-client,java/,headless`，
+  存 option（`visit_bot_keywords` / `visit_script_keywords`），可在后台「基本设置」修改；
+  缺失/清空时回退默认值，不影响站点运行

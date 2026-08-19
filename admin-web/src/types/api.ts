@@ -162,6 +162,9 @@ export interface VisitTrendItem {
   date: string
   pv: number
   uv: number
+  pv_crawler: number
+  pv_script: number
+  pv_normal: number
 }
 
 export interface DashboardData {
@@ -172,6 +175,9 @@ export interface DashboardData {
   optionTotal: number
   todayPv: number
   todayUv: number
+  todayCrawler: number
+  todayScript: number
+  todayNormal: number
   visitTrend: VisitTrendItem[]
 }
 
@@ -184,6 +190,8 @@ export interface ConfigValues {
   theme?: string
   site_status?: string
   maintenance_message?: string
+  visit_bot_keywords?: string
+  visit_script_keywords?: string
   seo_title?: string
   seo_keywords?: string
   seo_description?: string

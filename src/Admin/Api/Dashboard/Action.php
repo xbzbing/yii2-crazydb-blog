@@ -28,6 +28,7 @@ final readonly class Action
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $days = (int)($request->getQueryParams()['days'] ?? 14);
+        $today = $this->visitService->today();
 
         return $this->jsonResponse->ok([
             'postTotal' => (int)Post::query()->count(),
@@ -35,8 +36,11 @@ final readonly class Action
             'pendingComments' => (int)Comment::query()->where(['status' => Comment::STATUS_UNAPPROVED])->count(),
             'userTotal' => (int)User::query()->count(),
             'optionTotal' => (int)Option::query()->count(),
-            'todayPv' => $this->visitService->today()['pv'],
-            'todayUv' => $this->visitService->today()['uv'],
+            'todayPv' => $today['pv'],
+            'todayUv' => $today['uv'],
+            'todayCrawler' => $today['pv_crawler'],
+            'todayScript' => $today['pv_script'],
+            'todayNormal' => $today['pv_normal'],
             'visitTrend' => $this->visitService->trend($days),
         ]);
     }

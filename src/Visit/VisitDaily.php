@@ -19,6 +19,10 @@ final class VisitDaily extends ActiveRecord
     public string|\DateTimeImmutable $date = '';
     public int $pv = 0;
     public int $uv = 0;
+    /** 爬虫访问 PV（UA 命中 visit_bot_keywords） */
+    public int $pv_crawler = 0;
+    /** 脚本访问 PV（UA 命中 visit_script_keywords） */
+    public int $pv_script = 0;
     public int $create_time = 0;
     public int $update_time = 0;
 
@@ -28,15 +32,22 @@ final class VisitDaily extends ActiveRecord
     }
 
     /**
-     * 按日期 upsert 当天的 PV/UV 聚合（存在则累加，不存在则插入）。
+     * 按日期 upsert 当天的 PV/UV/分类 PV 聚合（存在则累加，不存在则插入）。
      */
-    public static function upsertByDate(string $date, int $pv, int $uv): void
-    {
+    public static function upsertByDate(
+        string $date,
+        int $pv,
+        int $uv,
+        int $pvCrawler = 0,
+        int $pvScript = 0,
+    ): void {
         $now = time();
         $model = self::query()->where(['date' => $date])->one();
         if ($model instanceof self) {
             $model->pv += max(0, $pv);
             $model->uv = max(0, $uv);
+            $model->pv_crawler += max(0, $pvCrawler);
+            $model->pv_script += max(0, $pvScript);
             $model->update_time = $now;
             try {
                 $model->save();
@@ -48,6 +59,8 @@ final class VisitDaily extends ActiveRecord
         $model->date = $date;
         $model->pv = max(0, $pv);
         $model->uv = max(0, $uv);
+        $model->pv_crawler = max(0, $pvCrawler);
+        $model->pv_script = max(0, $pvScript);
         $model->create_time = $now;
         $model->update_time = $now;
         try {
@@ -57,15 +70,15 @@ final class VisitDaily extends ActiveRecord
     }
 
     /**
-     * 取某时间区间（含边界）的每日 PV/UV，按日期升序。
+     * 取某时间区间（含边界）的每日 PV/UV/分类 PV，按日期升序。
      *
-     * @return list<array{date: string, pv: int, uv: int}>
+     * @return list<array{date: string, pv: int, uv: int, pv_crawler: int, pv_script: int}>
      */
     public static function range(string $from, string $to): array
     {
         /** @var list<self> $rows */
         $rows = self::query()
-            ->select(['date', 'pv', 'uv'])
+            ->select(['date', 'pv', 'uv', 'pv_crawler', 'pv_script'])
             ->where(['>=', 'date', $from])
             ->andWhere(['<=', 'date', $to])
             ->orderBy(['date' => SORT_ASC])
@@ -77,6 +90,8 @@ final class VisitDaily extends ActiveRecord
                 'date' => $date,
                 'pv' => $row->pv,
                 'uv' => $row->uv,
+                'pv_crawler' => $row->pv_crawler,
+                'pv_script' => $row->pv_script,
             ];
         }
         return $result;

@@ -84,6 +84,8 @@ final class InitMigrateCommand extends Command
             '`date` DATE NOT NULL COMMENT \'日期\'',
             '`pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT \'访问次数(PV)\'',
             '`uv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT \'独立IP数(UV)\'',
+            '`pv_crawler` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT \'爬虫访问(PV)\'',
+            '`pv_script` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT \'脚本访问(PV)\'',
             '`create_time` INT UNSIGNED NOT NULL DEFAULT 0',
             '`update_time` INT UNSIGNED NOT NULL DEFAULT 0',
             'PRIMARY KEY (`id`)',
@@ -91,6 +93,15 @@ final class InitMigrateCommand extends Command
         ], '按日访问统计');
         $applied += $tableResult['applied'];
         $skipped += $tableResult['skipped'];
+
+        // Step 3b: visit_daily 表新增爬虫/脚本分类列（兼容已建表升级）
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('visit_daily'), 'pv_crawler', "INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '爬虫访问(PV)'", 'uv');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
+
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('visit_daily'), 'pv_script', "INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '脚本访问(PV)'", 'pv_crawler');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
 
         // Step 4: 创建 custom_config 表
         $tableResult = $this->createTableIfNotExists($pdo, $output, $dryRun, $this->t('custom_config'), [
@@ -275,6 +286,11 @@ final class InitMigrateCommand extends Command
         }
     }
 
+    /**
+     * 种子数据：custom_config 主题内容 + option 站点配置（幂等）。
+     *
+     * @return array{applied: int, skipped: int}
+     */
     private function insertSeedData(PDO $pdo, OutputInterface $output, bool $dryRun): array
     {
         $applied = 0;
@@ -306,7 +322,7 @@ final class InitMigrateCommand extends Command
         // option 种子数据
         $optionTable = $this->t('option');
         $optionCount = $this->countRecords($pdo, $optionTable);
-        if ($optionCount >= 8) {
+        if ($optionCount >= 10) {
             $output->writeln(sprintf('  <comment>✓</comment> option 表已有 %d 条数据，跳过', $optionCount));
             $skipped++;
         } else {
@@ -316,12 +332,14 @@ final class InitMigrateCommand extends Command
                     ('sys', 'allow_comment', 'open', UNIX_TIMESTAMP()),
                     ('sys', 'allow_register', 'open', UNIX_TIMESTAMP()),
                     ('sys', 'need_approve', 'close', UNIX_TIMESTAMP()),
+                    ('sys', 'visit_bot_keywords', 'spider,bingbot,bot.html', UNIX_TIMESTAMP()),
+                    ('sys', 'visit_script_keywords', 'python-,curl,wget,axios,java-http-client,java/,headless', UNIX_TIMESTAMP()),
                     ('seo', 'seo_title', 'Crazydb-Blog', UNIX_TIMESTAMP()),
                     ('seo', 'seo_keywords', 'blog,crazydb', UNIX_TIMESTAMP()),
                     ('seo', 'seo_description', 'Crazydb-Blog，基于Yii2的博客系统', UNIX_TIMESTAMP())";
 
             if ($dryRun) {
-                $output->writeln(sprintf('  <info>○</info> option 表数据不足（%d/8），将插入', $optionCount));
+                $output->writeln(sprintf('  <info>○</info> option 表数据不足（%d/10），将插入', $optionCount));
                 $applied++;
             } else {
                 try {

@@ -11,6 +11,8 @@ INSERT INTO `blog_option` (`type`, `name`, `value`, `update_time`) VALUES
 ('sys', 'allow_comment', 'open', UNIX_TIMESTAMP()),
 ('sys', 'allow_register', 'open', UNIX_TIMESTAMP()),
 ('sys', 'need_approve', 'close', UNIX_TIMESTAMP()),
+('sys', 'visit_bot_keywords', 'spider,bingbot,bot.html', UNIX_TIMESTAMP()),
+('sys', 'visit_script_keywords', 'python-,curl,wget,axios,java-http-client,java/,headless', UNIX_TIMESTAMP()),
 ('seo', 'seo_title', 'Crazydb-Blog', UNIX_TIMESTAMP()),
 ('seo', 'seo_keywords', 'blog,crazydb', UNIX_TIMESTAMP()),
 ('seo', 'seo_description', 'Crazydb-Blog，基于Yii2的博客系统', UNIX_TIMESTAMP())

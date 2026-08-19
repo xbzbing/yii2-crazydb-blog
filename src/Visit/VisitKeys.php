@@ -19,8 +19,20 @@ final class VisitKeys
     /** UV HyperLogLog key：crazydb:visit:uv:{Ymd}（PFADD/PFCOUNT） */
     public const UV_PREFIX = 'crazydb:visit:uv:';
 
+    /** 爬虫访问 PV key：crazydb:visit:pv_crawler:{Ymd}（INCR） */
+    public const CRAWLER_PREFIX = 'crazydb:visit:pv_crawler:';
+
+    /** 脚本访问 PV key：crazydb:visit:pv_script:{Ymd}（INCR） */
+    public const SCRIPT_PREFIX = 'crazydb:visit:pv_script:';
+
     /** PV 已同步游标 key：crazydb:visit:synced:{Ymd}（记录已落库的 PV 数，防重复累加） */
     public const SYNCED_PREFIX = 'crazydb:visit:synced:';
+
+    /** 爬虫 PV 已同步游标 key：crazydb:visit:synced_crawler:{Ymd} */
+    public const CRAWLER_SYNCED_PREFIX = 'crazydb:visit:synced_crawler:';
+
+    /** 脚本 PV 已同步游标 key：crazydb:visit:synced_script:{Ymd} */
+    public const SCRIPT_SYNCED_PREFIX = 'crazydb:visit:synced_script:';
 
     public static function pvKey(string $ymd): string
     {
@@ -32,8 +44,28 @@ final class VisitKeys
         return self::UV_PREFIX . $ymd;
     }
 
+    public static function crawlerKey(string $ymd): string
+    {
+        return self::CRAWLER_PREFIX . $ymd;
+    }
+
+    public static function scriptKey(string $ymd): string
+    {
+        return self::SCRIPT_PREFIX . $ymd;
+    }
+
     public static function syncedKey(string $ymd): string
     {
         return self::SYNCED_PREFIX . $ymd;
+    }
+
+    public static function crawlerSyncedKey(string $ymd): string
+    {
+        return self::CRAWLER_SYNCED_PREFIX . $ymd;
+    }
+
+    public static function scriptSyncedKey(string $ymd): string
+    {
+        return self::SCRIPT_SYNCED_PREFIX . $ymd;
     }
 }

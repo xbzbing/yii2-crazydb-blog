@@ -334,11 +334,30 @@ CREATE TABLE IF NOT EXISTS `blog_visit_daily` (
     `date` DATE NOT NULL COMMENT '日期',
     `pv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '访问次数(PV)',
     `uv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '独立IP数(UV)',
+    `pv_crawler` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '爬虫访问(PV)',
+    `pv_script` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '脚本访问(PV)',
     `create_time` INT UNSIGNED NOT NULL DEFAULT 0,
     `update_time` INT UNSIGNED NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='按日访问统计';
+
+-- 12.1 按日访问统计表：爬虫/脚本分类列（幂等，先检查再添加；兼容已建表的升级路径）
+SET @tablename = 'blog_visit_daily';
+SET @preparedStatement = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+     AND TABLE_NAME = @tablename
+     AND COLUMN_NAME = 'pv_crawler'
+    ) > 0,
+    'SELECT 1',
+    CONCAT('ALTER TABLE `', @tablename, '`',
+           ' ADD COLUMN `pv_crawler` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT ''爬虫访问(PV)'' AFTER `uv`,',
+           ' ADD COLUMN `pv_script` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT ''脚本访问(PV)'' AFTER `pv_crawler`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 CREATE TABLE IF NOT EXISTS `blog_custom_config` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -374,6 +393,8 @@ INSERT IGNORE INTO `blog_option` (`type`, `name`, `value`, `update_time`) VALUES
 ('sys', 'allow_comment', 'open', UNIX_TIMESTAMP()),
 ('sys', 'allow_register', 'open', UNIX_TIMESTAMP()),
 ('sys', 'need_approve', 'close', UNIX_TIMESTAMP()),
+('sys', 'visit_bot_keywords', 'spider,bingbot,bot.html', UNIX_TIMESTAMP()),
+('sys', 'visit_script_keywords', 'python-,curl,wget,axios,java-http-client,java/,headless', UNIX_TIMESTAMP()),
 ('seo', 'seo_title', 'Crazydb-Blog', UNIX_TIMESTAMP()),
 ('seo', 'seo_keywords', 'blog,crazydb', UNIX_TIMESTAMP()),
 ('seo', 'seo_description', 'Crazydb-Blog，基于Yii2的博客系统', UNIX_TIMESTAMP());

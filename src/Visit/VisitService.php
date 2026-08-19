@@ -17,9 +17,10 @@ final readonly class VisitService
     }
 
     /**
-     * 今日实时 PV/UV（读 Redis，未同步也实时可见）。
+     * 今日实时 PV/UV/分类 PV（读 Redis，未同步也实时可见）。
+     * normal = pv - (爬虫 + 脚本)，下限 0。
      *
-     * @return array{pv: int, uv: int}
+     * @return array{pv: int, uv: int, pv_crawler: int, pv_script: int, pv_normal: int}
      */
     public function today(): array
     {
@@ -28,17 +29,27 @@ final readonly class VisitService
             $pvRaw = $this->redis->get(VisitKeys::pvKey($ymd));
             $pv = $pvRaw === null ? 0 : (int)$pvRaw;
             $uv = $this->redis->pfcount(VisitKeys::uvKey($ymd));
+            $crawler = $this->countOf(VisitKeys::crawlerKey($ymd));
+            $script = $this->countOf(VisitKeys::scriptKey($ymd));
         } catch (\Throwable) {
             $pv = 0;
             $uv = 0;
+            $crawler = 0;
+            $script = 0;
         }
-        return ['pv' => $pv, 'uv' => $uv];
+        return [
+            'pv' => $pv,
+            'uv' => $uv,
+            'pv_crawler' => $crawler,
+            'pv_script' => $script,
+            'pv_normal' => max(0, $pv - $crawler - $script),
+        ];
     }
 
     /**
-     * 最近 N 天每日 PV/UV 趋势（Redis 实时数据优先，历史日期从 MySQL 补）。
+     * 最近 N 天每日 PV/UV/分类 PV 趋势（Redis 实时数据优先，历史日期从 MySQL 补）。
      *
-     * @return list<array{date: string, pv: int, uv: int}>
+     * @return list<array{date: string, pv: int, uv: int, pv_crawler: int, pv_script: int, pv_normal: int}>
      */
     public function trend(int $days): array
     {
@@ -64,16 +75,38 @@ final readonly class VisitService
                 $pvRaw = $this->redis->get(VisitKeys::pvKey($ymd));
                 $pv = $pvRaw === null ? 0 : (int)$pvRaw;
                 $uv = $this->redis->pfcount(VisitKeys::uvKey($ymd));
+                $crawler = $this->countOf(VisitKeys::crawlerKey($ymd));
+                $script = $this->countOf(VisitKeys::scriptKey($ymd));
             } catch (\Throwable) {
                 $pv = 0;
                 $uv = 0;
+                $crawler = 0;
+                $script = 0;
             }
-            if ($pv === 0 && $uv === 0 && isset($dbMap[$date])) {
+            if ($pv === 0 && $uv === 0 && $crawler === 0 && $script === 0 && isset($dbMap[$date])) {
                 $pv = $dbMap[$date]['pv'];
                 $uv = $dbMap[$date]['uv'];
+                $crawler = $dbMap[$date]['pv_crawler'];
+                $script = $dbMap[$date]['pv_script'];
             }
-            $result[] = ['date' => $date, 'pv' => $pv, 'uv' => $uv];
+            $result[] = [
+                'date' => $date,
+                'pv' => $pv,
+                'uv' => $uv,
+                'pv_crawler' => $crawler,
+                'pv_script' => $script,
+                'pv_normal' => max(0, $pv - $crawler - $script),
+            ];
         }
         return $result;
+    }
+
+    /**
+     * 读取一个计数 key（缺失返回 0）。
+     */
+    private function countOf(string $key): int
+    {
+        $raw = $this->redis->get($key);
+        return $raw === null ? 0 : (int)$raw;
     }
 }

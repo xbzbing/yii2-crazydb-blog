@@ -84,6 +84,20 @@ export default function BasicSettings() {
             <Form.Item name="need_approve" label="评论需审核">
               <Select options={[{ value: 'open', label: '开启' }, { value: 'close', label: '关闭' }]} />
             </Form.Item>
+            <Form.Item
+              name="visit_bot_keywords"
+              label="爬虫访问关键词"
+              extra="UA 命中任一关键词判定为爬虫访问；英文逗号分隔。默认：spider,bingbot,bot.html"
+            >
+              <Input placeholder="spider,bingbot,bot.html" />
+            </Form.Item>
+            <Form.Item
+              name="visit_script_keywords"
+              label="脚本访问关键词"
+              extra="UA 命中任一关键词判定为脚本访问；英文逗号分隔。默认：python-,curl,wget,axios,java-http-client,java/,headless"
+            >
+              <Input placeholder="python-,curl,wget,axios,java-http-client,java/,headless" />
+            </Form.Item>
           </Col>
         </Row>
         <div style={{ textAlign: 'center', paddingTop: 8 }}>

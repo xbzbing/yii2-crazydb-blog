@@ -19,7 +19,8 @@
 
 - **前后端分离**：React + AntD Pro SPA（admin-web/），HashRouter，PHP 只提供 JSON API
 - **仪表盘**：访问趋势折线图（@ant-design/plots）+ 更新提示
-- **访问统计**：Redis HLL/INCR 实时统计 + 定时同步 MySQL visit_daily
+- **访问统计**：Redis HLL/INCR 实时统计 + 定时同步 MySQL visit_daily；访问按 UA 细分**爬虫 / 脚本 / 正常**三类（关键词默认值见下，可在后台「基本设置」配置）
+- **爬虫/脚本访问关键词**：爬虫默认 `spider,bingbot,bot.html`；脚本默认 `python-,curl,wget,axios,java-http-client,java/,headless`（英文逗号分隔，存 option：`visit_bot_keywords` / `visit_script_keywords`）
 - **个性化设置**：自定义配置管理（aboutMe/轮播图片等），主题可从库读取渲染
 - **用户管理**：支持编辑昵称/角色（会员/编辑/管理员），站长账号（admin/root）受保护不可操作
 - **注册黑名单**：用户名/昵称禁用 admin/root/管理员/站长等保留名，防止冒充

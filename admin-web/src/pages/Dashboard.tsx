@@ -9,6 +9,9 @@ import {
   EyeOutlined,
   UserOutlined,
   QuestionCircleOutlined,
+  BugOutlined,
+  CodeOutlined,
+  SmileOutlined,
 } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { DashboardData } from '../types/api'
@@ -37,9 +40,18 @@ export default function Dashboard() {
     { title: '配置项', value: data.optionTotal, icon: <DatabaseOutlined />, color: '#13c2c2' },
   ]
 
+  const visitTypes = [
+    { title: '正常访问', value: data.todayNormal, icon: <SmileOutlined />, color: '#52c41a' },
+    { title: '爬虫访问', value: data.todayCrawler, icon: <BugOutlined />, color: '#fa541c' },
+    { title: '脚本访问', value: data.todayScript, icon: <CodeOutlined />, color: '#722ed1' },
+  ]
+
   const chartData = data.visitTrend.flatMap((d) => [
     { date: d.date, value: d.pv, type: 'PV' },
     { date: d.date, value: d.uv, type: 'UV' },
+    { date: d.date, value: d.pv_normal, type: '正常' },
+    { date: d.date, value: d.pv_crawler, type: '爬虫' },
+    { date: d.date, value: d.pv_script, type: '脚本' },
   ])
 
   return (
@@ -56,12 +68,30 @@ export default function Dashboard() {
         </Col>
       ))}
 
+      <Col xs={24} sm={12} lg={8} xl={6}>
+        <Card title="今日访问构成">
+          <Row gutter={[8, 8]}>
+            {visitTypes.map((t) => (
+              <Col span={24} key={t.title}>
+                <Statistic
+                  title={t.title}
+                  value={t.value}
+                  suffix={data.todayPv > 0 ? `(${Math.round((t.value / data.todayPv) * 100)}%)` : '(0%)'}
+                  prefix={<span style={{ color: t.color, marginRight: 8 }}>{t.icon}</span>}
+                  valueStyle={{ fontSize: 20 }}
+                />
+              </Col>
+            ))}
+          </Row>
+        </Card>
+      </Col>
+
       <Col span={24}>
         <Card
           title={
             <>
               访问趋势
-              <Tooltip title="数据每 10 分钟更新一次">
+              <Tooltip title="数据每 10 分钟更新一次；分类按 UA 关键词判定（可在「基本设置」配置）">
                 <QuestionCircleOutlined style={{ marginLeft: 6, fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'help' }} />
               </Tooltip>
             </>
@@ -83,7 +113,7 @@ export default function Dashboard() {
             xField="date"
             yField="value"
             colorField="type"
-            height={320}
+            height={340}
             axis={{ x: { tickCount: Math.min(days, 15), labelFormatter: (v: string) => v.slice(5) } }}
             tooltip={{ channel: 'y', valueFormatter: (v: number) => `${v}` }}
             legend={{ color: { title: false, position: 'top' } }}

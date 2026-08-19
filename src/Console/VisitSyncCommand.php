@@ -46,21 +46,40 @@ final class VisitSyncCommand extends Command
                 $pvTotal = $this->redis->get(VisitKeys::pvKey($ymd));
                 $pvTotal = $pvTotal === null ? 0 : (int)$pvTotal;
                 $uvTotal = $this->redis->pfcount(VisitKeys::uvKey($ymd));
+                $crawlerTotal = $this->redis->get(VisitKeys::crawlerKey($ymd));
+                $crawlerTotal = $crawlerTotal === null ? 0 : (int)$crawlerTotal;
+                $scriptTotal = $this->redis->get(VisitKeys::scriptKey($ymd));
+                $scriptTotal = $scriptTotal === null ? 0 : (int)$scriptTotal;
 
                 // 增量：本次新增 PV = 当前总数 - 已同步游标（首同步游标为 0）
                 $prevRaw = $this->redis->get(VisitKeys::syncedKey($ymd));
                 $prev = $prevRaw === null ? 0 : (int)$prevRaw;
                 $deltaPv = max(0, $pvTotal - $prev);
 
-                if ($deltaPv > 0 || $uvTotal > 0) {
-                    VisitDaily::upsertByDate($this->ymdToDate($ymd), $deltaPv, $uvTotal);
+                $prevCrawlerRaw = $this->redis->get(VisitKeys::crawlerSyncedKey($ymd));
+                $prevCrawler = $prevCrawlerRaw === null ? 0 : (int)$prevCrawlerRaw;
+                $deltaCrawler = max(0, $crawlerTotal - $prevCrawler);
+
+                $prevScriptRaw = $this->redis->get(VisitKeys::scriptSyncedKey($ymd));
+                $prevScript = $prevScriptRaw === null ? 0 : (int)$prevScriptRaw;
+                $deltaScript = max(0, $scriptTotal - $prevScript);
+
+                if ($deltaPv > 0 || $uvTotal > 0 || $deltaCrawler > 0 || $deltaScript > 0) {
+                    VisitDaily::upsertByDate($this->ymdToDate($ymd), $deltaPv, $uvTotal, $deltaCrawler, $deltaScript);
                     $this->redis->set(VisitKeys::syncedKey($ymd), (string)$pvTotal);
+                    $this->redis->set(VisitKeys::crawlerSyncedKey($ymd), (string)$crawlerTotal);
+                    $this->redis->set(VisitKeys::scriptSyncedKey($ymd), (string)$scriptTotal);
                     $synced++;
                 }
 
                 // 非今天且超过保留期的日 key：数据已落库，清理 Redis 释放内存
                 if ($ymd < $today && $this->isOlderThanKeep($ymd)) {
-                    $this->redis->del([VisitKeys::pvKey($ymd), VisitKeys::uvKey($ymd)]);
+                    $this->redis->del([
+                        VisitKeys::pvKey($ymd),
+                        VisitKeys::uvKey($ymd),
+                        VisitKeys::crawlerKey($ymd),
+                        VisitKeys::scriptKey($ymd),
+                    ]);
                 }
             }
         } catch (\Throwable $e) {

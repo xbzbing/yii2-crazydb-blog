@@ -135,6 +135,8 @@ final class InitCheckCommand extends Command
                 'active_time' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'auth_key' => "VARCHAR(64) NOT NULL DEFAULT ''",
                 'status' => 'TINYINT UNSIGNED NOT NULL DEFAULT 1',
+                'otp_secret' => 'VARCHAR(255) NULL',
+                'otp_enabled' => 'TINYINT(1) NOT NULL DEFAULT 0',
                 'info' => 'TEXT',
                 'ext' => 'TEXT',
             ],
@@ -215,6 +217,8 @@ final class InitCheckCommand extends Command
                 'date' => 'DATE NOT NULL',
                 'pv' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'uv' => 'INT UNSIGNED NOT NULL DEFAULT 0',
+                'pv_crawler' => 'INT UNSIGNED NOT NULL DEFAULT 0',
+                'pv_script' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'create_time' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'update_time' => 'INT UNSIGNED NOT NULL DEFAULT 0',
             ],
@@ -258,9 +262,6 @@ final class InitCheckCommand extends Command
 
         // 2. 获取实际表结构
         $actualTables = $this->getActualTables($pdo, $output);
-        if ($actualTables === null) {
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
 
         // 3. 比较
         $expectedTables = array_keys(self::EXPECTED_SCHEMA);
@@ -399,9 +400,9 @@ final class InitCheckCommand extends Command
     /**
      * 获取实际表结构
      *
-     * @return array<string, array{columns: array<string, string>, indexes: array<string, string[]>}>|null
+     * @return array<string, array{columns: array<string, string>, indexes: array<string, string[]>}>
      */
-    private function getActualTables(PDO $pdo, OutputInterface $output): ?array
+    private function getActualTables(PDO $pdo, OutputInterface $output): array
     {
         $database = $this->getDatabase();
 
@@ -476,6 +477,8 @@ final class InitCheckCommand extends Command
 
     /**
      * 格式化列类型为与 EXPECTED_SCHEMA 可比较的格式
+     *
+     * @param array{COLUMN_TYPE: string, IS_NULLABLE: string, COLUMN_DEFAULT: int|string|null, EXTRA: string} $col
      */
     private function formatColumnType(array $col): string
     {
@@ -533,6 +536,9 @@ final class InitCheckCommand extends Command
         return $raw !== '' ? $raw : 'blog_';
     }
 
+    /**
+     * @param list<string> $issues
+     */
     private function hasMissingColumns(array $issues): bool
     {
         foreach ($issues as $issue) {
