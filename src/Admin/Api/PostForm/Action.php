@@ -149,6 +149,10 @@ final readonly class Action
             $post->content = XUtils::htmlPurify($post->content);
             $post->excerpt = $post->excerpt !== null ? XUtils::htmlPurify($post->excerpt) : null;
         }
+        // 自动摘要：未填写摘要时从正文截取纯文本（对齐 Yii2 beforeSave）
+        if ($post->excerpt === null || $post->excerpt === '') {
+            $post->excerpt = $this->autoExcerpt($post->content, $post->format);
+        }
         // 自动生成封面：cover 为空且勾选 auto_cover → 从正文提取首图
         // （getCoverImage 对 markdown 先渲染再取 <img>，html 直接取）
         if ($autoCover && $post->cover === null) {
@@ -175,5 +179,26 @@ final readonly class Action
             'id' => (int)$post->id,
             'message' => $isNew ? '文章已创建。' : '文章已更新。',
         ]);
+    }
+
+    /**
+     * 自动摘要：将正文转纯文本并截断（未填写摘要时使用）。
+     * markdown 先经渲染管线转 HTML 再剥标签；html 直接剥标签。
+     *
+     * @param string $content
+     * @param string $format Post::FORMAT_HTML | Post::FORMAT_MARKDOWN
+     */
+    private function autoExcerpt(string $content, string $format): ?string
+    {
+        $html = $format === Post::FORMAT_MARKDOWN
+            ? $this->markdownRenderer->render($content)
+            : $content;
+        $text = trim((string)preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8')));
+        if ($text === '') {
+            return null;
+        }
+        return mb_strlen($text, 'UTF-8') > 150
+            ? mb_substr($text, 0, 150, 'UTF-8') . '…'
+            : $text;
     }
 }

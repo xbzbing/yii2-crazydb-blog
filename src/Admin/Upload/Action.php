@@ -11,8 +11,11 @@ use Yiisoft\Aliases\Aliases;
 use Yiisoft\Http\Method;
 
 /**
- * 图片上传（Vditor 编辑器调用，admin group 内受守卫保护）。
- * 返回 Vditor 约定 JSON：{"code":0,"data":{"url":"..."},"msg":""}
+ * 图片上传（Vditor 编辑器 + 后台封面 共用，admin group 内受守卫保护）。
+ * 响应同时满足两种消费方：
+ * - Vditor（粘贴/拖拽/工具栏上传）读 data.succMap（文件名→URL 映射）自动插图
+ * - 后台封面 antd Upload 读 data.url
+ * 文件名：date_随机hex.ext（保留日期即可，如 20260820_633dab40282453e8.png）。
  */
 final readonly class Action
 {
@@ -57,10 +60,10 @@ final readonly class Action
         }
         $info = @getimagesize($tmpFile);
         $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
-        if ($info === false || !isset($mimeMap[$info['mime'] ?? ''])) {
+        if ($info === false || !isset($mimeMap[$info['mime']])) {
             return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
         }
-        if (($info[0] ?? 0) > 8000 || ($info[1] ?? 0) > 8000) {
+        if ($info[0] > 8000 || $info[1] > 8000) {
             return $this->json(['code' => 1, 'msg' => '图片尺寸过大（最大 8000×8000）。']);
         }
 
@@ -69,12 +72,13 @@ final readonly class Action
             return $this->json(['code' => 1, 'msg' => '无法创建上传目录。']);
         }
         do {
-            $fileName = date('YmdHis') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
+            // 文件名保留日期即可（Ymd_随机hex），随机部分保证同日不冲突
+            $fileName = date('Ymd') . '_' . bin2hex(random_bytes(8)) . '.' . $ext;
         } while (file_exists($dir . '/' . $fileName));
         $target = $dir . '/' . $fileName;
         try {
             // gif 跳过 GD 重编码（动图会静默丢帧；且 GIF 不携带 EXIF，剥离无收益）
-            $reencoded = ($tmpFile !== null && $ext !== 'gif') ? $this->stripMetadata($tmpFile, $ext) : null;
+            $reencoded = $ext !== 'gif' ? $this->stripMetadata($tmpFile, $ext) : null;
             if ($reencoded !== null) {
                 // GD 重编码成功（剥离 EXIF/GPS 等元数据），写入重编码结果
                 if (file_put_contents($target, $reencoded) === false) {
@@ -87,9 +91,18 @@ final readonly class Action
             return $this->json(['code' => 1, 'msg' => '保存文件失败。']);
         }
 
+        $imageUrl = '/static/upload/' . date('Y/m') . '/' . $fileName;
+        $clientFilename = $uploaded->getClientFilename() ?? basename($fileName);
+
         return $this->json([
             'code' => 0,
-            'data' => ['url' => '/static/upload/' . date('Y/m') . '/' . $fileName],
+            'data' => [
+                // 后台封面上传（antd Upload）读取
+                'url' => $imageUrl,
+                // 编辑器粘贴/拖拽上传（Vditor）读取：文件名 → URL
+                'succMap' => [$clientFilename => $imageUrl],
+                'errFiles' => [],
+            ],
             'msg' => '',
         ]);
     }
