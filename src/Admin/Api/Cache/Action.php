@@ -5,24 +5,26 @@ declare(strict_types=1);
 namespace App\Admin\Api\Cache;
 
 use App\Admin\Api\JsonResponse;
+use App\Common\AssetMinifyService;
 use App\Common\CacheKeys;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Aliases\Aliases;
 
 /**
  * 后台缓存管理 JSON API：
  * - GET  /admin/api/cache           缓存状态（Redis 版本/内存/缓存 key 数/命中）
- * - POST /admin/api/cache/clear     仅清理应用缓存（按 crazydbcache_* 前缀精准删除，
- *                                    不会 flushdb 误删 Redis 内其他数据）
+ * - POST /admin/api/cache/clear     清理应用缓存
+ * - POST /admin/api/cache/rebuild   更新前端资源（压缩 CSS/JS + touch 目录触发 hash 重算）
  */
 final readonly class Action
 {
     public function __construct(
         private JsonResponse $jsonResponse,
-        private CacheInterface $cache,
         private ClientInterface $redis,
+        private Aliases $aliases,
+        private AssetMinifyService $assetMinify,
     ) {
     }
 
@@ -65,6 +67,55 @@ final readonly class Action
             return $this->jsonResponse->fail('缓存清理失败：' . $e->getMessage());
         }
         return $this->jsonResponse->ok(['message' => '缓存已清空。', 'deletedKeys' => $deleted]);
+    }
+
+    /**
+     * 重新构建前端资源：压缩主题 CSS/JS + touch 目录触发 AssetPublisher hash 重算。
+     */
+    public function rebuild(ServerRequestInterface $request): ResponseInterface
+    {
+        $aliases = $this->aliases->get('@assets');
+        $saved = 0;
+        $files = 0;
+
+        foreach (AssetMinifyService::THEMES as $theme) {
+            // 压缩根目录 CSS
+            $rootCss = "{$aliases}/{$theme}/site.css";
+            if (is_file($rootCss)) {
+                $rs = $this->assetMinify->minifyCss($rootCss);
+                if ($rs !== null) {
+                    $saved += $rs;
+                    $files++;
+                }
+            }
+            // 压缩 css/ 子目录
+            $cssDir = "{$aliases}/{$theme}/css";
+            if (is_dir($cssDir)) {
+                $cssFiles = glob("{$cssDir}/*.css");
+                if (is_array($cssFiles)) {
+                    foreach ($cssFiles as $file) {
+                        $rs = $this->assetMinify->minifyCss($file);
+                        if ($rs !== null) {
+                            $saved += $rs;
+                            $files++;
+                        }
+                    }
+                }
+            }
+            // 触发 hash 重算
+            if (is_dir("{$aliases}/{$theme}")) {
+                touch("{$aliases}/{$theme}");
+            }
+            if (is_dir($cssDir)) {
+                touch($cssDir);
+            }
+        }
+
+        return $this->jsonResponse->ok([
+            'message' => '资源已更新。压缩 ' . $files . ' 个文件，节省 ' . AssetMinifyService::fmtBytes($saved) . '。',
+            'files' => $files,
+            'saved' => $saved,
+        ]);
     }
 
     /**

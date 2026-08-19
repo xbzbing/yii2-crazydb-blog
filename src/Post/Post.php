@@ -53,7 +53,8 @@ final class Post extends ActiveRecord
     }
 
     /**
-     * 按 format 分派渲染后的正文 HTML（markdown 走管线，html 老文章净化直出）。
+     * 渲染后的正文 HTML（交由 MarkdownRenderer 处理）。
+     * 展示层的 HTML→MD 转换由 PostShow/Action 在调用前处理（不修改 AR 属性）。
      */
     public function getContentProcessed(MarkdownRenderer $renderer): string
     {
@@ -61,8 +62,8 @@ final class Post extends ActiveRecord
     }
 
     /**
-     * 按 format 分派渲染后的摘要 HTML：markdown 走渲染管线，html 老文章净化直出。
-     * （加锁文章未解锁时展示摘要即经此渲染，保证 markdown 语法生效。）
+     * 渲染后的摘要 HTML。
+     * 展示层的 HTML→MD 转换由 PostShow/Action 在调用前处理。
      */
     public function getExcerptProcessed(MarkdownRenderer $renderer): string
     {
@@ -70,9 +71,7 @@ final class Post extends ActiveRecord
         if ($excerpt === '') {
             return '';
         }
-        return $this->format === self::FORMAT_MARKDOWN
-            ? $renderer->render($excerpt, $this->update_time)
-            : \App\Common\XUtils::htmlPurify($excerpt);
+        return $renderer->render($excerpt, $this->update_time);
     }
 
     /**

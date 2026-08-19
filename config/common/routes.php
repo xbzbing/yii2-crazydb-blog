@@ -31,10 +31,10 @@ return [
             Route::get('/catalog/{alias}/page/{page:\d+}')->action(Web\CategoryShow\Action::class)->name('category/show-page'),
 
             // Posts
-            Route::methods([Method::GET, Method::POST], '/archive/{alias}')->action(Web\PostShow\Action::class)->name('post/show'),
+            Route::methods([Method::GET, Method::POST], '/archive/{alias}')->action([Web\PostShow\Action::class, 'show'])->name('post/show'),
             Route::get('/posts')->action(Web\PostList\Action::class)->name('post/list'),
             Route::get('/posts/page/{page:\d+}')->action(Web\PostList\Action::class)->name('post/list-page'),
-            Route::methods([Method::GET, Method::POST], '/post/{id:\d+}')->action(Web\PostShow\Action::class)->name('post/view'),
+            Route::methods([Method::GET, Method::POST], '/post/{id:\d+}')->action([Web\PostShow\Action::class, 'show'])->name('post/view'),
             Route::get('/archives')->action(Web\Archives\Action::class)->name('post/archives'),
             Route::get('/archives/{year:\d{4}}/{month:\d{1,2}}')->action(Web\ArchivesDate\Action::class)->name('post/archives-date'),
 
@@ -143,6 +143,7 @@ return [
             Route::post('/config/save')->action([\App\Admin\Api\Config\Action::class, 'save'])->name('admin/api/config/save'),
             Route::get('/cache')->action([\App\Admin\Api\Cache\Action::class, 'status'])->name('admin/api/cache'),
             Route::post('/cache/clear')->action([\App\Admin\Api\Cache\Action::class, 'clear'])->name('admin/api/cache/clear'),
+            Route::post('/cache/rebuild')->action([\App\Admin\Api\Cache\Action::class, 'rebuild'])->name('admin/api/cache/rebuild'),
             Route::get('/env')->action(\App\Admin\Api\Env\Action::class)->name('admin/api/env'),
             Route::get('/otp/status')->action([\App\Admin\Api\Otp\Action::class, 'status'])->name('admin/api/otp/status'),
             Route::post('/otp/setup')->action([\App\Admin\Api\Otp\Action::class, 'setup'])->name('admin/api/otp/setup'),

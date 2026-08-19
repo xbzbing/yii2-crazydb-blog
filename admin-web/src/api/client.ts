@@ -179,6 +179,7 @@ export const api = {
 
   cacheStatus: () => request<CacheStatus>('/cache'),
   cacheClear: () => request<{ message: string }>('/cache/clear', { method: 'POST' }),
+  cacheRebuild: () => request<{ message: string; files: number; saved: number }>('/cache/rebuild', { method: 'POST' }),
 
   env: () => request<EnvData>('/env'),
 

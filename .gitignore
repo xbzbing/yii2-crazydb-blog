@@ -48,9 +48,13 @@ public/static/avatar
 .phpunit.cache/
 public/static/upload/
 
+# 旧站上传图片目录（Yii2 遗留 /upload/ 路径，与 static/upload 并存）
+public/upload/
+
 # admin SPA (Vite/React/antd) build artifacts
 admin-web/node_modules/
 public/admin/
+public/package.json
 
 # local documentation (not tracked in git)
 /docs/local/

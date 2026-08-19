@@ -302,7 +302,7 @@ export default function PostForm() {
           )}
           {format === 'html' && (
             <div style={{ marginTop: 8, color: '#999', fontSize: 13 }}>
-              该文章为旧版 HTML 格式，仅兼容编辑；新文章请使用 Markdown。
+              旧版 HTML 文章已自动转换为 Markdown，保存后将以 Markdown 格式存储。
             </div>
           )}
         </Form.Item>

@@ -109,9 +109,6 @@
     <InvalidArrayOffset>
       <code><![CDATA[$a[$pos]]]></code>
     </InvalidArrayOffset>
-    <MixedArgument>
-      <code><![CDATA[$server['HTTP_X_FORWARDED_FOR']]]></code>
-    </MixedArgument>
     <MixedOperand>
       <code><![CDATA[$a[$pos]]]></code>
     </MixedOperand>
