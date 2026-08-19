@@ -8,6 +8,7 @@ use App\Admin\Api\ApiSerializer;
 use App\Admin\Api\JsonResponse;
 use App\Category\Category;
 use App\Common\XUtils;
+use App\Post\HtmlToMarkdownService;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Tag\Tag;
@@ -30,6 +31,7 @@ final readonly class Action
         private CacheInterface $cache,
         private AuthService $authService,
         private MarkdownRenderer $markdownRenderer,
+        private HtmlToMarkdownService $htmlToMarkdownService,
     ) {
     }
 
@@ -39,8 +41,18 @@ final readonly class Action
         if (!$post instanceof Post) {
             return $this->jsonResponse->fail('文章不存在。', 404);
         }
+        $data = ApiSerializer::postDetail($post);
+        // 旧版 HTML 文章：编辑时自动转换为 Markdown，使 Vditor 编辑器可加载；
+        // 保存时以 format=markdown 落库（编辑即转换）。
+        if ($post->format === Post::FORMAT_HTML) {
+            $data['content'] = $this->htmlToMarkdownService->convert((string)$post->content);
+            $data['excerpt'] = $post->excerpt !== null && $post->excerpt !== ''
+                ? $this->htmlToMarkdownService->convert($post->excerpt)
+                : '';
+            $data['format'] = Post::FORMAT_MARKDOWN;
+        }
         return $this->jsonResponse->ok([
-            'post' => ApiSerializer::postDetail($post),
+            'post' => $data,
             'categories' => Category::getAllCategories($this->cache),
         ]);
     }

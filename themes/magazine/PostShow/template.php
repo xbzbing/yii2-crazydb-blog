@@ -56,12 +56,38 @@ $postUrl = $post->getUrl($urlGenerator);
 $author = $post->getAuthor()->one();
 
 // highlight.js（复用 vditor 内置资源）
-if (str_contains($contentHtml, '<pre><code')) {
+// 触发条件：Vditor 新格式 <pre><code>，或 UEditor 老格式 <pre class="brush:xxx">
+if (str_contains($contentHtml, '<pre><code') || str_contains($contentHtml, 'brush:')) {
     $hlBase = '/static/vditor/dist/js/highlight.js';
     $this->registerCssFile($hlBase . '/styles/github.css');
     $this->registerJsFile($hlBase . '/highlight.pack.js');
     $this->registerJs(
-        'document.querySelectorAll("pre code").forEach(function(b){hljs.highlightBlock(b)});',
+        <<<'JS'
+        (function () {
+            // 语言映射：UEditor brush:xxx → highlight.js 语言名
+            var brushMap = {
+                'plain': 'plaintext', 'text': 'plaintext', 'bash': 'bash', 'shell': 'bash',
+                'php': 'php', 'python': 'python', 'java': 'java', 'c': 'c', 'cpp': 'cpp',
+                'js': 'javascript', 'javascript': 'javascript', 'sql': 'sql', 'xml': 'xml',
+                'html': 'xml', 'css': 'css', 'json': 'json', 'ruby': 'ruby', 'go': 'go'
+            };
+            document.querySelectorAll('pre code').forEach(function (b) {
+                hljs.highlightBlock(b);
+            });
+            // UEditor 老格式：<pre class="brush:php;toolbar:false">（无 <code> 子元素）
+            document.querySelectorAll('pre[class*="brush:"]').forEach(function (pre) {
+                if (pre.querySelector('code')) return; // 已被上面处理
+                var m = /brush:\s*([\w-]+)/.exec(pre.className);
+                var lang = m ? (brushMap[m[1]] || m[1]) : '';
+                var code = document.createElement('code');
+                code.textContent = pre.textContent;
+                if (lang) code.className = 'language-' + lang;
+                pre.textContent = '';
+                pre.appendChild(code);
+                hljs.highlightBlock(code);
+            });
+        })();
+        JS,
         \Yiisoft\View\WebView::POSITION_READY,
     );
 }

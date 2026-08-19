@@ -8,6 +8,7 @@ use App\Category\Category;
 use App\Comment\Comment;
 use App\Common\CMSUtils;
 use App\Nav\Nav;
+use App\Post\HtmlToMarkdownService;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Post\PostViewKeys;
@@ -40,9 +41,10 @@ final readonly class Action
         private LoginThrottle $loginThrottle,
         private Aliases $aliases,
         private MarkdownRenderer $markdownRenderer,
+        private HtmlToMarkdownService $htmlToMarkdownService,
     ) {}
 
-    public function __invoke(
+    public function show(
         ServerRequestInterface $request,
         #[RouteArgument] ?string $alias = null,
         #[RouteArgument] ?int $id = null,
@@ -52,6 +54,15 @@ final readonly class Action
             : ($id !== null ? Post::findVisibleById($id) : null);
         if ($post === null) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
+        }
+
+        // 预转换：旧 HTML 文章 → Markdown（一次转换，所有展示路径复用转换后的内容）
+        // 在任何渲染调用之前完成，确保 getContentProcessed/getExcerptProcessed/getCoverImage
+        // 均使用转换后的内容。PostShow/Action 中的 save()（comment_count 对账）在此之前执行，
+        // 不存在静默落库问题。
+        if ($post->format === Post::FORMAT_HTML) {
+            $post->content = $this->htmlToMarkdownService->convert((string) $post->content);
+            $post->format = Post::FORMAT_MARKDOWN;
         }
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
