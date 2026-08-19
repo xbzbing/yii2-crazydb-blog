@@ -56,5 +56,8 @@ admin-web/node_modules/
 public/admin/
 public/package.json
 
+# vision toolkit 截图/裁剪等运行时产物
+/.dsh-vision-toolkit/
+
 # local documentation (not tracked in git)
 /docs/local/

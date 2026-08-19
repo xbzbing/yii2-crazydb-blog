@@ -26,6 +26,7 @@ use Yiisoft\Html\Html;
  * @var string $contentHtml
  * @var bool $unlocked
  * @var bool $passwordError
+ * @var bool $passwordLocked
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var array<int, App\Comment\Comment> $replyMap
@@ -59,7 +60,7 @@ $category = $categorySummary[(int)$post->cid] ?? null;
 $authorNickname = $authorNickname ?? '';
 $authorDisplay = $post->author_name !== '' ? $post->author_name : $authorNickname;
 $authorUrl = $urlGenerator->generate('user/show', ['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]);
-$isOld = (int)$post->post_time <= strtotime('-1 years');
+$isOld = (int)$post->post_time <= strtotime('-1 month');
 
 // 正文含代码块时注册 highlight.js（复用 vditor 内置资源）
 // 触发条件：Vditor 新格式 <pre><code>，或 UEditor 老格式 <pre class="brush:xxx">
@@ -142,7 +143,7 @@ if (str_contains($contentHtml, '<pre><code') || str_contains($contentHtml, 'brus
         <?php if ($isOld): ?>
             <div class="alert alert-warning">
                 <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                <span>这篇日志发布时间已经超过一年，许多内容可能已经失效，请读者酌情参考。</span>
+                <span>这篇日志发布时间已经超过一个月，许多内容可能已经失效，请读者酌情参考。</span>
             </div>
         <?php endif; ?>
         <?php if ($toc !== []): ?>

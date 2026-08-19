@@ -13,6 +13,7 @@ use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Post\PostViewKeys;
 use App\Tag\Tag;
+use App\User\AuthService;
 use App\User\LoginThrottle;
 use App\User\User;
 use App\Web\NotFound\NotFoundResponder;
@@ -39,6 +40,7 @@ final readonly class Action
         private CacheInterface $cache,
         private ClientInterface $redis,
         private LoginThrottle $loginThrottle,
+        private AuthService $authService,
         private Aliases $aliases,
         private MarkdownRenderer $markdownRenderer,
         private HtmlToMarkdownService $htmlToMarkdownService,
@@ -166,6 +168,7 @@ final readonly class Action
             [
                 'post' => $post,
                 'authorNickname' => $author?->nickname,
+                'currentUser' => $this->authService->currentUser(),
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
                 'unlocked' => $unlocked,

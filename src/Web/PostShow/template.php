@@ -25,12 +25,14 @@ use Yiisoft\Html\Html;
  * @var string $contentHtml
  * @var bool $unlocked
  * @var bool $passwordError
+ * @var bool $passwordLocked
  * @var list<array{id: string, level: int, text: string}> $toc
  * @var list<App\Comment\Comment> $comments
  * @var array<int, App\Comment\Comment> $replyMap
  * @var int $commentTotal
  * @var ?App\Post\Post $previous
  * @var ?App\Post\Post $next
+ * @var ?App\User\User $currentUser
  * @var Yiisoft\Aliases\Aliases $aliases
  * @var ?string $csrf
  */
@@ -202,17 +204,39 @@ if (str_contains($contentHtml, '<pre><code') || str_contains($contentHtml, 'brus
 <section class="comments">
     <h3>发表评论</h3>
     <p id="comment-form-hint" class="comment-reply-hint"></p>
+    <?php if ($currentUser !== null): ?>
+        <p class="comment-greeting"><i class="fa-solid fa-user" aria-hidden="true"></i> 以 <strong><?= Html::encode((string)$currentUser->nickname) ?></strong> 的身份评论</p>
+    <?php endif; ?>
     <form class="comment-form" method="post" action="<?= Html::encode($urlGenerator->generate('comment/add', ['id' => $post->id])) ?>">
         <input type="hidden" name="_csrf" value="<?= Html::encode((string)$csrf) ?>">
         <input type="hidden" name="reply_to" id="comment-reply-to" value="">
-        <label>昵称：<input type="text" name="nickname" required></label>
-        <label>邮箱：<input type="email" name="email" required></label>
-        <label>内容：<textarea name="content" required></textarea></label>
-        <label>验证码：
-            <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="验证码">
-            <input type="text" name="captcha" required>
-        </label>
-        <button type="submit">提交留言</button>
+        <?php if ($currentUser !== null): ?>
+            <input type="hidden" name="nickname" value="<?= Html::encode((string)$currentUser->nickname) ?>">
+            <input type="hidden" name="email" value="<?= Html::encode((string)$currentUser->email) ?>">
+        <?php else: ?>
+            <div class="comment-fields">
+                <div class="field">
+                    <label for="comment-nickname">昵称</label>
+                    <input id="comment-nickname" type="text" name="nickname" maxlength="80" required placeholder="如何称呼你？">
+                </div>
+                <div class="field">
+                    <label for="comment-email">邮箱</label>
+                    <input id="comment-email" type="email" name="email" maxlength="100" required placeholder="仅用于头像与回复通知">
+                </div>
+            </div>
+        <?php endif; ?>
+        <div class="field">
+            <label for="comment-content">内容</label>
+            <textarea id="comment-content" name="content" required placeholder="友善评论，理性发言…"></textarea>
+        </div>
+        <div class="field captcha-field">
+            <label>验证码</label>
+            <div class="captcha-row">
+                <img src="<?= Html::encode($urlGenerator->generate('tool/captcha')) ?>" alt="验证码">
+                <input type="text" name="captcha" maxlength="6" required placeholder="验证码 / Captcha">
+                <button type="submit">提交留言</button>
+            </div>
+        </div>
     </form>
     <script>
         document.querySelectorAll('[data-reply-to]').forEach(function (btn) {

@@ -57,7 +57,17 @@ final class CommentService
         $comment->content = (string)($data['content'] ?? '');
         $comment->status = $status;
 
-        if ($comment->nickname === '' || $comment->email === '' || $comment->content === '') {
+        // 登录用户：身份取自会话并覆盖表单提交（防伪造），后续校验随之走会话数据
+        if ($currentUser !== null) {
+            $comment->uid = $currentUser->id;
+            $comment->nickname = (string)$currentUser->nickname;
+            $comment->email = (string)$currentUser->email;
+        }
+
+        if ($comment->content === '') {
+            return ['status' => 'fail', 'info' => '请填写留言内容'];
+        }
+        if ($comment->nickname === '' || $comment->email === '') {
             return ['status' => 'fail', 'info' => '请填写留言内容'];
         }
         if (mb_strlen($comment->nickname) > 80) {
@@ -78,16 +88,13 @@ final class CommentService
         if (!$this->captcha->validate($data['captcha'] ?? '')) {
             return ['status' => 'fail', 'info' => '验证码错误'];
         }
-        if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
-            return ['status' => 'fail', 'info' => '不是有效的E-mail地址。'];
-        }
 
-        if ($currentUser !== null) {
-            $comment->uid = $currentUser->id;
-            $comment->nickname = $currentUser->nickname;
-            $comment->email = $currentUser->email;
-        } else {
-            $comment->uid = null;
+        // 游客专属：邮箱格式与防冒用注册用户身份（登录用户身份由会话保证，天然可信）
+        if ($currentUser === null) {
+            if (!filter_var($comment->email, FILTER_VALIDATE_EMAIL)) {
+                return ['status' => 'fail', 'info' => '不是有效的E-mail地址。'];
+            }
+
             // 保护注册用户不被冒用身份
             /** @var ?User $user */
             $user = User::query()

@@ -148,6 +148,12 @@ a:focus {
     color: #E53434;
 }
 
+/* 「阅读全文」按钮独立成行并钉在内容区右下（clear both 消除左浮缩略图的缠绕） */
+.entry-content .read-more-actions {
+    clear: both;
+    text-align: right;
+    margin-top: 12px;
+}
 .read-more {
     border: 1px solid #DDDDDD;
     border-top: 1px solid rgba(120, 120, 120, 0.1);
@@ -330,6 +336,7 @@ article.list-group-item:nth-of-type(1) {
     line-height: 1.9em;
     padding-bottom: 8px;
     margin-top: 10px;
+    overflow: hidden; /* 包容左浮封面缩略图，防止溢出到 footer */
 }
 
 .list-group-item .entry-content img {
@@ -343,6 +350,11 @@ article.list-group-item:nth-of-type(1) {
     max-height: 180px;
     padding: 4px;
     transition: all 0.2s cubic-bezier(0.42, 0, 0.58, 1);
+}
+/* 封面缩略图：在基础尺寸上再收小（仅封面，不影响摘要内其它图片） */
+.list-group-item .entry-content img.cover-thumb {
+    max-width: 180px;
+    max-height: 150px;
 }
 
 /* 分页区（还原线上 panel-footer 视觉） */
@@ -627,6 +639,15 @@ article.list-group-item:nth-of-type(1) {
     color: #5699D0;
     cursor: pointer;
     text-decoration: underline;
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+.comment-panel:hover .comment-reply-link,
+.comment-panel:focus-within .comment-reply-link {
+    opacity: 1;
+}
+@media (hover: none) {
+    .comment-reply-link { opacity: 1; }
 }
 
 .comment-captcha {

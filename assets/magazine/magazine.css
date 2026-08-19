@@ -123,6 +123,15 @@ a:hover { text-decoration: underline; }
     padding: 6px 0;
     z-index: 20;
 }
+/* 桥接：toggle 与下拉之间的空隙（top+10px）属于下拉命中区，移入不会失焦消失 */
+.magazine-user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+}
 .magazine-user-menu:hover .magazine-user-dropdown,
 .magazine-user-menu:focus-within .magazine-user-dropdown {
     display: block;
@@ -475,6 +484,23 @@ a:hover { text-decoration: underline; }
 .comment-meta { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .comment-meta img { border-radius: 50%; }
 .comment-meta strong { color: var(--ink); }
+.comment-meta .link-button {
+    background: none;
+    border: none;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity .15s ease, color .15s ease;
+}
+.comment:hover .comment-meta .link-button,
+.comment:focus-within .comment-meta .link-button { opacity: 1; }
+.comment-meta .link-button:hover { color: var(--accent); }
+@media (hover: none) {
+    .comment-meta .link-button { opacity: 1; }
+}
 .comment-content { margin: 8px 0 0; font-size: 15px; }
 
 .comment-form label { display: block; margin-top: 10px; font-size: 14px; }

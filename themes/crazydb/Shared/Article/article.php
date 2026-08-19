@@ -40,13 +40,16 @@ $authorUrl = $urlGenerator->generate('user/show', ['name' => $authorNickname !==
         </h3>
     </header>
     <div class="entry-content">
+        <?php if ($post->cover !== null && $post->cover !== ''): ?>
+            <img class="cover-thumb" src="<?= Html::encode((string)$post->cover) ?>" alt="<?= Html::encode((string)$post->title) ?>" title="<?= Html::encode((string)$post->title) ?>">
+        <?php endif; ?>
         <?php if ((string)$post->password !== ''): ?>
             <div class="label label-warning">该文章需要输入密码才能查看全文。</div>
         <?php endif; ?>
         <?= $post->excerpt !== null && $post->excerpt !== ''
             ? \App\Common\XUtils::htmlPurify($post->excerpt)
             : '' ?>
-        <div class="float-end">
+        <div class="read-more-actions">
             <a href="<?= Html::encode((string)$postUrl) ?>" title="<?= Html::encode($post->title) ?>" class="read-more">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i><span>阅读全文</span>
             </a>
