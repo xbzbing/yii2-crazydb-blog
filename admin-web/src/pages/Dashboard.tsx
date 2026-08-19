@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Row, Col, Statistic, Spin, Segmented, Tooltip } from 'antd'
+import { Card, Row, Col, Statistic, Spin, Segmented, Tooltip, Progress } from 'antd'
 import { Line } from '@ant-design/plots'
 import {
   FileTextOutlined,
@@ -68,20 +68,38 @@ export default function Dashboard() {
         </Col>
       ))}
 
-      <Col xs={24} sm={12} lg={8} xl={6}>
-        <Card title="今日访问构成">
-          <Row gutter={[8, 8]}>
-            {visitTypes.map((t) => (
-              <Col span={24} key={t.title}>
-                <Statistic
-                  title={t.title}
-                  value={t.value}
-                  suffix={data.todayPv > 0 ? `(${Math.round((t.value / data.todayPv) * 100)}%)` : '(0%)'}
-                  prefix={<span style={{ color: t.color, marginRight: 8 }}>{t.icon}</span>}
-                  valueStyle={{ fontSize: 20 }}
-                />
-              </Col>
-            ))}
+      <Col span={24}>
+        <Card
+          title={
+            <>
+              今日访问构成
+              <Tooltip title="按 UA 关键词判定访问类型（可在「基本设置」配置）">
+                <QuestionCircleOutlined style={{ marginLeft: 6, fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'help' }} />
+              </Tooltip>
+            </>
+          }
+        >
+          <Row gutter={[32, 16]}>
+            {visitTypes.map((t) => {
+              const percent = data.todayPv > 0 ? Math.round((t.value / data.todayPv) * 100) : 0
+              return (
+                <Col xs={24} sm={8} key={t.title}>
+                  <Statistic
+                    title={t.title}
+                    value={t.value}
+                    suffix={`(${percent}%)`}
+                    prefix={<span style={{ color: t.color, marginRight: 8 }}>{t.icon}</span>}
+                  />
+                  <Progress
+                    percent={percent}
+                    showInfo={false}
+                    strokeColor={t.color}
+                    size="small"
+                    style={{ marginTop: 4 }}
+                  />
+                </Col>
+              )
+            })}
           </Row>
         </Card>
       </Col>
