@@ -31,7 +31,8 @@
             "@php ./yii serve"
         ],
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-text"
+        "test-coverage": "phpunit --colors=always --coverage-text",
+        "phpstan": "phpstan analyze --memory-limit=256M"
     },
     "require": {
         "php": "8.2 - 8.5",
