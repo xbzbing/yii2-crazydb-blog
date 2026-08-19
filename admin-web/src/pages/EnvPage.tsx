@@ -42,7 +42,7 @@ export default function EnvPage() {
   const diskPct = vps?.disk?.usagePercent ?? null
 
   return (
-    <Card title="环境信息">
+    <Card>
       {/* 系统信息 */}
       <Divider orientation="left">系统信息</Divider>
       <Descriptions bordered column={2} size="small">

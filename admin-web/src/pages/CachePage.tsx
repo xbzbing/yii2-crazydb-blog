@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Card, Descriptions, Button, Popconfirm, message, Spin, Tag, Progress, Statistic, Row, Col } from 'antd'
-import { ClearOutlined, SyncOutlined } from '@ant-design/icons'
+import { Card, Descriptions, Button, Popconfirm, message, Spin, Tag, Progress, Statistic, Row, Col, Space } from 'antd'
+import { ClearOutlined, SyncOutlined, BuildOutlined } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { CacheStatus } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
@@ -55,6 +55,19 @@ export default function CachePage() {
     }
   }
 
+  const [rebuilding, setRebuilding] = useState(false)
+  const handleRebuild = async () => {
+    try {
+      setRebuilding(true)
+      const data = await api.cacheRebuild()
+      message.success(data?.message || '资源已更新。')
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setRebuilding(false)
+    }
+  }
+
   if (!data) return <Spin style={{ margin: 48 }} />
 
   if (data && !data.connected) {
@@ -80,11 +93,18 @@ export default function CachePage() {
     <Card
       title="缓存管理"
       extra={
-        <Popconfirm title="确认清空全部应用缓存？" description="可能影响系统稳定，建议避开高峰期。" onConfirm={handleClear}>
-          <Button type="primary" danger icon={<ClearOutlined />}>
-            清空所有缓存
-          </Button>
-        </Popconfirm>
+        <Space>
+          <Popconfirm title="确认更新前端资源？" description="压缩 CSS/JS 并更新文件哈希，建议在访问量低时操作。" onConfirm={handleRebuild}>
+            <Button icon={<BuildOutlined />} loading={rebuilding}>
+              更新资源
+            </Button>
+          </Popconfirm>
+          <Popconfirm title="确认清空全部应用缓存？" description="可能影响系统稳定，建议避开高峰期。" onConfirm={handleClear}>
+            <Button type="primary" danger icon={<ClearOutlined />}>
+              清空所有缓存
+            </Button>
+          </Popconfirm>
+        </Space>
       }
     >
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
