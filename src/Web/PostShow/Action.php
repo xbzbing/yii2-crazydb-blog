@@ -56,15 +56,6 @@ final readonly class Action
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
         }
 
-        // 预转换：旧 HTML 文章 → Markdown（一次转换，所有展示路径复用转换后的内容）
-        // 在任何渲染调用之前完成，确保 getContentProcessed/getExcerptProcessed/getCoverImage
-        // 均使用转换后的内容。PostShow/Action 中的 save()（comment_count 对账）在此之前执行，
-        // 不存在静默落库问题。
-        if ($post->format === Post::FORMAT_HTML) {
-            $post->content = $this->htmlToMarkdownService->convert((string) $post->content);
-            $post->format = Post::FORMAT_MARKDOWN;
-        }
-
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
         // 热点文章详情只原子写 Redis；由 post-view/sync 增量合并到 MySQL。
         try {
@@ -89,7 +80,9 @@ final readonly class Action
                 $replyMap[(int)$target->id] = $target;
             }
         }
-        // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）
+        // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）。
+        // 此 save() 必须在 HTML→MD 转换之前执行：落在后面的转换块若先污染 $post，
+        // 会把转换后的 markdown（format=markdown）静默写回数据库。
         if ($total !== (int)$post->comment_count) {
             $post->comment_count = $total;
             try {
@@ -132,6 +125,7 @@ final readonly class Action
             if ($submitted && !$passwordLocked && $post->verifyAccessPassword($input)) {
                 $unlocked = true;
                 if ($post->rehashAccessPasswordIfNeeded($input)) {
+                    // 密码 rehash 落库的是原始 content（HTML→MD 转换块在其后执行，不会污染本 save）。
                     try {
                         $post->save();
                     } catch (\Throwable) {
@@ -139,26 +133,39 @@ final readonly class Action
                     }
                 }
                 $this->loginThrottle->clear($subject, $clientIp, $scope);
-                $contentHtml = $post->getContentProcessed($this->markdownRenderer);
-                $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
             } else {
                 if ($submitted && !$passwordLocked) {
                     $passwordError = true;
                     $passwordLocked = $this->loginThrottle->recordFailure($subject, $clientIp, $scope) > 0;
                 }
-                $contentHtml = $post->getExcerptProcessed($this->markdownRenderer);
-                $toc = [];
             }
-        } else {
+        }
+
+        // 预转换：旧 HTML 文章 → Markdown（一次转换，所有展示路径复用转换后的内容）。
+        // 必须置于所有 save()（comment_count 对账、密码 rehash）之后、任何渲染（
+        // getContentProcessed/getExcerptProcessed/getCoverImage/getSeoDescription）之前：
+        // 保证落库的是原始 content，转换结果只用于本次请求的渲染，不触发隐式数据迁移。
+        if ($post->format === Post::FORMAT_HTML) {
+            $post->content = $this->htmlToMarkdownService->convert((string) $post->content);
+            $post->format = Post::FORMAT_MARKDOWN;
+        }
+
+        if ($unlocked || $password === '') {
             $contentHtml = $post->getContentProcessed($this->markdownRenderer);
             $toc = $this->markdownRenderer->attachTocAnchors($contentHtml);
+        } else {
+            $contentHtml = $post->getExcerptProcessed($this->markdownRenderer);
+            $toc = [];
         }
+
+        /** @var ?User $author */
+        $author = User::query()->findByPk((int)$post->author_id);
 
         return $this->viewRenderer->render(
             __DIR__ . '/template',
             [
                 'post' => $post,
-                'authorNickname' => User::query()->findByPk((int)$post->author_id)?->nickname,
+                'authorNickname' => $author?->nickname,
                 'contentHtml' => $contentHtml,
                 'toc' => $toc,
                 'unlocked' => $unlocked,

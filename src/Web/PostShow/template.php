@@ -65,11 +65,13 @@ if (str_contains($contentHtml, '<pre><code') || str_contains($contentHtml, 'brus
         <<<'JS'
         (function () {
             // 语言映射：UEditor brush:xxx → highlight.js 语言名
+            // 注意与 HtmlToMarkdownService::BRUSH_MAP 保持一致（前台展示与后台预览同源）
             var brushMap = {
-                'plain': 'plaintext', 'text': 'plaintext', 'bash': 'bash', 'shell': 'bash',
-                'php': 'php', 'python': 'python', 'java': 'java', 'c': 'c', 'cpp': 'cpp',
-                'js': 'javascript', 'javascript': 'javascript', 'sql': 'sql', 'xml': 'xml',
-                'html': 'xml', 'css': 'css', 'json': 'json', 'ruby': 'ruby', 'go': 'go'
+                'plain': 'plaintext', 'text': 'plaintext', 'bash': 'bash', 'shell': 'bash', 'sh': 'bash',
+                'php': 'php', 'python': 'python', 'py': 'python', 'java': 'java', 'c': 'c', 'cpp': 'cpp',
+                'csharp': 'csharp', 'js': 'javascript', 'javascript': 'javascript', 'sql': 'sql', 'xml': 'xml',
+                'html': 'xml', 'css': 'css', 'less': 'less', 'scss': 'scss', 'json': 'json', 'ruby': 'ruby',
+                'go': 'go', 'typescript': 'typescript', 'ts': 'typescript'
             };
             document.querySelectorAll('pre code').forEach(function (b) {
                 hljs.highlightBlock(b);

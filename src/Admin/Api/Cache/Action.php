@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Admin\Api\Cache;
 
 use App\Admin\Api\JsonResponse;
+use App\Common\AssetMinifyService;
 use App\Common\CacheKeys;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Aliases\Aliases;
-use Yiisoft\Cache\CacheInterface;
 
 /**
  * 后台缓存管理 JSON API：
@@ -22,9 +22,9 @@ final readonly class Action
 {
     public function __construct(
         private JsonResponse $jsonResponse,
-        private CacheInterface $cache,
         private ClientInterface $redis,
         private Aliases $aliases,
+        private AssetMinifyService $assetMinify,
     ) {
     }
 
@@ -75,25 +75,31 @@ final readonly class Action
     public function rebuild(ServerRequestInterface $request): ResponseInterface
     {
         $aliases = $this->aliases->get('@assets');
-        $themes = ['crazydb', 'main', 'magazine'];
         $saved = 0;
         $files = 0;
 
-        foreach ($themes as $theme) {
+        foreach (AssetMinifyService::THEMES as $theme) {
             // 压缩根目录 CSS
             $rootCss = "{$aliases}/{$theme}/site.css";
             if (is_file($rootCss)) {
-                [$s, $c] = $this->minifyFile($rootCss);
-                $saved += $s;
-                $files += $c;
+                $rs = $this->assetMinify->minifyCss($rootCss);
+                if ($rs !== null) {
+                    $saved += $rs;
+                    $files++;
+                }
             }
             // 压缩 css/ 子目录
             $cssDir = "{$aliases}/{$theme}/css";
             if (is_dir($cssDir)) {
-                foreach (glob("{$cssDir}/*.css") as $file) {
-                    [$s, $c] = $this->minifyFile($file);
-                    $saved += $s;
-                    $files += $c;
+                $cssFiles = glob("{$cssDir}/*.css");
+                if (is_array($cssFiles)) {
+                    foreach ($cssFiles as $file) {
+                        $rs = $this->assetMinify->minifyCss($file);
+                        if ($rs !== null) {
+                            $saved += $rs;
+                            $files++;
+                        }
+                    }
                 }
             }
             // 触发 hash 重算
@@ -106,30 +112,10 @@ final readonly class Action
         }
 
         return $this->jsonResponse->ok([
-            'message' => "资源已更新。压缩 {$files} 个文件，节省 " . $this->fmtBytes($saved) . "。",
+            'message' => '资源已更新。压缩 ' . $files . ' 个文件，节省 ' . AssetMinifyService::fmtBytes($saved) . '。',
             'files' => $files,
             'saved' => $saved,
         ]);
-    }
-
-    private function minifyFile(string $file): array
-    {
-        $orig = filesize($file);
-        try {
-            $min = (new \MatthiasMullie\Minify\CSS($file))->minify();
-            $saved = $orig - strlen($min);
-            if ($saved > 0) {
-                file_put_contents($file, $min);
-                return [$saved, 1];
-            }
-        } catch (\Throwable) {
-        }
-        return [0, 0];
-    }
-
-    private function fmtBytes(int $b): string
-    {
-        return $b >= 1024 ? sprintf('%.1f KB', $b / 1024) : $b . ' B';
     }
 
     /**
