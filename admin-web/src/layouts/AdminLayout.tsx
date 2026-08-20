@@ -13,7 +13,7 @@ import {
   SafetyCertificateOutlined,
   LogoutOutlined,
 } from '@ant-design/icons'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { Dropdown } from 'antd'
 import { getCsrfToken } from '../api/client'
@@ -101,19 +101,22 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
   }
   const matched = matchMenuItem(menuItems, pathname)
   const selectedKeys = matched ? [matched.item.key] : []
-  // 默认展开「文章管理」（/posts）等带子菜单的项，方便直接看到阅读排行入口；
-  // 若处于某子页面，同时展开其父级。
-  const defaultOpen = matched?.parent ? [matched.parent.key] : ['/posts']
+  // 默认展开「文章管理」（/posts）突出阅读排行入口；用户可手动收起。
+  // 若同时处于其他父级子菜单页面（如 /config/basic），则一并展开。
+  const parentKey = matched?.parent?.key
+  const defaultOpen = parentKey && parentKey !== '/posts'
+    ? ['/posts', parentKey]
+    : ['/posts']
   const [openKeys, setOpenKeys] = useState<string[]>(defaultOpen)
+
+  // 菜单展开状态完全由本组件控制：
+  // - 初始默认展开「文章管理」（defaultOpen）；
+  // - 不传 onOpenChange，ProLayout 内部按路由匹配推送的 openKeys 会被受控
+  //   value 吞掉（仅内部 state 变化，渲染仍用 props.openKeys），因此点击任何
+  //   菜单/子菜单导航都不会改变展开状态；
+  // - 点击 submenu 标题时由 subMenuItemRender 手动 toggle。
   // 二级/更深入页面自身注册的具体标题（如「编辑文章」「新建文章」），作为面包屑最后一级
   const [pageTitle, setPageTitle] = useState<string | null>(null)
-
-  // 路由变化时同步展开父级（如从 /posts 切到 /config/basic）
-  useEffect(() => {
-    if (matched?.parent) {
-      setOpenKeys((prev) => (prev.includes(matched.parent!.key) ? prev : [...prev, matched.parent!.key]))
-    }
-  }, [pathname])
 
   // 面包屑：仅二级/更深入页面显示，只展示实际菜单层级（无根节点）。
   // 顶级菜单页（路径即菜单路径，如 /posts 文章管理）不显示。
@@ -190,16 +193,18 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
       location={{ pathname: location.pathname }}
       selectedKeys={selectedKeys}
       openKeys={openKeys}
-      onOpenChange={(keys) => {
-        // 用户可自由展开/收起菜单，但当前页面的父级必须保持展开：
-        // 修复「点击子菜单后父级收起」（pro-layout 点击叶子项后会收起父级子菜单）。
-        const next = (keys === false ? [] : [...keys]) as string[]
-        const parentKey = matched?.parent?.key
-        if (parentKey && !next.includes(parentKey)) {
-          next.push(parentKey)
-        }
-        setOpenKeys(next)
-      }}
+      subMenuItemRender={(item, dom) => (
+        <span
+          onClick={() => {
+            const key = item.key ?? ''
+            setOpenKeys((prev) =>
+              prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+            )
+          }}
+        >
+          {dom}
+        </span>
+      )}
       menuItemRender={(item, dom) => (
         <a onClick={() => navigate(item.path || '/')}>{dom}</a>
       )}

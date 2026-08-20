@@ -38,11 +38,10 @@ final readonly class Action
         $key = PostViewKeys::topDateKey($date);
         $ranking = [];
         try {
-            // ZREVRANGE key 0 19 WITHSCORES → [[id, score], ...]（按阅读次数降序，取前 TOP_LIMIT 名）
+            // Predis zrevrange withscores 返回关联数组 {member: score}，直接传给 hydrate
+            /** @var array<array-key, mixed> $raw */
             $raw = $this->redis->zrevrange($key, 0, PostViewKeys::TOP_LIMIT - 1, ['withscores' => true]);
-            /** @var list<mixed> $flat */
-            $flat = array_values((array)$raw);
-            $ranking = $this->hydrate($flat);
+            $ranking = $this->hydrate($raw);
         } catch (\Throwable) {
             $ranking = [];
         }
@@ -56,25 +55,15 @@ final readonly class Action
 
     /**
      * @return list<array{post_id: int, title: string, views: int, alias: string}>
-     * @param list<mixed> $raw ZREVRANGE WITHSCORES 结果
+     * @param array<array-key, mixed> $raw Predis zrevrange withscores 返回关联数组 {member: score}
      */
     private function hydrate(array $raw): array
     {
-        $items = [];
-        $id = null;
         $ids = [];
-        foreach ($raw as $v) {
-            if ($id === null) {
-                $id = (int)$v;
-                $ids[] = $id;
-            } else {
-                $items[(string)$id] = ['views' => (int)$v];
-                $id = null;
-            }
-        }
-        if ($id !== null) {
-            // 末尾 ID 无 score（异常，忽略）
-            $ids = array_slice($ids, 0, count($items));
+        // Predis 关联数组：key=member(postId 字符串), value=score(views)
+        foreach ($raw as $member => $score) {
+            $pid = (int)$member;
+            $ids[] = $pid;
         }
 
         // 批量取标题
@@ -87,15 +76,19 @@ final readonly class Action
             }
         }
 
+        // 按分值降序构建结果（Predis zrevrange 已按分值降序，顺序不变）
         $result = [];
-        foreach ($items as $postId => $score) {
-            $pid = (int)$postId;
+        foreach ($raw as $member => $score) {
+            $pid = (int)$member;
             $post = $titleMap[$pid] ?? null;
+            if ($post === null) {
+                continue; // 过滤掉已删除/不存在的文章（ZSET TTL 48h 内可能残留）
+            }
             $result[] = [
                 'post_id' => $pid,
-                'title' => $post ? $post->title : "(已删除 {$pid})",
-                'alias' => $post ? $post->alias : '',
-                'views' => $score['views'],
+                'title' => $post->title,
+                'alias' => $post->alias,
+                'views' => (int)$score,
             ];
         }
         return $result;

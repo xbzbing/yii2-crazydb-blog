@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Tabs, Table, Spin, Button, Alert, Empty, Tag } from 'antd'
-import { ReloadOutlined, InfoCircleOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Tabs, Table, Spin, Button, Alert, Empty, Tag, Space, Tooltip } from 'antd'
+import { ReloadOutlined, InfoCircleOutlined, EditOutlined, ExportOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { RankItem } from '../api/client'
 
@@ -14,40 +14,62 @@ interface TabState {
   date: string
 }
 
-const columns = [
-  {
-    title: '排名',
-    key: 'rank',
-    width: 72,
-    render: (_: unknown, __: RankItem, index: number) => {
-      const rank = index + 1
-      const color = rank === 1 ? '#f5222d' : rank === 2 ? '#fa8c16' : rank === 3 ? '#faad14' : undefined
-      return (
-        <span style={{ fontWeight: 600, color, fontSize: rank <= 3 ? 16 : 14 }}>
-          {rank}
-        </span>
-      )
-    },
-  },
-  {
-    title: '文章标题',
-    dataIndex: 'title',
-    key: 'title',
-    render: (title: string, record: RankItem) => (
-      <Link to={`/posts/${record.post_id}/edit`}>{title}</Link>
-    ),
-  },
-  {
-    title: '阅读次数',
-    dataIndex: 'views',
-    key: 'views',
-    width: 120,
-    render: (views: number) => <Tag color="blue">{views}</Tag>,
-  },
-]
-
 export default function PostRank() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<Day>('today')
+  const columns = [
+    {
+      title: '排名',
+      key: 'rank',
+      width: 72,
+      render: (_: unknown, __: RankItem, index: number) => {
+        const rank = index + 1
+        const color = rank === 1 ? '#f5222d' : rank === 2 ? '#fa8c16' : rank === 3 ? '#faad14' : undefined
+        return (
+          <span style={{ fontWeight: 600, color, fontSize: rank <= 3 ? 16 : 14 }}>
+            {rank}
+          </span>
+        )
+      },
+    },
+    {
+      title: '文章标题',
+      dataIndex: 'title',
+      key: 'title',
+    },
+    {
+      title: '阅读次数',
+      dataIndex: 'views',
+      key: 'views',
+      width: 120,
+      render: (views: number) => <Tag color="blue">{views}</Tag>,
+    },
+    {
+      title: '操作',
+      key: 'actions',
+      width: 130,
+      render: (_: unknown, record: RankItem) => (
+        <Space.Compact>
+          {record.alias && (
+            <Tooltip title="前台访问">
+              <Button
+                size="small"
+                icon={<ExportOutlined />}
+                onClick={() => window.open(`/archive/${record.alias}`, '_blank')}
+              />
+            </Tooltip>
+          )}
+          <Tooltip title="编辑">
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/posts/${record.post_id}/edit`)}
+            />
+          </Tooltip>
+        </Space.Compact>
+      ),
+    },
+  ]
   const [tabs, setTabs] = useState<Record<Day, TabState>>({
     today: { data: null, loading: false, error: null, date: '' },
     yesterday: { data: null, loading: false, error: null, date: '' },

@@ -209,7 +209,7 @@ final class InMemoryRedisStub implements ClientInterface
 
     /**
      * @param list<mixed> $arguments
-     * @return list<string>
+     * @return array<string, string>
      */
     private function zrevrange(array $arguments): array
     {
@@ -218,20 +218,13 @@ final class InMemoryRedisStub implements ClientInterface
         $stop = (int)$arguments[2];
         /** @var array<string, int> $zset */
         $zset = $this->store[$key] ?? [];
-        // 降序按分值
+        // 降序按分值，关联数组 {member: score} 与 Predis zrevrange withscores 行为一致
         arsort($zset);
         $pairs = [];
         foreach ($zset as $member => $score) {
-            $pairs[] = [(string)$member, (string)$score];
+            $pairs[$member] = (string)$score;
         }
-        $slice = array_slice($pairs, max(0, $start), $stop >= 0 ? $stop - $start + 1 : null);
-        // WITHSCORES：平铺 [member, score, ...]
-        $flat = [];
-        foreach ($slice as [$member, $score]) {
-            $flat[] = $member;
-            $flat[] = $score;
-        }
-        return $flat;
+        return array_slice($pairs, max(0, $start), $stop >= 0 ? $stop - $start + 1 : null, true);
     }
 
     /**

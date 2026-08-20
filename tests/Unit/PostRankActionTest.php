@@ -60,13 +60,11 @@ final class PostRankActionTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertTrue($data['ok']);
-        // 按阅读次数降序：99999999（3 次）在前，本测试文章（1 次）在后
-        $this->assertSame('99999999', (string)$data['data']['items'][0]['post_id']);
-        $this->assertSame(3, $data['data']['items'][0]['views']);
-        $this->assertSame('(已删除 99999999)', $data['data']['items'][0]['title']);
-        $this->assertSame($pid, $data['data']['items'][1]['post_id']);
-        $this->assertSame('__rank_test__', $data['data']['items'][1]['title']);
-        $this->assertSame(1, $data['data']['items'][1]['views']);
+        // 按阅读次数降序：已删除文章（99999999）被过滤，只保留存在的文章
+        $this->assertCount(1, $data['data']['items']);
+        $this->assertSame($pid, $data['data']['items'][0]['post_id']);
+        $this->assertSame('__rank_test__', $data['data']['items'][0]['title']);
+        $this->assertSame(1, $data['data']['items'][0]['views']);
     }
 
     public function testRejectsInvalidDay(): void
@@ -89,5 +87,28 @@ final class PostRankActionTest extends TestCase
         $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertTrue($data['ok']);
         $this->assertSame([], $data['data']['items']);
+    }
+
+    public function testRankingTruncatedAtTopLimit(): void
+    {
+        $pid = (int)$this->post->id;
+        $ymd = date('Ymd');
+        $key = PostViewKeys::topKey($ymd);
+        // 25 篇候选：本测试文章 + 24 篇"已删除"占位文章（均不在 post 表，会被过滤）
+        $this->redis->zincrby($key, 1, (string)$pid);
+        for ($i = 1; $i <= 24; $i++) {
+            $this->redis->zincrby($key, 1, (string)(10000000 + $i));
+        }
+
+        $request = (new ServerRequestFactory())->createServerRequest('GET', '/admin/api/post-rank')
+            ->withQueryParams(['day' => 'today']);
+        $response = $this->action->__invoke($request);
+
+        $data = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        // stub 与 Predis 一致：ZREVRANGE 0..19 只取前 20 名（25 条 → 20 条）
+        $this->assertCount(20, $this->redis->zrevrange($key, 0, 19, ['withscores' => true]));
+        // 已删除文章被过滤，仅剩本测试文章
+        $this->assertCount(1, $data['data']['items']);
+        $this->assertSame($pid, $data['data']['items'][0]['post_id']);
     }
 }
