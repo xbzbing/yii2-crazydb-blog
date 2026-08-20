@@ -202,6 +202,7 @@ export interface ConfigValues {
   theme?: string
   site_status?: string
   maintenance_message?: string
+  site_analyzer?: string
   visit_bot_keywords?: string
   visit_script_keywords?: string
   seo_title?: string

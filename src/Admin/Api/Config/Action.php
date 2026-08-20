@@ -30,6 +30,7 @@ final readonly class Action
         'theme' => ['label' => '前台主题', 'type' => 'sys'],
         Option::SITE_STATUS => ['label' => '站点状态', 'type' => 'sys'],
         Option::MAINTENANCE_MESSAGE => ['label' => '维护文案', 'type' => 'sys'],
+        'site_analyzer' => ['label' => '站长统计代码', 'type' => 'sys'],
         VisitClassifier::OPTION_BOT_KEYWORDS => ['label' => '爬虫访问关键词（英文逗号分隔）', 'type' => 'sys'],
         VisitClassifier::OPTION_SCRIPT_KEYWORDS => ['label' => '脚本访问关键词（英文逗号分隔）', 'type' => 'sys'],
         'seo_title' => ['label' => 'SEO 标题', 'type' => 'seo'],

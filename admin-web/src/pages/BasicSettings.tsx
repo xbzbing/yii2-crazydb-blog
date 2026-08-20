@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Divider, Form, Input, Select, Button, message, Spin, Row, Col } from 'antd'
+import { Card, Divider, Form, Input, Select, Button, message, Spin, Row, Col, Alert } from 'antd'
 import { api } from '../api/client'
 import type { ConfigValues } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
@@ -128,6 +128,38 @@ export default function BasicSettings() {
               </Form.Item>
             </Col>
           </Row>
+        </div>
+
+        <Divider style={{ margin: '16px 0' }} />
+
+        {/* 站长统计代码：原样渲染（HTML/JS），须提示安全风险 */}
+        <div style={{ marginBottom: 16 }}>
+          <div
+            style={{
+              fontSize: 15,
+              fontWeight: 600,
+              color: 'rgba(0,0,0,0.88)',
+              marginBottom: 4,
+            }}
+          >
+            站长统计代码
+          </div>
+          <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>
+            粘贴统计服务商（如百度统计、CNZZ）提供的完整 &lt;script&gt; 代码，将原样输出到前台页脚
+          </div>
+          <Form.Item name="site_analyzer" label="统计代码（HTML/JS）">
+            <Input.TextArea
+              rows={4}
+              placeholder="<script>...</script>"
+              style={{ fontFamily: 'monospace', fontSize: 13 }}
+            />
+          </Form.Item>
+          <Alert
+            type="warning"
+            showIcon
+            message="安全提示"
+            description="该字段内容将作为原始 HTML 直接输出到前台（不转义），可执行任意脚本。仅可填写可信的统计代码；非站长角色请勿授权编辑此字段，防止存储型 XSS。"
+          />
         </div>
 
         <div style={{ textAlign: 'center', paddingTop: 8 }}>
