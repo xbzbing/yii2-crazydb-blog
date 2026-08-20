@@ -6,6 +6,7 @@ namespace App\Admin\Api\Cache;
 
 use App\Admin\Api\JsonResponse;
 use App\Common\AssetMinifyService;
+use App\Common\CacheKeyIndex;
 use App\Common\CacheKeys;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -25,6 +26,7 @@ final readonly class Action
         private ClientInterface $redis,
         private Aliases $aliases,
         private AssetMinifyService $assetMinify,
+        private CacheKeyIndex $cacheKeyIndex,
     ) {
     }
 
@@ -51,7 +53,7 @@ final readonly class Action
             'usedMemory' => (int)($memory['used_memory'] ?? 0),
             'usedMemoryPeak' => (int)($memory['used_memory_peak'] ?? 0),
             'maxMemory' => (int)($memory['maxmemory'] ?? 0),
-            'totalKeys' => $this->countPrefixedKeys(),
+            'totalKeys' => $this->cacheKeyIndex->indexedCount(),
             'hits' => (int)($stats['keyspace_hits'] ?? 0),
             'misses' => (int)($stats['keyspace_misses'] ?? 0),
             'connectedClients' => (int)($raw['connected_clients'] ?? 0),
@@ -62,7 +64,14 @@ final readonly class Action
     public function clear(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            $deleted = $this->deleteByPrefix(CacheKeys::PREFIX);
+            // 无 SCAN：通过缓存 key 索引集批量删除
+            $keys = $this->cacheKeyIndex->indexedKeys();
+            $ok = $this->cacheKeyIndex->clear();
+            if (!$ok) {
+                // 索引不可用：不误删同 DB 其他数据，返回失败让管理员介入
+                return $this->jsonResponse->fail('缓存清理失败：Redis 索引不可用，未执行删除（避免误删统计等数据）。');
+            }
+            $deleted = count($keys);
         } catch (\Throwable $e) {
             return $this->jsonResponse->fail('缓存清理失败：' . $e->getMessage());
         }
@@ -118,42 +127,4 @@ final readonly class Action
         ]);
     }
 
-    /**
-     * 统计应用缓存 key 数量（仅缓存前缀，不包含同 Redis 内其他数据）。
-     */
-    private function countPrefixedKeys(): int
-    {
-        $count = 0;
-        $cursor = 0;
-        do {
-            /** @var array{0: string, 1: list<string>} $result */
-            $result = $this->redis->scan($cursor, ['match' => CacheKeys::PATTERN, 'count' => 500]);
-            $cursor = (int)$result[0];
-            foreach ($result[1] as $key) {
-                if (str_starts_with((string)$key, CacheKeys::PREFIX)) {
-                    $count++;
-                }
-            }
-        } while ($cursor !== 0);
-        return $count;
-    }
-
-    /**
-     * SCAN 按前缀批量删除缓存 key，返回删除数量。
-     */
-    private function deleteByPrefix(string $prefix): int
-    {
-        $cursor = 0;
-        $total = 0;
-        do {
-            /** @var array{0: string, 1: list<string>} $result */
-            $result = $this->redis->scan($cursor, ['match' => $prefix . '*', 'count' => 500]);
-            $cursor = (int)$result[0];
-            $keys = $result[1];
-            if ($keys !== []) {
-                $total += $this->redis->del($keys);
-            }
-        } while ($cursor !== 0);
-        return $total;
-    }
 }

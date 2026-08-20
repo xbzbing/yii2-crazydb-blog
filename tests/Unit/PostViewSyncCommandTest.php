@@ -24,7 +24,6 @@ final class PostViewSyncCommandTest extends TestCase
     {
         parent::setUp();
         if (!self::$migrated) {
-            // 确保测试库已应用 V2 列（post.view_uv 等）
             (new CommandTester(new InitMigrateCommand()))->execute([]);
             self::$migrated = true;
         }
@@ -41,12 +40,18 @@ final class PostViewSyncCommandTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSyncsPvDeltaAndUvOverwrite(): void
+    private function pid(): int
     {
-        $ymd = date('Ymd');
-        $pid = (int)$this->post->id;
-        $this->redis->store[PostViewKeys::counterKey($pid, $ymd)] = '5';
-        $this->redis->store[PostViewKeys::syncedKey($pid, $ymd)] = '2';
+        return (int)$this->post->id;
+    }
+
+    public function testSyncsPvDeltaAndUvOverwriteFromPending(): void
+    {
+        $pid = $this->pid();
+        // 累计计数 5，游标 2 → delta 3；pending 标记待同步
+        $this->redis->store[PostViewKeys::counterKey($pid)] = '5';
+        $this->redis->store[PostViewKeys::syncedKey($pid)] = '2';
+        $this->redis->sadd(PostViewKeys::pendingKey(), [(string)$pid]);
         $this->redis->pfadd(PostViewKeys::uvKey($pid), ['dev-1', 'dev-2', 'dev-3', 'dev-4']);
 
         $exit = (new CommandTester(new PostViewSyncCommand($this->redis)))->execute([]);
@@ -56,15 +61,30 @@ final class PostViewSyncCommandTest extends TestCase
         $this->assertInstanceOf(Post::class, $loaded);
         $this->assertSame(3, (int)$loaded->view_count); // delta 5-2=3
         $this->assertSame(4, (int)$loaded->view_uv);    // UV 全量 PFCOUNT 覆盖
-        $this->assertSame('5', $this->redis->store[PostViewKeys::syncedKey($pid, $ymd)]);
+        $this->assertSame('5', $this->redis->store[PostViewKeys::syncedKey($pid)]);
+        // 同步后从 pending 移除
+        $this->assertSame([], $this->redis->smembers(PostViewKeys::pendingKey()));
+    }
+
+    public function testPostWithoutPendingIsNotProcessed(): void
+    {
+        $pid = $this->pid();
+        // 有计数但无 pending 标记（理论上写路径总会 SADD，此处验证防御）
+        $this->redis->store[PostViewKeys::counterKey($pid)] = '7';
+
+        (new CommandTester(new PostViewSyncCommand($this->redis)))->execute([]);
+
+        $loaded = Post::query()->findByPk($pid);
+        $this->assertInstanceOf(Post::class, $loaded);
+        $this->assertSame(0, (int)$loaded->view_count);
     }
 
     public function testSecondRunDoesNotDoubleCount(): void
     {
-        $ymd = date('Ymd');
-        $pid = (int)$this->post->id;
-        $this->redis->store[PostViewKeys::counterKey($pid, $ymd)] = '5';
-        $this->redis->store[PostViewKeys::syncedKey($pid, $ymd)] = '5';
+        $pid = $this->pid();
+        $this->redis->store[PostViewKeys::counterKey($pid)] = '5';
+        $this->redis->store[PostViewKeys::syncedKey($pid)] = '5';
+        $this->redis->sadd(PostViewKeys::pendingKey(), [(string)$pid]);
         $this->redis->pfadd(PostViewKeys::uvKey($pid), ['dev-1']);
 
         $tester = new CommandTester(new PostViewSyncCommand($this->redis));
@@ -78,15 +98,17 @@ final class PostViewSyncCommandTest extends TestCase
         $this->assertSame(1, (int)$loaded->view_uv);
     }
 
-    public function testCleansOrphanUvKeysOfDeletedPosts(): void
+    public function testCleansOrphanKeysOfDeletedPosts(): void
     {
         $orphanId = 99999999;
-        $key = PostViewKeys::uvKey($orphanId);
-        $this->redis->pfadd($key, ['ghost-dev']);
+        $this->redis->store[PostViewKeys::counterKey($orphanId)] = '9';
+        $this->redis->pfadd(PostViewKeys::uvKey($orphanId), ['ghost-dev']);
+        $this->redis->sadd(PostViewKeys::pendingKey(), [(string)$orphanId]);
 
         (new CommandTester(new PostViewSyncCommand($this->redis)))->execute([]);
 
-        // 已删除文章：UV key 被清理，不残留孤儿 HLL
-        $this->assertArrayNotHasKey($key, $this->redis->store);
+        // 已删除文章：统计 key 被清理，不残留孤儿
+        $this->assertArrayNotHasKey(PostViewKeys::counterKey($orphanId), $this->redis->store);
+        $this->assertArrayNotHasKey(PostViewKeys::uvKey($orphanId), $this->redis->store);
     }
 }

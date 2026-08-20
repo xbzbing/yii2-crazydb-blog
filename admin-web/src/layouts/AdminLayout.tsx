@@ -36,7 +36,16 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { key: '/', path: '/', name: '仪表盘', icon: <DashboardOutlined /> },
-  { key: '/posts', path: '/posts', name: '文章管理', icon: <FileTextOutlined /> },
+  {
+    key: '/posts',
+    name: '文章管理',
+    icon: <FileTextOutlined />,
+    path: '/posts',
+    routes: [
+      { key: '/posts/list', path: '/posts', name: '文章列表' },
+      { key: '/posts/rank', path: '/posts/rank', name: '阅读排行' },
+    ],
+  },
   { key: '/comments', path: '/comments', name: '评论管理', icon: <CommentOutlined /> },
   { key: '/categories', path: '/categories', name: '分类管理', icon: <FolderOutlined /> },
   { key: '/navs', path: '/navs', name: '导航管理', icon: <CompassOutlined /> },
@@ -78,9 +87,12 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
   const pathname = location.pathname
   const matchMenuItem = (items: MenuItem[], path: string): { item: MenuItem; parent?: MenuItem } | null => {
     for (const item of items) {
-      // 优先匹配子项（更深层），保证 /config/basic 命中基本设置而非站点配置
-      const child = (item.routes || []).find((c) => c.path === path || path.startsWith(`${c.path}/`))
-      if (child) return { item: child, parent: item }
+      const children = item.routes || []
+      // 先精确匹配（防止子 path 前缀吞掉其他子项，如 /posts 前缀误吞 /posts/rank）
+      const exact = children.find((c) => c.path === path)
+      if (exact) return { item: exact, parent: item }
+      const prefixed = children.find((c) => path.startsWith(`${c.path}/`))
+      if (prefixed) return { item: prefixed, parent: item }
       if (item.path === path || (item.path !== '/' && path.startsWith(`${item.path}/`))) {
         return { item }
       }
@@ -89,7 +101,10 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
   }
   const matched = matchMenuItem(menuItems, pathname)
   const selectedKeys = matched ? [matched.item.key] : []
-  const [openKeys, setOpenKeys] = useState<string[]>(matched?.parent ? [matched.parent.key] : [])
+  // 默认展开「文章管理」（/posts）等带子菜单的项，方便直接看到阅读排行入口；
+  // 若处于某子页面，同时展开其父级。
+  const defaultOpen = matched?.parent ? [matched.parent.key] : ['/posts']
+  const [openKeys, setOpenKeys] = useState<string[]>(defaultOpen)
   // 二级/更深入页面自身注册的具体标题（如「编辑文章」「新建文章」），作为面包屑最后一级
   const [pageTitle, setPageTitle] = useState<string | null>(null)
 
@@ -176,8 +191,14 @@ export default function AdminLayout({ me, onLogout, children }: AdminLayoutProps
       selectedKeys={selectedKeys}
       openKeys={openKeys}
       onOpenChange={(keys) => {
-        // 站点配置路径驱动展开，其余按用户点击
-        setOpenKeys(keys === false ? [] : keys)
+        // 用户可自由展开/收起菜单，但当前页面的父级必须保持展开：
+        // 修复「点击子菜单后父级收起」（pro-layout 点击叶子项后会收起父级子菜单）。
+        const next = (keys === false ? [] : [...keys]) as string[]
+        const parentKey = matched?.parent?.key
+        if (parentKey && !next.includes(parentKey)) {
+          next.push(parentKey)
+        }
+        setOpenKeys(next)
       }}
       menuItemRender={(item, dom) => (
         <a onClick={() => navigate(item.path || '/')}>{dom}</a>

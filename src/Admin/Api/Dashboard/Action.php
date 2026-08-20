@@ -8,25 +8,34 @@ use App\Admin\Api\JsonResponse;
 use App\Comment\Comment;
 use App\Option\Option;
 use App\Post\Post;
+use App\Post\PostViewSyncTrigger;
 use App\User\User;
 use App\Visit\VisitService;
+use App\Visit\VisitSyncTrigger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * GET /admin/api/dashboard：后台仪表盘统计。
  * 支持 ?days=7|14|30 控制访问趋势周期（默认 14）。
+ * 读取前触发 on-demand 惰性同步（文章浏览 + 站点日统计，降频+锁）。
  */
 final readonly class Action
 {
     public function __construct(
         private JsonResponse $jsonResponse,
         private VisitService $visitService,
+        private PostViewSyncTrigger $postViewSyncTrigger,
+        private VisitSyncTrigger $visitSyncTrigger,
     ) {
     }
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
+        // on-demand 惰性同步：仪表盘刷新时把 Redis 统计增量落库（降频+锁，与 cron 并存）
+        $this->postViewSyncTrigger->trigger();
+        $this->visitSyncTrigger->trigger();
+
         $days = (int)($request->getQueryParams()['days'] ?? 14);
         $today = $this->visitService->today();
 

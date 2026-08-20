@@ -97,9 +97,11 @@ final class UserTotpServiceTest extends TestCase
     {
         $secret = $this->service->generateSecret();
         $totp = \OTPHP\TOTP::createFromSecret($secret);
+        // 固定基准时间，消除两次 time() 之间的 TOTP 窗口边界抖动
+        $now = time();
         // WINDOW=29（秒粒度遍历）应兼容约一个周期前的码（手机时钟偏慢场景）
-        $prevCode = $totp->at(time() - UserTotpService::PERIOD);
-        self::assertTrue($this->service->verifyCode($secret, $prevCode), '1 个周期前的码应被接受');
+        $prevCode = $totp->at($now - UserTotpService::PERIOD);
+        self::assertTrue($this->service->verifyCode($secret, $prevCode, $now), '1 个周期前的码应被接受');
     }
 
     #[Test]

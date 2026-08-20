@@ -105,6 +105,7 @@ return [
             Route::get('/dashboard')->action(\App\Admin\Api\Dashboard\Action::class)->name('admin/api/dashboard'),
             Route::get('/posts')->action(\App\Admin\Api\PostList\Action::class)->name('admin/api/post/list'),
             Route::get('/posts/page/{page:\d+}')->action(\App\Admin\Api\PostList\Action::class)->name('admin/api/post/list-page'),
+            Route::get('/post-rank')->action(\App\Admin\Api\PostRank\Action::class)->name('admin/api/post/rank'),
             Route::get('/post/{id:\d+}')->action([\App\Admin\Api\PostForm\Action::class, 'detail'])->name('admin/api/post/detail'),
             Route::post('/post/save')->action([\App\Admin\Api\PostForm\Action::class, 'save'])->name('admin/api/post/save'),
             Route::post('/post/update/{id:\d+}')->action([\App\Admin\Api\PostForm\Action::class, 'update'])->name('admin/api/post/update'),

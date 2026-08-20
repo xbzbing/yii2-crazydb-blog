@@ -50,6 +50,9 @@ final class VisitKeys
     public const CRAWLER_SYNCED_PREFIX = 'crazydb:visit:synced_crawler:';
     public const SCRIPT_SYNCED_PREFIX = 'crazydb:visit:synced_script:';
 
+    /** 有统计数据的日期索引集合：crazydb:visit:dates（Set<Ymd>，写入侧 SADD，供无 SCAN 枚举+清理） */
+    public const DATES_KEY = 'crazydb:visit:dates';
+
     // ── 日维度方法 ────────────────────────────────────────────────────────
 
     public static function pvKey(string $ymd): string { return self::PV_PREFIX . $ymd; }
@@ -61,6 +64,7 @@ final class VisitKeys
     public static function syncedKey(string $ymd): string { return self::SYNCED_PREFIX . $ymd; }
     public static function crawlerSyncedKey(string $ymd): string { return self::CRAWLER_SYNCED_PREFIX . $ymd; }
     public static function scriptSyncedKey(string $ymd): string { return self::SCRIPT_SYNCED_PREFIX . $ymd; }
+    public static function datesKey(): string { return self::DATES_KEY; }
 
     // ── 小时维度方法 ──────────────────────────────────────────────────────
 

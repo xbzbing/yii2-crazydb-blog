@@ -8,6 +8,7 @@ use App\Admin\Api\ApiSerializer;
 use App\Admin\Api\JsonResponse;
 use App\Category\Category;
 use App\Post\Post;
+use App\Post\PostViewSyncTrigger;
 use App\Tag\Tag;
 use App\Web\Pager;
 use Psr\Http\Message\ResponseInterface;
@@ -16,6 +17,7 @@ use Yiisoft\Router\HydratorAttribute\RouteArgument;
 
 /**
  * GET /admin/api/posts?page=&status=&tag=：文章列表（分页 + 状态/标签过滤）。
+ * 读取前触发 on-demand 惰性同步（降频+锁，使 view_count/view_uv 与 Redis 对齐）。
  */
 final readonly class Action
 {
@@ -26,6 +28,7 @@ final readonly class Action
 
     public function __construct(
         private JsonResponse $jsonResponse,
+        private PostViewSyncTrigger $postViewSyncTrigger,
     ) {
     }
 
@@ -37,6 +40,8 @@ final readonly class Action
         $status = (string)($request->getQueryParams()['status'] ?? '');
         $filtered = in_array($status, self::STATUSES, true);
         $tag = trim((string)($request->getQueryParams()['tag'] ?? ''));
+        // on-demand 惰性同步：让列表展示的 view_count/view_uv 尽量贴近 Redis 实时值
+        $this->postViewSyncTrigger->trigger();
         // 服务端排序（白名单字段）：默认置顶+发布时间，用户排序时按字段覆盖
         $sortField = (string)($request->getQueryParams()['sort'] ?? '');
         $orderBy = ['is_top' => SORT_DESC, 'post_time' => SORT_DESC];

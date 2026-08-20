@@ -15,4 +15,5 @@ return [
     'asset:minify' => Console\AssetMinifyCommand::class,
     'post/html-to-md' => Console\HtmlToMdCommand::class,
     'visit/decode-vid' => Console\DeviceIdDecodeCommand::class,
+    'post-view/cleanup-legacy' => Console\PostViewCleanupLegacyCommand::class,
 ];

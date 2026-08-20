@@ -190,4 +190,20 @@ export const api = {
   otpSetup: () => request<OtpSetupData>('/otp/setup', { method: 'POST' }),
   otpEnable: (otpCode: string) => request<{ message: string }>('/otp/enable', { method: 'POST', body: { otp_code: otpCode } }),
   otpDisable: (otpCode: string) => request<{ message: string }>('/otp/disable', { method: 'POST', body: { otp_code: otpCode } }),
+
+  postRank: (day: 'today' | 'yesterday', signal?: AbortSignal) =>
+    request<PostRankData>(`/post-rank?day=${day}`, { signal }),
+}
+
+export interface RankItem {
+  post_id: number
+  title: string
+  alias: string
+  views: number
+}
+
+export interface PostRankData {
+  day: string
+  date: string
+  items: RankItem[]
 }

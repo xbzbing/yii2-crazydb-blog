@@ -12,7 +12,7 @@ use Predis\ClientInterface;
  */
 final class InMemoryRedisStub implements ClientInterface
 {
-    /** @var array<string, string|list<string>> key → 字符串值或 HLL 成员列表 */
+    /** @var array<string, string|list<string>|array<string, int>> key → 字符串/集合成员/HLL/ZSET */
     public array $store = [];
 
     /** @var list<array{0: string, 1: list<mixed>}> */
@@ -27,15 +27,41 @@ final class InMemoryRedisStub implements ClientInterface
         $this->calls[] = [(string)$method, array_values((array)$arguments)];
         return match ($method) {
             'get' => $this->store[$arguments[0]] ?? null,
-            'set' => $this->store[$arguments[0]] = (string)$arguments[1],
+            'set' => $this->set($arguments),
             'del' => $this->delete($arguments[0]),
             'expire' => true,
             'pfadd' => $this->pfadd((string)$arguments[0], (array)$arguments[1]),
             'pfcount' => $this->pfcount((string)$arguments[0]),
+            'sadd' => $this->sadd((string)$arguments[0], (array)$arguments[1]),
+            'smembers' => $this->smembers((string)$arguments[0]),
+            'srem' => $this->srem((string)$arguments[0], (array)$arguments[1]),
+            'scard' => $this->scard((string)$arguments[0]),
+            'zincrby' => $this->zincrby((string)$arguments[0], (string)$arguments[1], (string)$arguments[2]),
+            'zrevrange' => $this->zrevrange($arguments),
             'scan' => $this->scan((int)$arguments[0], (array)($arguments[1] ?? [])),
             'pipeline' => $this->runPipeline($arguments),
             default => 1,
         };
+    }
+
+    /**
+     * set：支持 (key, value) 与 RedisLock 的 (key, value, EX, ttl, NX) 形式。
+     *
+     * @param list<mixed> $arguments
+     */
+    private function set(array $arguments): mixed
+    {
+        $key = (string)$arguments[0];
+        // SET key value [EX ttl] [NX]（RedisLock::acquire 使用）
+        $hasNx = in_array('NX', $arguments, true);
+        if ($hasNx) {
+            if (isset($this->store[$key])) {
+                return null; // 已存在 → 获取锁失败
+            }
+        }
+        $value = (string)($arguments[1] ?? '');
+        $this->store[$key] = $value;
+        return $hasNx ? 'OK' : $this->store[$key];
     }
 
     public function getProfile(): never
@@ -117,6 +143,95 @@ final class InMemoryRedisStub implements ClientInterface
         /** @var list<string> $hll */
         $hll = $this->store[$key] ?? [];
         return count($hll);
+    }
+
+    /**
+     * @param string $key
+     * @param list<mixed> $members
+     */
+    private function sadd(string $key, array $members): int
+    {
+        /** @var list<string> $set */
+        $set = $this->store[$key] ?? [];
+        $added = 0;
+        foreach ($members as $member) {
+            if (!in_array((string)$member, $set, true)) {
+                $set[] = (string)$member;
+                $added++;
+            }
+        }
+        $this->store[$key] = $set;
+        return $added;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function smembers(string $key): array
+    {
+        /** @var list<string> $set */
+        $set = $this->store[$key] ?? [];
+        sort($set);
+        return $set;
+    }
+
+    /**
+     * @param string $key
+     * @param list<mixed> $members
+     */
+    private function srem(string $key, array $members): int
+    {
+        /** @var list<string> $set */
+        $set = $this->store[$key] ?? [];
+        $before = count($set);
+        foreach ($members as $member) {
+            $set = array_values(array_filter($set, static fn (string $v): bool => $v !== (string)$member));
+        }
+        $this->store[$key] = $set;
+        return $before - count($set);
+    }
+
+    private function scard(string $key): int
+    {
+        /** @var list<string> $set */
+        $set = $this->store[$key] ?? [];
+        return count($set);
+    }
+
+    private function zincrby(string $key, string $increment, string $member): string
+    {
+        /** @var array<string, int> $zset */
+        $zset = $this->store[$key] ?? [];
+        $zset[$member] = ($zset[$member] ?? 0) + (int)$increment;
+        $this->store[$key] = $zset;
+        return (string)$zset[$member];
+    }
+
+    /**
+     * @param list<mixed> $arguments
+     * @return list<string>
+     */
+    private function zrevrange(array $arguments): array
+    {
+        $key = (string)$arguments[0];
+        $start = (int)$arguments[1];
+        $stop = (int)$arguments[2];
+        /** @var array<string, int> $zset */
+        $zset = $this->store[$key] ?? [];
+        // 降序按分值
+        arsort($zset);
+        $pairs = [];
+        foreach ($zset as $member => $score) {
+            $pairs[] = [(string)$member, (string)$score];
+        }
+        $slice = array_slice($pairs, max(0, $start), $stop >= 0 ? $stop - $start + 1 : null);
+        // WITHSCORES：平铺 [member, score, ...]
+        $flat = [];
+        foreach ($slice as [$member, $score]) {
+            $flat[] = $member;
+            $flat[] = $score;
+        }
+        return $flat;
     }
 
     /**

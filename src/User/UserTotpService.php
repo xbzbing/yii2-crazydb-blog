@@ -61,8 +61,9 @@ final class UserTotpService
      *
      * @param string $secret Base32 密钥（空值返回 false）
      * @param string $code 6 位数字码
+     * @param int|null $now 验证基准时间戳（默认当前时间；测试传固定值可消除时钟边界抖动）
      */
-    public function verifyCode(string $secret, string $code): bool
+    public function verifyCode(string $secret, string $code, ?int $now = null): bool
     {
         $code = trim($code);
         if ($secret === '' || $code === '' || strlen($code) !== self::DIGITS) {
@@ -70,7 +71,9 @@ final class UserTotpService
         }
         try {
             $totp = $this->createTotp($secret);
-            return $totp->verify($code, null, self::WINDOW);
+            // OTPHP 要求时间戳非负；$now 来自 time()（恒 ≥0）或 null，这里 clamp 以符合其类型约束
+            $verifyNow = $now !== null ? max(0, $now) : null;
+            return $totp->verify($code, $verifyNow, self::WINDOW);
         } catch (\Throwable) {
             return false;
         }

@@ -77,6 +77,8 @@ final class VisitSyncCommandTest extends TestCase
     public function testCleansOldDailyKeysIncludingSyncCursors(): void
     {
         $oldYmd = date('Ymd', strtotime('-40 days'));
+        // 该日有流量 → 写入侧会把日期登记进索引集（类似中间件 SADD）
+        $this->redis->sadd(VisitKeys::datesKey(), [$oldYmd]);
         $this->redis->store[VisitKeys::pvKey($oldYmd)] = '5';
         $this->redis->store[VisitKeys::uvKey($oldYmd)] = ['old-dev'];
         $this->redis->store[VisitKeys::ipKey($oldYmd)] = ['1.2.3.4'];

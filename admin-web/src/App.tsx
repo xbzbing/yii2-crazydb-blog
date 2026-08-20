@@ -22,6 +22,7 @@ const CarouselManage = lazy(() => import('./pages/CarouselManage'))
 const BasicSettings = lazy(() => import('./pages/BasicSettings'))
 const AuthSettings = lazy(() => import('./pages/AuthSettings'))
 const SeoSettings = lazy(() => import('./pages/SeoSettings'))
+const PostRank = lazy(() => import('./pages/PostRank'))
 const CachePage = lazy(() => import('./pages/CachePage'))
 const EnvPage = lazy(() => import('./pages/EnvPage'))
 
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/posts" element={<PostList />} />
           <Route path="/posts/create" element={<PostForm />} />
+          <Route path="/posts/rank" element={<PostRank />} />
           <Route path="/posts/:id/edit" element={<PostForm />} />
           <Route path="/comments" element={<CommentList />} />
           <Route path="/categories" element={<CategoryList />} />

@@ -110,6 +110,7 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
             $pvKey = VisitKeys::pvKey($ymd);
             $ipKey = VisitKeys::ipKey($ymd);
             $uvKey = VisitKeys::uvKey($ymd);
+            $datesKey = VisitKeys::datesKey();
             $typeKey = match ($type) {
                 VisitClassifier::TYPE_CRAWLER => VisitKeys::crawlerKey($ymd),
                 VisitClassifier::TYPE_SCRIPT => VisitKeys::scriptKey($ymd),
@@ -130,6 +131,8 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
                 $pvKey,
                 $ipKey,
                 $uvKey,
+                $datesKey,
+                $ymd,
                 $typeKey,
                 $pvHourKey,
                 $ipHourKey,
@@ -140,6 +143,8 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
             ): void {
                 /** @psalm-suppress UndefinedMagicMethod Predis Pipeline 命令走 __call */
                 $pipe->incr($pvKey);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->sadd($datesKey, [$ymd]);
                 /** @psalm-suppress UndefinedMagicMethod */
                 $pipe->pfadd($ipKey, [$ip]);
                 // 日 UV（仅正常访问）

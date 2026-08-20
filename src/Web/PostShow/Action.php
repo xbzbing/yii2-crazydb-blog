@@ -60,15 +60,19 @@ final readonly class Action
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);
         // 热点文章详情只原子写 Redis；由 post-view/sync 增量合并到 MySQL。
+        // 方案 B：累计计数（不按日）+ pending 标记 + 按日排行 ZSET，均无 SCAN。
         try {
-            $counterKey = PostViewKeys::counterKey((int) $post->id);
-            $this->redis->incr($counterKey);
-            $this->redis->expire($counterKey, 2592000);
+            $postId = (int) $post->id;
+            $ymd = date('Ymd');
+            $this->redis->incr(PostViewKeys::counterKey($postId));
+            $this->redis->sadd(PostViewKeys::pendingKey(), [(string)$postId]);
+            $this->redis->zincrby(PostViewKeys::topKey($ymd), 1, (string)$postId);
+            $this->redis->expire(PostViewKeys::topKey($ymd), PostViewKeys::TOP_TTL);
             $post->view_count++;
             // UV（仅正常访问，deviceId 由 VisitTrackingMiddleware 写入 request attribute）
             $deviceId = $request->getAttribute('device_id');
             if (is_string($deviceId) && $deviceId !== '') {
-                $this->redis->pfadd(PostViewKeys::uvKey((int) $post->id), [$deviceId]);
+                $this->redis->pfadd(PostViewKeys::uvKey($postId), [$deviceId]);
             }
         } catch (\Throwable) {
             // 统计不可用不能影响文章访问。

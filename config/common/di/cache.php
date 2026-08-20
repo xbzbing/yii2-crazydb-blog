@@ -32,7 +32,7 @@ return [
         'class' => RedisCache::class,
     ],
 
-    // 缓存 key 统一前缀：清理缓存时按前缀精准删除（SCAN），
+    // 缓存 key 统一前缀：清理缓存 key 时按索引集精准删除（无 SCAN），
     // 不会误伤同 Redis 内的其他数据（如 visit:* 访问统计等）。
     'cache.prefixed' => [
         'class' => PrefixedCache::class,
@@ -42,10 +42,20 @@ return [
         ],
     ],
 
+    // 缓存 key 索引装饰器：为清缓存维护 key 集合（写时 SADD，等同 SCAN 的枚举能力但无 SCAN）
+    'cache.key-index' => [
+        'class' => \App\Common\CacheKeyIndex::class,
+        '__construct()' => [
+            'inner' => Reference::to('cache.prefixed'),
+            'redis' => Reference::to(ClientInterface::class),
+            'prefix' => CacheKeys::PREFIX,
+        ],
+    ],
+
     CacheInterface::class => [
         'class' => Cache::class,
         '__construct()' => [
-            'handler' => Reference::to('cache.prefixed'),
+            'handler' => Reference::to('cache.key-index'),
         ],
     ],
 ];
