@@ -14,8 +14,13 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Cache\CacheInterface;
 
 /**
- * 前台访问统计中间件：每请求记录 PV（INCR）+ UV（HyperLogLog PFADD），
- * 并按 UA 细分爬虫 / 脚本 / 正常访问（关键词来自 option 配置，默认值兜底）。
+ * 前台访问统计中间件（V2）：
+ *
+ * V2 变更（vs V1）：
+ * - UV 改按设备 ID（dbvid cookie），不再按 IP
+ * - 新增 IP 维度（全部访问含爬虫/脚本）
+ * - 新增小时级桶（pv1h / uv1h / ip1h，TTL 48h）
+ * - 爬虫/脚本：只计 PV 分类，不计 UV/IP
  *
  * - 只统计前台 GET 请求：跳过 /admin、/static、/assets、/favicon、/feed、/tool 等
  * - Redis 异常静默（统计失败不阻断业务）
@@ -34,38 +39,97 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // 仅对需要统计的前台 GET 请求执行分类
+        if (!$this->shouldTrack($request)) {
+            return $handler->handle($request);
+        }
+
+        // 分类（判断正常/爬虫/脚本，决定是否生成 device_id 与 UV）
+        $type = $this->classify($request->getHeaderLine('User-Agent'));
+        $isNormal = ($type === VisitClassifier::TYPE_NORMAL);
+        $needsCookie = false;
+
+        if ($isNormal) {
+            // 正常访问：提前解析/生成 device_id，写入 request attribute（handle 之前）
+            $res = DeviceId::resolve($request);
+            $deviceId = $res['id'];
+            $needsCookie = $res['needsCookie'];
+            $request = $request->withAttribute('device_id', $deviceId);
+        } else {
+            $deviceId = '';
+        }
+
+        // 处理请求（PostShow 等下游在此读取 device_id attribute）
         $response = $handler->handle($request);
-        $this->track($request);
+
+        // 若为新生成的设备 ID，向响应追加 Set-Cookie（必须在 handle 之后，需要 response）
+        // 用 withAddedHeader 追加而非 withHeader 替换，避免覆盖 Session/RememberMe 已设置的 cookie
+        if ($needsCookie) {
+            $response = $response->withAddedHeader('Set-Cookie', DeviceId::cookieValue($deviceId, $request));
+        }
+
+        $this->track($request, $type, $deviceId);
         return $response;
     }
 
-    private function track(ServerRequestInterface $request): void
+    /**
+     * 是否需要统计：前台 GET + 非 skip 前缀（跳过 admin/static/assets/favicon/feed/tool）。
+     */
+    private function shouldTrack(ServerRequestInterface $request): bool
+    {
+        if ($request->getMethod() !== 'GET') {
+            return false;
+        }
+        $path = $request->getUri()->getPath();
+        if ($path === '') {
+            $path = '/';
+        }
+        foreach (self::SKIP_PREFIXES as $prefix) {
+            if (str_starts_with($path, $prefix)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 分类统计：PV（全部）+ UV/IP（仅正常）+ 分类 PV + 小时桶。
+     * $deviceId 仅正常访问传入，非正常传空字符串。
+     */
+    private function track(ServerRequestInterface $request, string $type, string $deviceId): void
     {
         try {
-            $method = $request->getMethod();
-            if ($method !== 'GET') {
-                return;
-            }
-            $path = $request->getUri()->getPath();
-            if ($path === '') {
-                $path = '/';
-            }
-            foreach (self::SKIP_PREFIXES as $prefix) {
-                if (str_starts_with($path, $prefix)) {
-                    return;
-                }
-            }
             $ymd = date('Ymd');
+            $ymdH = date('YmdH');
             $ip = XUtils::getClientIP($request->getServerParams());
-            // PV：精确计数；UV：HyperLogLog（固定 ~12KB，误差 <1%）
+            $isNormal = ($type === VisitClassifier::TYPE_NORMAL);
+
+            // 日 PV（全部访问）
             $this->redis->incr(VisitKeys::pvKey($ymd));
-            $this->redis->pfadd(VisitKeys::uvKey($ymd), [$ip]);
-            // 细分：爬虫 / 脚本 / 正常（关键词来自 option 配置）
-            $type = $this->classify($request->getHeaderLine('User-Agent'));
+            // 日 IP（全部访问）
+            $this->redis->pfadd(VisitKeys::ipKey($ymd), [$ip]);
+            // 日 UV（仅正常访问）
+            if ($isNormal && $deviceId !== '') {
+                $this->redis->pfadd(VisitKeys::uvKey($ymd), [$deviceId]);
+            }
+            // 分类 PV
             if ($type === VisitClassifier::TYPE_CRAWLER) {
                 $this->redis->incr(VisitKeys::crawlerKey($ymd));
             } elseif ($type === VisitClassifier::TYPE_SCRIPT) {
                 $this->redis->incr(VisitKeys::scriptKey($ymd));
+            }
+            // 小时 PV + IP（全部访问）
+            $pvHourKey = VisitKeys::pvHourKey($ymdH);
+            $this->redis->incr($pvHourKey);
+            $this->redis->expire($pvHourKey, VisitKeys::HOUR_TTL);
+            $ipHourKey = VisitKeys::ipHourKey($ymdH);
+            $this->redis->pfadd($ipHourKey, [$ip]);
+            $this->redis->expire($ipHourKey, VisitKeys::HOUR_TTL);
+            // 小时 UV（仅正常访问）
+            if ($isNormal && $deviceId !== '') {
+                $uvHourKey = VisitKeys::uvHourKey($ymdH);
+                $this->redis->pfadd($uvHourKey, [$deviceId]);
+                $this->redis->expire($uvHourKey, VisitKeys::HOUR_TTL);
             }
         } catch (\Throwable) {
             // 统计失败静默，不影响页面

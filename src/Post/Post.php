@@ -45,6 +45,8 @@ final class Post extends ActiveRecord
     public string $tags = '';
     public int $comment_count = 0;
     public int $view_count = 0;
+    /** 文档 UV（累计独立设备数，由 post-view/sync 同步） */
+    public int $view_uv = 0;
     public int $is_top = 0;
 
     public function tableName(): string
@@ -76,18 +78,20 @@ final class Post extends ActiveRecord
 
     /**
      * 前台可见状态集合（仅已发布；草稿/已删除不公开，对齐需求）。
+     *
+     * @return list<string>
      */
     public static function visibleStatuses(): array
     {
         return [self::STATUS_PUBLISHED];
     }
 
-    public function getCategory(): ActiveQuery
+    public function getCategory(): \Yiisoft\ActiveRecord\ActiveQueryInterface
     {
         return $this->hasOne(Category::class, ['id' => 'cid']);
     }
 
-    public function getAuthor(): ActiveQuery
+    public function getAuthor(): \Yiisoft\ActiveRecord\ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'author_id']);
     }
@@ -146,7 +150,6 @@ final class Post extends ActiveRecord
             . ($category ? '_cat' : '')
             . '.' . $cacheVersion;
 
-        /** @var ?self|'none' $related */
         $related = $cache->getOrSet(
             $cacheKey,
             function () use ($relation, $category, $simple): self|string {
@@ -173,14 +176,20 @@ final class Post extends ActiveRecord
             },
             3600,
         );
-        return $related === 'none' ? null : $related;
+        // @psalm-suppress MixedReturnStatement cache sentinel 'none' → mixed can't be narrowed by psalm
+        /** @var self|null */
+        $result = $related === 'none' ? null : $related;
+        return $result;
     }
 
     /**
      * 前台查询：别名取文章（published/hidden），对齐 Yii2 findModelByAlias。
+     *
+     * @return ?self
      */
     public static function findVisibleByAlias(string $alias): ?self
     {
+        // @phpstan-ignore-next-line return.type (ActiveQuery::one() declares array|AR|null, we only store Post here)
         return self::query()
             ->where(['alias' => $alias, 'status' => self::visibleStatuses()])
             ->one();
@@ -188,9 +197,12 @@ final class Post extends ActiveRecord
 
     /**
      * 前台查询：ID 取文章（published/hidden），对齐 Yii2 findModel。
+     *
+     * @return ?self
      */
     public static function findVisibleById(int $id): ?self
     {
+        // @phpstan-ignore-next-line return.type (ActiveQuery::one() declares array|AR|null, we only store Post here)
         return self::query()
             ->where(['id' => $id, 'status' => self::visibleStatuses()])
             ->one();

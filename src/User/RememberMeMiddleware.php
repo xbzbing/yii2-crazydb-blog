@@ -50,8 +50,9 @@ final readonly class RememberMeMiddleware implements MiddlewareInterface
         }
 
         $response = $handler->handle($request);
+        // 追加而非替换，避免覆盖 Session/Visit 等其他中间件已设置的 Set-Cookie
         return $clearInvalidCookie
-            ? $response->withHeader('Set-Cookie', self::clearCookie($this->cookieSecure))
+            ? $response->withAddedHeader('Set-Cookie', self::clearCookie($this->cookieSecure))
             : $response;
     }
 

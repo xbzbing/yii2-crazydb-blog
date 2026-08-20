@@ -97,6 +97,13 @@ export default function PostList() {
     { title: '评论', dataIndex: 'comment_count', width: 60, search: false },
     { title: '浏览', dataIndex: 'view_count', width: 60, search: false },
     {
+      title: '访客',
+      dataIndex: 'view_uv',
+      width: 80,
+      search: false,
+      sorter: (a, b) => a.view_uv - b.view_uv,
+    },
+    {
       title: '发布时间',
       dataIndex: 'post_time',
       width: 150,

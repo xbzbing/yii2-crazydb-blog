@@ -35,7 +35,7 @@ export default function Dashboard() {
     { title: '文章总数', value: data.postTotal, icon: <FileTextOutlined />, color: '#1677ff' },
     { title: '评论总数', value: data.commentTotal, icon: <CommentOutlined />, color: '#52c41a' },
     { title: '今日访问', value: data.todayPv, icon: <EyeOutlined />, color: '#fa8c16' },
-    { title: '今日独立IP', value: data.todayUv, icon: <UserOutlined />, color: '#722ed1' },
+    { title: '今日独立IP', value: data.todayIp, icon: <UserOutlined />, color: '#722ed1' },
     { title: '用户总数', value: data.userTotal, icon: <TeamOutlined />, color: '#eb2f96' },
     { title: '配置项', value: data.optionTotal, icon: <DatabaseOutlined />, color: '#13c2c2' },
   ]
@@ -139,6 +139,32 @@ export default function Dashboard() {
           />
         </Card>
       </Col>
+
+      {data.visitHourly && data.visitHourly.length > 0 && (
+        <Col span={24}>
+          <Card title="24 小时趋势（每小时）">
+            <Line
+              data={data.visitHourly.flatMap((h) => [
+                { time: h.time, value: h.pv, type: 'PV' },
+                { time: h.time, value: h.uv, type: 'UV' },
+                { time: h.time, value: h.ip, type: 'IP' },
+              ])}
+              xField="time"
+              yField="value"
+              colorField="type"
+              height={280}
+              axis={{
+                x: {
+                  labelFormatter: (v: string) => v.slice(11, 13) + ':00',
+                },
+              }}
+              tooltip={{ channel: 'y', valueFormatter: (v: number) => `${v}` }}
+              legend={{ color: { title: false, position: 'top' } }}
+              style={{ lineWidth: 2 }}
+            />
+          </Card>
+        </Col>
+      )}
     </Row>
   )
 }

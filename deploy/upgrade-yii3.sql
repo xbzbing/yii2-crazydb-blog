@@ -376,6 +376,40 @@ CREATE TABLE IF NOT EXISTS `blog_custom_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='自定义配置';
 
 -- ============================================================
+-- 12.2 blog_visit_daily：IP 去重列（幂等）
+-- ============================================================
+SET @tablename = 'blog_visit_daily';
+SET @preparedStatement = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+     AND TABLE_NAME = @tablename
+     AND COLUMN_NAME = 'ip'
+    ) > 0,
+    'SELECT 1',
+    CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `ip` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT ''去重IP数'' AFTER `uv`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- ============================================================
+-- 12.3 blog_post：文章 UV 列（幂等）
+-- ============================================================
+SET @tablename = 'blog_post';
+SET @preparedStatement = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE()
+     AND TABLE_NAME = @tablename
+     AND COLUMN_NAME = 'view_uv'
+    ) > 0,
+    'SELECT 1',
+    CONCAT('ALTER TABLE `', @tablename, '` ADD COLUMN `view_uv` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT ''独立访客数(UV)'' AFTER `view_count`')
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
+
+-- ============================================================
 -- 13. 种子数据（幂等）
 -- ============================================================
 

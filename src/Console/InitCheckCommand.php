@@ -66,6 +66,7 @@ final class InitCheckCommand extends Command
                 'tags' => "VARCHAR(255) NOT NULL DEFAULT ''",
                 'comment_count' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'view_count' => 'INT UNSIGNED NOT NULL DEFAULT 0',
+                'view_uv' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'is_top' => 'TINYINT(1) NOT NULL DEFAULT 0',
             ],
             'indexes' => [
@@ -219,6 +220,7 @@ final class InitCheckCommand extends Command
                 'uv' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'pv_crawler' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'pv_script' => 'INT UNSIGNED NOT NULL DEFAULT 0',
+                'ip' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'create_time' => 'INT UNSIGNED NOT NULL DEFAULT 0',
                 'update_time' => 'INT UNSIGNED NOT NULL DEFAULT 0',
             ],

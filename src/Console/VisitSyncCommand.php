@@ -14,12 +14,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Yiisoft\Yii\Console\ExitCode;
 
 /**
- * 访问统计同步：把 Redis 实时 PV/UV（crazydb:visit:*）增量落库到 visit_daily。
+ * 访问统计同步（V2）：把 Redis 实时 PV/UV/IP/分类 PV 增量落库到 visit_daily。
  *
  * 建议每 10 分钟执行一次（crontab 调用 php yii visit/sync）。
- * - PV：用 synced 游标记录已同步数，取当前 INCR 值与游标差值累加，防重复
- * - UV：HyperLogLog PFCOUNT 直接覆盖
- * - 同步完成后删除 Redis 日 key（数据已持久化；保留最近 N 天游标用于一致性校验）
+ * - PV/爬虫/脚本：增量（当前总数 - 已同步游标）
+ * - UV/IP：HyperLogLog PFCOUNT 全量覆盖（无法增量）
+ * - 小时 key 不参与同步（Redis-only，TTL 48h 自动清理）
  */
 #[AsCommand(
     name: 'visit/sync',
@@ -27,7 +27,6 @@ use Yiisoft\Yii\Console\ExitCode;
 )]
 final class VisitSyncCommand extends Command
 {
-    /** @var int 保留最近 Redis 统计的天数（更早的日 key 已落库，删除释放内存） */
     private const KEEP_REDIS_DAYS = 30;
 
     public function __construct(
@@ -43,29 +42,26 @@ final class VisitSyncCommand extends Command
         try {
             $dates = $this->collectDates();
             foreach ($dates as $ymd) {
-                $pvTotal = $this->redis->get(VisitKeys::pvKey($ymd));
-                $pvTotal = $pvTotal === null ? 0 : (int)$pvTotal;
+                $pvTotal = $this->countOf(VisitKeys::pvKey($ymd));
                 $uvTotal = $this->redis->pfcount(VisitKeys::uvKey($ymd));
-                $crawlerTotal = $this->redis->get(VisitKeys::crawlerKey($ymd));
-                $crawlerTotal = $crawlerTotal === null ? 0 : (int)$crawlerTotal;
-                $scriptTotal = $this->redis->get(VisitKeys::scriptKey($ymd));
-                $scriptTotal = $scriptTotal === null ? 0 : (int)$scriptTotal;
+                $ipTotal = $this->redis->pfcount(VisitKeys::ipKey($ymd));
+                $crawlerTotal = $this->countOf(VisitKeys::crawlerKey($ymd));
+                $scriptTotal = $this->countOf(VisitKeys::scriptKey($ymd));
 
                 // 增量：本次新增 PV = 当前总数 - 已同步游标（首同步游标为 0）
-                $prevRaw = $this->redis->get(VisitKeys::syncedKey($ymd));
-                $prev = $prevRaw === null ? 0 : (int)$prevRaw;
-                $deltaPv = max(0, $pvTotal - $prev);
+                $deltaPv = max(0, $pvTotal - $this->prevOf(VisitKeys::syncedKey($ymd)));
+                $deltaCrawler = max(0, $crawlerTotal - $this->prevOf(VisitKeys::crawlerSyncedKey($ymd)));
+                $deltaScript = max(0, $scriptTotal - $this->prevOf(VisitKeys::scriptSyncedKey($ymd)));
 
-                $prevCrawlerRaw = $this->redis->get(VisitKeys::crawlerSyncedKey($ymd));
-                $prevCrawler = $prevCrawlerRaw === null ? 0 : (int)$prevCrawlerRaw;
-                $deltaCrawler = max(0, $crawlerTotal - $prevCrawler);
-
-                $prevScriptRaw = $this->redis->get(VisitKeys::scriptSyncedKey($ymd));
-                $prevScript = $prevScriptRaw === null ? 0 : (int)$prevScriptRaw;
-                $deltaScript = max(0, $scriptTotal - $prevScript);
-
-                if ($deltaPv > 0 || $uvTotal > 0 || $deltaCrawler > 0 || $deltaScript > 0) {
-                    VisitDaily::upsertByDate($this->ymdToDate($ymd), $deltaPv, $uvTotal, $deltaCrawler, $deltaScript);
+                if ($deltaPv > 0 || $uvTotal > 0 || $ipTotal > 0 || $deltaCrawler > 0 || $deltaScript > 0) {
+                    VisitDaily::upsertByDate(
+                        $this->ymdToDate($ymd),
+                        $deltaPv,
+                        $uvTotal,
+                        $ipTotal,
+                        $deltaCrawler,
+                        $deltaScript,
+                    );
                     $this->redis->set(VisitKeys::syncedKey($ymd), (string)$pvTotal);
                     $this->redis->set(VisitKeys::crawlerSyncedKey($ymd), (string)$crawlerTotal);
                     $this->redis->set(VisitKeys::scriptSyncedKey($ymd), (string)$scriptTotal);
@@ -77,6 +73,7 @@ final class VisitSyncCommand extends Command
                     $this->redis->del([
                         VisitKeys::pvKey($ymd),
                         VisitKeys::uvKey($ymd),
+                        VisitKeys::ipKey($ymd),
                         VisitKeys::crawlerKey($ymd),
                         VisitKeys::scriptKey($ymd),
                     ]);
@@ -91,10 +88,19 @@ final class VisitSyncCommand extends Command
         return ExitCode::OK;
     }
 
+    private function countOf(string $key): int
+    {
+        $raw = $this->redis->get($key);
+        return $raw === null ? 0 : (int)$raw;
+    }
+
+    private function prevOf(string $key): int
+    {
+        return $this->countOf($key);
+    }
+
     /**
-     * 收集 Redis 中所有 visit:pv:{Ymd} 的日期。
-     *
-     * @return list<string>
+     * @return list<string> 所有 visit:pv:{Ymd} 的日期列表（YYYYMMDD）
      */
     private function collectDates(): array
     {

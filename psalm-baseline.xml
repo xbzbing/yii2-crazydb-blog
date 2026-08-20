@@ -158,14 +158,6 @@
             ->where(['id' => $id, 'status' => self::visibleStatuses()])
             ->one()]]></code>
     </InvalidReturnStatement>
-    <LessSpecificReturnStatement>
-      <code><![CDATA[$this->hasOne(Category::class, ['id' => 'cid'])]]></code>
-      <code><![CDATA[$this->hasOne(User::class, ['id' => 'author_id'])]]></code>
-    </LessSpecificReturnStatement>
-    <MoreSpecificReturnType>
-      <code><![CDATA[ActiveQuery]]></code>
-      <code><![CDATA[ActiveQuery]]></code>
-    </MoreSpecificReturnType>
     <PossiblyNullOperand>
       <code><![CDATA[$this->id]]></code>
     </PossiblyNullOperand>

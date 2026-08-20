@@ -7,7 +7,7 @@ namespace App\Visit;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
- * 按日访问统计（前台 PV/UV 聚合）。
+ * 按日访问统计（前台 PV/UV/IP 聚合）。
  *
  * 数据来源：visit/sync 定时任务把 Redis 实时统计（crazydb:visit:*）增量落库，
  * 供仪表盘历史趋势查询。
@@ -15,13 +15,12 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 final class VisitDaily extends ActiveRecord
 {
     public ?int $id = null;
-    /** MySQL DATE 列：Yii3 AR 读取时自动 hydrate 为 DateTimeImmutable，写入可用字符串 */
     public string|\DateTimeImmutable $date = '';
     public int $pv = 0;
     public int $uv = 0;
-    /** 爬虫访问 PV（UA 命中 visit_bot_keywords） */
+    /** IP 去重数（全部访问，含爬虫/脚本） */
+    public int $ip = 0;
     public int $pv_crawler = 0;
-    /** 脚本访问 PV（UA 命中 visit_script_keywords） */
     public int $pv_script = 0;
     public int $create_time = 0;
     public int $update_time = 0;
@@ -32,12 +31,15 @@ final class VisitDaily extends ActiveRecord
     }
 
     /**
-     * 按日期 upsert 当天的 PV/UV/分类 PV 聚合（存在则累加，不存在则插入）。
+     * 按日期 upsert 当天的 PV/UV/IP/分类 PV 聚合（存在则累加/覆盖，不存在则插入）。
+     *
+     * PV/爬虫/脚本：累加（增量 delta）；UV/IP：全量覆盖（HLL 无法增量）。
      */
     public static function upsertByDate(
         string $date,
         int $pv,
         int $uv,
+        int $ip,
         int $pvCrawler = 0,
         int $pvScript = 0,
     ): void {
@@ -46,6 +48,7 @@ final class VisitDaily extends ActiveRecord
         if ($model instanceof self) {
             $model->pv += max(0, $pv);
             $model->uv = max(0, $uv);
+            $model->ip = max(0, $ip);
             $model->pv_crawler += max(0, $pvCrawler);
             $model->pv_script += max(0, $pvScript);
             $model->update_time = $now;
@@ -59,6 +62,7 @@ final class VisitDaily extends ActiveRecord
         $model->date = $date;
         $model->pv = max(0, $pv);
         $model->uv = max(0, $uv);
+        $model->ip = max(0, $ip);
         $model->pv_crawler = max(0, $pvCrawler);
         $model->pv_script = max(0, $pvScript);
         $model->create_time = $now;
@@ -70,15 +74,15 @@ final class VisitDaily extends ActiveRecord
     }
 
     /**
-     * 取某时间区间（含边界）的每日 PV/UV/分类 PV，按日期升序。
+     * 取某时间区间（含边界）的每日 PV/UV/IP/分类 PV，按日期升序。
      *
-     * @return list<array{date: string, pv: int, uv: int, pv_crawler: int, pv_script: int}>
+     * @return list<array{date: string, pv: int, uv: int, ip: int, pv_crawler: int, pv_script: int}>
      */
     public static function range(string $from, string $to): array
     {
         /** @var list<self> $rows */
         $rows = self::query()
-            ->select(['date', 'pv', 'uv', 'pv_crawler', 'pv_script'])
+            ->select(['date', 'pv', 'uv', 'ip', 'pv_crawler', 'pv_script'])
             ->where(['>=', 'date', $from])
             ->andWhere(['<=', 'date', $to])
             ->orderBy(['date' => SORT_ASC])
@@ -90,6 +94,7 @@ final class VisitDaily extends ActiveRecord
                 'date' => $date,
                 'pv' => $row->pv,
                 'uv' => $row->uv,
+                'ip' => $row->ip,
                 'pv_crawler' => $row->pv_crawler,
                 'pv_script' => $row->pv_script,
             ];

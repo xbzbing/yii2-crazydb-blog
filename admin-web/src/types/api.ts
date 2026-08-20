@@ -56,6 +56,7 @@ export interface PostItem {
   tags: string
   comment_count: number
   view_count: number
+  view_uv: number
   is_top: number
   is_locked?: boolean
   post_time: number
@@ -137,6 +138,8 @@ export interface LogItem {
   action: string
   result: string
   detail: string
+  ip?: string
+  user_agent?: string
   create_time: number
 }
 
@@ -167,6 +170,13 @@ export interface VisitTrendItem {
   pv_normal: number
 }
 
+export interface HourlyData {
+  time: string // 'YYYY-MM-DD HH:00'
+  pv: number
+  uv: number
+  ip: number
+}
+
 export interface DashboardData {
   postTotal: number
   commentTotal: number
@@ -175,10 +185,12 @@ export interface DashboardData {
   optionTotal: number
   todayPv: number
   todayUv: number
+  todayIp: number
   todayCrawler: number
   todayScript: number
   todayNormal: number
   visitTrend: VisitTrendItem[]
+  visitHourly: HourlyData[]
 }
 
 export interface ConfigValues {

@@ -65,6 +65,11 @@ final readonly class Action
             $this->redis->incr($counterKey);
             $this->redis->expire($counterKey, 2592000);
             $post->view_count++;
+            // UV（仅正常访问，deviceId 由 VisitTrackingMiddleware 写入 request attribute）
+            $deviceId = $request->getAttribute('device_id');
+            if (is_string($deviceId) && $deviceId !== '') {
+                $this->redis->pfadd(PostViewKeys::uvKey((int) $post->id), [$deviceId]);
+            }
         } catch (\Throwable) {
             // 统计不可用不能影响文章访问。
         }

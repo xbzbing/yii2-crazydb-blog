@@ -33,6 +33,7 @@ final class ApiSerializer
             'tags' => $p->tags,
             'comment_count' => (int)$p->comment_count,
             'view_count' => (int)$p->view_count,
+            'view_uv' => (int)$p->view_uv,
             'is_top' => (int)$p->is_top,
             'is_locked' => $p->password !== null && $p->password !== '',
             'post_time' => (int)$p->post_time,
@@ -176,6 +177,8 @@ final class ApiSerializer
             'action' => $l->action,
             'result' => $l->result,
             'detail' => $l->detail,
+            'ip' => $l->ip,
+            'user_agent' => $l->user_agent,
             'create_time' => (int)$l->create_time,
         ], $logs);
     }

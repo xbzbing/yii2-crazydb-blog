@@ -144,9 +144,16 @@ docker compose -f docker-compose-deploy.yml exec -T mysql sh -c \
 - 老文章（HTML 格式）不受影响，无需转换；新文章支持 Markdown
 - 静态资源（`web/upload/` 上传文件、`web/static/avatar/` 头像）为 gitignored 运行时数据，
   上线时需手动拷贝到新部署，保持路径不变
-- **访问统计**依赖定时同步：建议 crontab 每 10 分钟执行 `php yii visit/sync`
-  （Redis 实时 PV/UV/爬虫/脚本 → MySQL visit_daily）。`visit_daily` 新增的
-  `pv_crawler` / `pv_script` 列由 `init/migrate` 幂等补齐（无需手工 ALTER）
+- **访问统计**依赖定时同步：
+  - `php yii visit/sync`：建议每 **10 分钟**（站点 PV/UV/IP/分类 → MySQL visit_daily）
+  - `php yii post-view/sync`：建议每 **1 分钟**（文章 PV delta + UV 全量 PFCOUNT → MySQL）
+- **访问统计 V2 变更**：`visit_daily` 新增 `ip` 列，`blog_post` 新增 `view_uv` 列；
+  `init/migrate` 幂等补齐（无需手工 ALTER）。UV 按设备 ID 计，不再按 IP。
+  **⚠️ 首次部署 V2 时须执行**：`redis-cli DEL crazydb:visit:uv:$(date +%Y%m%d)` 清除当天旧口径 IP 型 UV 数据，
+  避免新旧口径在同一 HLL key 内叠加导致 UV 虚高。
+- **24 小时趋势图数据仅存 Redis**（小时级桶 `pv1h/uv1h/ip1h`，TTL 48h），不落库。
+  **⚠️ Redis 重启或清空缓存后，24 小时趋势数据将丢失**，需等待小时桶重新累积（最长 24h）。
+  日趋势（visit_daily）不受影响（已由 visit/sync 持久化）。
 - **爬虫/脚本访问关键词**：默认 `spider,bingbot,bot.html` / `python-,curl,wget,axios,java-http-client,java/,headless`，
   存 option（`visit_bot_keywords` / `visit_script_keywords`），可在后台「基本设置」修改；
   缺失/清空时回退默认值，不影响站点运行

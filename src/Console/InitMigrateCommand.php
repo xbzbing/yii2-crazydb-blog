@@ -136,6 +136,16 @@ final class InitMigrateCommand extends Command
         $applied += $result['applied'];
         $skipped += $result['skipped'];
 
+        // Step 7: visit_daily 新增 IP 去重列
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('visit_daily'), 'ip', "INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '去重IP数'", 'uv');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
+
+        // Step 8: post 新增文章 UV 列
+        $result = $this->addColumnIfNotExists($pdo, $output, $dryRun, $this->t('post'), 'view_uv', "INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '独立访客数(UV)'", 'view_count');
+        $applied += $result['applied'];
+        $skipped += $result['skipped'];
+
         // 3. 输出结果
         $output->writeln('');
         $output->writeln('<info>━━━ 升级完成 ━━━</info>');

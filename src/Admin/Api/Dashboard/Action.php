@@ -38,10 +38,12 @@ final readonly class Action
             'optionTotal' => (int)Option::query()->count(),
             'todayPv' => $today['pv'],
             'todayUv' => $today['uv'],
+            'todayIp' => $today['ip'],
             'todayCrawler' => $today['pv_crawler'],
             'todayScript' => $today['pv_script'],
             'todayNormal' => $today['pv_normal'],
             'visitTrend' => $this->visitService->trend($days),
+            'visitHourly' => $this->visitService->hourly(24),
         ]);
     }
 }

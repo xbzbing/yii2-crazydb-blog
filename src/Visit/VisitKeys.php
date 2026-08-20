@@ -13,11 +13,16 @@ namespace App\Visit;
  */
 final class VisitKeys
 {
+    // ── 日维度 ────────────────────────────────────────────────────────────
+
     /** PV 计数 key：crazydb:visit:pv:{Ymd}（INCR） */
     public const PV_PREFIX = 'crazydb:visit:pv:';
 
-    /** UV HyperLogLog key：crazydb:visit:uv:{Ymd}（PFADD/PFCOUNT） */
+    /** UV HyperLogLog key：crazydb:visit:uv:{Ymd}（PFADD deviceId，仅正常访问） */
     public const UV_PREFIX = 'crazydb:visit:uv:';
+
+    /** IP HyperLogLog key：crazydb:visit:ip:{Ymd}（PFADD IP，全部访问） */
+    public const IP_PREFIX = 'crazydb:visit:ip:';
 
     /** 爬虫访问 PV key：crazydb:visit:pv_crawler:{Ymd}（INCR） */
     public const CRAWLER_PREFIX = 'crazydb:visit:pv_crawler:';
@@ -25,47 +30,41 @@ final class VisitKeys
     /** 脚本访问 PV key：crazydb:visit:pv_script:{Ymd}（INCR） */
     public const SCRIPT_PREFIX = 'crazydb:visit:pv_script:';
 
-    /** PV 已同步游标 key：crazydb:visit:synced:{Ymd}（记录已落库的 PV 数，防重复累加） */
+    // ── 小时维度 ──────────────────────────────────────────────────────────
+
+    /** 小时 PV：crazydb:visit:pv1h:{YmdH}（INCR，全部访问） */
+    public const PV_HOUR_PREFIX = 'crazydb:visit:pv1h:';
+
+    /** 小时 UV：crazydb:visit:uv1h:{YmdH}（HLL deviceId，仅正常访问） */
+    public const UV_HOUR_PREFIX = 'crazydb:visit:uv1h:';
+
+    /** 小时 IP：crazydb:visit:ip1h:{YmdH}（HLL IP，全部访问） */
+    public const IP_HOUR_PREFIX = 'crazydb:visit:ip1h:';
+
+    /** 小时 key 有效期：48 小时（覆盖 24h 图 + 清理缓冲） */
+    public const HOUR_TTL = 172800;
+
+    // ── 同步游标 ──────────────────────────────────────────────────────────
+
     public const SYNCED_PREFIX = 'crazydb:visit:synced:';
-
-    /** 爬虫 PV 已同步游标 key：crazydb:visit:synced_crawler:{Ymd} */
     public const CRAWLER_SYNCED_PREFIX = 'crazydb:visit:synced_crawler:';
-
-    /** 脚本 PV 已同步游标 key：crazydb:visit:synced_script:{Ymd} */
     public const SCRIPT_SYNCED_PREFIX = 'crazydb:visit:synced_script:';
 
-    public static function pvKey(string $ymd): string
-    {
-        return self::PV_PREFIX . $ymd;
-    }
+    // ── 日维度方法 ────────────────────────────────────────────────────────
 
-    public static function uvKey(string $ymd): string
-    {
-        return self::UV_PREFIX . $ymd;
-    }
+    public static function pvKey(string $ymd): string { return self::PV_PREFIX . $ymd; }
+    public static function uvKey(string $ymd): string { return self::UV_PREFIX . $ymd; }
+    public static function ipKey(string $ymd): string { return self::IP_PREFIX . $ymd; }
+    public static function crawlerKey(string $ymd): string { return self::CRAWLER_PREFIX . $ymd; }
+    public static function scriptKey(string $ymd): string { return self::SCRIPT_PREFIX . $ymd; }
 
-    public static function crawlerKey(string $ymd): string
-    {
-        return self::CRAWLER_PREFIX . $ymd;
-    }
+    public static function syncedKey(string $ymd): string { return self::SYNCED_PREFIX . $ymd; }
+    public static function crawlerSyncedKey(string $ymd): string { return self::CRAWLER_SYNCED_PREFIX . $ymd; }
+    public static function scriptSyncedKey(string $ymd): string { return self::SCRIPT_SYNCED_PREFIX . $ymd; }
 
-    public static function scriptKey(string $ymd): string
-    {
-        return self::SCRIPT_PREFIX . $ymd;
-    }
+    // ── 小时维度方法 ──────────────────────────────────────────────────────
 
-    public static function syncedKey(string $ymd): string
-    {
-        return self::SYNCED_PREFIX . $ymd;
-    }
-
-    public static function crawlerSyncedKey(string $ymd): string
-    {
-        return self::CRAWLER_SYNCED_PREFIX . $ymd;
-    }
-
-    public static function scriptSyncedKey(string $ymd): string
-    {
-        return self::SCRIPT_SYNCED_PREFIX . $ymd;
-    }
+    public static function pvHourKey(string $ymdH): string { return self::PV_HOUR_PREFIX . $ymdH; }
+    public static function uvHourKey(string $ymdH): string { return self::UV_HOUR_PREFIX . $ymdH; }
+    public static function ipHourKey(string $ymdH): string { return self::IP_HOUR_PREFIX . $ymdH; }
 }
