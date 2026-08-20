@@ -76,10 +76,10 @@ final readonly class Action
             } else {
                 $user = $username !== '' ? User::findByUsername($username) : null;
                 if ($user === null || !$user->validatePassword($password)) {
-                    // 统一文案（与 OTP 失败同串）：避免区分「密码错误」与「密码正确但验证码错」，防密码确认 oracle
-                    $this->recordFailure($request, $username, '用户名、密码或验证码不正确。');
+                    // 统一文案（与 OTP 失败同串）：避免区分「密码错误」与「密码正确但 OTP Code 错」，防密码确认 oracle
+                    $this->recordFailure($request, $username, '用户名、密码或 OTP Code 不匹配。');
                 } elseif ($user->otp_enabled && !$this->validateOtp($user, (string)($data['otp_code'] ?? ''))) {
-                    $this->recordFailure($request, $username, '用户名、密码或验证码不正确。');
+                    $this->recordFailure($request, $username, '用户名、密码或 OTP Code 不匹配。');
                 } else {
                     try {
                         if ($user->rehashPasswordIfNeeded($password)) {
