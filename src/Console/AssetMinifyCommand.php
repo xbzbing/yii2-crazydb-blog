@@ -49,6 +49,16 @@ final class AssetMinifyCommand extends Command
                 $saved = $this->minifyCss($rootCss, $theme, $output, $dryRun);
                 if ($saved !== null) { $totalSaved += $saved; $totalFiles++; }
             }
+            // 根目录其他主题 CSS（如 assets/magazine/magazine.css）
+            $themeDir = __DIR__ . '/../../assets/' . $theme;
+            if (is_dir($themeDir)) {
+                foreach (glob($themeDir . '/*.css') as $extraCss) {
+                    if ($extraCss !== $rootCss) {
+                        $saved = $this->minifyCss($extraCss, $theme, $output, $dryRun);
+                        if ($saved !== null) { $totalSaved += $saved; $totalFiles++; }
+                    }
+                }
+            }
             // css/ 子目录（如 assets/crazydb/css/）
             $cssDir = __DIR__ . '/../../assets/' . $theme . '/css';
             if (is_dir($cssDir)) {

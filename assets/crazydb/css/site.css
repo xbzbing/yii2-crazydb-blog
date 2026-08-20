@@ -794,6 +794,7 @@ article.list-group-item:nth-of-type(1) {
 .auth-card .auth-form .form-row input[type="text"],
 .auth-card .auth-form .form-row input[type="password"],
 .auth-card .auth-form .form-row input[type="email"],
+.auth-card .auth-form .form-row input[type="url"],
 .auth-card .auth-form .form-row textarea {
     display: block;
     width: 100%;
