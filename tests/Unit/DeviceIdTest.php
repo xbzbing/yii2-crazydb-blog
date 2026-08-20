@@ -127,6 +127,20 @@ final class DeviceIdTest extends TestCase
         $this->assertStringNotContainsString('Secure', $cookie);
     }
 
+    public function testCookieValueForceSecureOverridesHttpScheme(): void
+    {
+        $request = $this->createServerRequest('http');
+        $cookie = DeviceId::cookieValue(DeviceId::generate(), $request, true);
+        $this->assertStringContainsString('Secure', $cookie);
+    }
+
+    public function testCookieValueForceSecureFalseStillHonorsHttp(): void
+    {
+        $request = $this->createServerRequest('http');
+        $cookie = DeviceId::cookieValue(DeviceId::generate(), $request, false);
+        $this->assertStringNotContainsString('Secure', $cookie);
+    }
+
     private function createServerRequest(string $scheme = 'http'): \Psr\Http\Message\ServerRequestInterface
     {
         return (new \HttpSoft\Message\ServerRequestFactory())

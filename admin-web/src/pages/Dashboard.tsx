@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, Row, Col, Statistic, Spin, Segmented, Tooltip, Progress } from 'antd'
+import { Card, Row, Col, Statistic, Spin, Segmented, Tooltip, Progress, Button, Empty } from 'antd'
 import { Line } from '@ant-design/plots'
 import {
   FileTextOutlined,
@@ -20,16 +20,43 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [days, setDays] = useState(14)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
+    const controller = new AbortController()
     setLoading(true)
+    setError(null)
+    setData(null)
     api
-      .dashboard(days)
+      .dashboard(days, controller.signal)
       .then(setData)
-      .finally(() => setLoading(false))
-  }, [days])
+      .catch((e: unknown) => {
+        // 切换 days 时旧请求被 abort，忽略其错误
+        if (e instanceof DOMException && e.name === 'AbortError') return
+        setError('加载失败，请重试。')
+      })
+      .finally(() => {
+        // 仅最新请求可以结束 loading（旧请求 abort 后不再改状态）
+        if (!controller.signal.aborted) setLoading(false)
+      })
+    return () => controller.abort()
+  }, [days, reloadKey])
+
+  if (error && !data) {
+    return (
+      <div style={{ textAlign: 'center', padding: 48 }}>
+        <p style={{ color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>{error}</p>
+        <Button type="primary" onClick={() => setReloadKey((k) => k + 1)}>
+          重试
+        </Button>
+      </div>
+    )
+  }
 
   if (loading || !data) return <Spin style={{ margin: 48 }} />
+
+  const hasHourlyData = data.visitHourly?.some((h) => h.pv > 0 || h.uv > 0 || h.ip > 0) ?? false
 
   const stats = [
     { title: '文章总数', value: data.postTotal, icon: <FileTextOutlined />, color: '#1677ff' },
@@ -143,25 +170,29 @@ export default function Dashboard() {
       {data.visitHourly && data.visitHourly.length > 0 && (
         <Col span={24}>
           <Card title="24 小时趋势（每小时）">
-            <Line
-              data={data.visitHourly.flatMap((h) => [
-                { time: h.time, value: h.pv, type: 'PV' },
-                { time: h.time, value: h.uv, type: 'UV' },
-                { time: h.time, value: h.ip, type: 'IP' },
-              ])}
-              xField="time"
-              yField="value"
-              colorField="type"
-              height={280}
-              axis={{
-                x: {
-                  labelFormatter: (v: string) => v.slice(11, 13) + ':00',
-                },
-              }}
-              tooltip={{ channel: 'y', valueFormatter: (v: number) => `${v}` }}
-              legend={{ color: { title: false, position: 'top' } }}
-              style={{ lineWidth: 2 }}
-            />
+            {hasHourlyData ? (
+              <Line
+                data={data.visitHourly.flatMap((h) => [
+                  { time: h.time, value: h.pv, type: 'PV' },
+                  { time: h.time, value: h.uv, type: 'UV' },
+                  { time: h.time, value: h.ip, type: 'IP' },
+                ])}
+                xField="time"
+                yField="value"
+                colorField="type"
+                height={280}
+                axis={{
+                  x: {
+                    labelFormatter: (v: string) => v.slice(11, 13) + ':00',
+                  },
+                }}
+                tooltip={{ channel: 'y', valueFormatter: (v: number) => `${v}` }}
+                legend={{ color: { title: false, position: 'top' } }}
+                style={{ lineWidth: 2 }}
+              />
+            ) : (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无访问数据" />
+            )}
           </Card>
         </Col>
       )}

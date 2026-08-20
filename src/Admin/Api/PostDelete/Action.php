@@ -7,18 +7,21 @@ namespace App\Admin\Api\PostDelete;
 use App\Admin\Api\JsonResponse;
 use App\Comment\Comment;
 use App\Post\Post;
+use App\Post\PostViewKeys;
 use App\Tag\Tag;
+use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 
 /**
- * POST /admin/api/post/delete/{id}：删除文章（连带评论与标签关联）。
+ * POST /admin/api/post/delete/{id}：删除文章（连带评论与标签关联，清理统计 key）。
  */
 final readonly class Action
 {
     public function __construct(
         private JsonResponse $jsonResponse,
+        private ClientInterface $redis,
     ) {
     }
 
@@ -33,6 +36,7 @@ final readonly class Action
         (new Comment())->deleteAll(['pid' => $id]);
         (new Tag())->deleteAll(['pid' => $id]);
         $post->delete();
+        PostViewKeys::clearPost($this->redis, $id);
         return $this->jsonResponse->ok(['message' => '文章已删除。']);
     }
 }

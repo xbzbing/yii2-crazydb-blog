@@ -21,6 +21,8 @@ final readonly class Action
 {
     private const PAGE_SIZE = 20;
     private const STATUSES = [Post::STATUS_PUBLISHED, Post::STATUS_DRAFT, Post::STATUS_DELETED];
+    /** 允许服务端排序的字段白名单 */
+    private const SORTABLE_FIELDS = ['view_uv', 'view_count', 'comment_count', 'post_time'];
 
     public function __construct(
         private JsonResponse $jsonResponse,
@@ -35,6 +37,13 @@ final readonly class Action
         $status = (string)($request->getQueryParams()['status'] ?? '');
         $filtered = in_array($status, self::STATUSES, true);
         $tag = trim((string)($request->getQueryParams()['tag'] ?? ''));
+        // 服务端排序（白名单字段）：默认置顶+发布时间，用户排序时按字段覆盖
+        $sortField = (string)($request->getQueryParams()['sort'] ?? '');
+        $orderBy = ['is_top' => SORT_DESC, 'post_time' => SORT_DESC];
+        if (in_array($sortField, self::SORTABLE_FIELDS, true)) {
+            $sortOrder = (string)($request->getQueryParams()['order'] ?? '');
+            $orderBy = [$sortField => $sortOrder === 'asc' ? SORT_ASC : SORT_DESC];
+        }
 
         $countQuery = Post::query();
         $query = Post::query();
@@ -56,7 +65,7 @@ final readonly class Action
 
         /** @var list<Post> $posts */
         $posts = $query
-            ->orderBy(['is_top' => SORT_DESC, 'post_time' => SORT_DESC])
+            ->orderBy($orderBy)
             ->limit(self::PAGE_SIZE)
             ->offset($pager->offset)
             ->all();

@@ -46,6 +46,28 @@ export default function LogList() {
     },
     { title: '详情', dataIndex: 'detail', ellipsis: true, search: false },
     {
+      title: 'IP',
+      dataIndex: 'ip',
+      width: 130,
+      search: false,
+      render: (_, r) => (r.ip ? <span>{r.ip}</span> : <span style={{ color: '#bbb' }}>-</span>),
+    },
+    {
+      title: 'User-Agent',
+      dataIndex: 'user_agent',
+      width: 200,
+      ellipsis: true,
+      search: false,
+      render: (_, r) =>
+        r.user_agent ? (
+          <Tooltip title={r.user_agent}>
+            <span>{r.user_agent}</span>
+          </Tooltip>
+        ) : (
+          <span style={{ color: '#bbb' }}>-</span>
+        ),
+    },
+    {
       title: '时间',
       dataIndex: 'create_time',
       width: 130,
@@ -70,6 +92,14 @@ export default function LogList() {
       columns={columns}
       request={request}
       pagination={{ defaultPageSize: 20, showSizeChanger: false }}
+      columnsState={{
+        persistenceKey: 'admin-log-list',
+        defaultValue: {
+          // 默认显示 IP，不显示完整 User-Agent（最小披露）；管理员可在列设置中开启
+          ip: { show: true },
+          user_agent: { show: false },
+        },
+      }}
       toolBarRender={() => [
         <Popconfirm key="clear" title="确认清空全部日志？" onConfirm={handleClear}>
           <Button danger>清空日志</Button>

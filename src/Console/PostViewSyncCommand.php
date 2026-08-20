@@ -64,14 +64,17 @@ final class PostViewSyncCommand extends Command
 
             // UV 同步（全量 PFCOUNT，独立 SCAN）
             foreach ($this->collectUvKeys() as $postId) {
+                $post = Post::query()->findByPk($postId);
+                if (!$post instanceof Post) {
+                    // 已删除文章：清理孤儿统计 key（UV HLL + 历史 PV 计数/游标）
+                    PostViewKeys::clearPost($this->redis, $postId);
+                    continue;
+                }
                 $uvCurrent = $this->redis->pfcount(PostViewKeys::uvKey($postId));
-                if ($uvCurrent > 0) {
-                    $post = Post::query()->findByPk($postId);
-                    if ($post instanceof Post && $post->view_uv !== $uvCurrent) {
-                        $post->view_uv = $uvCurrent;
-                        $post->save();
-                        $synced++;
-                    }
+                if ($uvCurrent > 0 && $post->view_uv !== $uvCurrent) {
+                    $post->view_uv = $uvCurrent;
+                    $post->save();
+                    $synced++;
                 }
             }
         } catch (\Throwable $e) {

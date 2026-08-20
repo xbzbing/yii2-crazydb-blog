@@ -19,7 +19,7 @@ vim .env   # 按需修改
 | `REDIS_PASSWORD` | 是 | Redis 密码 |
 | `NGINX_HTTP_PORT` / `NGINX_HTTPS_PORT` | 否 | 对外端口，默认 80/443 |
 | `MAILER_DSN` | 否 | SMTP DSN（symfony/mailer 格式），默认 `null://` 不发送 |
-| `COOKIE_SECURE` | 否 | HTTPS 部署设为 `true`（session 与记住我 cookie 均启用 Secure 标记） |
+| `COOKIE_SECURE` | 否 | HTTPS 部署设为 `true`（session、记住我、dbvid 访问统计 cookie 均启用 Secure 标记） |
 | `CAPTCHA_DEBUG` | 否 | 仅开发环境设 `true`（验证码直通） |
 | `APP_SRC_DIR` | 否 | 源码目录，默认 `.`（仅 docker-compose-deploy.yml 使用） |
 | `DEPLOY_DATA_DIR` | 否 | 持久化数据目录，默认 `./data`（仅 docker-compose-deploy.yml 使用） |
@@ -130,6 +130,10 @@ docker compose -f docker-compose-deploy.yml exec -T mysql sh -c \
 
 ### 注意事项
 
+- **HTTPS / 反向代理与 Secure Cookie**：dbvid（访问统计）cookie 默认按请求 URI scheme 决定是否加 `Secure`。
+  若 TLS 在反向代理（nginx/Caddy）终止，务必配置正确透传（如 `X-Forwarded-Proto`，框架已据此还原 scheme），
+  且生产环境设置 `COOKIE_SECURE=true` **强制** Secure——确保任何代理异常下 cookie 仍带 Secure。
+  session、记住我 cookie 行为一致（共用 `COOKIE_SECURE`）。
 - `init/migrate` 是**增量升级**：表已存在则跳过，可重复执行；**但不会创建基础表**，
   全新部署须先导入 `deploy/schema.sql` + `deploy/seed.sql`
 - **已有 Yii2 旧库升级**：先执行 `deploy/upgrade-yii3.sql`（幂等）对齐到 Yii3 schema

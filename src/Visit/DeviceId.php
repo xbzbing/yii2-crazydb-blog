@@ -133,10 +133,12 @@ final class DeviceId
 
     /**
      * 构造 Set-Cookie 头值。
+     *
+     * @param bool $forceSecure 强制加 Secure（生产 https 部署开启；见 COOKIE_SECURE 配置）
      */
-    public static function cookieValue(string $deviceId, ServerRequestInterface $request): string
+    public static function cookieValue(string $deviceId, ServerRequestInterface $request, bool $forceSecure = false): string
     {
-        $secure = str_starts_with($request->getUri()->getScheme(), 'https');
+        $secure = $forceSecure || str_starts_with($request->getUri()->getScheme(), 'https');
         $parts = [
             self::NAME . '=' . urlencode($deviceId),
             'Path=/',

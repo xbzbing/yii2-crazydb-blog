@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Post;
 
+use Predis\ClientInterface;
+
 /**
  * 文章浏览数 Redis key 约定：
  * - PV：按日分片（便于同步后清理历史计数）
@@ -33,5 +35,31 @@ final class PostViewKeys
     public static function uvKey(int $postId): string
     {
         return self::UV_PREFIX . $postId;
+    }
+
+    /**
+     * 文章删除时清理其全部统计 key：UV 全量 HLL + 按日分片的 PV 计数/游标。
+     * PV 计数与游标按日分片，无法直接拼 key，需按 `*:{postId}` 模式 SCAN 后删除。
+     * Redis 异常静默（统计残留不影响删除主流程）。
+     */
+    public static function clearPost(ClientInterface $redis, int $postId): void
+    {
+        try {
+            $keys = [self::uvKey($postId)];
+            $cursor = 0;
+            foreach ([self::COUNTER_PREFIX, self::SYNCED_PREFIX] as $prefix) {
+                do {
+                    /** @var array{0: string, 1: list<string>} $result */
+                    $result = $redis->scan($cursor, ['match' => $prefix . '*:' . $postId, 'count' => 500]);
+                    $cursor = (int)$result[0];
+                    foreach ($result[1] as $key) {
+                        $keys[] = $key;
+                    }
+                } while ($cursor !== 0);
+            }
+            $redis->del(array_values(array_unique($keys)));
+        } catch (\Throwable) {
+            // 统计 key 清理失败不影响文章删除
+        }
     }
 }

@@ -1,0 +1,208 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Unit;
+
+use Predis\ClientInterface;
+
+/**
+ * 内存 Redis 桩：真实语义的 key-value + HLL（数组去重）+ SCAN，
+ * 并记录全部调用。用于同步命令（visit/sync、post-view/sync）的回归测试。
+ */
+final class InMemoryRedisStub implements ClientInterface
+{
+    /** @var array<string, string|list<string>> key → 字符串值或 HLL 成员列表 */
+    public array $store = [];
+
+    /** @var list<array{0: string, 1: list<mixed>}> */
+    public array $calls = [];
+
+    /**
+     * @param string $method
+     * @param list<mixed> $arguments
+     */
+    public function __call($method, $arguments): mixed
+    {
+        $this->calls[] = [(string)$method, array_values((array)$arguments)];
+        return match ($method) {
+            'get' => $this->store[$arguments[0]] ?? null,
+            'set' => $this->store[$arguments[0]] = (string)$arguments[1],
+            'del' => $this->delete($arguments[0]),
+            'expire' => true,
+            'pfadd' => $this->pfadd((string)$arguments[0], (array)$arguments[1]),
+            'pfcount' => $this->pfcount((string)$arguments[0]),
+            'scan' => $this->scan((int)$arguments[0], (array)($arguments[1] ?? [])),
+            'pipeline' => $this->runPipeline($arguments),
+            default => 1,
+        };
+    }
+
+    public function getProfile(): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    public function getCommandFactory(): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    public function getOptions(): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    public function connect(): void
+    {
+    }
+
+    public function disconnect(): void
+    {
+    }
+
+    public function getConnection(): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    /**
+     * @param string $method
+     * @param list<mixed> $arguments
+     */
+    public function createCommand($method, $arguments = []): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    public function executeCommand(\Predis\Command\CommandInterface $command): never
+    {
+        throw new \LogicException('not used in tests');
+    }
+
+    private function delete(mixed $keys): int
+    {
+        $keys = (array)$keys;
+        $deleted = 0;
+        foreach ($keys as $key) {
+            if (isset($this->store[(string)$key])) {
+                unset($this->store[(string)$key]);
+                $deleted++;
+            }
+        }
+        return $deleted;
+    }
+
+    /**
+     * @param string $key
+     * @param list<mixed> $members
+     */
+    private function pfadd(string $key, array $members): int
+    {
+        /** @var list<string> $hll */
+        $hll = $this->store[$key] ?? [];
+        $added = 0;
+        foreach ($members as $member) {
+            if (!in_array((string)$member, $hll, true)) {
+                $hll[] = (string)$member;
+                $added++;
+            }
+        }
+        $this->store[$key] = $hll;
+        return $added;
+    }
+
+    private function pfcount(string $key): int
+    {
+        /** @var list<string> $hll */
+        $hll = $this->store[$key] ?? [];
+        return count($hll);
+    }
+
+    /**
+     * @param int $cursor
+     * @param array<string, mixed> $options
+     * @return array{0: string, 1: list<string>}
+     */
+    private function scan(int $cursor, array $options): array
+    {
+        $match = (string)($options['match'] ?? '*');
+        $prefix = rtrim($match, '*');
+        $found = [];
+        foreach (array_keys($this->store) as $key) {
+            if (str_starts_with($key, $prefix)) {
+                $found[] = $key;
+            }
+        }
+        sort($found);
+        return ['0', $found];
+    }
+
+    /**
+     * @param list<mixed> $arguments
+     * @return list<mixed>
+     */
+    private function runPipeline(array $arguments): array
+    {
+        if (isset($arguments[0]) && $arguments[0] instanceof \Closure) {
+            $pipe = new PipelineRecorder($this->store, $this->calls);
+            ($arguments[0])($pipe);
+        }
+        return [];
+    }
+}
+
+/**
+ * pipeline 内部命令桩：命令写入共享 store/calls。
+ */
+final class PipelineRecorder
+{
+    /**
+     * 外部 stub 的共享 calls 数组（经引用传回），本类只写不读，由外部测试断言读取。
+     *
+     * @var list<array{0: string, 1: list<mixed>}>
+     * @phpstan-ignore property.onlyWritten
+     */
+    private array $calls = [];
+
+    /**
+     * @param array<string, string|list<string>> $store
+     * @param list<array{0: string, 1: list<mixed>}> $calls
+     */
+    public function __construct(
+        private array &$store,
+        array &$calls,
+    ) {
+        $this->calls = &$calls;
+    }
+
+    /**
+     * @param string $method
+     * @param list<mixed> $arguments
+     */
+    public function __call($method, $arguments): static
+    {
+        $arguments = array_values((array)$arguments);
+        $this->calls[] = [(string)$method, $arguments];
+        switch ($method) {
+            case 'incr':
+                $this->store[$arguments[0]] = (string)(((int)($this->store[$arguments[0]] ?? 0)) + 1);
+                break;
+            case 'pfadd':
+                /** @var list<string> $hll */
+                $hll = $this->store[$arguments[0]] ?? [];
+                foreach ($arguments[1] as $member) {
+                    if (!in_array((string)$member, $hll, true)) {
+                        $hll[] = (string)$member;
+                    }
+                }
+                $this->store[$arguments[0]] = $hll;
+                break;
+            case 'expire':
+                break;
+            default:
+                $this->store[$arguments[0]] = (string)($arguments[1] ?? '');
+        }
+        return $this;
+    }
+}

@@ -88,12 +88,12 @@ final readonly class Action
             }
         }
         // 机会式对账 comment_count（对齐 Yii2 actionShow：计数漂移时顺手修正）。
-        // 此 save() 必须在 HTML→MD 转换之前执行：落在后面的转换块若先污染 $post，
-        // 会把转换后的 markdown（format=markdown）静默写回数据库。
+        // 用显式 updateAll 只改 comment_count，避免裸 save() 把本请求内存中的
+        // view_count++ 增量提前写入 MySQL（会与 post-view/sync 的 Redis 增量重复累计）。
         if ($total !== (int)$post->comment_count) {
-            $post->comment_count = $total;
             try {
-                $post->save();
+                // updateAll 为实例方法（Yiisoft AR），惯例 new 后调用，只更新指定字段
+                (new Post())->updateAll(['comment_count' => $total], ['id' => $post->id]);
             } catch (\Throwable) {
             }
         }
@@ -132,9 +132,10 @@ final readonly class Action
             if ($submitted && !$passwordLocked && $post->verifyAccessPassword($input)) {
                 $unlocked = true;
                 if ($post->rehashAccessPasswordIfNeeded($input)) {
-                    // 密码 rehash 落库的是原始 content（HTML→MD 转换块在其后执行，不会污染本 save）。
+                    // 密码 rehash 只显式更新 password 字段，避免裸 save() 把本请求
+                    // 的 view_count++ 增量（内存中）一并写入 MySQL 造成重复累计。
                     try {
-                        $post->save();
+                        (new Post())->updateAll(['password' => $post->password], ['id' => $post->id]);
                     } catch (\Throwable) {
                         // 迁移写入失败不影响本次已完成的密码验证。
                     }

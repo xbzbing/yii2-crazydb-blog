@@ -69,6 +69,7 @@ final class VisitSyncCommand extends Command
                 }
 
                 // 非今天且超过保留期的日 key：数据已落库，清理 Redis 释放内存
+                // （含 synced 游标 key——它们没有 TTL，不清理会形成永久垃圾）
                 if ($ymd < $today && $this->isOlderThanKeep($ymd)) {
                     $this->redis->del([
                         VisitKeys::pvKey($ymd),
@@ -76,6 +77,9 @@ final class VisitSyncCommand extends Command
                         VisitKeys::ipKey($ymd),
                         VisitKeys::crawlerKey($ymd),
                         VisitKeys::scriptKey($ymd),
+                        VisitKeys::syncedKey($ymd),
+                        VisitKeys::crawlerSyncedKey($ymd),
+                        VisitKeys::scriptSyncedKey($ymd),
                     ]);
                 }
             }

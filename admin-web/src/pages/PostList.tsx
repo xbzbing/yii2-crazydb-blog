@@ -101,7 +101,7 @@ export default function PostList() {
       dataIndex: 'view_uv',
       width: 80,
       search: false,
-      sorter: (a, b) => a.view_uv - b.view_uv,
+      sorter: true,
     },
     {
       title: '发布时间',
@@ -158,12 +158,22 @@ export default function PostList() {
     },
   ]
 
-  const request = async (params: { current?: number; pageSize?: number; [key: string]: unknown }) => {
+  const request = async (params: { current?: number; pageSize?: number; sort?: Record<string, string>; [key: string]: unknown }) => {
     const page = params.current || 1
     const pageSize = params.pageSize || 20
     const status = (params.status as string) || ''
     const tag = (params.tag as string) || ''
-    const res = await api.posts({ page, status, tag, pageSize })
+    // ProTable 服务端排序：sorter 列点击后 sort 为 { field: 'ascend'|'descend' }
+    const sortKeys = Object.keys(params.sort || {})
+    const sortField = sortKeys[0] || ''
+    const sortOrder = sortField ? (params.sort?.[sortField] === 'ascend' ? 'asc' : 'desc') : ''
+    const res = await api.posts({
+      page,
+      status,
+      tag,
+      pageSize,
+      ...(sortField ? { sort: sortField, order: sortOrder } : {}),
+    })
     return {
       data: res.items,
       total: res.total,

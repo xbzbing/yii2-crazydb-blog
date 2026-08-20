@@ -7,7 +7,9 @@ namespace App\Admin\PostDelete;
 use App\Category\Category;
 use App\Comment\Comment;
 use App\Post\Post;
+use App\Post\PostViewKeys;
 use App\Tag\Tag;
+use Predis\ClientInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -28,6 +30,7 @@ final readonly class Action
         private UrlGeneratorInterface $urlGenerator,
         private FlashInterface $flash,
         private CacheInterface $cache,
+        private ClientInterface $redis,
     ) {}
 
     public function __invoke(
@@ -40,6 +43,7 @@ final readonly class Action
                 (new Comment())->deleteAll(['pid' => $id]);
                 (new Tag())->deleteAll(['pid' => $id]);
                 $post->delete();
+                PostViewKeys::clearPost($this->redis, $id);
                 Tag::invalidateCache($this->cache);
                 Category::invalidateSummaryCache($this->cache);
                 $this->flash->set('flash_success', ['info' => '文章已删除。']);

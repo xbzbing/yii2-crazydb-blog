@@ -246,6 +246,12 @@ final class RecordingRedisStub implements ClientInterface
      */
     public function __call($method, $arguments): mixed
     {
+        // pipeline(callable)：执行闭包，内部命令经 recorder 写入同一 calls 数组
+        if ($method === 'pipeline' && isset($arguments[0]) && $arguments[0] instanceof \Closure) {
+            $pipe = new RecordingPipelineStub($this->calls);
+            ($arguments[0])($pipe);
+            return [];
+        }
         $this->calls[] = [(string)$method, array_values((array)$arguments)];
         return 1;
     }
@@ -302,58 +308,33 @@ final class RecordingRedisStub implements ClientInterface
     }
 }
 
-/** Redis 抛异常桩（模拟 Redis 故障） */
-final class FailingRedisStub implements ClientInterface
+/** pipeline 内部命令记录桩（把命令追加到共享 calls 数组） */
+final class RecordingPipelineStub
 {
     /**
-     * @param string $method
-     * @param list<mixed> $arguments
+     * 外部 stub 的共享 calls 数组（经引用传回），本类只写不读，由外部测试断言读取。
+     *
+     * @var list<array{0: string, 1: list<mixed>}>
+     * @phpstan-ignore property.onlyWritten
      */
-    public function __call($method, $arguments): mixed
-    {
-        throw new \RuntimeException('redis down');
-    }
+    private array $calls = [];
 
-    public function getProfile(): never
+    /**
+     * @param list<array{0: string, 1: list<mixed>}> $calls
+     */
+    public function __construct(array &$calls)
     {
-        throw new \LogicException('not used in tests');
-    }
-
-    public function getCommandFactory(): never
-    {
-        throw new \LogicException('not used in tests');
-    }
-
-    public function getOptions(): never
-    {
-        throw new \LogicException('not used in tests');
-    }
-
-    public function connect(): void
-    {
-    }
-
-    public function disconnect(): void
-    {
-    }
-
-    public function getConnection(): never
-    {
-        throw new \LogicException('not used in tests');
+        $this->calls = &$calls;
     }
 
     /**
      * @param string $method
      * @param list<mixed> $arguments
      */
-    public function createCommand($method, $arguments = []): never
+    public function __call($method, $arguments): static
     {
-        throw new \LogicException('not used in tests');
-    }
-
-    public function executeCommand(\Predis\Command\CommandInterface $command): never
-    {
-        throw new \LogicException('not used in tests');
+        $this->calls[] = [(string)$method, array_values((array)$arguments)];
+        return $this;
     }
 }
 

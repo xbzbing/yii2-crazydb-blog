@@ -55,15 +55,17 @@ interface RequestOptions {
   method?: string
   body?: unknown
   headers?: Record<string, string>
+  signal?: AbortSignal
 }
 
 async function request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, headers = {} } = options
+  const { method = 'GET', body, headers = {}, signal } = options
   const finalHeaders: Record<string, string> = { ...headers }
   const opts: RequestInit = {
     method,
     credentials: 'same-origin',
     headers: finalHeaders,
+    signal,
   }
   if (method !== 'GET' && method !== 'HEAD') {
     if (csrfToken) finalHeaders['X-CSRF-Token'] = csrfToken
@@ -106,7 +108,8 @@ interface ListData<T> extends Pagination {
 
 export const api = {
   me: fetchMe,
-  dashboard: (days = 14) => request<DashboardData>(`/dashboard?days=${days}`),
+  dashboard: (days = 14, signal?: AbortSignal) =>
+    request<DashboardData>(`/dashboard?days=${days}`, { signal }),
 
   posts: (params: Record<string, string | number> = {}) =>
     request<ListData<PostItem>>(`/posts?${new URLSearchParams(params as Record<string, string>)}`),

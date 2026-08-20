@@ -34,6 +34,8 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
     public function __construct(
         private ClientInterface $redis,
         private CacheInterface $cache,
+        /** 强制 dbvid cookie 带 Secure（生产 https 部署开启，见 COOKIE_SECURE） */
+        private bool $cookieSecure = false,
     ) {
     }
 
@@ -65,7 +67,7 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
         // 若为新生成的设备 ID，向响应追加 Set-Cookie（必须在 handle 之后，需要 response）
         // 用 withAddedHeader 追加而非 withHeader 替换，避免覆盖 Session/RememberMe 已设置的 cookie
         if ($needsCookie) {
-            $response = $response->withAddedHeader('Set-Cookie', DeviceId::cookieValue($deviceId, $request));
+            $response = $response->withAddedHeader('Set-Cookie', DeviceId::cookieValue($deviceId, $request, $this->cookieSecure));
         }
 
         $this->track($request, $type, $deviceId);
@@ -95,6 +97,7 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
     /**
      * 分类统计：PV（全部）+ UV/IP（仅正常）+ 分类 PV + 小时桶。
      * $deviceId 仅正常访问传入，非正常传空字符串。
+     * 统计写入合并为单次 Redis pipeline（一次 RTT），少量丢失可接受。
      */
     private function track(ServerRequestInterface $request, string $type, string $deviceId): void
     {
@@ -104,33 +107,68 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
             $ip = XUtils::getClientIP($request->getServerParams());
             $isNormal = ($type === VisitClassifier::TYPE_NORMAL);
 
-            // 日 PV（全部访问）
-            $this->redis->incr(VisitKeys::pvKey($ymd));
-            // 日 IP（全部访问）
-            $this->redis->pfadd(VisitKeys::ipKey($ymd), [$ip]);
-            // 日 UV（仅正常访问）
-            if ($isNormal && $deviceId !== '') {
-                $this->redis->pfadd(VisitKeys::uvKey($ymd), [$deviceId]);
-            }
-            // 分类 PV
-            if ($type === VisitClassifier::TYPE_CRAWLER) {
-                $this->redis->incr(VisitKeys::crawlerKey($ymd));
-            } elseif ($type === VisitClassifier::TYPE_SCRIPT) {
-                $this->redis->incr(VisitKeys::scriptKey($ymd));
-            }
-            // 小时 PV + IP（全部访问）
+            $pvKey = VisitKeys::pvKey($ymd);
+            $ipKey = VisitKeys::ipKey($ymd);
+            $uvKey = VisitKeys::uvKey($ymd);
+            $typeKey = match ($type) {
+                VisitClassifier::TYPE_CRAWLER => VisitKeys::crawlerKey($ymd),
+                VisitClassifier::TYPE_SCRIPT => VisitKeys::scriptKey($ymd),
+                default => '',
+            };
             $pvHourKey = VisitKeys::pvHourKey($ymdH);
-            $this->redis->incr($pvHourKey);
-            $this->redis->expire($pvHourKey, VisitKeys::HOUR_TTL);
             $ipHourKey = VisitKeys::ipHourKey($ymdH);
-            $this->redis->pfadd($ipHourKey, [$ip]);
-            $this->redis->expire($ipHourKey, VisitKeys::HOUR_TTL);
-            // 小时 UV（仅正常访问）
-            if ($isNormal && $deviceId !== '') {
-                $uvHourKey = VisitKeys::uvHourKey($ymdH);
-                $this->redis->pfadd($uvHourKey, [$deviceId]);
-                $this->redis->expire($uvHourKey, VisitKeys::HOUR_TTL);
-            }
+            $uvHourKey = VisitKeys::uvHourKey($ymdH);
+
+            /** @var \Predis\Client $client */
+            $client = $this->redis;
+            // Predis Pipeline 的 __call 无返回类型标注，psalm 无法识别其命令方法；
+            // Predis Pipeline 的 __call 无返回类型标注，psalm 无法识别其命令方法
+            // （UndefinedMagicMethod），运行时命令经 __call 转发，行为与 Client 一致。
+            $client->pipeline(
+            /** @param \Predis\Pipeline\Pipeline $pipe */
+            static function ($pipe) use (
+                $pvKey,
+                $ipKey,
+                $uvKey,
+                $typeKey,
+                $pvHourKey,
+                $ipHourKey,
+                $uvHourKey,
+                $ip,
+                $deviceId,
+                $isNormal,
+            ): void {
+                /** @psalm-suppress UndefinedMagicMethod Predis Pipeline 命令走 __call */
+                $pipe->incr($pvKey);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->pfadd($ipKey, [$ip]);
+                // 日 UV（仅正常访问）
+                if ($isNormal && $deviceId !== '') {
+                    /** @psalm-suppress UndefinedMagicMethod */
+                    $pipe->pfadd($uvKey, [$deviceId]);
+                }
+                // 分类 PV
+                if ($typeKey !== '') {
+                    /** @psalm-suppress UndefinedMagicMethod */
+                    $pipe->incr($typeKey);
+                }
+                // 小时 PV + IP（全部访问）
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->incr($pvHourKey);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->expire($pvHourKey, VisitKeys::HOUR_TTL);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->pfadd($ipHourKey, [$ip]);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->expire($ipHourKey, VisitKeys::HOUR_TTL);
+                // 小时 UV（仅正常访问）
+                if ($isNormal && $deviceId !== '') {
+                    /** @psalm-suppress UndefinedMagicMethod */
+                    $pipe->pfadd($uvHourKey, [$deviceId]);
+                    /** @psalm-suppress UndefinedMagicMethod */
+                    $pipe->expire($uvHourKey, VisitKeys::HOUR_TTL);
+                }
+            });
         } catch (\Throwable) {
             // 统计失败静默，不影响页面
         }
