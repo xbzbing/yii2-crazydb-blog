@@ -113,6 +113,7 @@ final readonly class Action
                 'siteConfig' => $siteConfig,
                 'navTree' => Nav::getNavTree($this->cache, $this->urlGenerator),
                 'showSidebar' => false,
+                'embedAnalyzer' => false,
             ],
         );
     }

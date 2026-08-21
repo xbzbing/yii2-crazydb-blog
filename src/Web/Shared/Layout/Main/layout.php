@@ -149,7 +149,7 @@ $this->beginPage()
         <span><?= Html::encode($siteName) ?></span>
         <span><?= Html::encode((string)($siteConfig['copyright'] ?? 'Copyright © 2013-' . date('Y'))) ?></span>
         <span><?= Html::encode((string)($siteConfig['site_icp'] ?? '')) ?></span>
-        <?php if (!empty($siteConfig['site_analyzer'])): ?>
+        <?php if ((!isset($embedAnalyzer) || $embedAnalyzer) && !empty($siteConfig['site_analyzer'])): ?>
             <div class="site-analyzer"><?= $siteConfig['site_analyzer'] ?></div>
         <?php endif; ?>
     </div>
