@@ -31,63 +31,14 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Comment/Comment.php">
-    <InvalidPropertyFetch>
-      <code><![CDATA[$comment->content]]></code>
-      <code><![CDATA[$comment->create_time]]></code>
-      <code><![CDATA[$comment->email]]></code>
-      <code><![CDATA[$comment->id]]></code>
-      <code><![CDATA[$comment->nickname]]></code>
-      <code><![CDATA[$comment->pid]]></code>
-      <code><![CDATA[$comment->url]]></code>
-    </InvalidPropertyFetch>
-    <InvalidReturnStatement>
-      <code><![CDATA[Post::query()->findByPk($this->pid)]]></code>
-      <code><![CDATA[self::query()->findByPk($this->reply_to)]]></code>
-    </InvalidReturnStatement>
-    <MixedArgument>
-      <code><![CDATA[$comment->email]]></code>
-    </MixedArgument>
-    <MixedMethodCall>
-      <code><![CDATA[getUrl]]></code>
-    </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$comment->id]]></code>
-      <code><![CDATA[$post?->getUrl($urlGenerator)]]></code>
-    </MixedOperand>
-    <MixedPropertyFetch>
-      <code><![CDATA[$post?->title]]></code>
-    </MixedPropertyFetch>
-    <NoInterfaceProperties>
-      <code><![CDATA[$comment->content]]></code>
-      <code><![CDATA[$comment->create_time]]></code>
-      <code><![CDATA[$comment->email]]></code>
-      <code><![CDATA[$comment->id]]></code>
-      <code><![CDATA[$comment->nickname]]></code>
-      <code><![CDATA[$comment->pid]]></code>
-      <code><![CDATA[$comment->url]]></code>
-    </NoInterfaceProperties>
-    <PossiblyInvalidMethodCall>
-      <code><![CDATA[getPost]]></code>
-    </PossiblyInvalidMethodCall>
     <PossiblyNullArgument>
       <code><![CDATA[$this->reply_to]]></code>
     </PossiblyNullArgument>
     <PossiblyNullOperand>
       <code><![CDATA[$this->content]]></code>
     </PossiblyNullOperand>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[getPost]]></code>
-    </UndefinedInterfaceMethod>
   </file>
   <file src="src/Comment/CommentService.php">
-    <InvalidPropertyFetch>
-      <code><![CDATA[$user->email]]></code>
-      <code><![CDATA[$user->nickname]]></code>
-    </InvalidPropertyFetch>
-    <NoInterfaceProperties>
-      <code><![CDATA[$user->email]]></code>
-      <code><![CDATA[$user->nickname]]></code>
-    </NoInterfaceProperties>
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(int)$data['reply_to']]]></code>
       <code><![CDATA[(string)($data['content'] ?? '')]]></code>
@@ -115,6 +66,74 @@
     <PossiblyFalseOperand>
       <code><![CDATA[filemtime($filePath)]]></code>
     </PossiblyFalseOperand>
+  </file>
+  <file src="src/Console/AssetMinifyCommand.php">
+    <MixedArgument>
+      <code><![CDATA[$extraCss]]></code>
+    </MixedArgument>
+    <PossiblyFalseIterator>
+      <code><![CDATA[glob($themeDir . '/*.css')]]></code>
+    </PossiblyFalseIterator>
+  </file>
+  <file src="src/Console/HtmlToMdCommand.php">
+    <PossiblyNullArgument>
+      <code><![CDATA[$post->content]]></code>
+    </PossiblyNullArgument>
+    <RedundantCast>
+      <code><![CDATA[(string)$post->content]]></code>
+      <code><![CDATA[(string)($post->excerpt ?? '')]]></code>
+    </RedundantCast>
+  </file>
+  <file src="src/Console/InitAdminCommand.php">
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$count]]></code>
+    </ArgumentTypeCoercion>
+    <InvalidNullableReturnType>
+      <code><![CDATA[string]]></code>
+    </InvalidNullableReturnType>
+    <MixedArgument>
+      <code><![CDATA[$email]]></code>
+      <code><![CDATA[$nickname]]></code>
+      <code><![CDATA[$password]]></code>
+      <code><![CDATA[$username]]></code>
+    </MixedArgument>
+    <NullableReturnStatement>
+      <code><![CDATA[$value]]></code>
+    </NullableReturnStatement>
+    <PossiblyNullArgument>
+      <code><![CDATA[$user->id]]></code>
+    </PossiblyNullArgument>
+  </file>
+  <file src="src/Console/InitCheckCommand.php">
+    <MixedArgument>
+      <code><![CDATA[$col]]></code>
+      <code><![CDATA[$idx['INDEX_COLUMNS']]]></code>
+      <code><![CDATA[$rawTableName]]></code>
+    </MixedArgument>
+    <MixedArrayAccess>
+      <code><![CDATA[$idx['INDEX_COLUMNS']]]></code>
+      <code><![CDATA[$idx['INDEX_NAME']]]></code>
+      <code><![CDATA[$table['TABLE_NAME']]]></code>
+    </MixedArrayAccess>
+    <MixedArrayOffset>
+      <code><![CDATA[$columnMap[$col['COLUMN_NAME']]]]></code>
+      <code><![CDATA[$indexMap[$idx['INDEX_NAME']]]]></code>
+      <code><![CDATA[$result[$tableName]]]></code>
+    </MixedArrayOffset>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[$result]]></code>
+      <code><![CDATA[array<string, array{columns: array<string, string>, indexes: array<string, string[]>}>]]></code>
+    </MixedReturnTypeCoercion>
+  </file>
+  <file src="src/Console/InitEnvCommand.php">
+    <MixedReturnStatement>
+      <code><![CDATA[$questionHelper->ask($input, $output, $question)]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Console/InitMigrateCommand.php">
+    <MixedArgument>
+      <code><![CDATA[$dryRun]]></code>
+    </MixedArgument>
   </file>
   <file src="src/Nav/Nav.php">
     <InvalidPropertyFetch>
@@ -149,6 +168,11 @@
       <code><![CDATA[getUrl]]></code>
     </UndefinedInterfaceMethod>
   </file>
+  <file src="src/Post/HtmlToMarkdownService.php">
+    <MixedArgument>
+      <code><![CDATA[$child]]></code>
+    </MixedArgument>
+  </file>
   <file src="src/Post/Post.php">
     <InvalidReturnStatement>
       <code><![CDATA[self::query()
@@ -163,11 +187,22 @@
     </PossiblyNullOperand>
   </file>
   <file src="src/Tag/Tag.php">
+    <MixedOperand>
+      <code><![CDATA[$version]]></code>
+    </MixedOperand>
     <UndefinedInterfaceMethod>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>
     </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/User/AuthService.php">
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(string)($data['email'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['info'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['nickname'] ?? '')]]></code>
+      <code><![CDATA[(string)($data['website'] ?? '')]]></code>
+    </RedundantCastGivenDocblockType>
   </file>
   <file src="src/User/RegisterService.php">
     <RedundantCastGivenDocblockType>
@@ -179,6 +214,11 @@
       <code><![CDATA[(string)($data['username'] ?? '')]]></code>
       <code><![CDATA[(string)($data['website'] ?? '')]]></code>
     </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/User/SessionAuthMethod.php">
+    <DeprecatedInterface>
+      <code><![CDATA[SessionAuthMethod]]></code>
+    </DeprecatedInterface>
   </file>
   <file src="src/User/User.php">
     <InvalidReturnStatement>
@@ -198,5 +238,106 @@
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(string)$authKey]]></code>
     </RedundantCastGivenDocblockType>
+  </file>
+  <file src="src/Web/Shared/PostList/postList.php">
+    <InvalidScope>
+      <code><![CDATA[$this->render('Article/article.php', [
+            'post' => $post,
+            'category' => $categorySummary[(int)$post->cid] ?? ['name' => '', 'desc' => null, 'url' => null, 'postCount' => 0],
+            'urlGenerator' => $urlGenerator,
+            'markdownRenderer' => $markdownRenderer,
+            'authorNickname' => $authorNicknames[(int) $post->author_id] ?? '',
+        ])]]></code>
+      <code><![CDATA[$this->render('Pager/pager.php', [
+    'pager' => $pager,
+    'urlGenerator' => $urlGenerator,
+    'route' => $route,
+    'pageRoute' => $pageRoute,
+    'routeArgs' => $routeArgs,
+])]]></code>
+    </InvalidScope>
+    <MixedArgument>
+      <code><![CDATA[$this->render('Pager/pager.php', [
+    'pager' => $pager,
+    'urlGenerator' => $urlGenerator,
+    'route' => $route,
+    'pageRoute' => $pageRoute,
+    'routeArgs' => $routeArgs,
+])]]></code>
+    </MixedArgument>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="src/Web/Shared/Sidebar/sidebar.php">
+    <MixedArgument>
+      <code><![CDATA[$markdownRenderer->render($aboutMe)]]></code>
+    </MixedArgument>
+    <MixedMethodCall>
+      <code><![CDATA[render]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Web/UserProfile/Action.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$data]]></code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="themes/crazydb/PostShow/template.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]]]></code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="themes/crazydb/Shared/Article/article.php">
+    <DocblockTypeContradiction>
+      <code><![CDATA['']]></code>
+    </DocblockTypeContradiction>
+    <RedundantConditionGivenDocblockType>
+      <code><![CDATA[$authorNickname]]></code>
+    </RedundantConditionGivenDocblockType>
+  </file>
+  <file src="themes/crazydb/Shared/PostList/postList.php">
+    <InvalidScope>
+      <code><![CDATA[$this->render('Article/article.php', [
+            'post' => $post,
+            'category' => $categorySummary[(int)$post->cid] ?? ['name' => '', 'desc' => null, 'url' => null, 'postCount' => 0],
+            'urlGenerator' => $urlGenerator,
+            'markdownRenderer' => $markdownRenderer,
+            'authorNickname' => $authorNicknames[(int) $post->author_id] ?? '',
+        ])]]></code>
+      <code><![CDATA[$this->render('Pager/pager.php', [
+    'pager' => $pager,
+    'urlGenerator' => $urlGenerator,
+    'route' => $route,
+    'pageRoute' => $pageRoute,
+    'routeArgs' => $routeArgs,
+])]]></code>
+    </InvalidScope>
+    <MixedArgument>
+      <code><![CDATA[$this->render('Pager/pager.php', [
+    'pager' => $pager,
+    'urlGenerator' => $urlGenerator,
+    'route' => $route,
+    'pageRoute' => $pageRoute,
+    'routeArgs' => $routeArgs,
+])]]></code>
+    </MixedArgument>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$row]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="themes/magazine/PostShow/template.php">
+    <UndefinedGlobalVariable>
+      <code><![CDATA[$passwordLocked]]></code>
+    </UndefinedGlobalVariable>
+  </file>
+  <file src="themes/magazine/Shared/Sidebar/sidebar.php">
+    <MixedArgument>
+      <code><![CDATA[$markdownRenderer->render($aboutMe)]]></code>
+    </MixedArgument>
+    <MixedMethodCall>
+      <code><![CDATA[render]]></code>
+    </MixedMethodCall>
   </file>
 </files>

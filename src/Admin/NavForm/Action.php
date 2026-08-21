@@ -48,14 +48,15 @@ final readonly class Action
             $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
             $result = $this->service->save($data, $id);
-            if ($result['ok'] && $result['nav'] instanceof Nav) {
-                $nav = $result['nav'];
+            $savedNav = $result['nav'] ?? null;
+            if ($result['ok'] && $savedNav instanceof Nav) {
+                $nav = $savedNav;
                 $this->flash->set('flash_success', ['info' => $result['message'] ?? '']);
                 return $this->redirectList();
             }
             $errors = $result['errors'] ?? [];
-            if ($result['nav'] instanceof Nav) {
-                $nav = $result['nav'];
+            if ($savedNav instanceof Nav) {
+                $nav = $savedNav;
             } else {
                 return $this->redirectList();
             }

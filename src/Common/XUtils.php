@@ -56,6 +56,7 @@ final class XUtils
     /**
      * 获取客户端 IP。仅当直接连接地址属于明确的可信代理集合时，才解析 X-Forwarded-For。
      *
+     * @param array<array-key, mixed>|null $server null 时读取 $_SERVER（PSR-7 getServerParams 形状）
      * @param list<string>|null $trustedProxyIps null 时读取 TRUSTED_PROXY_IPS（逗号分隔）
      */
     public static function getClientIP(?array $server = null, ?array $trustedProxyIps = null): string
@@ -68,7 +69,7 @@ final class XUtils
 
         $trustedProxyIps ??= array_values(array_filter(array_map(
             'trim',
-            explode(',', (string) ($_ENV['TRUSTED_PROXY_IPS'] ?? getenv('TRUSTED_PROXY_IPS') ?: '')),
+            explode(',', ($_ENV['TRUSTED_PROXY_IPS'] ?? getenv('TRUSTED_PROXY_IPS')) ?: ''),
         )));
         if (!in_array($remote, $trustedProxyIps, true)) {
             return $remote;
@@ -265,6 +266,8 @@ final class XUtils
 
     /**
      * 向 session 写入操作记录（flash，读取后即失效）。
+     *
+     * @param array<string, mixed> $message
      */
     public static function actionMessage(Flash $flash, string $key, array $message): void
     {

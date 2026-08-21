@@ -125,7 +125,7 @@ final class Comment extends ActiveRecord
                         'nickname' => $comment->nickname,
                         'website' => $comment->url,
                         'pid' => $comment->pid,
-                        'post_url' => $post?->getUrl($urlGenerator) . '#comment-' . $comment->id,
+                        'post_url' => ($post?->getUrl($urlGenerator) ?? '') . '#comment-' . (int)$comment->id,
                         'content' => $comment->content,
                         'create_time' => $comment->create_time,
                         'email' => $comment->email,

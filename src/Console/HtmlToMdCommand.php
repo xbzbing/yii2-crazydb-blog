@@ -61,7 +61,7 @@ final class HtmlToMdCommand extends Command
 
         foreach ($posts as $post) {
             $title = mb_substr($post->title, 0, 40, 'UTF-8');
-            $contentLen = mb_strlen((string)$post->content, 'UTF-8');
+            $contentLen = mb_strlen($post->content, 'UTF-8');
             $excerptLen = mb_strlen((string)($post->excerpt ?? ''), 'UTF-8');
 
             // 转换正文

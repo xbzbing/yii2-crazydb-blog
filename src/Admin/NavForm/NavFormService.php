@@ -23,7 +23,7 @@ final readonly class NavFormService
     /**
      * 校验并保存导航。
      *
-     * @param array<string, mixed> $data
+     * @param array<array-key, mixed> $data HTTP parsedBody（键实际为 string，但 psalm 只能推断为 array-key）
      * @return array{ok: bool, nav?: Nav, errors?: array<string, string>, message?: string}
      */
     public function save(array $data, ?int $id = null): array

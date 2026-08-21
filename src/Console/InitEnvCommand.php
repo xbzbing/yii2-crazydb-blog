@@ -126,9 +126,9 @@ final class InitEnvCommand extends Command
                 if ($newValue !== null && $newValue !== $currentValue) {
                     $lines = $this->updateEnvLine($lines, $key, $newValue);
                     $updated = true;
-                    $output->writeln(sprintf('    <info>✓ 已设置</info>'));
+                    $output->writeln('    <info>✓ 已设置</info>');
                 } else {
-                    $output->writeln(sprintf('    <comment>  保持原值</comment>'));
+                    $output->writeln('    <comment>  保持原值</comment>');
                 }
             } else {
                 // 显示已配置状态

@@ -85,8 +85,9 @@ final readonly class Action
         }
 
         $qr = new QRCode(new QROptions([
-            // chillerlan v5：内置 outputType 常量已弃用（MODES 弃用），改用 CUSTOM + outputInterface
-            'outputType' => \chillerlan\QRCode\Output\QROutputInterface::CUSTOM,
+            // chillerlan v5：outputType 相关常量已弃用（issue #223，暂无替代），
+            // 内部仍按 outputType === 'custom' 分发到 outputInterface，故用等价字符串
+            'outputType' => 'custom',
             'outputInterface' => QRGdImagePNG::class,
             'eccLevel' => EccLevel::M,
             'imageTransparent' => false,

@@ -60,8 +60,8 @@ final class CommentService
         // 登录用户：身份取自会话并覆盖表单提交（防伪造），后续校验随之走会话数据
         if ($currentUser !== null) {
             $comment->uid = $currentUser->id;
-            $comment->nickname = (string)$currentUser->nickname;
-            $comment->email = (string)$currentUser->email;
+            $comment->nickname = $currentUser->nickname;
+            $comment->email = $currentUser->email;
         }
 
         if ($comment->content === '') {

@@ -68,8 +68,9 @@ final readonly class Action
             return $this->jsonResponse->ok(['ok' => false, 'errors' => $result['errors'] ?? []]);
         }
 
+        $savedNav = $result['nav'] ?? null;
         return $this->jsonResponse->ok([
-            'id' => $result['nav'] instanceof Nav ? (int)$result['nav']->id : null,
+            'id' => $savedNav instanceof Nav ? (int)$savedNav->id : null,
             'message' => $result['message'] ?? '',
         ]);
     }

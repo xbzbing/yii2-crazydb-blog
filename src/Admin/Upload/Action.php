@@ -59,8 +59,11 @@ final readonly class Action
             return $this->json(['code' => 1, 'msg' => '无法读取上传文件，请重试。']);
         }
         $info = @getimagesize($tmpFile);
+        if ($info === false) {
+            return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
+        }
         $mimeMap = ['image/png' => 'png', 'image/jpeg' => 'jpg', 'image/gif' => 'gif', 'image/webp' => 'webp'];
-        if ($info === false || !isset($mimeMap[$info['mime']])) {
+        if (!isset($mimeMap[$info['mime']])) {
             return $this->json(['code' => 1, 'msg' => '文件内容不是有效图片。']);
         }
         if ($info[0] > 8000 || $info[1] > 8000) {
