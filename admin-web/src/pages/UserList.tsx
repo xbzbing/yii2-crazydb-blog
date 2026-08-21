@@ -66,7 +66,17 @@ export default function UserList() {
   }
 
   const columns: ProColumns<User>[] = [
-    { title: 'ID', dataIndex: 'id', width: 60, search: false },
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      width: 60,
+      search: false,
+      render: (_, r) => (
+        <Button type="link" size="small" style={{ padding: 0 }} onClick={() => setViewTarget(r)}>
+          {r.id}
+        </Button>
+      ),
+    },
     { title: '用户名', dataIndex: 'username', width: 130 },
     { title: '昵称', dataIndex: 'nickname', width: 130 },
     { title: '邮箱', dataIndex: 'email', ellipsis: true },
@@ -143,6 +153,8 @@ export default function UserList() {
         open={viewTarget !== null}
         onCancel={() => setViewTarget(null)}
         confirmLoading={confirming}
+        centered
+        width={624}
         footer={[
           <Button key="close" onClick={() => setViewTarget(null)}>
             关闭

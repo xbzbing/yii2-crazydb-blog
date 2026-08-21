@@ -31,16 +31,33 @@ final readonly class Action
     {
         $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);
         $type = (string)($request->getQueryParams()['type'] ?? '');
+        $result = (string)($request->getQueryParams()['result'] ?? '');
+        $ip = (string)($request->getQueryParams()['ip'] ?? '');
+        $userAgent = (string)($request->getQueryParams()['user_agent'] ?? '');
+
+        $conditions = [];
+        if ($type !== '') {
+            $conditions[] = ['type' => $type];
+        }
+        if ($result !== '') {
+            $conditions[] = ['result' => $result];
+        }
+        if ($ip !== '') {
+            $conditions[] = ['ip' => $ip];
+        }
+        if ($userAgent !== '') {
+            $conditions[] = ['like', 'user_agent', $userAgent];
+        }
 
         $countQuery = Log::query();
-        if ($type !== '') {
-            $countQuery->where(['type' => $type]);
+        foreach ($conditions as $condition) {
+            $countQuery->andWhere($condition);
         }
         $pager = new Pager((int)$countQuery->count(), self::PAGE_SIZE, $page);
 
         $query = Log::query();
-        if ($type !== '') {
-            $query->where(['type' => $type]);
+        foreach ($conditions as $condition) {
+            $query->andWhere($condition);
         }
         /** @var list<Log> $logs */
         $logs = $query
@@ -76,7 +93,11 @@ final readonly class Action
 
     public function clear(ServerRequestInterface $request): ResponseInterface
     {
-        (new Log())->deleteAll();
-        return $this->jsonResponse->ok(['message' => '日志已清空。']);
+        $oneYearAgo = (new \DateTimeImmutable('-1 year'))->getTimestamp();
+        $deleted = (new Log())->deleteAll(['<', 'create_time', $oneYearAgo]);
+        return $this->jsonResponse->ok([
+            'message' => '已清理 1 年前的日志。',
+            'deleted' => $deleted,
+        ]);
     }
 }

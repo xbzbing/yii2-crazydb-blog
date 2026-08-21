@@ -83,7 +83,17 @@ export default function CommentList() {
   }
 
   const columns: ProColumns<CommentItem>[] = [
-    { title: 'ID', dataIndex: 'id', width: 70, search: false },
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      width: 70,
+      search: false,
+      render: (_, r) => (
+        <Button type="link" size="small" style={{ padding: 0 }} onClick={() => openDetail(r)}>
+          {r.id}
+        </Button>
+      ),
+    },
     { title: '昵称', dataIndex: 'nickname', width: 120, search: false },
     {
       title: '内容',
@@ -178,6 +188,7 @@ export default function CommentList() {
         open={detail !== null}
         onCancel={() => setDetail(null)}
         footer={null}
+        centered
         width={640}
       >
         {detailLoading && <Spin style={{ display: 'block', margin: '32px auto' }} />}
