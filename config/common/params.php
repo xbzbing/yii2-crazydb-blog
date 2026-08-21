@@ -72,6 +72,21 @@ return [
         'table_prefix' => $tablePrefix,
     ],
 
+    // 文件日志（runtime/logs/app.log，DI 定义见包自带 config/di.php）。
+    // 包默认 levels 漏了 alert/critical/notice，这里显式补全为 error 级全家桶；
+    // info/debug 只走 stdout，避免日志文件膨胀（10MB×5 轮转兜底）。
+    'yiisoft/log-target-file' => [
+        'fileTarget' => [
+            'levels' => [
+                Psr\Log\LogLevel::EMERGENCY,
+                Psr\Log\LogLevel::ALERT,
+                Psr\Log\LogLevel::CRITICAL,
+                Psr\Log\LogLevel::ERROR,
+                Psr\Log\LogLevel::WARNING,
+            ],
+        ],
+    ],
+
     'mailer' => [
         // SMTP DSN（symfony/mailer 格式），未配置时为 null:// 不发送；可用环境变量 MAILER_DSN 覆盖
         'dsn' => (string) ($_ENV['MAILER_DSN'] ?? getenv('MAILER_DSN')) ?: 'null://null',

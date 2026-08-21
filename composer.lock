@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9283d4c24f68052b9af08609bd4819f",
+    "content-hash": "c4b440cfd6ca1cd5feddf1f903f728a4",
     "packages": [
         {
             "name": "alexkart/curl-builder",
@@ -5356,6 +5356,86 @@
             "time": "2026-03-22T16:33:56+00:00"
         },
         {
+            "name": "yiisoft/log-target-file",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yiisoft/log-target-file.git",
+                "reference": "24d51c88a362c3c60adafa884b959f0423a208da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yiisoft/log-target-file/zipball/24d51c88a362c3c60adafa884b959f0423a208da",
+                "reference": "24d51c88a362c3c60adafa884b959f0423a208da",
+                "shasum": ""
+            },
+            "require": {
+                "ext-zlib": "*",
+                "php": "^8.0",
+                "yiisoft/files": "^1.0|^2.0",
+                "yiisoft/log": "^2.2"
+            },
+            "require-dev": {
+                "maglnet/composer-require-checker": "^4.2",
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^2.0",
+                "roave/infection-static-analysis-plugin": "^1.25",
+                "spatie/phpunit-watcher": "^1.23",
+                "vimeo/psalm": "^4.30|^5.24",
+                "yiisoft/aliases": "^3.0",
+                "yiisoft/di": "^1.0"
+            },
+            "suggest": {
+                "ext-zlib": "Enabling gzip compression of rotated files."
+            },
+            "type": "library",
+            "extra": {
+                "config-plugin": {
+                    "di": "di.php",
+                    "params": "params.php"
+                },
+                "config-plugin-options": {
+                    "source-directory": "config"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Yiisoft\\Log\\Target\\File\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Yii Logging Library - File Target",
+            "homepage": "https://www.yiiframework.com/",
+            "keywords": [
+                "framework",
+                "log",
+                "logger",
+                "yii"
+            ],
+            "support": {
+                "chat": "https://t.me/yii3en",
+                "forum": "https://www.yiiframework.com/forum/",
+                "irc": "ircs://irc.libera.chat:6697/yii",
+                "issues": "https://github.com/yiisoft/log-target-file/issues",
+                "source": "https://github.com/yiisoft/log-target-file",
+                "wiki": "https://www.yiiframework.com/wiki/"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/yiisoft",
+                    "type": "github"
+                },
+                {
+                    "url": "https://opencollective.com/yiisoft",
+                    "type": "opencollective"
+                }
+            ],
+            "time": "2025-12-13T11:57:57+00:00"
+        },
+        {
             "name": "yiisoft/mailer",
             "version": "6.1.0",
             "source": {
@@ -10681,16 +10761,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.6.2",
+            "version": "2.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "03cd615cdd5648abb5f10ff3a684fdb976687190"
+                "reference": "7e46709996a4b3dc59e1d6ecbb6a38ace335bd58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/03cd615cdd5648abb5f10ff3a684fdb976687190",
-                "reference": "03cd615cdd5648abb5f10ff3a684fdb976687190",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/7e46709996a4b3dc59e1d6ecbb6a38ace335bd58",
+                "reference": "7e46709996a4b3dc59e1d6ecbb6a38ace335bd58",
                 "shasum": ""
             },
             "require": {
@@ -10729,7 +10809,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.6.2"
+                "source": "https://github.com/rectorphp/rector/tree/2.6.3"
             },
             "funding": [
                 {
@@ -10737,7 +10817,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-12T06:23:05+00:00"
+            "time": "2026-08-18T22:01:18+00:00"
         },
         {
             "name": "revolt/event-loop",
