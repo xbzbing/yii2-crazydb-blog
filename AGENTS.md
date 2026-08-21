@@ -25,8 +25,8 @@ make test                       # host 上跑 PHPUnit（自动注入 DB_HOST=127
 ./vendor/bin/phpunit --no-coverage tests/Unit/XxxTest.php    # 单文件；--filter "名称" 过滤单个用例
 make psalm                      # Psalm（errorLevel=1，基线 psalm-baseline.xml）
 composer phpstan                # 全量 PHPStan
-cd admin-web && npm run build   # 必须在 admin-web 目录跑；产物进 ../public/admin
-cd admin-web && npm run typecheck                            # tsc --noEmit
+npm --prefix admin-web run build     # 或 pnpm --prefix admin-web run build（npm/pnpm 均可）；产物进 ../public/admin
+npm --prefix admin-web run typecheck # tsc --noEmit；npm/pnpm 均可，一律用 --prefix 代替 cd
 docker compose -f docker-compose-dev.yml up -d               # dev 栈：nginx:80 / php-fpm / mysql:3306 / redis:6379
 ./yii init/env && ./yii init/admin                            # 初始化 .env 与管理员
 ```
@@ -37,6 +37,7 @@ docker compose -f docker-compose-dev.yml up -d               # dev 栈：nginx:8
 
 - **后台 SPA 是 HashRouter**：URL 形如 `/admin/#/posts/rank`；访问 `/admin/posts/rank` 会落到仪表盘。浏览器/playwright 验证后台功能务必带 `#`。
 - **改前端后必须重新 build**：nginx 服务的是 `public/admin` 的产物，源码改动不会自动生效。
+- **前端命令用 `--prefix`，npm/pnpm 均可**：`npm --prefix admin-web run <script>` 或 `pnpm --prefix admin-web run <script>`，不要写 `cd admin-web &&`。锁文件以 `package-lock.json` 为准；pnpm 运行时会在本地重建 `pnpm-lock.yaml`/`pnpm-workspace.yaml`，已 gitignore 不入库。
 - **pre-commit hook 对 staged PHP 文件跑 PHPStan**，失败即阻止提交。hook 明确禁止：inline `@var` 覆盖推断、`@phpstan-ignore`、加 baseline 条目压制、为消错加 cast——用 instanceof 运行时收窄或修真实类型。
 - **Yii3 AR 宽类型收窄惯例**：`findByPk()`/`query()->one()` 返回 `array|ActiveRecordInterface|null`，写成 `$x = ...; return $x instanceof self ? $x : null;`
 - **`Post::updateAll()` 等静态调用**需行级 `@psalm-suppress InvalidStaticInvocation`（psalm 014）。

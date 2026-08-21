@@ -1,6 +1,5 @@
 import { useRef } from 'react'
-import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import type { ProFormInstance } from '@ant-design/pro-form'
+import { ProTable, type ActionType, type ProColumns, type ProFormInstance } from '@ant-design/pro-components'
 import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
 import { useNavigate, useSearchParams } from 'react-router-dom'

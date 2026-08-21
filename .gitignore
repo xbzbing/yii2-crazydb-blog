@@ -56,6 +56,10 @@ admin-web/node_modules/
 public/admin/
 public/package.json
 
+# pnpm 本地产物（npm/pnpm 都可跑构建，但锁文件以 package-lock.json 为准；pnpm 运行时重建的这两个文件不入库）
+admin-web/pnpm-lock.yaml
+admin-web/pnpm-workspace.yaml
+
 # vision toolkit 截图/裁剪等运行时产物
 /.dsh-vision-toolkit/
 
