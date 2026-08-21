@@ -114,7 +114,7 @@ final class CommentService
         }
 
         $log = new Log();
-        if (!$comment->passAntiSpam($log)) {
+        if (!$comment->passAntiSpam($log, $request['ip'], $request['userAgent'])) {
             return ['status' => 'fail', 'info' => 'Your message is blocked by anti-spam policy, please try again.'];
         }
 

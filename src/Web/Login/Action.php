@@ -87,7 +87,7 @@ final readonly class Action
                         }
                         $token = $this->authService->login($user, $rememberMe);
                         $this->loginThrottle->clear($username, $clientIp);
-                        (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$user->id, Log::STATUS_SUCCESS, "用户「{$username}」成功!", (int)$user->id);
+                        (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$user->id, Log::STATUS_SUCCESS, "用户「{$username}」成功!", (int)$user->id, $clientIp, $request->getHeaderLine('User-Agent'));
                         $response = $this->redirectTo($redirect);
                         if ($token !== null) {
                             $response = $response->withHeader(
@@ -152,7 +152,7 @@ final readonly class Action
             $username,
             \App\Common\XUtils::getClientIP($request->getServerParams()),
         );
-        (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$request->getUri()->getPath(), Log::STATUS_FAILED, "用户「{$username}」登录失败！原因：{$reason}");
+        (new Log())->record(Log::TYPE_LOGIN, 'site/login', (string)$request->getUri()->getPath(), Log::STATUS_FAILED, "用户「{$username}」登录失败！原因：{$reason}", 0, \App\Common\XUtils::getClientIP($request->getServerParams()), $request->getHeaderLine('User-Agent'));
         $this->flash->set('flash_error', ['info' => $reason]);
     }
 

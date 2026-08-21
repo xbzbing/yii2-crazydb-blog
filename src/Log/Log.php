@@ -62,8 +62,8 @@ final class Log extends ActiveRecord
         $log->uid = $uid;
         $now = time();
         $log->create_time = $now;
-        $log->ip = htmlspecialchars($ip, ENT_QUOTES);
-        $log->user_agent = htmlspecialchars($userAgent, ENT_QUOTES);
+        $log->ip = htmlspecialchars(mb_substr($ip, 0, 45), ENT_QUOTES);
+        $log->user_agent = htmlspecialchars(mb_substr($userAgent, 0, 255), ENT_QUOTES);
         try {
             $log->save();
         } catch (\Throwable) {

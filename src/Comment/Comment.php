@@ -75,12 +75,14 @@ final class Comment extends ActiveRecord
         if (!$this->isReply()) {
             return null;
         }
-        return self::query()->findByPk($this->reply_to);
+        $reply = self::query()->findByPk($this->reply_to);
+        return $reply instanceof self ? $reply : null;
     }
 
     public function getPost(): ?Post
     {
-        return Post::query()->findByPk($this->pid);
+        $post = Post::query()->findByPk($this->pid);
+        return $post instanceof Post ? $post : null;
     }
 
     /**
@@ -114,6 +116,9 @@ final class Comment extends ActiveRecord
                     ->limit($limit)
                     ->all();
                 foreach ($comments as $comment) {
+                    if (!$comment instanceof self) {
+                        continue;
+                    }
                     $post = $comment->getPost();
                     $items[] = [
                         'id' => $comment->id,
@@ -125,7 +130,7 @@ final class Comment extends ActiveRecord
                         'create_time' => $comment->create_time,
                         'email' => $comment->email,
                         'avatar' => XUtils::getAvatar($aliases, $comment->email, $size),
-                        'title' => $post?->title ?? '',
+                        'title' => $post->title ?? '',
                     ];
                 }
                 return $items;
@@ -155,7 +160,7 @@ final class Comment extends ActiveRecord
     /**
      * 评论内容必须包含中文（等价 Yii2 antiSpam），否则拦截并记录日志。
      */
-    public function passAntiSpam(Log $log): bool
+    public function passAntiSpam(Log $log, string $ip = '', string $userAgent = ''): bool
     {
         if (preg_match('/[\x{4e00}-\x{9fa5}]+/u', (string)$this->content) === 1) {
             return true;
@@ -166,6 +171,9 @@ final class Comment extends ActiveRecord
             $this->nickname,
             Log::STATUS_FAILED,
             'email:' . $this->email . ',content:' . $this->content,
+            0,
+            $ip,
+            $userAgent,
         );
         return false;
     }
