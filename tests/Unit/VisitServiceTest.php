@@ -6,6 +6,7 @@ namespace App\Tests\Unit;
 
 use App\Console\InitMigrateCommand;
 use App\Tests\TestCase;
+use App\Visit\VisitDaily;
 use App\Visit\VisitKeys;
 use App\Visit\VisitService;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -110,8 +111,10 @@ final class VisitServiceTest extends TestCase
     {
         // 数据库有历史数据、Redis 无该日数据时回退 MySQL
         $service = new VisitService($this->redis);
-        $ymd = date('Ymd', strtotime('-1 days'));
         $date = date('Y-m-d', strtotime('-1 days'));
+
+        // 隔离：清掉 trend(2) 窗口（昨天+今天）的残留行，保证「Redis 空 + DB 空 → 全 0」前提成立
+        (new VisitDaily())->deleteAll(['date' => [$date, date('Y-m-d')]]);
 
         $row = $service->trend(2);
         $this->assertCount(2, $row);
