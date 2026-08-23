@@ -42,8 +42,9 @@ return [
         ],
     ],
 
-    // 缓存 key 索引装饰器：为清缓存维护 key 集合（写时 SADD，等同 SCAN 的枚举能力但无 SCAN）
-    'cache.key-index' => [
+    // 缓存 key 索引装饰器：为清缓存维护 key 集合（写时 SADD，等同 SCAN 的枚举能力但无 SCAN）。
+    // 主 ID 用类名（消费方按具体类 type-hint，如 Admin\Api\Cache\Action）；别名供 Reference 引用。
+    \App\Common\CacheKeyIndex::class => [
         'class' => \App\Common\CacheKeyIndex::class,
         '__construct()' => [
             'inner' => Reference::to('cache.prefixed'),
@@ -51,6 +52,8 @@ return [
             'prefix' => CacheKeys::PREFIX,
         ],
     ],
+
+    'cache.key-index' => Reference::to(\App\Common\CacheKeyIndex::class),
 
     CacheInterface::class => [
         'class' => Cache::class,
