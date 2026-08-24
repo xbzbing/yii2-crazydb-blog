@@ -38,6 +38,7 @@ final readonly class Action
 
         $days = (int)($request->getQueryParams()['days'] ?? 14);
         $today = $this->visitService->today();
+        $yesterday = $this->visitService->yesterday();
 
         return $this->jsonResponse->ok([
             'postTotal' => (int)Post::query()->count(),
@@ -51,6 +52,9 @@ final readonly class Action
             'todayCrawler' => $today['pv_crawler'],
             'todayScript' => $today['pv_script'],
             'todayNormal' => $today['pv_normal'],
+            'yesterdayPv' => $yesterday['pv'],
+            'yesterdayUv' => $yesterday['uv'],
+            'yesterdayIp' => $yesterday['ip'],
             'visitTrend' => $this->visitService->trend($days),
             'visitHourly' => $this->visitService->hourly(24),
         ]);

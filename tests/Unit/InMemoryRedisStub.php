@@ -255,13 +255,16 @@ final class InMemoryRedisStub implements ClientInterface
         if (isset($arguments[0]) && $arguments[0] instanceof \Closure) {
             $pipe = new PipelineRecorder($this->store, $this->calls);
             ($arguments[0])($pipe);
+            // 与 Predis 一致：pipeline 返回按命令顺序的结果数组
+            return $pipe->results();
         }
         return [];
     }
 }
 
 /**
- * pipeline 内部命令桩：命令写入共享 store/calls。
+ * pipeline 内部命令桩：命令写入共享 store/calls，并记录每个命令的返回值
+ * （与 Predis 一致：pipeline 返回按命令顺序的结果数组）。
  */
 final class PipelineRecorder
 {
@@ -272,6 +275,9 @@ final class PipelineRecorder
      * @phpstan-ignore property.onlyWritten
      */
     private array $calls = [];
+
+    /** @var list<mixed> 每个已执行命令的返回值（按调用顺序） */
+    private array $results = [];
 
     /**
      * @param array<string, string|list<string>> $store
@@ -292,6 +298,11 @@ final class PipelineRecorder
     {
         $arguments = array_values((array)$arguments);
         $this->calls[] = [(string)$method, $arguments];
+        $this->results[] = match ((string)$method) {
+            'get' => $this->store[$arguments[0]] ?? null,
+            'pfcount' => count($this->store[$arguments[0]] ?? []),
+            default => true,
+        };
         switch ($method) {
             case 'incr':
                 $this->store[$arguments[0]] = (string)(((int)($this->store[$arguments[0]] ?? 0)) + 1);
@@ -312,5 +323,11 @@ final class PipelineRecorder
                 $this->store[$arguments[0]] = (string)($arguments[1] ?? '');
         }
         return $this;
+    }
+
+    /** @return list<mixed> 本 recorder 已执行命令的返回值（按调用顺序） */
+    public function results(): array
+    {
+        return $this->results;
     }
 }

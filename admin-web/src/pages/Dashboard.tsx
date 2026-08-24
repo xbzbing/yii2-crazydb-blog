@@ -8,6 +8,7 @@ import {
   DatabaseOutlined,
   EyeOutlined,
   UserOutlined,
+  GlobalOutlined,
   QuestionCircleOutlined,
   BugOutlined,
   CodeOutlined,
@@ -58,13 +59,39 @@ export default function Dashboard() {
 
   const hasHourlyData = data.visitHourly?.some((h) => h.pv > 0 || h.uv > 0 || h.ip > 0) ?? false
 
-  const stats = [
+  // 与昨天相比的涨跌标记：
+  // - 昨日有数据 → 涨跌百分比
+  // - 昨日为 0、今日有数据 → 「↑ 新」
+  // - 两日都为 0 → 「—」（无对比基准）
+  type DiffState =
+    | { kind: 'percent'; value: number }
+    | { kind: 'new' }
+    | { kind: 'flat-none' }
+
+  const vsYesterday = (today: number, yesterday: number): DiffState => {
+    if (yesterday > 0) {
+      return { kind: 'percent', value: Math.round(((today - yesterday) / yesterday) * 100) }
+    }
+    return today > 0 ? { kind: 'new' } : { kind: 'flat-none' }
+  }
+
+  interface StatItem {
+    title: string
+    value: number
+    icon: React.ReactNode
+    color: string
+    /** 与昨日相比的涨跌状态；undefined = 不显示（文章总数等非统计卡） */
+    diff?: DiffState
+  }
+
+  const stats: StatItem[] = [
     { title: '文章总数', value: data.postTotal, icon: <FileTextOutlined />, color: '#1677ff' },
     { title: '评论总数', value: data.commentTotal, icon: <CommentOutlined />, color: '#52c41a' },
-    { title: '今日访问', value: data.todayPv, icon: <EyeOutlined />, color: '#fa8c16' },
-    { title: '今日独立IP', value: data.todayIp, icon: <UserOutlined />, color: '#722ed1' },
     { title: '用户总数', value: data.userTotal, icon: <TeamOutlined />, color: '#eb2f96' },
-    { title: '配置项', value: data.optionTotal, icon: <DatabaseOutlined />, color: '#13c2c2' },
+    { title: '配置项', value: data.optionTotal, icon: <DatabaseOutlined />, color: '#8c8c8c' },
+    { title: '今日访问', value: data.todayPv, icon: <EyeOutlined />, color: '#fa8c16', diff: vsYesterday(data.todayPv, data.yesterdayPv ?? 0) },
+    { title: '今日独立IP', value: data.todayIp, icon: <GlobalOutlined />, color: '#722ed1', diff: vsYesterday(data.todayIp, data.yesterdayIp ?? 0) },
+    { title: '今日 UV', value: data.todayUv, icon: <UserOutlined />, color: '#13c2c2', diff: vsYesterday(data.todayUv, data.yesterdayUv ?? 0) },
   ]
 
   const visitTypes = [
@@ -90,6 +117,37 @@ export default function Dashboard() {
               title={s.title}
               value={s.value}
               prefix={<span style={{ color: s.color, marginRight: 8 }}>{s.icon}</span>}
+              suffix={
+                s.diff === undefined ? undefined : (
+                  s.diff.kind === 'percent' ? (
+                    s.diff.value === 0 ? (
+                      <span style={{ fontSize: 13, fontWeight: 500, color: '#8c8c8c', marginLeft: 4 }}>
+                        持平
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 500,
+                          color: s.diff.value > 0 ? '#cf1322' : '#389e0d',
+                          marginLeft: 4,
+                        }}
+                      >
+                        {s.diff.value > 0 ? '↑' : '↓'}
+                        {Math.abs(s.diff.value)}%
+                      </span>
+                    )
+                  ) : s.diff.kind === 'new' ? (
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#cf1322', marginLeft: 4 }}>
+                      ↑ 新
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#8c8c8c', marginLeft: 4 }}>
+                      —
+                    </span>
+                  )
+                )
+              }
             />
           </Card>
         </Col>
