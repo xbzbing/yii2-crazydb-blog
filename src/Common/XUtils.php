@@ -110,14 +110,17 @@ final class XUtils
     }
 
     /**
-     * 生成 URL 别名（对齐 Yii2 beforeSave：空时用标题，空格/%/斜杠归一化为连字符，去标签转义）。
+     * 生成 URL 别名（对齐 Yii2 beforeSave：空时用标题，先去标签，空格/%/斜杠等 URL 特殊字符
+     * 归一化为连字符，转义）。
      * 额外把 `+` 等 URL 路径保留/特殊字符一并归一化为连字符，避免别名含字面 `+`/`&`/`#` 等
      * 导致前台 URL 在部分链路（如后台 SPA 直接拼接链接、urldecode 将 `+` 解为空格）解析失败；
      * 末尾把连续多个连字符折叠为单个，避免出现 `A---B` 这类冗余分隔。
+     * 注意：必须先去标签再归一化——若先替换 `<`/`>`，strip_tags 将失去作用，标签名/属性会泄漏进别名。
      */
     public static function generateAlias(string $text): string
     {
         $alias = $text === '' ? 'untitled' : $text;
+        $alias = strip_tags($alias);
         $alias = str_replace(
             [' ', '%', '/', '\\', '+', '&', '=', '?', '#', ':', ';', ',', '@', '"', "'", '<', '>', '(', ')', '[', ']', '{', '}'],
             '-',
@@ -125,7 +128,6 @@ final class XUtils
         );
         // 连续多个连字符折叠为单个（如 `A + B` 归一化后 `A---B` → `A-B`）
         $alias = preg_replace('/-{2,}/', '-', $alias) ?? $alias;
-        $alias = strip_tags($alias);
         return htmlspecialchars($alias, ENT_QUOTES);
     }
 
