@@ -55,7 +55,7 @@ export default function PostRank() {
               <Button
                 size="small"
                 icon={<ExportOutlined />}
-                onClick={() => window.open(`/archive/${record.alias}`, '_blank')}
+                onClick={() => window.open(`/archive/${encodeURIComponent(record.alias)}`, '_blank')}
               />
             </Tooltip>
           )}
