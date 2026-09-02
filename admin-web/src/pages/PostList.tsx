@@ -129,7 +129,7 @@ export default function PostList() {
         const frontUrl =
           record.status === 'published'
             ? record.alias
-              ? `/archive/${record.alias}`
+              ? `/archive/${encodeURIComponent(record.alias)}`
               : `/post/${record.id}`
             : null
         return (
