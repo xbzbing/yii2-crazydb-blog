@@ -112,7 +112,8 @@ final class XUtils
     /**
      * 生成 URL 别名（对齐 Yii2 beforeSave：空时用标题，空格/%/斜杠归一化为连字符，去标签转义）。
      * 额外把 `+` 等 URL 路径保留/特殊字符一并归一化为连字符，避免别名含字面 `+`/`&`/`#` 等
-     * 导致前台 URL 在部分链路（如后台 SPA 直接拼接链接、urldecode 将 `+` 解为空格）解析失败。
+     * 导致前台 URL 在部分链路（如后台 SPA 直接拼接链接、urldecode 将 `+` 解为空格）解析失败；
+     * 末尾把连续多个连字符折叠为单个，避免出现 `A---B` 这类冗余分隔。
      */
     public static function generateAlias(string $text): string
     {
@@ -122,6 +123,8 @@ final class XUtils
             '-',
             trim($alias)
         );
+        // 连续多个连字符折叠为单个（如 `A + B` 归一化后 `A---B` → `A-B`）
+        $alias = preg_replace('/-{2,}/', '-', $alias) ?? $alias;
         $alias = strip_tags($alias);
         return htmlspecialchars($alias, ENT_QUOTES);
     }
