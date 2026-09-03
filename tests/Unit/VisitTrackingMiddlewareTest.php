@@ -186,7 +186,7 @@ final class VisitTrackingMiddlewareTest extends TestCase
         $this->assertNotCalled($redis, 'pfadd', VisitKeys::ipKey($ymd));
         $this->assertNotCalled($redis, 'incr', VisitKeys::pvHourKey($ymdH));
         $this->assertNotCalled($redis, 'pfadd', VisitKeys::uvHourKey($ymdH));
-        // 404 单独计数：PV + 独立来源 IP，均带 48h TTL
+        // 404 单独计数：PV + 独立来源 IP，均带 7 天 TTL
         $this->assertCalled($redis, 'incr', VisitKeys::notFoundPvKey($ymd));
         $this->assertCalled($redis, 'expire', VisitKeys::notFoundPvKey($ymd));
         $this->assertCalled($redis, 'pfadd', VisitKeys::notFoundUvKey($ymd));
