@@ -13,6 +13,7 @@ import {
   BugOutlined,
   CodeOutlined,
   SmileOutlined,
+  WarningOutlined,
 } from '@ant-design/icons'
 import { api } from '../api/client'
 import type { DashboardData } from '../types/api'
@@ -152,6 +153,48 @@ export default function Dashboard() {
           </Card>
         </Col>
       ))}
+
+      {/* 404 探测监控卡：404 不进主 PV/UV，独立计数用于监控疑似扫描器 */}
+      <Col xs={24} sm={12} lg={8} xl={6}>
+        <Card>
+          <Statistic
+            title={
+              <>
+                今日 404 探测
+                <Tooltip title="404 请求不计入 PV/UV；独立统计用于监控疑似扫描器">
+                  <QuestionCircleOutlined style={{ marginLeft: 6, fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'help' }} />
+                </Tooltip>
+              </>
+            }
+            value={data.todayNotFoundPv}
+            prefix={<span style={{ color: '#fa541c', marginRight: 8 }}><WarningOutlined /></span>}
+            suffix={
+              (() => {
+                const diff = vsYesterday(data.todayNotFoundPv, data.yesterdayNotFoundPv ?? 0)
+                return (
+                  <span style={{ fontSize: 13, fontWeight: 500, marginLeft: 4 }}>
+                    <span style={{ color: 'rgba(0,0,0,0.45)', marginRight: 6 }}>来源 IP {data.todayNotFoundUv}</span>
+                    {diff.kind === 'percent' ? (
+                      diff.value === 0 ? (
+                        <span style={{ color: '#8c8c8c' }}>持平</span>
+                      ) : (
+                        <span style={{ color: diff.value > 0 ? '#cf1322' : '#389e0d' }}>
+                          {diff.value > 0 ? '↑' : '↓'}
+                          {Math.abs(diff.value)}%
+                        </span>
+                      )
+                    ) : diff.kind === 'new' ? (
+                      <span style={{ color: '#cf1322' }}>↑ 新</span>
+                    ) : (
+                      <span style={{ color: '#8c8c8c' }}>—</span>
+                    )}
+                  </span>
+                )
+              })()
+            }
+          />
+        </Card>
+      </Col>
 
       <Col span={24}>
         <Card

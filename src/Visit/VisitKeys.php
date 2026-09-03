@@ -30,6 +30,17 @@ final class VisitKeys
     /** 脚本访问 PV key：crazydb:visit:pv_script:{Ymd}（INCR） */
     public const SCRIPT_PREFIX = 'crazydb:visit:pv_script:';
 
+    // ── 404 独立计数（疑似扫描器监控，不进主 PV/UV、不落库） ─────────────
+
+    /** 404 响应计数 key：crazydb:visit:404pv:{Ymd}（INCR，全部 404 响应） */
+    public const NOTFOUND_PV_PREFIX = 'crazydb:visit:404pv:';
+
+    /** 404 响应独立来源 key：crazydb:visit:404uv:{Ymd}（HLL IP，去重来源 IP） */
+    public const NOTFOUND_UV_PREFIX = 'crazydb:visit:404uv:';
+
+    /** 404 key 有效期：7 天（覆盖「今日」实时 + 「昨日」涨跌对比所需的历史 key） */
+    public const NOTFOUND_TTL = 604800;
+
     // ── 小时维度 ──────────────────────────────────────────────────────────
 
     /** 小时 PV：crazydb:visit:pv1h:{YmdH}（INCR，全部访问） */
@@ -65,6 +76,11 @@ final class VisitKeys
     public static function crawlerSyncedKey(string $ymd): string { return self::CRAWLER_SYNCED_PREFIX . $ymd; }
     public static function scriptSyncedKey(string $ymd): string { return self::SCRIPT_SYNCED_PREFIX . $ymd; }
     public static function datesKey(): string { return self::DATES_KEY; }
+
+    // ── 404 独立计数方法 ──────────────────────────────────────────────────
+
+    public static function notFoundPvKey(string $ymd): string { return self::NOTFOUND_PV_PREFIX . $ymd; }
+    public static function notFoundUvKey(string $ymd): string { return self::NOTFOUND_UV_PREFIX . $ymd; }
 
     // ── 小时维度方法 ──────────────────────────────────────────────────────
 

@@ -21,6 +21,7 @@ use Yiisoft\Cache\CacheInterface;
  * - 正常访问：handle 前写入 device_id attribute（下游可读）、handle 后追加 Set-Cookie
  * - 爬虫/脚本：不生成 cookie、不写 UV、仍写 IP 与分类 PV
  * - 非前台 GET（POST / admin / static）：完全跳过，不产生任何 Redis 写入
+ * - 4xx/5xx：不进主统计；404 单独计数（404pv/404uv），错误响应不追加 dbvid cookie
  */
 #[AllowMockObjectsWithoutExpectations]
 final class VisitTrackingMiddlewareTest extends TestCase
@@ -160,6 +161,60 @@ final class VisitTrackingMiddlewareTest extends TestCase
                 new CapturingHandler(),
             );
             $this->assertSame([], $redis->calls, "路径 {$path} 不应产生统计写入");
+        }
+    }
+
+    // ── 错误响应 ──────────────────────────────────────────────────────────
+
+    public function testNotFoundResponseIsSkippedFromMainStatsButCountedSeparately(): void
+    {
+        $ymd = date('Ymd');
+        $ymdH = date('YmdH');
+        $handler = new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return (new \HttpSoft\Message\ResponseFactory())->createResponse(404);
+            }
+        };
+        $redis = new RecordingRedisStub();
+        $response = $this->middleware($redis)->process($this->request(), $handler);
+
+        $this->assertSame(404, $response->getStatusCode());
+        // 404 不进主统计（日 + 小时桶）
+        $this->assertNotCalled($redis, 'incr', VisitKeys::pvKey($ymd));
+        $this->assertNotCalled($redis, 'pfadd', VisitKeys::uvKey($ymd));
+        $this->assertNotCalled($redis, 'pfadd', VisitKeys::ipKey($ymd));
+        $this->assertNotCalled($redis, 'incr', VisitKeys::pvHourKey($ymdH));
+        $this->assertNotCalled($redis, 'pfadd', VisitKeys::uvHourKey($ymdH));
+        // 404 单独计数：PV + 独立来源 IP，均带 48h TTL
+        $this->assertCalled($redis, 'incr', VisitKeys::notFoundPvKey($ymd));
+        $this->assertCalled($redis, 'expire', VisitKeys::notFoundPvKey($ymd));
+        $this->assertCalled($redis, 'pfadd', VisitKeys::notFoundUvKey($ymd));
+        $this->assertCalled($redis, 'expire', VisitKeys::notFoundUvKey($ymd));
+        // 错误响应不追加 dbvid cookie
+        $this->assertSame([], $response->getHeader('Set-Cookie'));
+    }
+
+    public function testOtherErrorResponsesAreNotTrackedAtAll(): void
+    {
+        foreach ([403, 500] as $status) {
+            $handler = new class($status) implements RequestHandlerInterface {
+                public function __construct(private int $status)
+                {
+                }
+
+                public function handle(ServerRequestInterface $request): ResponseInterface
+                {
+                    return (new \HttpSoft\Message\ResponseFactory())->createResponse($this->status);
+                }
+            };
+            $redis = new RecordingRedisStub();
+            $response = $this->middleware($redis)->process($this->request(), $handler);
+
+            $this->assertSame($status, $response->getStatusCode());
+            // 4xx/5xx：不进主统计，也不进 404 单独计数
+            $this->assertSame([], $redis->calls, "状态码 {$status} 不应产生任何统计写入");
+            $this->assertSame([], $response->getHeader('Set-Cookie'));
         }
     }
 
