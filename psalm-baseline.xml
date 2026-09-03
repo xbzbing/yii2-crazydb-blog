@@ -9,9 +9,6 @@
     </PossiblyFalseArgument>
   </file>
   <file src="src/Category/Category.php">
-    <LessSpecificReturnStatement>
-      <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
-    </LessSpecificReturnStatement>
     <MixedReturnTypeCoercion>
       <code><![CDATA[array<int, string>]]></code>
       <code><![CDATA[self::cached($cache, '__categories', $refresh, static function (): array {
@@ -22,9 +19,6 @@
             return $items;
         })]]></code>
     </MixedReturnTypeCoercion>
-    <MoreSpecificReturnType>
-      <code><![CDATA[\Yiisoft\ActiveRecord\ActiveQuery]]></code>
-    </MoreSpecificReturnType>
     <UndefinedInterfaceMethod>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>
@@ -45,16 +39,6 @@
       <code><![CDATA[(string)($data['email'] ?? '')]]></code>
       <code><![CDATA[(string)($data['nickname'] ?? '')]]></code>
     </RedundantCastGivenDocblockType>
-  </file>
-  <file src="src/Common/CMSUtils.php">
-    <InvalidPropertyFetch>
-      <code><![CDATA[$option->name]]></code>
-      <code><![CDATA[$option->value]]></code>
-    </InvalidPropertyFetch>
-    <NoInterfaceProperties>
-      <code><![CDATA[$option->name]]></code>
-      <code><![CDATA[$option->value]]></code>
-    </NoInterfaceProperties>
   </file>
   <file src="src/Common/XUtils.php">
     <InvalidArrayOffset>
@@ -136,36 +120,9 @@
     </MixedArgument>
   </file>
   <file src="src/Nav/Nav.php">
-    <InvalidPropertyFetch>
-      <code><![CDATA[$node->id]]></code>
-      <code><![CDATA[$node->name]]></code>
-    </InvalidPropertyFetch>
-    <LessSpecificReturnStatement>
-      <code><![CDATA[$this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC])]]></code>
-    </LessSpecificReturnStatement>
-    <MixedMethodCall>
-      <code><![CDATA[all]]></code>
-      <code><![CDATA[getUrl]]></code>
-    </MixedMethodCall>
-    <MixedPropertyFetch>
-      <code><![CDATA[$child->name]]></code>
-    </MixedPropertyFetch>
-    <MoreSpecificReturnType>
-      <code><![CDATA[ActiveQuery]]></code>
-    </MoreSpecificReturnType>
-    <NoInterfaceProperties>
-      <code><![CDATA[$node->id]]></code>
-      <code><![CDATA[$node->name]]></code>
-    </NoInterfaceProperties>
-    <PossiblyInvalidMethodCall>
-      <code><![CDATA[getChildren]]></code>
-      <code><![CDATA[getUrl]]></code>
-    </PossiblyInvalidMethodCall>
     <UndefinedInterfaceMethod>
       <code><![CDATA[$row]]></code>
       <code><![CDATA[$row]]></code>
-      <code><![CDATA[getChildren]]></code>
-      <code><![CDATA[getUrl]]></code>
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Post/HtmlToMarkdownService.php">
@@ -219,11 +176,6 @@
     <DeprecatedInterface>
       <code><![CDATA[SessionAuthMethod]]></code>
     </DeprecatedInterface>
-  </file>
-  <file src="src/User/User.php">
-    <InvalidReturnStatement>
-      <code><![CDATA[self::query()->where(['username' => $username])->one()]]></code>
-    </InvalidReturnStatement>
   </file>
   <file src="src/User/UserRepository.php">
     <PossiblyFalseArgument>

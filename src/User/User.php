@@ -146,7 +146,8 @@ final class User extends ActiveRecord implements IdentityInterface
 
     public static function findByUsername(string $username): ?self
     {
-        return self::query()->where(['username' => $username])->one();
+        $user = self::query()->where(['username' => $username])->one();
+        return $user instanceof self ? $user : null;
     }
 
     /**

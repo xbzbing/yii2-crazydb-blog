@@ -37,7 +37,7 @@ final class Category extends ActiveRecord
         return '{{%category}}';
     }
 
-    public function getChildren(): \Yiisoft\ActiveRecord\ActiveQuery
+    public function getChildren(): \Yiisoft\ActiveRecord\ActiveQueryInterface
     {
         return $this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
     }
@@ -127,7 +127,8 @@ final class Category extends ActiveRecord
     }
 
     /**
-     * @param callable(): array $callback
+     * @param callable(): array<array-key, mixed> $callback
+     * @return array<array-key, mixed>
      */
     private static function cached(
         CacheInterface $cache,

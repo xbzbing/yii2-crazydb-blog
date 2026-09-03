@@ -12,6 +12,7 @@ final class MagazineAsset extends AssetBundle
     public ?string $baseUrl = '@assetsUrl/magazine';
     public ?string $sourcePath = '@assetsSource/magazine';
 
+    /** @var array<array-key, mixed> */
     public array $css = [
         'magazine.css',
     ];

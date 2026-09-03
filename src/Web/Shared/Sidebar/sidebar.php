@@ -20,7 +20,7 @@ use Yiisoft\Html\Html;
     <?php
     $aboutMe = \App\CustomConfig\CustomConfig::value('ThemeDIY', 'aboutMe');
     ?>
-    <?php if ($aboutMe !== null && $aboutMe !== '' && isset($markdownRenderer) && $markdownRenderer !== null): ?>
+    <?php if ($aboutMe !== null && $aboutMe !== '' && isset($markdownRenderer)): ?>
         <div class="about-me-content"><?= $markdownRenderer->render($aboutMe) ?></div>
     <?php else: ?>
         <p>坚持写博客，记录技术点滴与生活思考。</p>

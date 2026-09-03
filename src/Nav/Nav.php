@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Nav;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
@@ -26,7 +26,7 @@ final class Nav extends ActiveRecord
         return '{{%nav}}';
     }
 
-    public function getChildren(): ActiveQuery
+    public function getChildren(): ActiveQueryInterface
     {
         return $this->hasMany(self::class, ['pid' => 'id'])->orderBy(['sort_order' => SORT_DESC]);
     }
@@ -100,8 +100,14 @@ final class Nav extends ActiveRecord
             static function () use ($urlGenerator): array {
                 $items = [];
                 foreach (self::query()->where(['pid' => 0])->orderBy(['sort_order' => SORT_DESC])->all() as $node) {
+                    if (!$node instanceof self || $node->id === null) {
+                        continue;
+                    }
                     $children = [];
                     foreach ($node->getChildren()->all() as $child) {
+                        if (!$child instanceof self) {
+                            continue;
+                        }
                         $children[] = [
                             'label' => $child->name,
                             'url' => $child->getUrl($urlGenerator),

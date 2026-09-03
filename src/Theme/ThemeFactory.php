@@ -33,7 +33,7 @@ final class ThemeFactory
     ];
 
     /**
-     * @param array<string, string> $themeParams 静态配置（vendor 默认 pathMap 等，暂不合并）
+     * @param ContainerInterface $container DI 容器（读取 cache、aliases、logger 服务）
      */
     public static function create(ContainerInterface $container): Theme
     {

@@ -48,7 +48,7 @@ final readonly class Action
     {
         $options = [];
         foreach (ThemeFactory::AVAILABLE_THEMES as $value => $_dir) {
-            $options[$value] = self::THEME_LABELS[$value] ?? $value;
+            $options[$value] = self::THEME_LABELS[$value];
         }
         return $options;
     }

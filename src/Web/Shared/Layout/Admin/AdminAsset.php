@@ -16,6 +16,7 @@ final class AdminAsset extends AssetBundle
     public ?string $baseUrl = '@assetsUrl/admin';
     public ?string $sourcePath = '@assetsSource/admin';
 
+    /** @var array<array-key, mixed> */
     public array $css = [
         'vendor/fontawesome/css/all.min.css',
         'vendor/bootstrap/css/bootstrap.min.css',
@@ -23,6 +24,7 @@ final class AdminAsset extends AssetBundle
         'css/admin.css',
     ];
 
+    /** @var array<array-key, mixed> */
     public array $js = [
         'vendor/bootstrap/js/bootstrap.bundle.min.js',
         'vendor/adminlte/js/adminlte.min.js',
