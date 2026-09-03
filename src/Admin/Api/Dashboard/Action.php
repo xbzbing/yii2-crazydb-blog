@@ -52,9 +52,13 @@ final readonly class Action
             'todayCrawler' => $today['pv_crawler'],
             'todayScript' => $today['pv_script'],
             'todayNormal' => $today['pv_normal'],
+            'todayNotFoundPv' => $today['notfound_pv'],
+            'todayNotFoundUv' => $today['notfound_uv'],
             'yesterdayPv' => $yesterday['pv'],
             'yesterdayUv' => $yesterday['uv'],
             'yesterdayIp' => $yesterday['ip'],
+            'yesterdayNotFoundPv' => $yesterday['notfound_pv'],
+            'yesterdayNotFoundUv' => $yesterday['notfound_uv'],
             'visitTrend' => $this->visitService->trend($days),
             'visitHourly' => $this->visitService->hourly(24),
         ]);

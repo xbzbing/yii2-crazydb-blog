@@ -189,9 +189,13 @@ export interface DashboardData {
   todayCrawler: number
   todayScript: number
   todayNormal: number
+  todayNotFoundPv: number
+  todayNotFoundUv: number
   yesterdayPv: number
   yesterdayUv: number
   yesterdayIp: number
+  yesterdayNotFoundPv: number
+  yesterdayNotFoundUv: number
   visitTrend: VisitTrendItem[]
   visitHourly: HourlyData[]
 }

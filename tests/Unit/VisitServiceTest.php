@@ -36,6 +36,8 @@ final class VisitServiceTest extends TestCase
         $this->redis->pfadd(VisitKeys::ipKey($ymd), ['1.2.3.4', '5.6.7.8']);
         $this->redis->store[VisitKeys::crawlerKey($ymd)] = '2';
         $this->redis->store[VisitKeys::scriptKey($ymd)] = '1';
+        $this->redis->store[VisitKeys::notFoundPvKey($ymd)] = '6';
+        $this->redis->pfadd(VisitKeys::notFoundUvKey($ymd), ['9.9.9.9', '8.8.8.8', '7.7.7.7']);
 
         $today = (new VisitService($this->redis))->today();
 
@@ -45,13 +47,52 @@ final class VisitServiceTest extends TestCase
         $this->assertSame(2, $today['pv_crawler']);
         $this->assertSame(1, $today['pv_script']);
         $this->assertSame(7, $today['pv_normal']); // 10 - 2 - 1
+        $this->assertSame(6, $today['notfound_pv']);
+        $this->assertSame(3, $today['notfound_uv']);
     }
 
     public function testTodayDegradesToZerosOnRedisFailure(): void
     {
         $today = (new VisitService(new FailingRedisStub()))->today();
 
-        $this->assertSame(['pv' => 0, 'uv' => 0, 'ip' => 0, 'pv_crawler' => 0, 'pv_script' => 0, 'pv_normal' => 0], $today);
+        $this->assertSame(
+            ['pv' => 0, 'uv' => 0, 'ip' => 0, 'pv_crawler' => 0, 'pv_script' => 0, 'pv_normal' => 0, 'notfound_pv' => 0, 'notfound_uv' => 0],
+            $today,
+        );
+    }
+
+    public function testYesterdayIncludesNotFoundCounters(): void
+    {
+        $ts = strtotime('-1 days');
+        $ymd = $ts === false ? date('Ymd') : date('Ymd', $ts);
+        $this->redis->store[VisitKeys::pvKey($ymd)] = '10';
+        $this->redis->pfadd(VisitKeys::uvKey($ymd), ['dev-1', 'dev-2']);
+        $this->redis->pfadd(VisitKeys::ipKey($ymd), ['1.2.3.4']);
+        $this->redis->store[VisitKeys::notFoundPvKey($ymd)] = '5';
+        $this->redis->pfadd(VisitKeys::notFoundUvKey($ymd), ['9.9.9.9', '8.8.8.8']);
+
+        $yesterday = (new VisitService($this->redis))->yesterday();
+
+        $this->assertSame(10, $yesterday['pv']);
+        $this->assertSame(2, $yesterday['uv']);
+        $this->assertSame(1, $yesterday['ip']);
+        $this->assertSame(5, $yesterday['notfound_pv']);
+        $this->assertSame(2, $yesterday['notfound_uv']);
+    }
+
+    public function testYesterdayNotFoundOnlyDayKeepsNotFoundFromRedis(): void
+    {
+        // 纯 404 日：主统计全 0 但 404 有数据，不应被「回退 DB」逻辑吞掉 404 数据
+        $ts = strtotime('-1 days');
+        $ymd = $ts === false ? date('Ymd') : date('Ymd', $ts);
+        $this->redis->store[VisitKeys::notFoundPvKey($ymd)] = '7';
+        $this->redis->pfadd(VisitKeys::notFoundUvKey($ymd), ['5.5.5.5']);
+
+        $yesterday = (new VisitService($this->redis))->yesterday();
+
+        $this->assertSame(0, $yesterday['pv']);
+        $this->assertSame(7, $yesterday['notfound_pv']);
+        $this->assertSame(1, $yesterday['notfound_uv']);
     }
 
     public function testHourlyReturnsCompleteHoursOldestFirst(): void

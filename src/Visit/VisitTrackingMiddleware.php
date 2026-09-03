@@ -22,6 +22,11 @@ use Yiisoft\Cache\CacheInterface;
  * - 新增小时级桶（pv1h / uv1h / ip1h，TTL 48h）
  * - 爬虫/脚本：只计 PV 分类，不计 UV/IP
  *
+ * V3 变更（vs V2）：
+ * - 4xx/5xx 响应不进主 PV/UV/IP/分类/小时统计，也不再追加 dbvid cookie
+ * - 404 响应单独计数（404pv/404uv，UV 按去重来源 IP），供疑似扫描器监控；
+ *   仅「今日/昨日」实时卡片读取，不落库，key 自带 7 天 TTL 自动过期
+ *
  * - 只统计前台 GET 请求：跳过 /admin、/static、/assets、/favicon、/feed、/tool 等
  * - Redis 异常静默（统计失败不阻断业务）
  * - key 前缀 crazydb:visit:，与缓存（crazydbcache_*）隔离
@@ -63,6 +68,16 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
 
         // 处理请求（PostShow 等下游在此读取 device_id attribute）
         $response = $handler->handle($request);
+
+        // 错误响应（4xx/5xx）不进主统计；404 单独计数（疑似扫描器监控）。
+        // 注意：失败路径不追加 dbvid cookie——避免给扫描器种 cookie，也让 404uv 只能用 IP 维度度量。
+        $status = $response->getStatusCode();
+        if ($status >= 400) {
+            if ($status === 404) {
+                $this->trackNotFound($request);
+            }
+            return $response;
+        }
 
         // 若为新生成的设备 ID，向响应追加 Set-Cookie（必须在 handle 之后，需要 response）
         // 用 withAddedHeader 追加而非 withHeader 替换，避免覆盖 Session/RememberMe 已设置的 cookie
@@ -173,6 +188,43 @@ final readonly class VisitTrackingMiddleware implements MiddlewareInterface
                     /** @psalm-suppress UndefinedMagicMethod */
                     $pipe->expire($uvHourKey, VisitKeys::HOUR_TTL);
                 }
+            });
+        } catch (\Throwable) {
+            // 统计失败静默，不影响页面
+        }
+    }
+
+    /**
+     * 404 响应单独计数（疑似扫描器监控）：日 PV（INCR）+ 日独立来源 IP（HLL）。
+     *
+     * 与主统计完全隔离：不写 pv/uv/ip/分类/小时桶，也不生成 dbvid cookie。
+     * UV 按去重来源 IP 度量（4xx 不种 cookie，无法做设备级去重）；IP 维度对
+     * 扫描告警最可操作（拦截/封禁按 IP）。
+     * 仅供「今日/昨日」实时卡片读取（VisitService::today/yesterday），不落库不参与 visit/sync；
+     * key 自带 NOTFOUND_TTL（7 天）自动过期，无需清理任务。
+     * 写入合并为单次 Redis pipeline（一次 RTT），少量丢失可接受。
+     */
+    private function trackNotFound(ServerRequestInterface $request): void
+    {
+        try {
+            $ymd = date('Ymd');
+            $ip = XUtils::getClientIP($request->getServerParams());
+            $pvKey = VisitKeys::notFoundPvKey($ymd);
+            $uvKey = VisitKeys::notFoundUvKey($ymd);
+
+            /** @var \Predis\Client $client */
+            $client = $this->redis;
+            $client->pipeline(
+            /** @param \Predis\Pipeline\Pipeline $pipe */
+            static function ($pipe) use ($pvKey, $uvKey, $ip): void {
+                /** @psalm-suppress UndefinedMagicMethod Predis Pipeline 命令走 __call */
+                $pipe->incr($pvKey);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->expire($pvKey, VisitKeys::NOTFOUND_TTL);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->pfadd($uvKey, [$ip]);
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->expire($uvKey, VisitKeys::NOTFOUND_TTL);
             });
         } catch (\Throwable) {
             // 统计失败静默，不影响页面

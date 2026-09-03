@@ -17,9 +17,9 @@ final readonly class VisitService
     }
 
     /**
-     * 今日实时 PV/UV/IP/分类 PV（读 Redis，未同步也实时可见）。
+     * 今日实时 PV/UV/IP/分类 PV/404（读 Redis，未同步也实时可见）。
      *
-     * @return array{pv: int, uv: int, ip: int, pv_crawler: int, pv_script: int, pv_normal: int}
+     * @return array{pv: int, uv: int, ip: int, pv_crawler: int, pv_script: int, pv_normal: int, notfound_pv: int, notfound_uv: int}
      */
     public function today(): array
     {
@@ -31,13 +31,16 @@ final readonly class VisitService
             'pv_crawler' => $stats['pv_crawler'],
             'pv_script' => $stats['pv_script'],
             'pv_normal' => max(0, $stats['pv'] - $stats['pv_crawler'] - $stats['pv_script']),
+            'notfound_pv' => $stats['notfound_pv'],
+            'notfound_uv' => $stats['notfound_uv'],
         ];
     }
 
     /**
-     * 昨日 PV/UV/IP（Redis 优先，缺失回退 MySQL visit_daily）——供仪表盘涨跌对比。
+     * 昨日 PV/UV/IP/404（Redis 优先，缺失回退 MySQL visit_daily）——供仪表盘涨跌对比。
+     * 404 不落库，回退分支中保持 0（Redis 内 7 天 TTL，昨日 key 今日仍可读）。
      *
-     * @return array{pv: int, uv: int, ip: int}
+     * @return array{pv: int, uv: int, ip: int, notfound_pv: int, notfound_uv: int}
      */
     public function yesterday(): array
     {
@@ -45,27 +48,34 @@ final readonly class VisitService
         $ymd = $ts === false ? date('Ymd') : date('Ymd', $ts);
         $stats = $this->dayStats($ymd);
 
-        // Redis 无该日数据（key 已被 sync 清理）→ 回退 DB
-        if ($stats['pv'] === 0 && $stats['uv'] === 0 && $stats['ip'] === 0) {
+        // Redis 无该日数据（key 已被 sync 清理）→ 回退 DB；404 不落库，随主统计一起判定避免丢数据
+        if ($stats['pv'] === 0 && $stats['uv'] === 0 && $stats['ip'] === 0
+            && $stats['notfound_pv'] === 0 && $stats['notfound_uv'] === 0) {
             $date = substr($ymd, 0, 4) . '-' . substr($ymd, 4, 2) . '-' . substr($ymd, 6, 2);
             foreach (VisitDaily::range($date, $date) as $row) {
-                return ['pv' => $row['pv'], 'uv' => $row['uv'], 'ip' => $row['ip']];
+                return ['pv' => $row['pv'], 'uv' => $row['uv'], 'ip' => $row['ip'], 'notfound_pv' => 0, 'notfound_uv' => 0];
             }
         }
-        return ['pv' => $stats['pv'], 'uv' => $stats['uv'], 'ip' => $stats['ip']];
+        return [
+            'pv' => $stats['pv'],
+            'uv' => $stats['uv'],
+            'ip' => $stats['ip'],
+            'notfound_pv' => $stats['notfound_pv'],
+            'notfound_uv' => $stats['notfound_uv'],
+        ];
     }
 
     /**
      * 指定日期的 Redis 实时统计（内部共用）。
      *
-     * @return array{pv: int, uv: int, ip: int, pv_crawler: int, pv_script: int}
+     * @return array{pv: int, uv: int, ip: int, pv_crawler: int, pv_script: int, notfound_pv: int, notfound_uv: int}
      */
     private function dayStats(string $ymd): array
     {
         try {
             /** @var \Predis\Client $client */
             $client = $this->redis;
-            /** @var list<mixed> $results pipeline 按命令顺序返回 [pv, uv, ip, crawler, script] */
+            /** @var list<mixed> $results pipeline 按命令顺序返回 [pv, uv, ip, crawler, script, 404pv, 404uv] */
             $results = $client->pipeline(
             /** @param \Predis\Pipeline\Pipeline $pipe Predis Pipeline 命令走 __call（psalm 无法识别，已逐行抑制） */
             static function ($pipe) use ($ymd): void {
@@ -79,6 +89,10 @@ final readonly class VisitService
                 $pipe->get(VisitKeys::crawlerKey($ymd));
                 /** @psalm-suppress UndefinedMagicMethod */
                 $pipe->get(VisitKeys::scriptKey($ymd));
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->get(VisitKeys::notFoundPvKey($ymd));
+                /** @psalm-suppress UndefinedMagicMethod */
+                $pipe->pfcount(VisitKeys::notFoundUvKey($ymd));
             },
             );
             $int = static fn (mixed $v): int => $v === null ? 0 : (int)$v;
@@ -88,9 +102,11 @@ final readonly class VisitService
                 'ip' => $int($results[2] ?? null),
                 'pv_crawler' => $int($results[3] ?? null),
                 'pv_script' => $int($results[4] ?? null),
+                'notfound_pv' => $int($results[5] ?? null),
+                'notfound_uv' => $int($results[6] ?? null),
             ];
         } catch (\Throwable) {
-            return ['pv' => 0, 'uv' => 0, 'ip' => 0, 'pv_crawler' => 0, 'pv_script' => 0];
+            return ['pv' => 0, 'uv' => 0, 'ip' => 0, 'pv_crawler' => 0, 'pv_script' => 0, 'notfound_pv' => 0, 'notfound_uv' => 0];
         }
     }
 
