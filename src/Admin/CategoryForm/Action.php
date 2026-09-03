@@ -9,7 +9,6 @@ use App\Common\XUtils;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
@@ -26,7 +25,6 @@ final readonly class Action
         private WebViewRenderer $viewRenderer,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
-        private CacheInterface $cache,
         private FlashInterface $flash,
     ) {}
 

@@ -7,8 +7,6 @@ namespace App\Admin\CategoryList;
 use App\Category\Category;
 
 use Psr\Http\Message\ResponseInterface;
-use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 /**
@@ -18,8 +16,6 @@ final readonly class Action
 {
     public function __construct(
         private WebViewRenderer $viewRenderer,
-        private UrlGeneratorInterface $urlGenerator,
-        private CacheInterface $cache,
     ) {}
 
     public function __invoke(): ResponseInterface

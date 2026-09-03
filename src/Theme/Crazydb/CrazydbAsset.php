@@ -16,12 +16,14 @@ final class CrazydbAsset extends AssetBundle
     public ?string $baseUrl = '@assetsUrl/crazydb';
     public ?string $sourcePath = '@assetsSource/crazydb';
 
+    /** @var array<array-key, mixed> */
     public array $css = [
         'vendor/fontawesome/css/all.min.css',
         'vendor/bootstrap/css/bootstrap.min.css',
         'css/site.css',
     ];
 
+    /** @var array<array-key, mixed> */
     public array $js = [
         'vendor/bootstrap/js/bootstrap.bundle.min.js',
     ];

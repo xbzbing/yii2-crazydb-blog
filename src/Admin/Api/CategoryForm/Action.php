@@ -9,7 +9,6 @@ use App\Category\Category;
 use App\Common\XUtils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 
 /**
@@ -22,7 +21,6 @@ final readonly class Action
 {
     public function __construct(
         private JsonResponse $jsonResponse,
-        private CacheInterface $cache,
     ) {
     }
 

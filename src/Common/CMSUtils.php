@@ -11,6 +11,9 @@ final class CMSUtils
 {
     private const CACHE_TTL = 3600;
 
+    /**
+     * @return list<string>
+     */
     public static function getSmilies(): array
     {
         return [
@@ -38,6 +41,9 @@ final class CMSUtils
             static function () use ($type): array {
                 $config = [];
                 foreach (Option::query()->where(['type' => $type])->all() as $option) {
+                    if (!$option instanceof Option) {
+                        continue;
+                    }
                     $config[$option->name] = $option->value;
                 }
                 return $config;
@@ -58,6 +64,8 @@ final class CMSUtils
 
     /**
      * 获取 themes 文件夹下的主题列表。
+     *
+     * @return array<string, string>
      */
     public static function getThemeList(string $themesBasePath): array
     {

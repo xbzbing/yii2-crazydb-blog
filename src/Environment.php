@@ -21,6 +21,7 @@ final class Environment
         self::PROD,
     ];
 
+    /** @var array<string, mixed> */
     private static array $values = [];
 
     public static function prepare(): void
