@@ -47,6 +47,10 @@ $seoKeywords = (string)($this->getParameter('seo_keywords', ''));
 $seoDescription = (string)($this->getParameter('seo_description', ''));
 $showSidebar = (bool)$this->getParameter('showSidebar', true);
 $currentUser = $authService->currentUser();
+// 文章详情页（post/view、post/show）标记：移动端隐藏与正文阅读无关的侧栏栏目
+$currentRoute = $this->getParameter('currentRoute', null);
+$routeName = $currentRoute?->getName() ?? '';
+$isPostShow = in_array($routeName, ['post/view', 'post/show'], true);
 
 $this->beginPage()
 ?>
@@ -158,7 +162,7 @@ $this->beginPage()
                     <?= $content ?>
                 </div>
                 <?php if ($showSidebar): ?>
-                    <aside class="col-md-3 sidebar" id="right-sidebar">
+                    <aside class="col-md-3 sidebar<?= $isPostShow ? ' sidebar-post-show' : '' ?>" id="right-sidebar">
                         <?= $this->render('Sidebar/sidebar.php', [
                             'siteConfig' => $siteConfig,
                             'categorySummary' => $this->getParameter('categorySummary', []),

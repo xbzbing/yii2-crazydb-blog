@@ -367,15 +367,31 @@ article.list-group-item:nth-of-type(1) {
 }
 
 /* ============ 侧边栏 widgets ============ */
-.col-md-3.sidebar {
-    width: 25%;
-    max-width: 285px;
-    flex: 0 0 25%;
+/*
+ * 桌面端（md 及以上，与 Bootstrap 断点一致）：70/30 两栏。
+ * 移动端（<768px）不覆盖 Bootstrap 默认堆叠：主体在上、侧栏在下（DOM 顺序），
+ * 避免「25% 宽侧栏 + 75% 宽正文」在手机上挤成一排。
+ */
+@media (min-width: 768px) {
+    .col-md-3.sidebar {
+        width: 25%;
+        max-width: 285px;
+        flex: 0 0 25%;
+    }
+
+    .col-md-9.post-list {
+        width: 75%;
+        flex: 0 0 75%;
+    }
 }
 
-.col-md-9.post-list {
-    width: 75%;
-    flex: 0 0 75%;
+/* 文章详情页（移动端）：隐藏与正文阅读无关的侧栏栏目（关于我、最新评论），
+   保留分类/标签等站内导航；桌面端完整展示。 */
+@media (max-width: 767.98px) {
+    .sidebar-post-show .aside-about,
+    .sidebar-post-show .aside-comments {
+        display: none;
+    }
 }
 
 .widget {
