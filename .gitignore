@@ -68,3 +68,16 @@ admin-web/pnpm-workspace.yaml
 
 # Claude 工具运行时目录（嵌套 git 仓库，不入库）
 /.claude/
+
+# 手动放到 public 供下载的目录/文件（Switch 自制程序 nro、旧站资源等，非项目源码）
+/public/download/
+/public/xbzbing/
+/public/wp-content/
+
+# public/static 兜底白名单：默认整目录不入库，只放行项目静态资源子目录，
+# 防止杂散文件混进来（下载物已统一挪到上面的 /public/download）。
+# 新增项目资源请建子目录并在下面加一行 !。
+/public/static/*
+!/public/static/fonts/
+!/public/static/images/
+!/public/static/vditor/
