@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User;
 
+use Psr\Log\LoggerInterface;
 use Yiisoft\Session\SessionInterface;
 
 /**
@@ -16,6 +17,7 @@ final class AuthService
         private SessionInterface $session,
         private UserRepository $userRepository,
         private string $sessionKey = User::SESSION_AUTH_KEY,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -30,6 +32,13 @@ final class AuthService
         }
         $this->session->set($this->sessionKey, (string)$user->id);
         $this->session->regenerateId();
+        if ($user->auth_key === '') {
+            // 存量账号 auth_key 为空（老库导入 / 列默认 ''）：不补的话记住我 token 退化为
+            // base64("{id}:")，无任何秘密，findIdentityByToken 的空值守卫恒拒 → 30 天保持登录
+            // 静默失效。登录时惰性补齐并落库（下面 touch+save 一并持久化）。
+            $user->generateAuthKey();
+            $this->logger?->warning('user.auth_key 空缺，登录时已补生成', ['userId' => (int)$user->id]);
+        }
         $user->touch();
         $user->save();
         return $rememberMe ? $this->userRepository->createRememberMeToken($user) : null;

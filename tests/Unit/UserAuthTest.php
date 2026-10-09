@@ -269,6 +269,45 @@ final class UserAuthTest extends TestCase
         }
     }
 
+    /**
+     * 存量账号 auth_key 为空（老库导入/列默认 ''）时，登录必须惰性补齐：
+     * 否则记住我 token 退化为 base64("{id}:")（无任何秘密），findIdentityByToken 恒拒，
+     * 浏览器里那个 30 天 cookie 只是摆设。
+     */
+    public function testLoginHealsEmptyAuthKeySoRememberMeTokenWorks(): void
+    {
+        $suffix = 'heal_' . bin2hex(random_bytes(3));
+        $created = $this->createUser($suffix);
+        try {
+            $user = $created['user'];
+            $user->auth_key = '';
+            $user->save();
+
+            $repository = new UserRepository();
+            // 修复前的行为：空 auth_key 产出的 token 必被空值守卫拒绝
+            self::assertNull($repository->findIdentityByToken($repository->createRememberMeToken($user)));
+
+            $auth = new AuthService($this->sharedSession(), $repository);
+            $token = $auth->login($user, true);
+
+            self::assertIsString($token);
+            self::assertNotSame('', $user->auth_key, '登录时必须补齐空 auth_key');
+            self::assertNotSame(base64_encode($user->id . ':'), $token, 'token 不得退化为无秘密的 base64("{id}:")');
+
+            $identity = $repository->findIdentityByToken($token);
+            self::assertInstanceOf(User::class, $identity, '补齐后的记住我 token 必须能换回身份');
+            self::assertSame($user->id, $identity->id);
+
+            $fresh = User::findByUsername('test_' . $suffix);
+            self::assertNotNull($fresh);
+            self::assertNotSame('', $fresh->auth_key, '补齐必须落库，而不只是内存里好看');
+
+            $auth->logout();
+        } finally {
+            $created['cleanup']();
+        }
+    }
+
     public function testSessionAuthMethodRestoresIdentity(): void
     {
         $suffix = 'sess_' . bin2hex(random_bytes(3));
