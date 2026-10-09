@@ -18,6 +18,11 @@ final class VisitSyncCommandTest extends TestCase
 
     private InMemoryRedisStub $redis;
 
+    /** 测试目标日期（昨天）：须落在 VisitSyncService 的同步保留窗口内，且避开今天的实时数据 */
+    private string $testDate;
+
+    private string $testYmd;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,19 +31,24 @@ final class VisitSyncCommandTest extends TestCase
             (new CommandTester(new InitMigrateCommand()))->execute([]);
             self::$migrated = true;
         }
+        // 固定硬编码日期会随日期漂移失效（固定窗口只覆盖最近 30 天）；用昨天保证稳定
+        $this->testDate = date('Y-m-d', strtotime('-1 day'));
+        $this->testYmd = str_replace('-', '', $this->testDate);
         $this->redis = new InMemoryRedisStub();
+        // 模拟生产写入侧：中间件会在每次访问时把当日登记进日期索引集
+        $this->redis->sadd(VisitKeys::datesKey(), [$this->testYmd]);
     }
 
     protected function tearDown(): void
     {
         // 清理测试写入的 visit_daily 数据
-        (new VisitDaily())->deleteAll(['date' => '2026-08-19']);
+        (new VisitDaily())->deleteAll(['date' => $this->testDate]);
         parent::tearDown();
     }
 
     public function testSyncsIncrementalPvAndFullUvIpToDatabase(): void
     {
-        $ymd = '20260819';
+        $ymd = $this->testYmd;
         $this->redis->store[VisitKeys::pvKey($ymd)] = '10';
         $this->redis->pfadd(VisitKeys::uvKey($ymd), ['dev-1', 'dev-2', 'dev-3']);
         $this->redis->pfadd(VisitKeys::ipKey($ymd), ['1.2.3.4', '5.6.7.8']);
@@ -47,7 +57,7 @@ final class VisitSyncCommandTest extends TestCase
         $exit = $this->runCommand();
 
         $this->assertSame(ExitCode::OK, $exit);
-        $row = VisitDaily::query()->where(['date' => '2026-08-19'])->one();
+        $row = VisitDaily::query()->where(['date' => $this->testDate])->one();
         $this->assertInstanceOf(VisitDaily::class, $row);
         $this->assertSame(10, (int)$row->pv);
         $this->assertSame(3, (int)$row->uv);
@@ -59,7 +69,7 @@ final class VisitSyncCommandTest extends TestCase
 
     public function testIsIdempotentOnSecondRun(): void
     {
-        $ymd = '20260819';
+        $ymd = $this->testYmd;
         $this->redis->store[VisitKeys::pvKey($ymd)] = '10';
         $this->redis->pfadd(VisitKeys::uvKey($ymd), ['dev-1', 'dev-2']);
         $this->redis->pfadd(VisitKeys::ipKey($ymd), ['1.2.3.4']);
@@ -67,7 +77,7 @@ final class VisitSyncCommandTest extends TestCase
         $this->runCommand();
         $this->runCommand();
 
-        $row = VisitDaily::query()->where(['date' => '2026-08-19'])->one();
+        $row = VisitDaily::query()->where(['date' => $this->testDate])->one();
         $this->assertInstanceOf(VisitDaily::class, $row);
         // PV 增量重复执行不重复累计
         $this->assertSame(10, (int)$row->pv);
