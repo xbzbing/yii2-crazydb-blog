@@ -1,11 +1,11 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { ProTable, type ActionType, type ProColumns, type ProFormInstance } from '@ant-design/pro-components'
-import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
+import { Button, Popconfirm, Tag, Space, Tooltip, Modal, Spin, message } from 'antd'
+import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
-import type { PostItem } from '../types/api'
+import type { PostItem, PostPreview } from '../types/api'
 
 const STATUS_MAP = {
   published: { text: '已发布', color: 'green' },
@@ -19,6 +19,19 @@ export default function PostList() {
   const formRef = useRef<ProFormInstance>(undefined)
   const [searchParams] = useSearchParams()
   const urlTag = searchParams.get('tag') || ''
+  const [preview, setPreview] = useState<PostPreview | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+
+  const handlePreview = async (id: number) => {
+    setPreviewLoading(true)
+    try {
+      setPreview(await api.postPreview(id))
+    } catch (e) {
+      message.error(e instanceof Error ? e.message : String(e))
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
 
   // 从标签列表跳转带入的筛选：同步到搜索表单显示（onLoad 时表单已挂载）
   const syncedTagRef = useRef(false)
@@ -123,7 +136,7 @@ export default function PostList() {
     {
       title: '操作',
       valueType: 'option',
-      width: 96,
+      width: 160,
       fixed: 'right',
       render: (_, record) => {
         const frontUrl =
@@ -134,6 +147,9 @@ export default function PostList() {
             : null
         return (
           <Space.Compact>
+            <Tooltip title="预览">
+              <Button size="small" icon={<EyeOutlined />} onClick={() => handlePreview(record.id)} />
+            </Tooltip>
             {frontUrl && (
               <Tooltip title="访问前台">
                 <Button size="small" icon={<ExportOutlined />} onClick={() => window.open(frontUrl, '_blank')} />
@@ -181,30 +197,83 @@ export default function PostList() {
   }
 
   return (
-    <ProTable
-      headerTitle="文章列表"
-      actionRef={actionRef}
-      formRef={formRef}
-      rowKey="id"
-      columns={columns}
-      request={request}
-      params={{ tag: urlTag }}
-      onLoad={handleLoad}
-      search={{ labelWidth: 'auto' }}
-      pagination={{ defaultPageSize: 20, showSizeChanger: false }}
-      scroll={{ x: 'max-content' }}
-      columnsState={{
-        persistenceKey: 'admin-post-list',
-        defaultValue: {
-          id: { show: false },
-          update_time: { show: false },
-        },
-      }}
-      toolBarRender={() => [
-        <Button key="create" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/posts/create')}>
-          新建文章
-        </Button>,
-      ]}
-    />
+    <>
+      <ProTable
+        headerTitle="文章列表"
+        actionRef={actionRef}
+        formRef={formRef}
+        rowKey="id"
+        columns={columns}
+        request={request}
+        params={{ tag: urlTag }}
+        onLoad={handleLoad}
+        search={{ labelWidth: 'auto' }}
+        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
+        scroll={{ x: 'max-content' }}
+        columnsState={{
+          persistenceKey: 'admin-post-list',
+          defaultValue: {
+            id: { show: false },
+            update_time: { show: false },
+          },
+        }}
+        toolBarRender={() => [
+          <Button key="create" type="primary" icon={<PlusOutlined />} onClick={() => navigate('/posts/create')}>
+            新建文章
+          </Button>,
+        ]}
+      />
+
+      <Modal
+        title="文章预览"
+        open={preview !== null}
+        width={880}
+        footer={null}
+        onCancel={() => setPreview(null)}
+        destroyOnClose
+      >
+        {preview && (
+          <>
+            <div className="post-preview-meta">
+              {preview.post.is_top === 1 && <Tag color="red">置顶</Tag>}
+              {preview.post.is_locked && <Tag color="orange">加锁</Tag>}
+              {(() => {
+                const s = STATUS_MAP[preview.post.status as keyof typeof STATUS_MAP] || STATUS_MAP.draft
+                return <Tag color={s.color}>{s.text}</Tag>
+              })()}
+              <span className="post-preview-meta-title">{preview.post.title}</span>
+            </div>
+            <div className="post-preview-meta">
+              {preview.post.category_name && <span>分类：{preview.post.category_name}</span>}
+              <span>作者：{preview.post.author_name}</span>
+              <span>格式：{preview.post.format === 'markdown' ? 'Markdown' : 'HTML'}</span>
+              <span>浏览：{preview.post.view_count}</span>
+              <span>评论：{preview.post.comment_count}</span>
+              <span>发布：{dayjs.unix(preview.post.post_time).format('YYYY-MM-DD HH:mm')}</span>
+              {preview.post.tags && (
+                <span>
+                  标签：
+                  {preview.post.tags
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean)
+                    .map((t) => (
+                      <Tag key={t} color="blue" style={{ marginRight: 4 }}>
+                        {t}
+                      </Tag>
+                    ))}
+                </span>
+              )}
+            </div>
+            <Spin spinning={previewLoading}>
+              <div
+                className="post-preview-content"
+                dangerouslySetInnerHTML={{ __html: preview.html }}
+              />
+            </Spin>
+          </>
+        )}
+      </Modal>
+    </>
   )
 }

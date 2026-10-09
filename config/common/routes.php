@@ -107,6 +107,7 @@ return [
             Route::get('/posts/page/{page:\d+}')->action(\App\Admin\Api\PostList\Action::class)->name('admin/api/post/list-page'),
             Route::get('/post-rank')->action(\App\Admin\Api\PostRank\Action::class)->name('admin/api/post/rank'),
             Route::get('/post/{id:\d+}')->action([\App\Admin\Api\PostForm\Action::class, 'detail'])->name('admin/api/post/detail'),
+            Route::get('/post/{id:\d+}/preview')->action(\App\Admin\Api\PostPreview\Action::class)->name('admin/api/post/preview'),
             Route::post('/post/save')->action([\App\Admin\Api\PostForm\Action::class, 'save'])->name('admin/api/post/save'),
             Route::post('/post/update/{id:\d+}')->action([\App\Admin\Api\PostForm\Action::class, 'update'])->name('admin/api/post/update'),
             Route::post('/post/delete/{id:\d+}')->action(\App\Admin\Api\PostDelete\Action::class)->name('admin/api/post/delete'),

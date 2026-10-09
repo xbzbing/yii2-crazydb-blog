@@ -25,6 +25,7 @@ import type {
   Pagination,
   PostDetail,
   PostItem,
+  PostPreview,
   Tag,
   User,
   ValidationResult,
@@ -115,6 +116,7 @@ export const api = {
     request<ListData<PostItem>>(`/posts?${new URLSearchParams(params as Record<string, string>)}`),
   post: (id: number) =>
     request<{ post: PostDetail; categories: Record<string, string> }>(`/post/${id}`),
+  postPreview: (id: number) => request<PostPreview>(`/post/${id}/preview`),
   postSave: (data: Record<string, unknown>) => request<ValidationResult>('/post/save', { method: 'POST', body: data }),
   postUpdate: (id: number, data: Record<string, unknown>) =>
     request<ValidationResult>(`/post/update/${id}`, { method: 'POST', body: data }),

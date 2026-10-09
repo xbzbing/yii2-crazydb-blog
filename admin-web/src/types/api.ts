@@ -83,6 +83,27 @@ export interface PostDetail {
   post_time: number
 }
 
+/** 文章后台预览（GET /admin/api/post/{id}/preview） */
+export interface PostPreview {
+  post: {
+    id: number
+    title: string
+    author_name: string
+    category_name: string
+    status: string
+    format: string
+    tags: string
+    cover: string
+    is_top: number
+    is_locked: boolean
+    post_time: number
+    comment_count: number
+    view_count: number
+  }
+  /** 已净化的正文 HTML（与前台同一渲染管线） */
+  html: string
+}
+
 export interface CommentItem {
   id: number
   pid: number
