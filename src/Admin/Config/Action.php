@@ -64,8 +64,14 @@ final readonly class Action
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $values = [];
+        // 按字段所属的分组（sys/seo）读取，避免 seo 组配置被 `getSysConfig`（固定读 sys 组）漏读
+        $grouped = [];
         foreach (self::FIELDS as $name => $field) {
-            $values[$name] = CMSUtils::getSysConfig($this->cache, $name, true) ?? '';
+            $type = $field['type'];
+            if (!isset($grouped[$type])) {
+                $grouped[$type] = CMSUtils::getSiteConfig($this->cache, $type, true);
+            }
+            $values[$name] = $grouped[$type][$name] ?? '';
         }
 
         if ($request->getMethod() === Method::POST) {
