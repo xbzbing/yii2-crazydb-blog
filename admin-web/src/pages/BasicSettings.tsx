@@ -9,6 +9,15 @@ import { usePageTitle } from '../contexts/PageTitleContext'
  * 页头已有面包屑「站点配置 / 基本设置」，此处 Card 不再重复标题；
  * 访问统计分类关键词独立成区块（Divider 分隔），其余样式与之前保持一致。
  */
+function SectionHeader({ title, desc }: { title: string; desc: string }) {
+  return (
+    <>
+      <div style={{ fontSize: 15, fontWeight: 600, color: 'rgba(0,0,0,0.88)', marginBottom: 4 }}>{title}</div>
+      <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>{desc}</div>
+    </>
+  )
+}
+
 export default function BasicSettings() {
   usePageTitle('基本设置')
   const [form] = Form.useForm()
@@ -95,19 +104,10 @@ export default function BasicSettings() {
 
         {/* 访问统计分类关键词：独立区块，与站点基础配置区分 */}
         <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: 600,
-              color: 'rgba(0,0,0,0.88)',
-              marginBottom: 4,
-            }}
-          >
-            访问统计分类关键词
-          </div>
-          <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>
-            前台访问按 UA 关键词判定为 爬虫 / 脚本 / 正常 三类（英文逗号分隔；留空使用默认值）
-          </div>
+          <SectionHeader
+            title="访问统计分类关键词"
+            desc="前台访问按 UA 关键词判定为 爬虫 / 脚本 / 正常 三类（英文逗号分隔；留空使用默认值）"
+          />
           <Row gutter={32}>
             <Col xs={24} sm={12}>
               <Form.Item
@@ -134,19 +134,10 @@ export default function BasicSettings() {
 
         {/* 站长统计代码：原样渲染（HTML/JS），须提示安全风险 */}
         <div style={{ marginBottom: 16 }}>
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: 600,
-              color: 'rgba(0,0,0,0.88)',
-              marginBottom: 4,
-            }}
-          >
-            站长统计代码
-          </div>
-          <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 16 }}>
-            粘贴统计服务商（如百度统计、CNZZ）提供的完整 &lt;script&gt; 代码，将原样输出到前台页脚
-          </div>
+          <SectionHeader
+            title="站长统计代码"
+            desc="粘贴统计服务商（如百度统计、CNZZ）提供的完整 <script> 代码，将原样输出到前台页脚"
+          />
           <Form.Item name="site_analyzer" label="统计代码（HTML/JS）">
             <Input.TextArea
               rows={4}

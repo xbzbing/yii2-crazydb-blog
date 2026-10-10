@@ -5,20 +5,15 @@ import { DeleteOutlined, ExportOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Tag as TagType } from '../types/api'
+import { runAction } from '../api/actions'
+import { toTableData } from '../components/table'
 
 export default function TagList() {
   const navigate = useNavigate()
   const actionRef = useRef<ActionType>(null)
 
-  const handleDelete = async (name: string) => {
-    try {
-      await api.tagDelete(name)
-      message.success('标签已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (name: string) =>
+    runAction(() => api.tagDelete(name), '标签已删除。', () => actionRef.current?.reload())
 
   const columns: ProColumns<TagType>[] = [
     {
@@ -67,7 +62,7 @@ export default function TagList() {
 
   const request = async () => {
     const res = await api.tags()
-    return { data: res.items, total: res.items.length, success: true }
+    return toTableData({ items: res.items, total: res.items.length })
   }
 
   return (

@@ -5,6 +5,8 @@ import { EyeOutlined, StopOutlined, CheckCircleOutlined, EditOutlined } from '@a
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { User } from '../types/api'
+import { reportSave } from '../api/actions'
+import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const ROLE_MAP = {
   1: { text: '会员', color: 'default' },
@@ -51,11 +53,7 @@ export default function UserList() {
     try {
       const values = await form.validateFields()
       const data = await api.userUpdate(editTarget.id, values)
-      if (data && data.ok === false) {
-        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
-        return
-      }
-      message.success(data?.message || '用户信息已更新。')
+      if (!reportSave(data, '用户信息已更新。')) return
       setEditTarget(null)
       actionRef.current?.reload()
     } catch (e) {
@@ -132,7 +130,7 @@ export default function UserList() {
     // 后端统一按 keyword 模糊匹配三者，取任一非空值
     const keyword = (params.keyword as string) || (params.username as string) || (params.nickname as string) || (params.email as string) || ''
     const res = await api.users({ page: params.current || 1, keyword })
-    return { data: res.items, total: res.total, success: true }
+    return toTableData(res)
   }
 
   return (
@@ -143,8 +141,8 @@ export default function UserList() {
         rowKey="id"
         columns={columns}
         request={request}
-        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
-        scroll={{ x: 'max-content' }}
+        pagination={LIST_PAGINATION}
+        scroll={{ x: LIST_SCROLL_X }}
       />
 
       {/* 用户详情弹窗（含禁用/启用操作） */}

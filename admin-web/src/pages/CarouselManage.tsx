@@ -17,11 +17,12 @@ import {
   Col,
 } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons'
-import { api } from '../api/client'
-import { getCsrfToken } from '../api/client'
+import { api, getCsrfToken } from '../api/client'
 import { ADMIN_BASE } from '../config'
 import type { CustomConfigItem } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
+import { runAction } from '../api/actions'
+import { toTableData } from '../components/table'
 
 const CAROUSEL_CATEGORY = 'IndexCarousel'
 
@@ -78,15 +79,8 @@ export default function CarouselManage() {
     }
   }
 
-  const handleDelete = async (row: CustomConfigItem) => {
-    try {
-      await api.customConfigDelete(row.id)
-      message.success('轮播图已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (row: CustomConfigItem) =>
+    runAction(() => api.customConfigDelete(row.id), '轮播图已删除。', () => actionRef.current?.reload())
 
   const columns: ProColumns<CustomConfigItem>[] = [
     { title: 'ID', dataIndex: 'id', width: 60, search: false },
@@ -137,7 +131,7 @@ export default function CarouselManage() {
   const request = async () => {
     const res = await api.customConfigs({ category: CAROUSEL_CATEGORY })
     setItems(res.items || [])
-    return { data: res.items, total: res.total, success: true }
+    return toTableData(res)
   }
 
   // 照片墙内容：有图显示预览，无图显示加号

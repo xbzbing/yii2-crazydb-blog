@@ -3,6 +3,7 @@ import { Card, Form, Input, InputNumber, Select, Button, Space, message, Spin } 
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { usePageTitle } from '../contexts/PageTitleContext'
+import { reportSave } from '../api/actions'
 
 const { TextArea } = Input
 
@@ -71,11 +72,7 @@ export default function CategoryForm() {
         pid: values.pid || 0,
       }
       const data = isEdit ? await api.categoryUpdate(Number(id), payload) : await api.categorySave(payload)
-      if (data && data.ok === false) {
-        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
-        return
-      }
-      message.success(data?.message || '保存成功。')
+      if (!reportSave(data, '保存成功。')) return
       navigate('/categories')
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))

@@ -6,6 +6,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { PostItem, PostPreview } from '../types/api'
+import { runAction } from '../api/actions'
+import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const STATUS_MAP = {
   published: { text: '已发布', color: 'green' },
@@ -126,15 +128,8 @@ export default function PostList() {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.postDelete(id)
-      message.success('文章已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (id: number) =>
+    runAction(() => api.postDelete(id), '文章已删除。', () => actionRef.current?.reload())
 
   const columns: ProColumns<PostItem>[] = [
     { title: 'ID', dataIndex: 'id', width: 55, search: false },
@@ -273,11 +268,7 @@ export default function PostList() {
       pageSize,
       ...(sortField ? { sort: sortField, order: sortOrder } : {}),
     })
-    return {
-      data: res.items,
-      total: res.total,
-      success: true,
-    }
+    return toTableData(res)
   }
 
   return (
@@ -292,8 +283,8 @@ export default function PostList() {
         params={{ tag: urlTag }}
         onLoad={handleLoad}
         search={{ labelWidth: 'auto' }}
-        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
-        scroll={{ x: 'max-content' }}
+        pagination={LIST_PAGINATION}
+        scroll={{ x: LIST_SCROLL_X }}
         columnsState={{
           persistenceKey: 'admin-post-list',
           defaultValue: {

@@ -1,10 +1,12 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, Space, Tooltip, message } from 'antd'
+import { Button, Popconfirm, Space, Tooltip } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Category } from '../types/api'
+import { runAction } from '../api/actions'
+import { toTableData } from '../components/table'
 
 interface CategoryRow extends Category {
   parentName?: string
@@ -15,15 +17,8 @@ export default function CategoryList() {
   const navigate = useNavigate()
   const actionRef = useRef<ActionType>(null)
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.categoryDelete(id)
-      message.success('分类已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (id: number) =>
+    runAction(() => api.categoryDelete(id), '分类已删除。', () => actionRef.current?.reload())
 
   const columns: ProColumns<CategoryRow>[] = [
     {
@@ -75,7 +70,7 @@ export default function CategoryList() {
           .sort((a, b) => b.sort_order - a.sort_order)
           .forEach((child) => rows.push({ ...child, parentName: nameById[child.pid] || '', depth: 1 }))
       })
-    return { data: rows, total: rows.length, success: true }
+    return toTableData({ items: rows, total: rows.length })
   }
 
   return (

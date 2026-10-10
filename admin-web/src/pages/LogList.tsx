@@ -1,24 +1,19 @@
 import { useRef, useState } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, message, Tooltip, Tag, Modal, Descriptions } from 'antd'
+import { Button, Popconfirm, Tooltip, Tag, Modal, Descriptions } from 'antd'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { LogItem } from '../types/api'
+import { runAction } from '../api/actions'
+import { LIST_PAGINATION, toTableData } from '../components/table'
 
 export default function LogList() {
   const actionRef = useRef<ActionType>(null)
   const [detailLog, setDetailLog] = useState<LogItem | null>(null)
   const [typeEnum, setTypeEnum] = useState<Record<string, { text: string }>>({})
 
-  const handleClear = async () => {
-    try {
-      await api.logClear()
-      message.success('已清理 1 年前的日志。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleClear = () =>
+    runAction(() => api.logClear(), '已清理 1 年前的日志。', () => actionRef.current?.reload())
 
   const renderUser = (r: LogItem) =>
     r.uid === 0 ? (
@@ -100,7 +95,7 @@ export default function LogList() {
       user_agent: (params.user_agent as string) || '',
     })
     setTypeEnum(Object.fromEntries((res.types ?? []).map((t) => [t, { text: t }])))
-    return { data: res.items, total: res.total, success: true }
+    return toTableData(res)
   }
 
   return (
@@ -111,7 +106,7 @@ export default function LogList() {
         rowKey="id"
         columns={columns}
         request={request}
-        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
+        pagination={LIST_PAGINATION}
         search={{ labelWidth: 'auto', span: 8 }}
         options={{ reload: true, density: true, fullScreen: true, setting: true }}
         columnsState={{
