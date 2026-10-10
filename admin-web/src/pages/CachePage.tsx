@@ -32,15 +32,12 @@ function formatUptime(sec: number | undefined) {
 export default function CachePage() {
   usePageTitle('缓存管理')
   const [data, setData] = useState<CacheStatus | null>(null)
-  const [, setLoading] = useState(true)
 
   const load = () => {
-    setLoading(true)
     api
       .cacheStatus()
       .then(setData)
       .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false))
   }
 
   useEffect(load, [])

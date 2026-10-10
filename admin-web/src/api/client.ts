@@ -108,7 +108,6 @@ interface ListData<T> extends Pagination {
 }
 
 export const api = {
-  me: fetchMe,
   dashboard: (days = 14, signal?: AbortSignal) =>
     request<DashboardData>(`/dashboard?days=${days}`, { signal }),
 
