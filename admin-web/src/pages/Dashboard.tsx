@@ -161,7 +161,7 @@ export default function Dashboard() {
             title={
               <>
                 今日 404 探测
-                <Tooltip title="404 请求不计入 PV/UV；独立统计用于监控疑似扫描器">
+                <Tooltip title={`404 请求不计入 PV/UV；独立统计用于监控疑似扫描器（来源独立 IP ${data.todayNotFoundUv}）`}>
                   <QuestionCircleOutlined style={{ marginLeft: 6, fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'help' }} />
                 </Tooltip>
               </>
@@ -173,7 +173,6 @@ export default function Dashboard() {
                 const diff = vsYesterday(data.todayNotFoundPv, data.yesterdayNotFoundPv ?? 0)
                 return (
                   <span style={{ fontSize: 13, fontWeight: 500, marginLeft: 4 }}>
-                    <span style={{ color: 'rgba(0,0,0,0.45)', marginRight: 6 }}>来源 IP {data.todayNotFoundUv}</span>
                     {diff.kind === 'percent' ? (
                       diff.value === 0 ? (
                         <span style={{ color: '#8c8c8c' }}>持平</span>
