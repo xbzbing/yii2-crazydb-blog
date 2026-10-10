@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card, Divider, Form, Input, Select, Button, message, Spin, Row, Col, Alert } from 'antd'
 import { api } from '../api/client'
+import { errMessage } from '../api/actions'
 import type { ConfigValues } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
 
@@ -49,7 +50,7 @@ export default function BasicSettings() {
       }
       message.success(data?.message || '配置已保存。')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }

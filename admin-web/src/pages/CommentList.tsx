@@ -5,7 +5,7 @@ import { EyeOutlined, EditOutlined, CheckOutlined, DeleteOutlined } from '@ant-d
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { CommentItem } from '../types/api'
-import { reportSave, runAction } from '../api/actions'
+import { errMessage, reportSave, runAction } from '../api/actions'
 import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const STATUS_MAP = {
@@ -37,7 +37,7 @@ export default function CommentList() {
       const data = await api.comment(record.id)
       setDetail(data.comment)
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setDetailLoading(false)
     }
@@ -56,7 +56,7 @@ export default function CommentList() {
         status: data.comment.status,
       })
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     }
   }
 
@@ -71,7 +71,7 @@ export default function CommentList() {
       setEditVisible(false)
       actionRef.current?.reload()
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSaving(false)
     }

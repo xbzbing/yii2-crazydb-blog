@@ -3,7 +3,7 @@ import { Card, Form, Input, InputNumber, Select, Button, Space, message, Spin } 
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { usePageTitle } from '../contexts/PageTitleContext'
-import { reportSave } from '../api/actions'
+import { errMessage, reportSave } from '../api/actions'
 
 const { TextArea } = Input
 
@@ -27,7 +27,7 @@ export default function CategoryForm() {
           .map((c) => ({ value: c.id, label: c.name }))
         setParents(list)
       } catch (e) {
-        message.warning('父分类加载失败：' + (e instanceof Error ? e.message : String(e)))
+        message.warning('父分类加载失败：' + errMessage(e))
       }
     }
     load()
@@ -46,7 +46,7 @@ export default function CategoryForm() {
             pid: c.pid || 0,
           })
         })
-        .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
+        .catch((e) => message.error(errMessage(e)))
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
@@ -75,7 +75,7 @@ export default function CategoryForm() {
       if (!reportSave(data, '保存成功。')) return
       navigate('/categories')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }

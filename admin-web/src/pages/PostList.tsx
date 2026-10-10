@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { PostItem, PostPreview } from '../types/api'
-import { runAction } from '../api/actions'
+import { errMessage, runAction } from '../api/actions'
 import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const STATUS_MAP = {
@@ -113,7 +113,7 @@ export default function PostList() {
     try {
       setPreview(await api.postPreview(id))
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setPreviewLoading(false)
     }

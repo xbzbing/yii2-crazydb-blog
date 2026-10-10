@@ -3,7 +3,7 @@ import { Card, Form, Input, InputNumber, Select, Switch, Button, Space, message,
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { usePageTitle } from '../contexts/PageTitleContext'
-import { reportSave } from '../api/actions'
+import { errMessage, reportSave } from '../api/actions'
 
 export default function NavForm() {
   const { id } = useParams()
@@ -36,7 +36,7 @@ export default function NavForm() {
           form.setFieldsValue({ route: false, pid: 0, sort_order: 0 })
         }
       } catch (e) {
-        message.error(e instanceof Error ? e.message : String(e))
+        message.error(errMessage(e))
       } finally {
         setLoading(false)
       }
@@ -64,7 +64,7 @@ export default function NavForm() {
       if (!reportSave(data, '保存成功。')) return
       navigate('/navs')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }

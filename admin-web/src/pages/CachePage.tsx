@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card, Descriptions, Button, Popconfirm, message, Spin, Tag, Progress, Statistic, Row, Col, Space } from 'antd'
 import { ClearOutlined, SyncOutlined, BuildOutlined } from '@ant-design/icons'
 import { api } from '../api/client'
+import { errMessage } from '../api/actions'
 import type { CacheStatus } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
 
@@ -37,7 +38,7 @@ export default function CachePage() {
     api
       .cacheStatus()
       .then(setData)
-      .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
+      .catch((e) => message.error(errMessage(e)))
   }
 
   useEffect(load, [])
@@ -48,7 +49,7 @@ export default function CachePage() {
       message.success('缓存已清空。')
       load()
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     }
   }
 
@@ -59,7 +60,7 @@ export default function CachePage() {
       const data = await api.cacheRebuild()
       message.success(data?.message || '资源已更新。')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setRebuilding(false)
     }

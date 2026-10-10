@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card, Button, Input, Modal, Space, message, Spin, Typography } from 'antd'
 import { api } from '../api/client'
+import { errMessage } from '../api/actions'
 import { ADMIN_API_BASE } from '../config'
 
 const { Text, Paragraph } = Typography
@@ -31,7 +32,7 @@ export default function OtpSettings() {
       setOtpCode('')
       setSetupOpen(true)
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }
@@ -51,7 +52,7 @@ export default function OtpSettings() {
       setSecret('')
       setOtpCode('')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }
@@ -70,7 +71,7 @@ export default function OtpSettings() {
       setDisableOpen(false)
       setOtpCode('')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }

@@ -57,7 +57,6 @@ function DiffBadge({ diff }: { diff: DiffState }) {
   )
 }
 
-
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [days, setDays] = useState(14)

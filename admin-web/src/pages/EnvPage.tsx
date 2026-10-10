@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card, Descriptions, Tag, Spin, message, Progress, Row, Col, Divider } from 'antd'
 import { api } from '../api/client'
+import { errMessage } from '../api/actions'
 import type { EnvData } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
 
@@ -30,7 +31,7 @@ export default function EnvPage() {
     api
       .env()
       .then(setData)
-      .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
+      .catch((e) => message.error(errMessage(e)))
       .finally(() => setLoading(false))
   }, [])
 

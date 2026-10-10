@@ -6,7 +6,7 @@ import { api, getCsrfToken } from '../api/client'
 import VditorEditor from '../components/VditorEditor'
 import { usePageTitle } from '../contexts/PageTitleContext'
 import { ADMIN_BASE } from '../config'
-import { reportSave } from '../api/actions'
+import { errMessage, reportSave } from '../api/actions'
 
 export default function PostForm() {
   const { id } = useParams()
@@ -35,7 +35,7 @@ export default function PostForm() {
         ;(res.items || []).forEach((c) => (map[c.id] = c.name))
         setCategories(map)
       })
-      .catch((e) => message.warning('分类加载失败：' + (e instanceof Error ? e.message : String(e))))
+      .catch((e) => message.warning('分类加载失败：' + errMessage(e)))
 
     if (isEdit) {
       api
@@ -59,7 +59,7 @@ export default function PostForm() {
             password: '',
           })
         })
-        .catch((e) => message.error(e instanceof Error ? e.message : String(e)))
+        .catch((e) => message.error(errMessage(e)))
         .finally(() => setLoading(false))
     } else {
       // 新建：状态默认「空」，由底部「发布/存为草稿」按钮决定
@@ -115,7 +115,7 @@ export default function PostForm() {
       if (!reportSave(data, '保存成功。')) return
       navigate('/posts')
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setSubmitting(false)
     }

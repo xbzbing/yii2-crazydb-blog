@@ -5,7 +5,7 @@ import { EyeOutlined, StopOutlined, CheckCircleOutlined, EditOutlined } from '@a
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { User } from '../types/api'
-import { reportSave } from '../api/actions'
+import { errMessage, reportSave } from '../api/actions'
 import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const ROLE_MAP = {
@@ -36,7 +36,7 @@ export default function UserList() {
       message.success(data?.message || (action === 'ban' ? '用户已禁用。' : '用户已启用。'))
       actionRef.current?.reload()
     } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
+      message.error(errMessage(e))
     } finally {
       setConfirming(false)
     }
