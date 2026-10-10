@@ -140,14 +140,25 @@ body,
   margin: 0.8em 0;
   padding: 12px 16px;
   border-radius: 6px;
-  background: #1e1e1e;
+  /* 亮色主题（GitHub 风格）+ 强制可读性：legacy 文章的 <pre> 可能是裸标签
+     （无 code 子元素，文字继承正文深色）、带内联深色字或内联黑底
+     （HTMLPurifier 默认保留 style 属性）——黑底方案在这些结构下黑字压黑底
+     （对比度 1.26，见部署环境截图）。统一强制浅底深字：!important 压过
+     内联声明，任何文章结构都落在"深字浅底"可读区间。 */
+  background: #f6f8fa !important;
+  border: 1px solid rgba(5, 5, 5, 0.1);
+  color: #24292f !important;
   overflow-x: auto;
+}
+
+.post-preview-content pre code,
+.post-preview-content pre * {
+  background: transparent !important;
+  color: #24292f !important;
 }
 
 .post-preview-content pre code {
   padding: 0;
-  background: transparent;
-  color: #e6e6e6;
   font-size: 13px;
   line-height: 1.6;
 }
