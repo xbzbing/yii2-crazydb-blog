@@ -10,7 +10,6 @@ use App\Post\PostViewKeys;
 use Predis\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Router\HydratorAttribute\RouteArgument;
 
 /**
  * GET /admin/api/post-rank/{day}：某日（today/yesterday）阅读排行。

@@ -6,6 +6,7 @@ import { api, getCsrfToken } from '../api/client'
 import VditorEditor from '../components/VditorEditor'
 import { usePageTitle } from '../contexts/PageTitleContext'
 import { ADMIN_BASE } from '../config'
+import { reportSave } from '../api/actions'
 
 export default function PostForm() {
   const { id } = useParams()
@@ -111,11 +112,7 @@ export default function PostForm() {
         // post_time 由后端处理：新建取当前时间，编辑保持原值（不传则后端兜底）
       }
       const data = isEdit ? await api.postUpdate(Number(id), payload) : await api.postSave(payload)
-      if (data && data.ok === false) {
-        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
-        return
-      }
-      message.success(data?.message || '保存成功。')
+      if (!reportSave(data, '保存成功。')) return
       navigate('/posts')
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))

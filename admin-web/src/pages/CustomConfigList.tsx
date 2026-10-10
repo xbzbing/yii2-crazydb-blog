@@ -21,6 +21,8 @@ import { marked } from 'marked'
 import { api } from '../api/client'
 import type { CustomConfigCategory, CustomConfigItem } from '../types/api'
 import { usePageTitle } from '../contexts/PageTitleContext'
+import { runAction } from '../api/actions'
+import { LIST_PAGINATION, toTableData } from '../components/table'
 
 const DATA_TYPES = ['text', 'markdown', 'html', 'image', 'url', 'base64', 'hex']
 
@@ -174,16 +176,15 @@ export default function CustomConfigList() {
     }
   }
 
-  const handleDelete = async (row: CustomConfigItem) => {
-    try {
-      await api.customConfigDelete(row.id)
-      message.success('配置已删除。')
-      actionRef.current?.reload()
-      loadCategories()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (row: CustomConfigItem) =>
+    runAction(
+      () => api.customConfigDelete(row.id),
+      '配置已删除。',
+      () => {
+        actionRef.current?.reload()
+        loadCategories()
+      },
+    )
 
   const recordColumns: ProColumns<CustomConfigItem>[] = [
     { title: 'ID', dataIndex: 'id', width: 60, search: false },
@@ -233,7 +234,7 @@ export default function CustomConfigList() {
 
   const listRequest = async () => {
     const res = await api.customConfigs({ category: categoryFilter, search })
-    return { data: res.items, total: res.total, success: true }
+    return toTableData(res)
   }
 
   // 分类 tab 内容
@@ -290,7 +291,7 @@ export default function CustomConfigList() {
         columns={recordColumns}
         request={listRequest}
         search={false}
-        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
+        pagination={LIST_PAGINATION}
         toolbar={{
           search: {
             placeholder: '搜索分类 / 名称 / 键',

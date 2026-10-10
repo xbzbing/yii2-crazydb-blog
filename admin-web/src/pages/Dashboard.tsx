@@ -18,6 +18,46 @@ import {
 import { api } from '../api/client'
 import type { DashboardData } from '../types/api'
 
+// 与昨天相比的涨跌标记：
+// - 昨日有数据 → 涨跌百分比
+// - 昨日为 0、今日有数据 → 「↑ 新」
+// - 两日都为 0 → 「—」（无对比基准）
+type DiffState =
+  | { kind: 'percent'; value: number }
+  | { kind: 'new' }
+  | { kind: 'flat-none' }
+
+const vsYesterday = (today: number, yesterday: number): DiffState => {
+  if (yesterday > 0) {
+    return { kind: 'percent', value: Math.round(((today - yesterday) / yesterday) * 100) }
+  }
+  return today > 0 ? { kind: 'new' } : { kind: 'flat-none' }
+}
+
+interface StatItem {
+  title: string
+  value: number
+  icon: React.ReactNode
+  color: string
+  /** 与昨日相比的涨跌状态；undefined = 不显示（文章总数等非统计卡） */
+  diff?: DiffState
+}
+
+const DIFF_STYLE: React.CSSProperties = { fontSize: 13, fontWeight: 500, marginLeft: 4 }
+
+function DiffBadge({ diff }: { diff: DiffState }) {
+  if (diff.kind === 'new') return <span style={{ ...DIFF_STYLE, color: '#cf1322' }}>↑ 新</span>
+  if (diff.kind === 'flat-none') return <span style={{ ...DIFF_STYLE, color: '#8c8c8c' }}>—</span>
+  if (diff.value === 0) return <span style={{ ...DIFF_STYLE, color: '#8c8c8c' }}>持平</span>
+  return (
+    <span style={{ ...DIFF_STYLE, color: diff.value > 0 ? '#cf1322' : '#389e0d' }}>
+      {diff.value > 0 ? '↑' : '↓'}
+      {Math.abs(diff.value)}%
+    </span>
+  )
+}
+
+
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [days, setDays] = useState(14)
@@ -60,31 +100,6 @@ export default function Dashboard() {
 
   const hasHourlyData = data.visitHourly?.some((h) => h.pv > 0 || h.uv > 0 || h.ip > 0) ?? false
 
-  // 与昨天相比的涨跌标记：
-  // - 昨日有数据 → 涨跌百分比
-  // - 昨日为 0、今日有数据 → 「↑ 新」
-  // - 两日都为 0 → 「—」（无对比基准）
-  type DiffState =
-    | { kind: 'percent'; value: number }
-    | { kind: 'new' }
-    | { kind: 'flat-none' }
-
-  const vsYesterday = (today: number, yesterday: number): DiffState => {
-    if (yesterday > 0) {
-      return { kind: 'percent', value: Math.round(((today - yesterday) / yesterday) * 100) }
-    }
-    return today > 0 ? { kind: 'new' } : { kind: 'flat-none' }
-  }
-
-  interface StatItem {
-    title: string
-    value: number
-    icon: React.ReactNode
-    color: string
-    /** 与昨日相比的涨跌状态；undefined = 不显示（文章总数等非统计卡） */
-    diff?: DiffState
-  }
-
   const stats: StatItem[] = [
     { title: '文章总数', value: data.postTotal, icon: <FileTextOutlined />, color: '#1677ff' },
     { title: '评论总数', value: data.commentTotal, icon: <CommentOutlined />, color: '#52c41a' },
@@ -118,37 +133,7 @@ export default function Dashboard() {
               title={s.title}
               value={s.value}
               prefix={<span style={{ color: s.color, marginRight: 8 }}>{s.icon}</span>}
-              suffix={
-                s.diff === undefined ? undefined : (
-                  s.diff.kind === 'percent' ? (
-                    s.diff.value === 0 ? (
-                      <span style={{ fontSize: 13, fontWeight: 500, color: '#8c8c8c', marginLeft: 4 }}>
-                        持平
-                      </span>
-                    ) : (
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 500,
-                          color: s.diff.value > 0 ? '#cf1322' : '#389e0d',
-                          marginLeft: 4,
-                        }}
-                      >
-                        {s.diff.value > 0 ? '↑' : '↓'}
-                        {Math.abs(s.diff.value)}%
-                      </span>
-                    )
-                  ) : s.diff.kind === 'new' ? (
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#cf1322', marginLeft: 4 }}>
-                      ↑ 新
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#8c8c8c', marginLeft: 4 }}>
-                      —
-                    </span>
-                  )
-                )
-              }
+              suffix={s.diff === undefined ? undefined : <DiffBadge diff={s.diff} />}
             />
           </Card>
         </Col>
@@ -168,29 +153,7 @@ export default function Dashboard() {
             }
             value={data.todayNotFoundPv}
             prefix={<span style={{ color: '#fa541c', marginRight: 8 }}><WarningOutlined /></span>}
-            suffix={
-              (() => {
-                const diff = vsYesterday(data.todayNotFoundPv, data.yesterdayNotFoundPv ?? 0)
-                return (
-                  <span style={{ fontSize: 13, fontWeight: 500, marginLeft: 4 }}>
-                    {diff.kind === 'percent' ? (
-                      diff.value === 0 ? (
-                        <span style={{ color: '#8c8c8c' }}>持平</span>
-                      ) : (
-                        <span style={{ color: diff.value > 0 ? '#cf1322' : '#389e0d' }}>
-                          {diff.value > 0 ? '↑' : '↓'}
-                          {Math.abs(diff.value)}%
-                        </span>
-                      )
-                    ) : diff.kind === 'new' ? (
-                      <span style={{ color: '#cf1322' }}>↑ 新</span>
-                    ) : (
-                      <span style={{ color: '#8c8c8c' }}>—</span>
-                    )}
-                  </span>
-                )
-              })()
-            }
+            suffix={<DiffBadge diff={vsYesterday(data.todayNotFoundPv, data.yesterdayNotFoundPv ?? 0)} />}
           />
         </Card>
       </Col>

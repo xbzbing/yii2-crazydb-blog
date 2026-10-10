@@ -1,24 +1,19 @@
 import { useRef } from 'react'
 import { ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, Tag, Space, Tooltip, message } from 'antd'
+import { Button, Popconfirm, Tag, Space, Tooltip } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Nav } from '../types/api'
+import { runAction } from '../api/actions'
+import { toTableData } from '../components/table'
 
 export default function NavList() {
   const navigate = useNavigate()
   const actionRef = useRef<ActionType>(null)
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.navDelete(id)
-      message.success('导航已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleDelete = (id: number) =>
+    runAction(() => api.navDelete(id), '导航已删除。', () => actionRef.current?.reload())
 
   const columns: ProColumns<Nav>[] = [
     { title: 'ID', dataIndex: 'id', width: 55 },
@@ -56,7 +51,7 @@ export default function NavList() {
 
   const request = async () => {
     const res = await api.navs()
-    return { data: res.items, total: res.items.length, success: true }
+    return toTableData({ items: res.items, total: res.items.length })
   }
 
   return (

@@ -7,6 +7,8 @@ import type { RankItem } from '../api/client'
 
 type Day = 'today' | 'yesterday'
 
+const RANK_COLORS = ['#f5222d', '#fa8c16', '#faad14']
+
 interface TabState {
   data: RankItem[] | null
   loading: boolean
@@ -24,7 +26,7 @@ export default function PostRank() {
       width: 72,
       render: (_: unknown, __: RankItem, index: number) => {
         const rank = index + 1
-        const color = rank === 1 ? '#f5222d' : rank === 2 ? '#fa8c16' : rank === 3 ? '#faad14' : undefined
+        const color = RANK_COLORS[rank - 1]
         return (
           <span style={{ fontWeight: 600, color, fontSize: rank <= 3 ? 16 : 14 }}>
             {rank}

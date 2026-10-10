@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Common\RedisLock;
-use App\Post\PostViewKeys;
 use App\Post\PostViewSyncService;
 use Predis\ClientInterface;
 use Symfony\Component\Console\Attribute\AsCommand;

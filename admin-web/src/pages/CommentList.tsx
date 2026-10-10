@@ -5,6 +5,8 @@ import { EyeOutlined, EditOutlined, CheckOutlined, DeleteOutlined } from '@ant-d
 import dayjs from 'dayjs'
 import { api } from '../api/client'
 import type { CommentItem } from '../types/api'
+import { reportSave, runAction } from '../api/actions'
+import { LIST_PAGINATION, LIST_SCROLL_X, toTableData } from '../components/table'
 
 const STATUS_MAP = {
   approved: { text: '已通过', color: 'green' },
@@ -21,15 +23,12 @@ export default function CommentList() {
   const [editForm] = Form.useForm()
   const [saving, setSaving] = useState(false)
 
-  const handleAction = async (action: string, id: number) => {
-    try {
-      await api.commentAction(action, id)
-      message.success(action === 'approve' ? '评论已通过审核。' : '评论已删除。')
-      actionRef.current?.reload()
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e))
-    }
-  }
+  const handleAction = (action: string, id: number) =>
+    runAction(
+      () => api.commentAction(action, id),
+      action === 'approve' ? '评论已通过审核。' : '评论已删除。',
+      () => actionRef.current?.reload(),
+    )
 
   const openDetail = async (record: CommentItem) => {
     setDetail(null)
@@ -68,11 +67,7 @@ export default function CommentList() {
     setSaving(true)
     try {
       const data = await api.commentUpdate(editRecord.id, values)
-      if (data && data.ok === false) {
-        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
-        return
-      }
-      message.success(data?.message || '评论已更新。')
+      if (!reportSave(data, '评论已更新。')) return
       setEditVisible(false)
       actionRef.current?.reload()
     } catch (e) {
@@ -167,7 +162,7 @@ export default function CommentList() {
       page: params.current || 1,
       status: (params.status as string) || '',
     })
-    return { data: res.items, total: res.total, success: true }
+    return toTableData(res)
   }
 
   return (
@@ -178,8 +173,8 @@ export default function CommentList() {
         rowKey="id"
         columns={columns}
         request={request}
-        pagination={{ defaultPageSize: 20, showSizeChanger: false }}
-        scroll={{ x: 'max-content' }}
+        pagination={LIST_PAGINATION}
+        scroll={{ x: LIST_SCROLL_X }}
       />
 
       {/* 详情弹窗 */}

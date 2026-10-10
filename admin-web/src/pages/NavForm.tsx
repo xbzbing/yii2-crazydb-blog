@@ -3,6 +3,7 @@ import { Card, Form, Input, InputNumber, Select, Switch, Button, Space, message,
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { usePageTitle } from '../contexts/PageTitleContext'
+import { reportSave } from '../api/actions'
 
 export default function NavForm() {
   const { id } = useParams()
@@ -60,11 +61,7 @@ export default function NavForm() {
         sort_order: values.sort_order || 0,
       }
       const data = isEdit ? await api.navUpdate(Number(id), payload) : await api.navSave(payload)
-      if (data && data.ok === false) {
-        message.error(Object.values(data.errors || {}).join('；') || '保存失败。')
-        return
-      }
-      message.success(data?.message || '保存成功。')
+      if (!reportSave(data, '保存成功。')) return
       navigate('/navs')
     } catch (e) {
       message.error(e instanceof Error ? e.message : String(e))

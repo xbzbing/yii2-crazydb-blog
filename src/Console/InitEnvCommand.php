@@ -13,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Yiisoft\Yii\Console\ExitCode;
 
-use function basename;
 use function dirname;
 use function file_exists;
 use function file_get_contents;
@@ -22,7 +21,6 @@ use function implode;
 use function is_readable;
 use function preg_match;
 use function sprintf;
-use function str_starts_with;
 use function trim;
 
 /**

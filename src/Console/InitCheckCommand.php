@@ -14,18 +14,12 @@ use Yiisoft\Yii\Console\ExitCode;
 
 use function array_diff_key;
 use function array_keys;
-use function array_merge;
-use function array_unique;
 use function count;
 use function explode;
 use function implode;
-use function in_array;
-use function ksort;
-use function preg_match;
 use function sprintf;
 use function strpos;
 use function strtoupper;
-use function trim;
 
 /**
  * 数据库结构检查命令：检查表是否存在、结构是否符合预期、是否需要迁移。

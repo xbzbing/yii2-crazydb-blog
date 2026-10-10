@@ -93,15 +93,6 @@ final class ApiSerializer
     }
 
     /**
-     * @param list<\App\Comment\Comment> $comments
-     * @return list<array<string, mixed>>
-     */
-    public static function comments(array $comments): array
-    {
-        return array_map(static fn (\App\Comment\Comment $c): array => self::comment($c), $comments);
-    }
-
-    /**
      * 单条评论（详情/编辑用，含邮箱/网址/IP/UA）。
      *
      * @return array<string, mixed>

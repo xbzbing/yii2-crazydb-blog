@@ -7,7 +7,6 @@ namespace App\Web\UserProfile;
 use App\Common\CMSUtils;
 use App\Nav\Nav;
 use App\User\AuthService;
-use App\User\User;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

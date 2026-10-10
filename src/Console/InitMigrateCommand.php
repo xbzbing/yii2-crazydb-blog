@@ -15,7 +15,6 @@ use Yiisoft\Yii\Console\ExitCode;
 
 use function implode;
 use function sprintf;
-use function strpos;
 
 /**
  * 数据库增量升级命令：Yii2 → Yii3 结构迁移（幂等）。

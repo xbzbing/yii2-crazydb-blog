@@ -11,7 +11,6 @@ use App\Option\Option;
 use App\Tests\TestCase;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
-use Yiisoft\Session\Flash\Flash;
 
 final class CommonComponentsTest extends TestCase
 {
@@ -141,18 +140,6 @@ final class CommonComponentsTest extends TestCase
         } finally {
             $option->delete();
         }
-    }
-
-    public function testActionMessageWritesFlash(): void
-    {
-        $session = $this->sharedSession();
-        XUtils::actionMessage(new Flash($session), 'op', ['action' => 'delete', 'status' => 'ok']);
-
-        $flash = new Flash($session);
-        self::assertSame(['action' => 'delete', 'status' => 'ok'], $flash->get('op'));
-
-        $nextRequest = new Flash($session);
-        self::assertNull($nextRequest->get('op'), 'flash should be consumed on the next request');
     }
 
     public function testLanguageSessionRoundtrip(): void

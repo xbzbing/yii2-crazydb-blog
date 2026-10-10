@@ -7,7 +7,6 @@ namespace App\Common;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use Yiisoft\Aliases\Aliases;
-use Yiisoft\Session\Flash\Flash;
 
 final class XUtils
 {
@@ -273,15 +272,5 @@ final class XUtils
         $result = curl_exec($ch);
         // PHP 8.0+ cURL handle 自动释放，curl_close() 已弃用无需调用
         return ($result === false || $buffer === '') ? null : $buffer;
-    }
-
-    /**
-     * 向 session 写入操作记录（flash，读取后即失效）。
-     *
-     * @param array<string, mixed> $message
-     */
-    public static function actionMessage(Flash $flash, string $key, array $message): void
-    {
-        $flash->set($key, $message);
     }
 }

@@ -38,36 +38,9 @@ final class Comment extends ActiveRecord
         return '{{%comment}}';
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public static function getAvailableStatus(): array
-    {
-        return [
-            self::STATUS_UNAPPROVED => '未审核',
-            self::STATUS_APPROVED => '审核通过',
-            self::STATUS_SPAM => '垃圾评论',
-        ];
-    }
-
-    public static function getStatusName(string $status): ?string
-    {
-        return self::getAvailableStatus()[$status] ?? null;
-    }
-
-    public function getCommentStatus(): ?string
-    {
-        return self::getStatusName($this->status);
-    }
-
     public function isReply(): bool
     {
         return ($this->reply_to ?? 0) > 0;
-    }
-
-    public function getCommentType(): string
-    {
-        return $this->isReply() ? '回复' : '评论';
     }
 
     public function getReply(): ?self

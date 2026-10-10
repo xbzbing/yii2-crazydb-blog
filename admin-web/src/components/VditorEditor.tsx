@@ -44,7 +44,6 @@ export default function VditorEditor({
     script.src = '/static/vditor/dist/index.min.js'
     script.onload = () => setLoaded(true)
     document.head.appendChild(script)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const init = () => {
@@ -81,7 +80,6 @@ export default function VditorEditor({
     if (loaded && window.Vditor) {
       init()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded])
 
   // 外部值变化时同步回编辑器（仅当与编辑器当前内容不一致，避免光标跳动）
@@ -92,7 +90,6 @@ export default function VditorEditor({
       } | null
       if (el?._vditor) el._vditor.setValue(value || '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, ready])
 
   // 卸载时销毁 Vditor 实例（格式切换 html↔markdown 时组件重挂载）
