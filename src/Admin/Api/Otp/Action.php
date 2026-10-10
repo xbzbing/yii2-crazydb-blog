@@ -6,7 +6,6 @@ namespace App\Admin\Api\Otp;
 
 use App\Admin\Api\JsonResponse;
 use App\User\AuthService;
-use App\User\User;
 use App\User\UserTotpService;
 use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\Output\QRGdImagePNG;

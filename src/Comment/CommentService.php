@@ -6,11 +6,9 @@ namespace App\Comment;
 
 use App\Captcha\CaptchaService;
 use App\Common\CMSUtils;
-use App\Common\XUtils;
 use App\Log\Log;
 use App\Mail\NoticeService;
 use App\Option\Option;
-use App\Post\Post;
 use App\User\User;
 use Yiisoft\Cache\CacheInterface;
 

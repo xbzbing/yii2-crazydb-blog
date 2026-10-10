@@ -9,9 +9,8 @@ use App\User\SessionAuthMethod;
 use App\User\UserRepository;
 use Yiisoft\Auth\IdentityRepositoryInterface;
 use Yiisoft\Auth\IdentityWithTokenRepositoryInterface;
-use Yiisoft\Definitions\Reference;
 
-/** @var array $params */
+/** @var array<string, mixed> $params */
 
 return [
     UserRepository::class => [

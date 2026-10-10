@@ -114,11 +114,6 @@ final class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    public static function getStatusName(int $status): ?string
-    {
-        return self::getAvailableStatus()[$status] ?? null;
-    }
-
     public function getUserStatus(): string
     {
         return self::getAvailableStatus()[$this->status] ?? '异常状态';
@@ -132,16 +127,6 @@ final class User extends ActiveRecord implements IdentityInterface
     public function isBaned(): bool
     {
         return $this->status === self::STATUS_BANED;
-    }
-
-    public function isDeleted(): bool
-    {
-        return $this->status === self::STATUS_DELETED;
-    }
-
-    public function isInactive(): bool
-    {
-        return $this->status === self::STATUS_INACTIVE;
     }
 
     public static function findByUsername(string $username): ?self

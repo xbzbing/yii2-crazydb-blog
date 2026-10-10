@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Post;
 
-use App\Category\Category;
 use App\Comment\Comment;
 use App\User\User;
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -84,11 +83,6 @@ final class Post extends ActiveRecord
     public static function visibleStatuses(): array
     {
         return [self::STATUS_PUBLISHED];
-    }
-
-    public function getCategory(): \Yiisoft\ActiveRecord\ActiveQueryInterface
-    {
-        return $this->hasOne(Category::class, ['id' => 'cid']);
     }
 
     public function getAuthor(): \Yiisoft\ActiveRecord\ActiveQueryInterface
