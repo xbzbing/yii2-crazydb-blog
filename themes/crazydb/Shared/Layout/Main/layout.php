@@ -49,7 +49,7 @@ $showSidebar = (bool)$this->getParameter('showSidebar', true);
 $currentUser = $authService->currentUser();
 // 文章详情页（post/view、post/show）标记：移动端隐藏与正文阅读无关的侧栏栏目
 $currentRoute = $this->getParameter('currentRoute', null);
-$routeName = $currentRoute?->getName() ?? '';
+$routeName = $currentRoute instanceof \Yiisoft\Router\CurrentRoute ? ($currentRoute->getName() ?? '') : '';
 $isPostShow = in_array($routeName, ['post/view', 'post/show'], true);
 
 $this->beginPage()
