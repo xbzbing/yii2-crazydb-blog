@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ProTable, type ActionType, type ProColumns, type ProFormInstance } from '@ant-design/pro-components'
 import { Button, Popconfirm, Tag, Space, Tooltip, Modal, Spin, message } from 'antd'
 import { PlusOutlined, EyeOutlined, EditOutlined, DeleteOutlined, ExportOutlined } from '@ant-design/icons'
@@ -13,6 +13,73 @@ const STATUS_MAP = {
   deleted: { text: '已删除', color: 'red' },
 }
 
+// ── 预览正文代码高亮：复用前台 PostShow 同一份 highlight.js 资源（vditor 自带） ──
+const HLJS_BASE = '/static/vditor/dist/js/highlight.js'
+
+interface HljsGlobal {
+  highlightBlock(el: HTMLElement): void
+}
+declare global {
+  interface Window {
+    hljs?: HljsGlobal
+  }
+}
+
+let hljsLoader: Promise<void> | null = null
+
+/** 按需加载 highlight.js（CSS + JS，加载结果缓存，多次打开 Modal 只加载一次） */
+function ensureHljs(): Promise<void> {
+  if (window.hljs) return Promise.resolve()
+  if (!hljsLoader) {
+    hljsLoader = new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = `${HLJS_BASE}/styles/github.css`
+      document.head.appendChild(link)
+      const script = document.createElement('script')
+      script.src = `${HLJS_BASE}/highlight.pack.js`
+      script.onload = () => resolve()
+      script.onerror = () => {
+        hljsLoader = null // 失败后允许下次重试
+        reject(new Error('代码高亮脚本加载失败'))
+      }
+      document.head.appendChild(script)
+    })
+  }
+  return hljsLoader
+}
+
+// UEditor 老格式 brush:xxx → highlight.js 语言名（与前台 PostShow 模板保持一致）
+const BRUSH_MAP: Record<string, string> = {
+  plain: 'plaintext', text: 'plaintext', bash: 'bash', shell: 'bash',
+  php: 'php', python: 'python', java: 'java', c: 'c', cpp: 'cpp',
+  js: 'javascript', javascript: 'javascript', sql: 'sql', xml: 'xml',
+  html: 'xml', css: 'css', json: 'json', ruby: 'ruby', go: 'go',
+}
+
+/** 对预览容器内代码块执行语法高亮（新格式 pre>code + 老格式 pre[brush:]） */
+function highlightPreview(root: HTMLElement): void {
+  const hljs = window.hljs
+  if (!hljs) return
+  root.querySelectorAll('pre code').forEach((el) => {
+    if (el.classList.contains('hljs')) return // 避免重复高亮
+    hljs.highlightBlock(el as HTMLElement)
+  })
+  // UEditor 老格式：<pre class="brush:php;toolbar:false">（无 <code> 子元素）
+  root.querySelectorAll('pre[class*="brush:"]').forEach((el) => {
+    const pre = el as HTMLElement
+    if (pre.querySelector('code')) return
+    const m = /brush:\s*([\w-]+)/.exec(pre.className)
+    const lang = m ? (BRUSH_MAP[m[1]] || m[1]) : ''
+    const code = document.createElement('code')
+    code.textContent = pre.textContent
+    if (lang) code.className = 'language-' + lang
+    pre.textContent = ''
+    pre.appendChild(code)
+    hljs.highlightBlock(code)
+  })
+}
+
 export default function PostList() {
   const navigate = useNavigate()
   const actionRef = useRef<ActionType>(null)
@@ -21,6 +88,23 @@ export default function PostList() {
   const urlTag = searchParams.get('tag') || ''
   const [preview, setPreview] = useState<PostPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // 预览内容挂载后执行语法高亮（hljs 按需异步加载；Modal 关闭则跳过）
+  useEffect(() => {
+    if (!preview) return
+    let cancelled = false
+    ensureHljs()
+      .then(() => {
+        if (!cancelled && contentRef.current) highlightPreview(contentRef.current)
+      })
+      .catch(() => {
+        // 高亮脚本加载失败时静默降级：纯文本代码块（仍可读）
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [preview])
 
   const handlePreview = async (id: number) => {
     setPreviewLoading(true)
@@ -267,6 +351,7 @@ export default function PostList() {
             </div>
             <Spin spinning={previewLoading}>
               <div
+                ref={contentRef}
                 className="post-preview-content"
                 dangerouslySetInnerHTML={{ __html: preview.html }}
               />

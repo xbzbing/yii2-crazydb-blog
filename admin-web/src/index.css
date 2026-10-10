@@ -151,10 +151,26 @@ body,
   overflow-x: auto;
 }
 
+/* 只强制 code 元素与「内联样式」后代（legacy 内容的 style 属性），不碰
+   hljs 的 class 着色 span——Modal 内按需加载 highlight.js 后，语法颜色
+   由 github.css 的 .hljs-* 规则提供，强制覆盖会把着色打回单色。 */
 .post-preview-content pre code,
-.post-preview-content pre * {
+.post-preview-content pre [style] {
   background: transparent !important;
   color: #24292f !important;
+}
+
+/* pre 内带内联样式的 code（与上面 code[style] 冲突时以 pre 上下文为准） */
+.post-preview-content pre code[style] {
+  background: transparent !important;
+  color: #24292f !important;
+}
+
+/* 行内 <code>（pre 外）带内联样式：强制回标准行内样式（浅灰胶囊 + 深字），
+   防止 legacy 内联白字/黑底在浅色 Modal 里不可读 */
+.post-preview-content code[style] {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 .post-preview-content pre code {
