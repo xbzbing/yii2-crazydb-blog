@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tag;
 
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -56,6 +57,55 @@ final class Tag extends ActiveRecord
     }
 
     /**
+     * 标签 × 文章统计查询：tag LEFT JOIN post，按标签名分组，文章数只统计
+     * 仍存在的文章（COUNT(DISTINCT p.id)，同一文章的重复关联行算 1 篇）。
+     * 孤儿 tag 行（文章已删但关联行漏删）计为 0，是否展示由调用方决定。
+     */
+    private static function postCountQuery(): ActiveQueryInterface
+    {
+        return self::query()
+            ->select(['t.name', 'totalCount' => 'COUNT(DISTINCT p.id)'])
+            ->from(['t' => '{{%tag}}'])
+            ->leftJoin(['p' => '{{%post}}'], 'p.id = t.pid')
+            ->groupBy('t.name');
+    }
+
+    /**
+     * 按标签统计文章数：只统计 post 表中仍然存在的文章。
+     *
+     * tag 行可能成为孤儿（文章已删除但关联行漏删、测试残留等），直接 COUNT(tag)
+     * 会虚增文章数——曾出现「测试标签x 显示 7 篇、实际 0 篇」，虚增的计数还会把
+     * 删除入口一起堵死，垃圾关联行永远清不掉。孤儿标签仍会返回（文章数为 0），
+     * 便于后台识别并删除；前台聚合另行过滤掉 0 篇的标签（见 getTags）。
+     *
+     * @param ?string $name 只统计指定标签；null 表示统计全部标签
+     * @return list<array{name: string, totalCount: int}> 文章数降序、标签名升序
+     */
+    public static function countPostsPerTag(?string $name = null): array
+    {
+        $query = self::postCountQuery()->orderBy(['totalCount' => SORT_DESC, 't.name' => SORT_ASC]);
+        if ($name !== null) {
+            $query->where(['t.name' => $name]);
+        }
+        $items = [];
+        /** @var list<array{name: string, totalCount: int|string}> $rows */
+        $rows = $query->asArray()->all();
+        foreach ($rows as $row) {
+            $items[] = ['name' => $row['name'], 'totalCount' => (int)$row['totalCount']];
+        }
+        return $items;
+    }
+
+    /**
+     * 指定标签实际关联的文章数（口径同 countPostsPerTag）。
+     */
+    public static function countPostsByName(string $name): int
+    {
+        $items = self::countPostsPerTag($name);
+        return $items[0]['totalCount'] ?? 0;
+    }
+
+    /**
      * 使所有标签聚合缓存失效。文章保存和删除都必须调用此方法，避免仅删除记录时最大 ID 不变。
      */
     public static function invalidateCache(CacheInterface $cache): void
@@ -87,16 +137,19 @@ final class Tag extends ActiveRecord
         $items = $cache->getOrSet(
             $cacheKey,
             static function () use ($urlGenerator, $limit): array {
-                $query = self::query()
-                    ->select('name, COUNT(*) as totalCount, MAX(create_time) as create_time')
-                    ->groupBy('name')
-                    ->orderBy(['totalCount' => SORT_DESC]);
+                $query = self::postCountQuery()
+                    ->addSelect(['create_time' => 'MAX(t.create_time)'])
+                    ->orderBy(['totalCount' => SORT_DESC])
+                    // 前台只展示仍有文章的标签：孤儿 tag 行（文章已删）不得出现
+                    ->having('COUNT(DISTINCT p.id) > 0');
                 if ($limit > 0) {
                     $query->limit($limit);
                 }
                 $items = [];
-                foreach ($query->asArray()->all() as $row) {
-                    $name = (string)$row['name'];
+                /** @var list<array{name: string, totalCount: int|string, create_time: int|string}> $rows */
+                $rows = $query->asArray()->all();
+                foreach ($rows as $row) {
+                    $name = $row['name'];
                     $items[] = [
                         'totalCount' => (int)$row['totalCount'],
                         'name' => $name,

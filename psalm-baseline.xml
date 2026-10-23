@@ -147,11 +147,6 @@
     <MixedOperand>
       <code><![CDATA[$version]]></code>
     </MixedOperand>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[$row]]></code>
-      <code><![CDATA[$row]]></code>
-      <code><![CDATA[$row]]></code>
-    </UndefinedInterfaceMethod>
   </file>
   <file src="src/User/AuthService.php">
     <RedundantCastGivenDocblockType>

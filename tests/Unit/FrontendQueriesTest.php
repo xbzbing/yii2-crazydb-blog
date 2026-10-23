@@ -170,18 +170,40 @@ final class FrontendQueriesTest extends TestCase
         }
     }
 
+    /** 建一篇供标签关联的文章（content 非空：兼容 content NOT NULL 的旧库结构） */
+    private function createPostForTag(): Post
+    {
+        $post = new Post();
+        $post->cid = 1;
+        $post->author_id = 1;
+        $post->author_name = 'tester';
+        $post->type = Post::TYPE_POST;
+        $post->title = '__tag_owner__';
+        $post->alias = '__tag_' . bin2hex(random_bytes(4));
+        $post->content = '';
+        $post->status = Post::STATUS_PUBLISHED;
+        $post->post_time = time();
+        $post->create_time = time();
+        $post->update_time = time();
+        $post->save();
+        return $post;
+    }
+
     public function testTagGetTagsAggregatesAndLimits(): void
     {
         $name = '__tag_' . bin2hex(random_bytes(3));
+        // 聚合口径是「仍存在的文章」，标签必须挂在真实存在的文章上
+        $postA = $this->createPostForTag();
+        $postB = $this->createPostForTag();
         $tagA = new Tag();
         $tagA->name = $name;
-        $tagA->pid = 1;
+        $tagA->pid = (int)$postA->id;
         $tagA->cid = 1;
         $tagA->create_time = time();
         $tagA->save();
         $tagB = new Tag();
         $tagB->name = $name;
-        $tagB->pid = 2;
+        $tagB->pid = (int)$postB->id;
         $tagB->cid = 1;
         $tagB->create_time = time();
         $tagB->save();
@@ -200,6 +222,33 @@ final class FrontendQueriesTest extends TestCase
         } finally {
             $tagA->delete();
             $tagB->delete();
+            $postA->delete();
+            $postB->delete();
+        }
+    }
+
+    /**
+     * 回归：文章已不存在的孤儿 tag 行不得进前台聚合
+     * （曾出现标签挂着 7 篇「文章」、实际一篇也没有）。
+     */
+    public function testGetTagsSkipsTagsWhosePostsAreGone(): void
+    {
+        $name = '__tag_' . bin2hex(random_bytes(3));
+        $orphan = new Tag();
+        $orphan->name = $name;
+        $orphan->pid = (int)Post::query()->max('id') + 100000;
+        $orphan->cid = 1;
+        $orphan->create_time = time();
+        $orphan->save();
+        try {
+            foreach (Tag::getTags($this->cache(), $this->url()) as $tag) {
+                self::assertNotSame($name, $tag['name'], '孤儿 tag 行不得出现在前台标签聚合中');
+            }
+            // 后台仍看得到（文章数 0），否则垃圾关联行永远清不掉
+            $adminItems = Tag::countPostsPerTag($name);
+            self::assertSame([['name' => $name, 'totalCount' => 0]], $adminItems);
+        } finally {
+            $orphan->delete();
         }
     }
 

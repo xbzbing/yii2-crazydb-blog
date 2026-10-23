@@ -26,19 +26,14 @@ final readonly class Action
 
     public function list(ServerRequestInterface $request): ResponseInterface
     {
-        /** @var list<array{name: string, totalCount: int}> $tags */
-        $tags = Tag::query()
-            ->select('name, COUNT(*) as totalCount')
-            ->groupBy('name')
-            ->orderBy(['totalCount' => SORT_DESC])
-            ->asArray()
-            ->all();
-        return $this->jsonResponse->ok(['items' => $tags]);
+        // 文章数只统计仍存在的文章（countPostsPerTag 内部按 post 关联聚合），
+        // 避免孤儿 tag 行虚增数量（见 Tag::countPostsPerTag 注释）
+        return $this->jsonResponse->ok(['items' => Tag::countPostsPerTag()]);
     }
 
     public function delete(ServerRequestInterface $request, #[RouteArgument] string $name): ResponseInterface
     {
-        $totalCount = (int)Tag::query()->where(['name' => $name])->count();
+        $totalCount = Tag::countPostsByName($name);
         if ($totalCount > 0) {
             return $this->jsonResponse->fail(
                 sprintf('该标签关联 %d 篇文章，无法删除；请先在文章中移除该标签。', $totalCount),

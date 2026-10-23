@@ -33,8 +33,8 @@ final readonly class Action
         #[RouteArgument] ?string $name = null,
     ): ResponseInterface {
         if ($name !== null && $request->getMethod() === Method::POST) {
-            // 仅允许删除无关联文章的标签，避免前台按标签 404
-            $totalCount = (int)Tag::query()->where(['name' => $name])->count();
+            // 仅允许删除无关联文章的标签，避免前台按标签 404（只统计仍存在的文章）
+            $totalCount = Tag::countPostsByName($name);
             if ($totalCount > 0) {
                 $this->flash->set('flash_error', ['info' => sprintf('该标签关联 %d 篇文章，无法删除；请先在文章中移除该标签。', $totalCount)]);
                 return $this->responseFactory
@@ -48,13 +48,8 @@ final readonly class Action
                 ->withHeader('Location', $this->urlGenerator->generate('admin/tag/list'));
         }
 
-        /** @var list<array{name: string, totalCount: int}> $tags */
-        $tags = Tag::query()
-            ->select('name, COUNT(*) as totalCount')
-            ->groupBy('name')
-            ->orderBy(['totalCount' => SORT_DESC])
-            ->asArray()
-            ->all();
+        // 文章数只统计仍存在的文章（见 Tag::countPostsPerTag）
+        $tags = Tag::countPostsPerTag();
 
         return $this->viewRenderer
             ->withLayout('@src/Web/Shared/Layout/Admin/layout.php')
