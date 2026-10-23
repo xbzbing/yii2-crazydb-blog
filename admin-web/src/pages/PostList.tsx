@@ -121,6 +121,8 @@ export default function PostList() {
 
   // 从标签列表跳转带入的筛选：同步到搜索表单显示（onLoad 时表单已挂载）
   const syncedTagRef = useRef(false)
+  // URL 标签是否已用于过一次请求（只兜底首次，之后以搜索表单为准）
+  const urlTagApplied = useRef(false)
   const handleLoad = () => {
     if (urlTag && !syncedTagRef.current) {
       syncedTagRef.current = true
@@ -256,7 +258,14 @@ export default function PostList() {
     const page = params.current || 1
     const pageSize = params.pageSize || 20
     const status = (params.status as string) || ''
-    const tag = (params.tag as string) || ''
+    // tag 以搜索表单为准。此前这里靠 params={{ tag: urlTag }} 带入 URL 标签，
+    // 但 ProTable 合并顺序是 {...pageParams, ...formSearch, ...params}——params 永远
+    // 覆盖表单值，urlTag 为空时（直接在后台搜索）会把用户输入的 tag 覆盖成空串。
+    // 现改为：表单填写的 tag 优先；URL 带入的标签只在首次请求兜底一次，
+    // 之后由表单（含重置/清空）完全接管。
+    const typedTag = ((params.tag as string) || '').trim()
+    const tag = typedTag !== '' ? typedTag : urlTagApplied.current ? '' : urlTag
+    urlTagApplied.current = true
     // ProTable 服务端排序：sorter 列点击后 sort 为 { field: 'ascend'|'descend' }
     const sortKeys = Object.keys(params.sort || {})
     const sortField = sortKeys[0] || ''
@@ -280,7 +289,6 @@ export default function PostList() {
         rowKey="id"
         columns={columns}
         request={request}
-        params={{ tag: urlTag }}
         onLoad={handleLoad}
         search={{ labelWidth: 'auto' }}
         pagination={LIST_PAGINATION}
