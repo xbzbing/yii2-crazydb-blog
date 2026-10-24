@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Web\FeedRss;
 
 use App\Common\CMSUtils;
+use App\Option\Option;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
+use App\Web\Shared\SeoUrl;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\Cache\CacheInterface;
@@ -33,8 +35,10 @@ final readonly class Action
         $seoConfig = CMSUtils::getSiteConfig($this->cache, 'seo');
         $siteName = (string)($siteConfig['site_name'] ?? 'Blog');
         $description = (string)($seoConfig['seo_description'] ?? '');
-        $feedUrl = $this->urlGenerator->generateAbsolute('feed/rss');
-        $siteUrl = $this->urlGenerator->generateAbsolute('site/index');
+        // 绝对 URL 优先用后台 seo_site_url（反代部署下 request host 不可信）
+        $siteUrl = SeoUrl::site((string)($seoConfig[Option::SEO_SITE_URL] ?? ''));
+        $feedUrl = SeoUrl::route($this->urlGenerator, 'feed/rss', [], $siteUrl);
+        $siteHomeUrl = SeoUrl::route($this->urlGenerator, 'site/index', [], $siteUrl);
 
         /** @var list<Post> $posts */
         $posts = $this->cache->getOrSet(
@@ -49,7 +53,8 @@ final readonly class Action
 
         $items = '';
         foreach ($posts as $post) {
-            $postUrl = (string)$post->getUrl($this->urlGenerator, true);
+            $postPath = $post->getUrl($this->urlGenerator);
+            $postUrl = SeoUrl::absolutize($this->urlGenerator, (string)$postPath, $siteUrl);
             $content = $post->getContentProcessed($this->markdownRenderer);
             $items .= "        <item>\n"
                 . '            <title>' . $this->cdata($post->title) . "</title>\n"
@@ -65,7 +70,7 @@ final readonly class Action
             . '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">' . "\n"
             . "    <channel>\n"
             . '        <title>' . $this->cdata($siteName) . "</title>\n"
-            . '        <link>' . $this->escape($siteUrl) . "</link>\n"
+            . '        <link>' . $this->escape($siteHomeUrl) . "</link>\n"
             . '        <description>' . $this->cdata($description) . "</description>\n"
             . '        <language>zh-cn</language>' . "\n"
             . '        <lastBuildDate>' . date('D, d M Y H:i:s O', time()) . "</lastBuildDate>\n"
