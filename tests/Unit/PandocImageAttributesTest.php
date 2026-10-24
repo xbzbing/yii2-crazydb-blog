@@ -190,6 +190,63 @@ final class PandocImageAttributesTest extends TestCase
         self::assertStringContainsString('{alt=', $html, 'malformed block falls back to literal text');
     }
 
+    public function testColonWidthPercentRendersAsStyle(): void
+    {
+        // CSS 风格冒号语法（用户实际书写习惯，Pandoc 原生仅 =）
+        $html = $this->renderer()->render('![alt](/upload/a.jpg){width:70%}', 1);
+        self::assertStringContainsString('style="width:70%;"', $html);
+        self::assertStringNotContainsString('{', $html);
+    }
+
+    public function testColonWithSpacesAndMixedEquals(): void
+    {
+        $html = $this->renderer()->render('![alt](/upload/a.jpg){width: 50% height:200px border=0}', 1);
+        self::assertStringContainsString('style="width:50%;"', $html);
+        self::assertStringContainsString('height="200"', $html);
+        self::assertStringNotContainsString('{', $html);
+    }
+
+    public function testColonAltAndTitleOverride(): void
+    {
+        $html = $this->renderer()->render('![原始](/upload/a.jpg){alt: 新说明 title:"新标题"}', 1);
+        self::assertStringContainsString('alt="新说明"', $html);
+        self::assertStringContainsString('title="新标题"', $html);
+        self::assertStringNotContainsString('原始', $html);
+    }
+
+    public function testColonIdAndClass(): void
+    {
+        $html = $this->renderer()->render('![alt](/upload/a.jpg){#fig2 .left class: "big shadow"}', 1);
+        self::assertStringContainsString('id="fig2"', $html);
+        self::assertStringContainsString('class="left big shadow"', $html);
+    }
+
+    public function testColonUnknownKeyAfterImageStaysLiteral(): void
+    {
+        // 冒号键白名单保护：图片后的普通说明文本 {note: hello} 不被吞
+        $html = $this->renderer()->render('![alt](/upload/a.jpg){note: hello}', 1);
+        self::assertStringContainsString('{note: hello}', $html, 'unknown colon key must stay literal');
+        self::assertStringNotContainsString('width=', $html);
+    }
+
+    public function testColonPlainTextAfterTextNotConsumed(): void
+    {
+        $html = $this->renderer()->render('正文 {width:70%} 后文', 1);
+        self::assertStringContainsString('{width:70%}', $html);
+        self::assertStringNotContainsString('style="width:70%;"', $html);
+    }
+
+    public function testCacheKeyBumpRendersColonSemantics(): void
+    {
+        // 冒号支持改变存量渲染语义 → 缓存前缀必须 bump（mdv3），否则旧缓存回吐字面量
+        $post = new \App\Post\Post();
+        $post->format = \App\Post\Post::FORMAT_MARKDOWN;
+        $post->content = '![alt](/upload/a.jpg){width:70%}';
+        $post->update_time = 1700000000;
+        $html = $this->renderer()->renderPost($post);
+        self::assertStringContainsString('style="width:70%;"', $html);
+    }
+
     public function testImageInHtmlFormatPostUnaffected(): void
     {
         $post = new \App\Post\Post();

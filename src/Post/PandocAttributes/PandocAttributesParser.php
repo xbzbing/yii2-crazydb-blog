@@ -32,6 +32,9 @@ use League\CommonMark\Parser\InlineParserContext;
  * 2. 未知键（如 `data-foo`、`loading`）直接忽略而非 Pandoc 的 `data-` 前缀透传：
  *    HTMLPurifier 默认剥离 data-*，透传无意义。
  * 3. 标识符（id/class/key）限定 ASCII：`[\w:.-]`；引号包裹的值可含任意字节。
+ * 4. 扩展支持 CSS 风格冒号语法 `{width:70%}`（Pandoc 仅 `=`）。为防吞掉图片后的
+ *    普通说明文本（如 `{note: hello}`），冒号键限定白名单 COLON_KEYS；`=` 形式
+ *    保持 Pandoc 原样（任意键，未知键消费后忽略）。
  *
  * @see https://raw.githubusercontent.com/jgm/pandoc/main/MANUAL.txt "Extension: link_attributes"
  * @see https://github.com/jgm/pandoc/blob/main/src/Text/Pandoc/ImageSize.php toDim()
@@ -42,11 +45,15 @@ final class PandocAttributesParser implements InlineParserInterface
     /**
      * 整个 `{...}` 块一次性匹配（对齐 AttributesHelper 的做法：先锁定首尾花括号，
      * 避免逐 token 匹配时被值内部字符干扰）。块结构不合法则整体不消费，按字面量输出。
+     * 冒号形式键限定白名单（见类注释差异 4）。
      */
-    private const BLOCK = '/\G\{[ \t]*(?:(?:#[\w:.-]+|\.[\w:.-]+|[A-Za-z][\w-]*=(?:"[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+))[ \t]*)*\}/';
+    private const BLOCK = '/\G\{[ \t]*(?:(?:#[\w:.-]+|\.[\w:.-]+|[A-Za-z][\w-]*=(?:"[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+)|(?:width|height|style|class|id|alt|title)[ \t]*:[ \t]*(?:"[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+))[ \t]*)*\}/';
 
-    /** 块内逐 token 拆解（BLOCK 已保证结构合法，此处提取各组值） */
-    private const TOKEN = '/(?:#([\w:.-]+))|(?:\.([\w:.-]+))|([A-Za-z][\w-]*)=("[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+)/';
+    /**
+     * 块内逐 token 拆解（BLOCK 已保证结构合法，此处提取各组值）。
+     * 组：1=#id 2=.class 3==键 4==值 5=:键 6=:值（冒号形式仅白名单键）。
+     */
+    private const TOKEN = '/(?:#([\w:.-]+))|(?:\.([\w:.-]+))|(?:([A-Za-z][\w-]*)=("[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+))|((?:width|height|style|class|id|alt|title))[ \t]*:[ \t]*("[^"\n]*"|\'[^\'\n]*\'|[^\s{}"\'=]+)/';
 
     /** Pandoc ImageSize.php toDim() 支持的单位（大小写不敏感；数字与单位间不允许空格）。注意无 ex。 */
     private const DIMENSION = '/\A(\d+(?:\.\d+)?)(inch|in|cm|mm|pt|pc|px|em|%)\z/i';
@@ -122,8 +129,14 @@ final class PandocAttributesParser implements InlineParserInterface
                 $classes[] = $match[2];
                 continue;
             }
-            $key = $match[3];
-            $value = $match[4];
+            // 组3/4 = `key=value`；组5/6 = `key: value`（冒号形式，白名单键）
+            if (($match[5] ?? '') !== '') {
+                $key = $match[5];
+                $value = $match[6];
+            } else {
+                $key = $match[3];
+                $value = $match[4];
+            }
             if (isset($value[0]) && ($value[0] === '"' || $value[0] === "'")) {
                 $value = \substr($value, 1, -1);
             }

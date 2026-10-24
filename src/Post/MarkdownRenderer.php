@@ -53,8 +53,8 @@ final class MarkdownRenderer
      */
     public function render(string $markdown, int $version = 0): string
     {
-        // mdv2：引入 Pandoc 图片属性扩展 + Attr.EnableID 后语义变化，bump 前缀强制重渲染
-        $key = 'mdv2.' . $version . '.' . sha1($markdown);
+        // mdv3：支持冒号语法 {width:70%} 后语义变化（旧缓存会把冒号块渲染成字面量），bump 前缀强制重渲染
+        $key = 'mdv3.' . $version . '.' . sha1($markdown);
         /** @var string $html */
         $html = $this->cache->getOrSet(
             $key,
@@ -74,7 +74,7 @@ final class MarkdownRenderer
     public function renderPost(Post $post): string
     {
         $content = (string) $post->content;
-        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'mdv2.' : 'html.')
+        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'mdv3.' : 'html.')
             . $post->update_time . '.' . sha1($content);
         /** @var string $html */
         $html = $this->cache->getOrSet(

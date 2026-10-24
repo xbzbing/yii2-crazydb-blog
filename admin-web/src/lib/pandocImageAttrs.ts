@@ -13,6 +13,8 @@
  * - 语法与后端保持同一套文法与单位语义（见各常量注释的 Pandoc 出处），
  *   差异点：本模块无 HTMLPurifier，宽度/高度超界不做白名单过滤（仅编辑器
  *   显示，保存的 markdown 仍由后端最终裁定）。
+ * - 支持 `key=value`（Pandoc）与 `key: value`（CSS 风格）两种分隔；冒号键
+ *   限定白名单（与后端一致），避免图片后的普通说明文本被误应用。
  */
 
 /** 解析结果（与后端 ParsedAttributes 对齐） */
@@ -34,13 +36,17 @@ export interface PandocImageAttrs {
 /**
  * 整个 `{...}` 块的匹配（对齐后端 PandocAttributesParser::BLOCK）：
  * 块结构不合法则整体不消费，文本保持原样。
+ * 支持 `key=value` 与白名单键的 `key: value`（冒号键限定，防误吞普通文本）。
  */
 const BLOCK =
-  /\{[\t ]*(?:(?:#[\w:.-]+|\.[\w:.-]+|[A-Za-z][\w-]*=(?:"[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+))[\t ]*)*\}/
+  /\{[\t ]*(?:(?:#[\w:.-]+|\.[\w:.-]+|[A-Za-z][\w-]*=(?:"[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+)|(?:width|height|style|class|id|alt|title)[\t ]*:[\t ]*(?:"[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+))[\t ]*)*\}/
 
-/** 块内逐 token 拆解（对齐后端 PandocAttributesParser::TOKEN） */
+/**
+ * 块内逐 token 拆解（对齐后端 PandocAttributesParser::TOKEN）。
+ * 组：1=#id 2=.class 3=等号键 4=等号值 5=冒号键 6=冒号值。
+ */
 const TOKEN =
-  /(?:#([\w:.-]+))|(?:\.([\w:.-]+))|([A-Za-z][\w-]*)=("[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+)/g
+  /(?:#([\w:.-]+))|(?:\.([\w:.-]+))|(?:([A-Za-z][\w-]*)=("[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+))|((?:width|height|style|class|id|alt|title))[\t ]*:[\t ]*("[^"\n]*"|'[^'\n]*'|[^\s{}"'=]+)/g
 
 /**
  * 尺寸值（对齐 Pandoc ImageSize.php toDim()：cm mm in inch % px "" pt pc em，无 ex；
@@ -67,8 +73,9 @@ export function parseAttrBlock(block: string): PandocImageAttrs | null {
       attrs.classes.push(m[2])
       continue
     }
-    const key = m[3]
-    let value = m[4]
+    // 组3/4 = `key=value`；组5/6 = `key: value`（冒号形式，白名单键）
+    const key = m[5] !== undefined ? m[5] : m[3]
+    let value = m[5] !== undefined ? m[6] : m[4]
     if (value.startsWith('"') || value.startsWith("'")) value = value.slice(1, -1)
     switch (key) {
       case 'width':
