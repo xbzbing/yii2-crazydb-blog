@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Post;
 
+use App\Post\PandocAttributes\PandocAttributesParser;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\Footnote\FootnoteExtension;
@@ -12,7 +13,7 @@ use League\CommonMark\MarkdownConverter;
 use Yiisoft\Cache\CacheInterface;
 
 /**
- * Markdown 渲染管线：commonmark(GFM) + highlight.js 兼容代码块 + HTMLPurifier 净化。
+ * Markdown 渲染管线：commonmark(GFM) + highlight.js 兼容代码块 + Pandoc 图片属性扩展 + HTMLPurifier 净化。
  *
  * 输出缓存放 Redis，key 由 update_time 与内容 hash 构成——文章更新（update_time 变化）
  * 即自动失效，无需显式清缓存。
@@ -40,6 +41,8 @@ final class MarkdownRenderer
             \League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode::class,
             new SyntaxHighlighterCodeRenderer(),
         );
+        // Pandoc link_attributes 扩展（仅紧跟图片/链接的 {...} 块，不影响普通正文花括号）
+        $environment->addInlineParser(new PandocAttributesParser());
         $this->converter = new MarkdownConverter($environment);
     }
 
@@ -50,7 +53,8 @@ final class MarkdownRenderer
      */
     public function render(string $markdown, int $version = 0): string
     {
-        $key = 'md.' . $version . '.' . sha1($markdown);
+        // mdv2：引入 Pandoc 图片属性扩展 + Attr.EnableID 后语义变化，bump 前缀强制重渲染
+        $key = 'mdv2.' . $version . '.' . sha1($markdown);
         /** @var string $html */
         $html = $this->cache->getOrSet(
             $key,
@@ -70,7 +74,7 @@ final class MarkdownRenderer
     public function renderPost(Post $post): string
     {
         $content = (string) $post->content;
-        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'md.' : 'html.')
+        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'mdv2.' : 'html.')
             . $post->update_time . '.' . sha1($content);
         /** @var string $html */
         $html = $this->cache->getOrSet(
@@ -85,6 +89,9 @@ final class MarkdownRenderer
 
     /**
      * markdown → HTML 净化管线（HTMLPurifier 白名单，放行代码块 language class）。
+     *
+     * Attr.EnableID 仅放行通过 HTMLPurifier ID 校验的 id（XML 名称字符集 + 文档内去重），
+     * 用于 Pandoc `{#id}` 图片属性；标题锚点 id 在净化之后由 attachTocAnchors 追加，不受影响。
      */
     public function renderUncached(string $markdown): string
     {
@@ -92,6 +99,7 @@ final class MarkdownRenderer
         return \App\Common\XUtils::htmlPurify($html, [
             'Attr.ClassUseCDATA' => true,
             'Attr.AllowedFrameTargets' => ['_blank'],
+            'Attr.EnableID' => true,
             // HTML.Forms 仅为保留 task-list checkbox 而开启；form 标签本身禁止（防正文内嵌钓鱼表单）
             'HTML.Forms' => true,
             'HTML.ForbiddenElements' => ['form'],
