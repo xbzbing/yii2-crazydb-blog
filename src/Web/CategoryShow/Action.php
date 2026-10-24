@@ -8,16 +8,19 @@ use App\Category\Category;
 use App\Comment\Comment;
 use App\Common\CMSUtils;
 use App\Nav\Nav;
+use App\Option\Option;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
 use App\Tag\Tag;
 use App\Web\NotFound\NotFoundResponder;
 use App\Web\Pager;
+use App\Web\Shared\SeoUrl;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
@@ -50,6 +53,22 @@ final readonly class Action
             : ($id !== null ? Category::query()->findByPk($id) : null);
         if (!$category instanceof Category) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
+        }
+
+        // 规范 URL：有 alias 的分类从 /category/{id} 301 到 /catalog/{alias}，合并重复内容信号
+        if ($id !== null && $category->alias !== '') {
+            $seoConfig = CMSUtils::getSiteConfig($this->cache, Option::SEO_TYPE);
+            return $this->responseFactory
+                ->createResponse(Status::MOVED_PERMANENTLY)
+                ->withHeader(
+                    'Location',
+                    SeoUrl::route(
+                        $this->urlGenerator,
+                        'category/show',
+                        ['alias' => $category->alias],
+                        (string)($seoConfig[Option::SEO_SITE_URL] ?? ''),
+                    ),
+                );
         }
 
         $page = (int)($page ?? $request->getQueryParams()['page'] ?? 1);

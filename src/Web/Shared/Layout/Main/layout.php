@@ -41,7 +41,20 @@ $seoKeywords = (string)($this->getParameter('seo_keywords', ''));
 $seoDescription = (string)($this->getParameter('seo_description', ''));
 // 页面级 robots 指令（如登录/注册页 noindex），未设置则不输出
 $seoRobots = (string)($this->getParameter('seo_robots', ''));
+/** @var \App\Web\Shared\SeoConfig|null $seoService */
+$seoService = $this->getParameter('seoService', null);
+$siteUrl = $seoService instanceof \App\Web\Shared\SeoConfig ? $seoService->siteUrl() : '';
 $showSidebar = (bool)$this->getParameter('showSidebar', true);
+
+// canonical：优先页面指定（文章详情页），否则当前路由的规范绝对 URL
+// （查询串分页归一到路径分页，utm 等丢弃）
+$canonicalUrl = (string)$this->getParameter('seo_canonical', '');
+if ($canonicalUrl === '') {
+    $canonicalUrl = \App\Web\Shared\SeoHead::canonical($urlGenerator, $currentRoute, $siteUrl);
+}
+// og:type/og:image 由页面覆盖（文章详情页传 article + 封面）
+$ogType = (string)$this->getParameter('seo_og_type', 'website');
+$ogImage = (string)$this->getParameter('seo_og_image', '');
 
 $this->beginPage()
 ?>
@@ -61,6 +74,11 @@ $this->beginPage()
     <?php if ($seoRobots !== ''): ?>
         <meta name="robots" content="<?= Html::encode($seoRobots) ?>">
     <?php endif; ?>
+    <?php if ($canonicalUrl !== ''): ?>
+        <link rel="canonical" href="<?= Html::encodeAttribute($canonicalUrl) ?>">
+    <?php endif; ?>
+    <?= \App\Web\Shared\SeoHead::feedLinks($urlGenerator, $siteName) ?>
+    <?= \App\Web\Shared\SeoHead::socialMeta($siteName, $pageTitle, $seoDescription, $canonicalUrl, $ogType, $ogImage) ?>
     <?php $this->head() ?>
 </head>
 <body>

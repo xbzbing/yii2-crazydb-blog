@@ -55,6 +55,14 @@ $this->setParameter(
         : $post->getSeoDescription($markdownRenderer),
 );
 
+// canonical：无 alias 时 /post/{id} 与 /archive/{alias} 双入口归一到当前实际渲染的 URL
+$seoSiteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$this->setParameter('seo_canonical', \App\Web\Shared\SeoUrl::absolutize($urlGenerator, (string)$post->getUrl($urlGenerator), $seoSiteUrl));
+// Open Graph：文章详情页用 article 类型 + 封面图
+$this->setParameter('seo_og_type', 'article');
+$ogCover = (string)($post->cover ?? '') !== '' ? (string)$post->cover : (string)($post->getCoverImage($markdownRenderer) ?? '');
+$this->setParameter('seo_og_image', \App\Web\Shared\SeoUrl::absolutize($urlGenerator, $ogCover, $seoSiteUrl));
+
 $postUrl = $post->getUrl($urlGenerator);
 $category = $categorySummary[(int)$post->cid] ?? null;
 $authorNickname = $authorNickname ?? '';

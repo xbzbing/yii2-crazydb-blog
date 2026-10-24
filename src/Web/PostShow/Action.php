@@ -8,6 +8,7 @@ use App\Category\Category;
 use App\Comment\Comment;
 use App\Common\CMSUtils;
 use App\Nav\Nav;
+use App\Option\Option;
 use App\Post\HtmlToMarkdownService;
 use App\Post\MarkdownRenderer;
 use App\Post\Post;
@@ -17,12 +18,14 @@ use App\User\AuthService;
 use App\User\LoginThrottle;
 use App\User\User;
 use App\Web\NotFound\NotFoundResponder;
+use App\Web\Shared\SeoUrl;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Predis\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Http\Status;
 use Yiisoft\Router\HydratorAttribute\RouteArgument;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
@@ -56,6 +59,23 @@ final readonly class Action
             : ($id !== null ? Post::findVisibleById($id) : null);
         if ($post === null) {
             return NotFoundResponder::respond($this->viewRenderer, $this->responseFactory, $this->urlGenerator);
+        }
+
+        // 规范 URL：有 alias 的文章从 /post/{id} 301 到 /archive/{alias}，合并重复内容信号。
+        // 仅 GET 跳转：POST（密码解锁表单）保持原地渲染，避免方法被改写丢失表单。
+        if ($id !== null && $post->alias !== '' && $request->getMethod() === 'GET') {
+            $seoConfig = CMSUtils::getSiteConfig($this->cache, Option::SEO_TYPE);
+            return $this->responseFactory
+                ->createResponse(Status::MOVED_PERMANENTLY)
+                ->withHeader(
+                    'Location',
+                    SeoUrl::route(
+                        $this->urlGenerator,
+                        'post/show',
+                        ['alias' => $post->alias],
+                        (string)($seoConfig[Option::SEO_SITE_URL] ?? ''),
+                    ),
+                );
         }
 
         $siteConfig = CMSUtils::getSiteConfig($this->cache);

@@ -67,4 +67,34 @@ final class SeoUrl
     {
         return self::absolute($urlGenerator, $urlGenerator->generate($name, $params), $siteUrl);
     }
+
+    /**
+     * 任意来源 URL → 绝对 URL（供 og:image/canonical 归一）：
+     * - http(s):// 开头：原样返回
+     * - //host/path（协议相对）：补站点（或请求）的 scheme
+     * - /path 或相对路径：拼 origin
+     * - 空串：返回空串；origin 拿不到时降级原样返回
+     */
+    public static function absolutize(UrlGeneratorInterface $urlGenerator, string $url, string $siteUrl = ''): string
+    {
+        $url = trim($url);
+        if ($url === '') {
+            return '';
+        }
+        if (preg_match('#^https?://#i', $url) === 1) {
+            return $url;
+        }
+        $origin = self::origin($urlGenerator, $siteUrl);
+        if (str_starts_with($url, '//')) {
+            $scheme = '';
+            if ($origin !== '') {
+                $scheme = (string)parse_url($origin, PHP_URL_SCHEME);
+            }
+            return ($scheme !== '' ? $scheme : 'https') . ':' . $url;
+        }
+        if ($origin === '') {
+            return $url;
+        }
+        return $origin . '/' . ltrim($url, '/');
+    }
 }

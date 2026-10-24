@@ -48,6 +48,8 @@ return [
             'flash' => Reference::to(FlashInterface::class),
             'authService' => Reference::to(AuthService::class),
             'markdownRenderer' => Reference::to(MarkdownRenderer::class),
+            // SEO 配置只读视图（layout 输出 canonical/OG 用；懒加载，首次访问才查库）
+            'seoService' => Reference::to(\App\Web\Shared\SeoConfig::class),
         ],
     ],
 
