@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import { getCsrfToken } from '../api/client'
 import { ADMIN_BASE } from '../config'
+import { applyPandocImageAttrs } from '../lib/pandocImageAttrs'
 
 interface VditorEditorProps {
   value: string
@@ -91,6 +92,31 @@ export default function VditorEditor({
       if (el?._vditor) el._vditor.setValue(value || '')
     }
   }, [value, ready])
+
+  // IR 模式下应用 Pandoc 图片属性显示层：Lute 不识别 {width=50%}（渲染为图片
+  // span 后的兄弟文本节点），解析该文本并把尺寸应用到 <img>，编辑器内所见即所得。
+  // 只观察 childList/characterData（不含 attributes）——避免对 <img> 的变异
+  // 触发 observer 死循环；rAF 合并高频编辑重渲染。
+  useEffect(() => {
+    if (!ready || !containerRef.current) return
+    const ir = containerRef.current.querySelector('.vditor-ir')
+    if (!ir) return
+    let raf = 0
+    const schedule = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        raf = 0
+        applyPandocImageAttrs(ir)
+      })
+    }
+    applyPandocImageAttrs(ir)
+    const observer = new MutationObserver(schedule)
+    observer.observe(ir, { childList: true, subtree: true, characterData: true })
+    return () => {
+      observer.disconnect()
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [ready])
 
   // 卸载时销毁 Vditor 实例（格式切换 html↔markdown 时组件重挂载）
   useEffect(() => {
