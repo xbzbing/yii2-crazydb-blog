@@ -47,7 +47,7 @@ $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($post->title . ' - ' . $siteName);
-$this->setParameter('seo_keywords', (string)($post->tags !== '' ? $post->tags : ($seoConfig['seo_keywords'] ?? '')));
+$this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge((string)$post->tags, (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter(
     'seo_description',
     (string)$post->password !== ''

@@ -22,6 +22,7 @@ export default function SeoSettings() {
           seo_title: data?.values?.seo_title,
           seo_keywords: data?.values?.seo_keywords,
           seo_description: data?.values?.seo_description,
+          seo_site_url: data?.values?.seo_site_url,
         })
       })
       .catch((e) => message.error(e.message))
@@ -59,6 +60,14 @@ export default function SeoSettings() {
         </Form.Item>
         <Form.Item name="seo_description" label="SEO 描述">
           <TextArea rows={3} placeholder="SEO 描述" />
+        </Form.Item>
+        <Form.Item
+          name="seo_site_url"
+          label="站点 URL"
+          tooltip="站点绝对地址（如 https://example.com），canonical/robots.txt/sitemap 以此为准；留空则用当前请求域名"
+          rules={[{ pattern: /^https?:\/\/.+/, message: '须以 http:// 或 https:// 开头，或留空' }]}
+        >
+          <Input placeholder="https://example.com" />
         </Form.Item>
         <Space>
           <Button type="primary" htmlType="submit" loading={submitting}>

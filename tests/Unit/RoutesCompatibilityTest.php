@@ -32,6 +32,8 @@ final class RoutesCompatibilityTest extends TestCase
     public static function urlCases(): iterable
     {
         yield [[ 'url' => '/', 'route' => 'site/index' ]];
+        yield [[ 'url' => '/sitemap.xml', 'route' => 'sitemap' ]];
+        yield [[ 'url' => '/robots.txt', 'route' => 'site/robots' ]];
         yield [[ 'url' => '/page/2', 'route' => 'site/index-page' ]];
         yield [[ 'url' => '/login', 'route' => 'site/login' ]];
         yield [[ 'url' => '/logout', 'method' => 'POST', 'route' => 'site/logout' ]];

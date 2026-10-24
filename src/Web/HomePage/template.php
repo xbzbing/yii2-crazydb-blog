@@ -29,7 +29,7 @@ $this->setParameter('showSidebar', $showSidebar);
 $this->setParameter('siteConfig', $siteConfig);
 $this->setParameter('navTree', $navTree);
 
-$this->setTitle((string)($siteConfig['site_name'] ?? $applicationParams->name));
+$this->setTitle((string)($siteConfig['site_name'] ?? $applicationParams->name) . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : ''));
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 

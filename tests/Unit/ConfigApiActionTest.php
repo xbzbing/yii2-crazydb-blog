@@ -145,4 +145,29 @@ final class ConfigApiActionTest extends TestCase
         self::assertSame('blog,regression', $values['seo_keywords']);
         self::assertSame('__回归_SEO_描述__', $values['seo_description']);
     }
+
+    public function testSeoSiteUrlRoundTripAndValidation(): void
+    {
+        $this->snapshotFields();
+        $data = $this->readData();
+
+        // 合法绝对地址：保存成功并可读回
+        $body = $data['values'];
+        $body['seo_site_url'] = 'https://seo-roundtrip.test/';
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/admin/api/config/save')
+            ->withParsedBody($body);
+        $payload = json_decode((string)$this->action()->save($request)->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertTrue($payload['ok'], '合法站点 URL 应保存成功: ' . ($payload['message'] ?? ''));
+        self::assertSame('https://seo-roundtrip.test/', $this->readData()['values']['seo_site_url']);
+
+        // 非法值（非 http(s) 绝对地址）：进入 failed 明细，不落库
+        $body['seo_site_url'] = 'seo.example.com';
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/admin/api/config/save')
+            ->withParsedBody($body);
+        $payload = json_decode((string)$this->action()->save($request)->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        // 部分失败时包体仍是 ok=true，失败明细在 data.failed（条目形如 "seo_site_url（须为…）"）
+        $failed = $payload['data']['failed'] ?? [];
+        self::assertNotEmpty(array_filter($failed, static fn (string $f): bool => str_starts_with($f, 'seo_site_url')), '非绝对地址应校验失败');
+        self::assertSame('https://seo-roundtrip.test/', $this->readData()['values']['seo_site_url'], '非法值不应覆盖已保存值');
+    }
 }

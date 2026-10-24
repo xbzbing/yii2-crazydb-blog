@@ -35,7 +35,7 @@ $this->setParameter('siteConfig', $siteConfig);
 $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
-$this->setTitle($user->nickname . ' - ' . $siteName);
+$this->setTitle($user->nickname . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : '') . ' - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $seoDescription = trim(preg_replace('/\s+/u', ' ', strip_tags((string)$user->info)) ?? '');
 $this->setParameter(

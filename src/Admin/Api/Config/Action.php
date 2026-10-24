@@ -36,6 +36,7 @@ final readonly class Action
         'seo_title' => ['label' => 'SEO 标题', 'type' => 'seo'],
         'seo_keywords' => ['label' => 'SEO 关键词', 'type' => 'seo'],
         'seo_description' => ['label' => 'SEO 描述', 'type' => 'seo'],
+        Option::SEO_SITE_URL => ['label' => '站点 URL（绝对地址，如 https://example.com）', 'type' => 'seo'],
     ];
 
     /**
@@ -105,6 +106,10 @@ final readonly class Action
             }
             if ($name === Option::SITE_STATUS && !in_array($value, [Option::STATUS_RUNNING, Option::STATUS_MAINTENANCE], true)) {
                 $failed[] = $name . '（须为 running/maintenance）';
+                continue;
+            }
+            if ($name === Option::SEO_SITE_URL && $value !== '' && \App\Web\Shared\SeoUrl::site($value) === '') {
+                $failed[] = $name . '（须为 http(s):// 绝对地址或留空）';
                 continue;
             }
             if (!$this->saveOption($field['type'], $name, $value)) {

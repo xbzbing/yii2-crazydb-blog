@@ -27,6 +27,11 @@ final class Option extends ActiveRecord
     /** 维护文案默认值 */
     public const MAINTENANCE_MESSAGE_DEFAULT = '系统升级中';
 
+    /** SEO 分组配置（option.type） */
+    public const SEO_TYPE = 'seo';
+    /** 站点绝对 URL 配置键（canonical/sitemap/OG 的 origin 真理源，留空则用请求 host） */
+    public const SEO_SITE_URL = 'seo_site_url';
+
     public string $type = '';
     public string $name = '';
     public ?string $value = null;

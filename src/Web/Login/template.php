@@ -26,6 +26,8 @@ $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('登录 - ' . $siteName);
+// 登录页无收录价值，禁止索引（robots.txt Disallow 只阻止抓取，不阻止收录）
+$this->setParameter('seo_robots', 'noindex,follow');
 ?>
 
 <div class="breadcrumbs">

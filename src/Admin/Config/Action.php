@@ -34,6 +34,7 @@ final readonly class Action
         'seo_title' => ['label' => 'SEO 标题', 'type' => 'seo'],
         'seo_keywords' => ['label' => 'SEO 关键词', 'type' => 'seo'],
         'seo_description' => ['label' => 'SEO 描述', 'type' => 'seo'],
+        \App\Option\Option::SEO_SITE_URL => ['label' => '站点 URL（绝对地址，如 https://example.com）', 'type' => 'seo'],
     ];
 
     /** @var array<string, string> 主题显示名：配置值 => 下拉显示名（与 ThemeFactory::AVAILABLE_THEMES 单源对齐） */
@@ -87,6 +88,10 @@ final readonly class Action
                 }
                 if ($name === 'theme' && !isset(ThemeFactory::AVAILABLE_THEMES[$value])) {
                     $failed[] = $name . '（未知主题）';
+                    continue;
+                }
+                if ($name === \App\Option\Option::SEO_SITE_URL && $value !== '' && \App\Web\Shared\SeoUrl::site($value) === '') {
+                    $failed[] = $name . '（须为 http(s):// 绝对地址或留空）';
                     continue;
                 }
                 if (!$this->saveOption($field['type'], $name, $value)) {

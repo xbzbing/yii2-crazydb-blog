@@ -23,6 +23,8 @@ $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('修改密码 - ' . $siteName);
+// 登录后的私密页面，禁止索引
+$this->setParameter('seo_robots', 'noindex,follow');
 ?>
 
 <div class="breadcrumbs">

@@ -331,7 +331,7 @@ final class InitMigrateCommand extends Command
         // option 种子数据
         $optionTable = $this->t('option');
         $optionCount = $this->countRecords($pdo, $optionTable);
-        if ($optionCount >= 10) {
+        if ($optionCount >= 11) {
             $output->writeln(sprintf('  <comment>✓</comment> option 表已有 %d 条数据，跳过', $optionCount));
             $skipped++;
         } else {
@@ -345,10 +345,11 @@ final class InitMigrateCommand extends Command
                     ('sys', 'visit_script_keywords', 'python-,curl,wget,axios,java-http-client,java/,headless', UNIX_TIMESTAMP()),
                     ('seo', 'seo_title', 'Crazydb-Blog', UNIX_TIMESTAMP()),
                     ('seo', 'seo_keywords', 'blog,crazydb', UNIX_TIMESTAMP()),
-                    ('seo', 'seo_description', 'Crazydb-Blog，基于Yii2的博客系统', UNIX_TIMESTAMP())";
+                    ('seo', 'seo_description', 'Crazydb-Blog，基于Yii2的博客系统', UNIX_TIMESTAMP()),
+                    ('seo', 'seo_site_url', '', UNIX_TIMESTAMP())";
 
             if ($dryRun) {
-                $output->writeln(sprintf('  <info>○</info> option 表数据不足（%d/10），将插入', $optionCount));
+                $output->writeln(sprintf('  <info>○</info> option 表数据不足（%d/11），将插入', $optionCount));
                 $applied++;
             } else {
                 try {

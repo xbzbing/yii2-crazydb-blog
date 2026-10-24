@@ -42,6 +42,8 @@ if ($pageTitle === '') {
 }
 $seoKeywords = (string)($this->getParameter('seo_keywords', ''));
 $seoDescription = (string)($this->getParameter('seo_description', ''));
+// 页面级 robots 指令（如登录/注册页 noindex），未设置则不输出
+$seoRobots = (string)($this->getParameter('seo_robots', ''));
 $showSidebar = (bool)$this->getParameter('showSidebar', true);
 $currentUser = $authService->currentUser();
 
@@ -60,6 +62,9 @@ $this->beginPage()
     <?php endif; ?>
     <?php if ($seoDescription !== ''): ?>
         <meta name="description" content="<?= Html::encode($seoDescription) ?>">
+    <?php endif; ?>
+    <?php if ($seoRobots !== ''): ?>
+        <meta name="robots" content="<?= Html::encode($seoRobots) ?>">
     <?php endif; ?>
     <?php $this->head() ?>
 </head>

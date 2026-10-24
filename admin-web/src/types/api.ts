@@ -236,6 +236,7 @@ export interface ConfigValues {
   seo_title?: string
   seo_keywords?: string
   seo_description?: string
+  seo_site_url?: string
   [key: string]: string | undefined
 }
 

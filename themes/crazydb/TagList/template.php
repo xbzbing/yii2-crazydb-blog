@@ -30,11 +30,7 @@ $this->setParameter('navTree', $navTree);
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('所有标签 - ' . $siteName);
 $tagNames = array_slice(array_map(static fn (array $tag): string => (string)$tag['name'], $tags), 0, 20);
-$keywords = (string)($seoConfig['seo_keywords'] ?? '');
-if ($tagNames !== []) {
-    $keywords = implode(',', $tagNames) . ($keywords !== '' ? ',' . $keywords : '');
-}
-$this->setParameter('seo_keywords', $keywords);
+$this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge(implode(',', $tagNames), (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 
 $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];

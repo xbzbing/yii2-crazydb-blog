@@ -31,8 +31,8 @@ $this->setParameter('siteConfig', $siteConfig);
 $this->setParameter('navTree', $navTree);
 
 $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
-$this->setTitle($category->name . ' - ' . $siteName);
-$this->setParameter('seo_keywords', (string)($category->keywords !== '' ? $category->keywords : ($seoConfig['seo_keywords'] ?? '')));
+$this->setTitle($category->name . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : '') . ' - ' . $siteName);
+$this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge((string)$category->keywords, (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($category->desc ?? ''));
 ?>
 
