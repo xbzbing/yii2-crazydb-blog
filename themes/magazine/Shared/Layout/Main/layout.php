@@ -64,6 +64,9 @@ if ($canonicalUrl === '') {
 // og:type/og:image 由页面覆盖（文章详情页传 article + 封面）
 $ogType = (string)$this->getParameter('seo_og_type', 'website');
 $ogImage = (string)$this->getParameter('seo_og_image', '');
+// JSON-LD 结构化数据节点（页面 setParameter('seo_jsonld', [...])，见 SeoJsonLd）
+/** @var list<array<string, mixed>> $seoJsonLd */
+$seoJsonLd = (array)$this->getParameter('seo_jsonld', []);
 
 $this->beginPage()
 ?>
@@ -89,6 +92,7 @@ $this->beginPage()
     <?php endif; ?>
     <?= \App\Web\Shared\SeoHead::feedLinks($urlGenerator, $siteName) ?>
     <?= \App\Web\Shared\SeoHead::socialMeta($siteName, $pageTitle, $seoDescription, $canonicalUrl, $ogType, $ogImage) ?>
+    <?= \App\Web\Shared\SeoJsonLd::render($seoJsonLd) ?>
     <?php $this->head() ?>
 </head>
 <body class="magazine-body">

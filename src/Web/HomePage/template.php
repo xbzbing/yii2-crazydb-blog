@@ -33,6 +33,15 @@ $this->setTitle((string)($siteConfig['site_name'] ?? $applicationParams->name) .
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 
+// JSON-LD：WebSite（站点节点，仅首页输出）
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::webSite(
+        (string)($siteConfig['site_name'] ?? $applicationParams->name),
+        \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''))),
+        (string)($seoConfig['seo_description'] ?? ''),
+    ),
+]);
+
 ?>
 
 <?= $this->render('PostList/postList.php', [

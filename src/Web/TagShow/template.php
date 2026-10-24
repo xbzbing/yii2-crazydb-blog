@@ -34,6 +34,15 @@ $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($tagName . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : '') . ' - ' . $siteName);
 $this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge($tagName, (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
+
+// JSON-LD：BreadcrumbList（首页 » 标签名）
+$siteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::breadcrumb([
+        ['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $siteUrl)],
+        ['name' => '标签：' . $tagName],
+    ]),
+]);
 ?>
 
 <nav class="breadcrumb">

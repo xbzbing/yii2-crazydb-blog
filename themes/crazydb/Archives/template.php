@@ -32,6 +32,15 @@ $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle('文章归档 - ' . $siteName);
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
+
+// JSON-LD：BreadcrumbList（首页 » 文章归档）
+$siteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::breadcrumb([
+        ['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $siteUrl)],
+        ['name' => '文章归档'],
+    ]),
+]);
 ?>
 
 <div class="breadcrumbs">

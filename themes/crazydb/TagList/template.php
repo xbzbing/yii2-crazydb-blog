@@ -33,6 +33,15 @@ $tagNames = array_slice(array_map(static fn (array $tag): string => (string)$tag
 $this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge(implode(',', $tagNames), (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
 
+// JSON-LD：BreadcrumbList（首页 » 所有标签）
+$siteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::breadcrumb([
+        ['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $siteUrl)],
+        ['name' => '所有标签'],
+    ]),
+]);
+
 $tagColors = ['default', 'primary', 'success', 'info', 'warning', 'danger'];
 ?>
 

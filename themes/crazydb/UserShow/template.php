@@ -42,6 +42,16 @@ $this->setParameter(
     'seo_description',
     $user->nickname . '在「' . $siteName . '」共发表' . $pager->totalCount . '篇文章，个人简介：' . mb_strimwidth($seoDescription, 0, 120, '...', 'utf-8'),
 );
+
+// JSON-LD：BreadcrumbList（首页 » 用户 » 昵称；「用户」为纯文本与可见面包屑一致）
+$siteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::breadcrumb([
+        ['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $siteUrl)],
+        ['name' => '用户'],
+        ['name' => $user->nickname],
+    ]),
+]);
 ?>
 
 <div class="breadcrumbs">

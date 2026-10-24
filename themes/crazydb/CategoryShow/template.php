@@ -34,6 +34,19 @@ $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle($category->name . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : '') . ' - ' . $siteName);
 $this->setParameter('seo_keywords', \App\Web\Shared\SeoKeywords::merge((string)$category->keywords, (string)($seoConfig['seo_keywords'] ?? '')));
 $this->setParameter('seo_description', (string)($category->desc ?? ''));
+
+// JSON-LD：BreadcrumbList（首页 » 文章归档 » 分类名，与其可见面包屑一致）
+$siteUrl = \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''));
+$categoryPath = $category->alias !== ''
+    ? $urlGenerator->generate('category/show', ['alias' => $category->alias])
+    : $urlGenerator->generate('category/view', ['id' => $category->id]);
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::breadcrumb([
+        ['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $siteUrl)],
+        ['name' => '文章归档', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'post/archives', [], $siteUrl)],
+        ['name' => $category->name, 'url' => \App\Web\Shared\SeoUrl::absolutize($urlGenerator, $categoryPath, $siteUrl)],
+    ]),
+]);
 ?>
 
 <div class="breadcrumbs">

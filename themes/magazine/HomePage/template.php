@@ -37,6 +37,15 @@ $siteName = (string)($siteConfig['site_name'] ?? $applicationParams->name);
 $this->setTitle((string)($seoConfig['seo_title'] ?? $siteName) . ($pager->currentPage > 1 ? ' - 第' . $pager->currentPage . '页' : ''));
 $this->setParameter('seo_keywords', (string)($seoConfig['seo_keywords'] ?? ''));
 $this->setParameter('seo_description', (string)($seoConfig['seo_description'] ?? ''));
+
+// JSON-LD：WebSite（站点节点，仅首页输出）
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::webSite(
+        $siteName,
+        \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], \App\Web\Shared\SeoUrl::site((string)($seoConfig[\App\Option\Option::SEO_SITE_URL] ?? ''))),
+        (string)($seoConfig['seo_description'] ?? ''),
+    ),
+]);
 ?>
 
 <?php if ($latest !== null): ?>

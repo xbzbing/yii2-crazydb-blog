@@ -230,11 +230,6 @@
       <code><![CDATA[$data]]></code>
     </MixedArgumentTypeCoercion>
   </file>
-  <file src="themes/crazydb/PostShow/template.php">
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]]]></code>
-    </MixedArgumentTypeCoercion>
-  </file>
   <file src="themes/crazydb/Shared/Article/article.php">
     <DocblockTypeContradiction>
       <code><![CDATA['']]></code>

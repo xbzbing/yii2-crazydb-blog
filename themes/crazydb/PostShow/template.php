@@ -36,6 +36,7 @@ use Yiisoft\Html\Html;
  * @var Yiisoft\Aliases\Aliases $aliases
  * @var ?string $csrf
  * @var App\User\AuthService $authService
+ * @var ?string $authorNickname
  */
 
 $this->setParameter('categorySummary', $categorySummary);
@@ -69,6 +70,30 @@ $authorNickname = $authorNickname ?? '';
 $authorDisplay = $post->author_name !== '' ? $post->author_name : $authorNickname;
 $authorUrl = $urlGenerator->generate('user/show', ['name' => $authorNickname !== '' ? $authorNickname : $authorDisplay]);
 $isOld = (int)$post->post_time <= strtotime('-1 month');
+
+// JSON-LD：BlogPosting（文章）+ BreadcrumbList（首页 » 分类 » 标题）
+$seoDescription = (string)$this->getParameter('seo_description', '');
+$breadcrumbItems = [['name' => '首页', 'url' => \App\Web\Shared\SeoUrl::route($urlGenerator, 'site/index', [], $seoSiteUrl)]];
+if ($category !== null && $category['url'] !== null && $category['name'] !== '') {
+    $breadcrumbItems[] = [
+        'name' => (string)$category['name'],
+        'url' => \App\Web\Shared\SeoUrl::absolutize($urlGenerator, (string)$category['url'], $seoSiteUrl),
+    ];
+}
+$breadcrumbItems[] = ['name' => $post->title];
+$this->setParameter('seo_jsonld', [
+    \App\Web\Shared\SeoJsonLd::blogPosting([
+        'headline' => $post->title,
+        'url' => (string)$this->getParameter('seo_canonical', ''),
+        'description' => $seoDescription,
+        'image' => (string)$this->getParameter('seo_og_image', ''),
+        'published' => (int)$post->post_time,
+        'modified' => (int)$post->update_time,
+        'authorName' => $authorDisplay,
+        'siteName' => $siteName,
+    ]),
+    \App\Web\Shared\SeoJsonLd::breadcrumb($breadcrumbItems),
+]);
 
 // 正文含代码块时注册 highlight.js（复用 vditor 内置资源）
 // 触发条件：Vditor 新格式 <pre><code>，或 UEditor 老格式 <pre class="brush:xxx">
