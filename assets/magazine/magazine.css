@@ -403,6 +403,21 @@ a:hover { text-decoration: underline; }
     height: auto;
 }
 
+/* 正文图片布局（配合 Markdown 图片属性语法）：
+   1) 独占一段的图片自动居中：![说明](a.png){width:70%}
+   2) 两列并排（各占 48%）：{width:48% .img-left} / {width:48% .img-right} */
+.article-detail .article-detail-body p:has(> img:only-child) {
+    text-align: center;
+}
+
+.article-detail .article-detail-body p:has(> img.img-left),
+.article-detail .article-detail-body p:has(> img.img-right) {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    text-align: center;
+}
+
 .article-detail-body blockquote {
     border-left: 3px solid var(--accent);
     margin: 1.5em 0;

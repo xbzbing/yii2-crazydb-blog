@@ -255,9 +255,33 @@ a.read-more:hover {
     max-width: 100%;
 }
 
-.post-list .entry-content img {
+/* 列表卡片（article.list-group-item）的摘要缩略图：浮动排版，文字环绕。
+ * 必须限定 .list-group-item —— 文章详情页 article.post-view 同样位于
+ * .post-list 主内容容器内，若不限定会让正文图片全部 float:left，
+ * 造成正文图文混排（图片占左侧、段落文字挤到右侧）。 */
+.post-list .list-group-item .entry-content img {
     float: left;
     margin: 0.7em 1em;
+}
+
+/* ============ 正文图片布局（配合 Markdown 图片属性语法） ============
+   1) 独占一段的图片：单独成行并水平居中，无需额外写法：
+        ![说明](a.png){width:70%}
+   2) 两列并排：两张图各占 48%，依次加 .img-left / .img-right：
+        ![左](a.png){width:48% .img-left}
+        ![右](b.png){width:48% .img-right} */
+.post-view .entry-content p:has(> img:only-child) {
+    text-align: center;
+    text-indent: 0;
+}
+
+.post-view .entry-content p:has(> img.img-left),
+.post-view .entry-content p:has(> img.img-right) {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    text-align: center;
+    text-indent: 0;
 }
 
 article.list-group-item:nth-of-type(1) {

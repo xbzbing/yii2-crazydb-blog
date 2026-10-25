@@ -718,6 +718,20 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
 .article-body pre code { background: none; padding: 0; }
 .article-body img { max-width: 100%; border-radius: 8px; }
 
+/* 正文图片布局（配合 Markdown 图片属性语法）：
+   1) 独占一段的图片自动居中：![说明](a.png){width:70%}
+   2) 两列并排（各占 48%）：{width:48% .img-left} / {width:48% .img-right} */
+.article-detail .article-body p:has(> img:only-child) {
+    text-align: center;
+}
+.article-detail .article-body p:has(> img.img-left),
+.article-detail .article-body p:has(> img.img-right) {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    text-align: center;
+}
+
 /* --- Post meta --- */
 .post-meta {
     display: flex;
