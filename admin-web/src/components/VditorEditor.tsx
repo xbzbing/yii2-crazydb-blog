@@ -3,6 +3,7 @@ import { Spin } from 'antd'
 import { getCsrfToken } from '../api/client'
 import { ADMIN_BASE } from '../config'
 import { applyPandocImageAttrs, applyPandocImageAttrsInPreview } from '../lib/pandocImageAttrs'
+import { applyPandocFencedDivs } from '../lib/pandocFencedDiv'
 
 interface VditorEditorProps {
   value: string
@@ -97,7 +98,9 @@ export default function VditorEditor({
   // - IR 源区：Lute 不识别 {width=50%}（渲染为 img 外层 span 后的兄弟文本节点），
   //   解析该文本并把尺寸应用到 <img>，所见即所得（不可删除字面量，否则 IR→MD 丢失内容）；
   // - 分屏/全屏预览（.vditor-preview）：Lute Md2HTML 把属性块当纯文本渲染，
-  //   解析后套用尺寸并剥离字面量（预览为只读渲染，可安全改写）。
+  //   解析后套用尺寸并剥离字面量（预览为只读渲染，可安全改写）；fenced_divs
+  //   围栏（::: {.center}）同理由 Lute 按字面输出，重组为 div 包裹所见即所得；
+  //   IR/sv/wysiwyg 源区一律不改结构——围栏行保持 markdown 原文（序列化安全）。
   // 观察整个编辑器容器（childList/characterData，不含 attributes——避免对 <img>
   // 的变异触发 observer 死循环），模式切换（ir/sv/预览）动态挂载的面板每帧重新查询；
   // rAF 合并高频编辑重渲染。所有套用操作幂等，自触发的变更一轮后收敛。
@@ -109,7 +112,11 @@ export default function VditorEditor({
       const ir = container.querySelector('.vditor-ir')
       if (ir) applyPandocImageAttrs(ir)
       const preview = container.querySelector('.vditor-preview')
-      if (preview) applyPandocImageAttrsInPreview(preview)
+      if (preview) {
+        // 先重组围栏 div（改变块结构），再套用图片属性（对位置不敏感，均可幂等）
+        applyPandocFencedDivs(preview.querySelector('.vditor-reset') ?? preview)
+        applyPandocImageAttrsInPreview(preview)
+      }
     }
     run()
     const schedule = () => {

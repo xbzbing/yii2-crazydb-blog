@@ -29,6 +29,15 @@ body,
   z-index: 1000 !important;
 }
 
+/* Pandoc fenced_divs 显示层：让 ::: {.center} 包裹的内容在编辑器预览面板与
+   后台文章预览弹窗中居中（与前台主题 .center 同语义；前台由主题 CSS 提供） */
+.vditor-preview .center,
+.vditor-preview .center p,
+.post-preview-content .center,
+.post-preview-content .center p {
+  text-align: center;
+}
+
 /* 侧边栏：不透明背景，避免滑动时透过 aside 显示底层内容 */
 .ant-pro-sider,
 .ant-pro-sider > .ant-layout-sider-children {
