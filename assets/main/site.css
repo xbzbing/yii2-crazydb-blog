@@ -732,6 +732,12 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     text-align: center;
 }
 
+/* fenced_divs 围栏容器：::: {.center} … ::: 包裹的整块内容居中 */
+.article-detail .article-body .center,
+.article-detail .article-body .center p {
+    text-align: center;
+}
+
 /* --- Post meta --- */
 .post-meta {
     display: flex;

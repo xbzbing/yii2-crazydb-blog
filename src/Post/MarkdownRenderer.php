@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Post;
 
+use App\Post\FencedDiv\FencedDiv;
+use App\Post\FencedDiv\FencedDivRenderer;
+use App\Post\FencedDiv\FencedDivStartParser;
 use App\Post\PandocAttributes\PandocAttributesParser;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -13,7 +16,8 @@ use League\CommonMark\MarkdownConverter;
 use Yiisoft\Cache\CacheInterface;
 
 /**
- * Markdown 渲染管线：commonmark(GFM) + highlight.js 兼容代码块 + Pandoc 图片属性扩展 + HTMLPurifier 净化。
+ * Markdown 渲染管线：commonmark(GFM) + highlight.js 兼容代码块 + Pandoc 图片属性扩展
+ * + Pandoc fenced_divs 围栏 div 扩展 + HTMLPurifier 净化。
  *
  * 输出缓存放 Redis，key 由 update_time 与内容 hash 构成——文章更新（update_time 变化）
  * 即自动失效，无需显式清缓存。
@@ -43,6 +47,9 @@ final class MarkdownRenderer
         );
         // Pandoc link_attributes 扩展（仅紧跟图片/链接的 {...} 块，不影响普通正文花括号）
         $environment->addInlineParser(new PandocAttributesParser());
+        // Pandoc fenced_divs 扩展：::: {.center} … ::: → <div class="center">…</div>
+        $environment->addBlockStartParser(new FencedDivStartParser());
+        $environment->addRenderer(FencedDiv::class, new FencedDivRenderer());
         $this->converter = new MarkdownConverter($environment);
     }
 
@@ -53,8 +60,9 @@ final class MarkdownRenderer
      */
     public function render(string $markdown, int $version = 0): string
     {
-        // mdv3：支持冒号语法 {width:70%} 后语义变化（旧缓存会把冒号块渲染成字面量），bump 前缀强制重渲染
-        $key = 'mdv3.' . $version . '.' . sha1($markdown);
+        // mdv4：支持 fenced_divs 后语义变化（旧缓存会把 ::: 围栏渲染成字面量），bump 前缀强制重渲染；
+        // 历史：mdv3 = 冒号属性 {width:70%}，mdv2 = link_attributes 首版
+        $key = 'mdv4.' . $version . '.' . sha1($markdown);
         /** @var string $html */
         $html = $this->cache->getOrSet(
             $key,
@@ -74,7 +82,7 @@ final class MarkdownRenderer
     public function renderPost(Post $post): string
     {
         $content = (string) $post->content;
-        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'mdv3.' : 'html.')
+        $key = ($post->format === Post::FORMAT_MARKDOWN ? 'mdv4.' : 'html.')
             . $post->update_time . '.' . sha1($content);
         /** @var string $html */
         $html = $this->cache->getOrSet(

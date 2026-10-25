@@ -284,6 +284,14 @@ a.read-more:hover {
     text-indent: 0;
 }
 
+/* fenced_divs 围栏容器：::: {.center} … ::: 包裹的整块内容居中。
+   子段落自带 justify/text-indent 规则，须显式覆盖（选择器权重更高）。 */
+.post-view .entry-content .center,
+.post-view .entry-content .center p {
+    text-align: center;
+    text-indent: 0;
+}
+
 article.list-group-item:nth-of-type(1) {
     box-shadow: 0 0 3px rgba(153, 153, 153, 0.6);
 }

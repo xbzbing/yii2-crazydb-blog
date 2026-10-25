@@ -89,7 +89,7 @@ final class PandocAttributesParser implements InlineParserInterface
             return false;
         }
 
-        $attributes = $this->parseTokens(\substr($block, 1, -1));
+        $attributes = self::parseTokens(\substr($block, 1, -1));
         if ($attributes === null) {
             // BLOCK 匹配成功但 token 化失败（防御分支）：回滚，保持 `{` 字面量输出
             $cursor->restoreState($state);
@@ -102,9 +102,23 @@ final class PandocAttributesParser implements InlineParserInterface
     }
 
     /**
+     * 解析完整一个 `{...}` 属性块（须整体恰好是合法块，否则返回 null）。
+     * 供围栏 div 开栏（FencedDivStartParser）复用，保证与行内场景同一套校验：
+     * BLOCK 结构 + token 全覆盖语义，`{note: hello}` 之类普通文本不会被局部吞掉。
+     */
+    public static function parseAttributeBlock(string $block): ?ParsedAttributes
+    {
+        if (\preg_match(self::BLOCK, $block, $m) !== 1 || $m[0] !== $block) {
+            return null;
+        }
+
+        return self::parseTokens(\substr($block, 1, -1));
+    }
+
+    /**
      * @return ParsedAttributes|null null = 结构非法（非空白残留），整块不应被消费
      */
-    private function parseTokens(string $inner): ?ParsedAttributes
+    public static function parseTokens(string $inner): ?ParsedAttributes
     {
         /** @var list<array<int, string>> $matches */
         $matches = [];

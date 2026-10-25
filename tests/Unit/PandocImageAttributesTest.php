@@ -238,7 +238,8 @@ final class PandocImageAttributesTest extends TestCase
 
     public function testCacheKeyBumpRendersColonSemantics(): void
     {
-        // 冒号支持改变存量渲染语义 → 缓存前缀必须 bump（mdv3），否则旧缓存回吐字面量
+        // 冒号支持改变存量渲染语义 → 缓存前缀必须 bump（现行 mdv4，历史 mdv3/mdv2），
+        // 否则旧缓存回吐字面量；本用例走 renderPost 验证新前缀下语义正确
         $post = new \App\Post\Post();
         $post->format = \App\Post\Post::FORMAT_MARKDOWN;
         $post->content = '![alt](/upload/a.jpg){width:70%}';
