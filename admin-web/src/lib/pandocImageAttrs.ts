@@ -15,6 +15,8 @@
  *   显示，保存的 markdown 仍由后端最终裁定）。
  * - 支持 `key=value`（Pandoc）与 `key: value`（CSS 风格）两种分隔；冒号键
  *   限定白名单（与后端一致），避免图片后的普通说明文本被误应用。
+ * - 两种作用域：IR 源区（{@link applyPandocImageAttrs}，只套用不删文本）与
+ *   分屏/全屏预览面板（{@link applyPandocImageAttrsInPreview}，套用并剥离字面量）。
  */
 
 /** 解析结果（与后端 ParsedAttributes 对齐） */
@@ -127,10 +129,17 @@ function parseDimension(value: string): { pixel: string } | { style: string } | 
   return { style: `${m[1]}${unit}` }
 }
 
-/** 从文本节点起始处连续解析多个相邻 `{…}` 块（Pandoc 允许连续属性块；隔空格即停） */
-export function parseLeadingBlocks(text: string): PandocImageAttrs | null {
+/** 连续 `{…}` 块匹配结果：属性 + 已消费字符数（预览层需按长度剥离字面量） */
+export interface LeadingBlocksMatch {
+  attrs: PandocImageAttrs
+  consumed: number
+}
+
+/** 从文本起始处连续解析多个相邻 `{…}` 块（Pandoc 允许连续属性块；隔空格即停） */
+export function matchLeadingBlocks(text: string): LeadingBlocksMatch | null {
   let rest = text
   let merged: PandocImageAttrs | null = null
+  let consumed = 0
   for (;;) {
     const m = BLOCK.exec(rest)
     if (!m || m.index !== 0) break
@@ -149,9 +158,15 @@ export function parseLeadingBlocks(text: string): PandocImageAttrs | null {
       merged.styleDecls.push(...attrs.styleDecls)
       merged.rawStyle.push(...attrs.rawStyle)
     }
+    consumed += m[0].length
     rest = rest.slice(m[0].length)
   }
-  return merged
+  return merged ? { attrs: merged, consumed } : null
+}
+
+/** 仅取属性（IR 显示层用：IR 不允许剥离 {…} 文本，只消费不删除） */
+export function parseLeadingBlocks(text: string): PandocImageAttrs | null {
+  return matchLeadingBlocks(text)?.attrs ?? null
 }
 
 /** 回滚显示层施加的变更所需的原始值快照 */
@@ -247,5 +262,48 @@ export function applyPandocImageAttrs(root: ParentNode): void {
     } else {
       revert(img)
     }
+  }
+}
+
+/**
+ * 已处理过剥离的预览 <img>（字面量 {…} 被移除后，后续扫描不再匹配，凭此保持状态）。
+ * 预览面板内容每次随 markdown 整体重渲染（innerHTML 重建），元素是全新的，
+ * 不会出现「删除属性后残留旧样式」的问题。
+ */
+const previewApplied = new WeakSet<HTMLImageElement>()
+
+/**
+ * 分屏预览 / 全屏预览（`.vditor-preview`，Lute Md2HTML 渲染）中的图片属性支持。
+ *
+ * 与 IR 层的关键差异：
+ * - 预览是**只读渲染**（不参与 MD↔DOM 序列化），因此可以把 `![a](b){width:70%}`
+ *   渲染出的字面量文本 `{width:70%}` 从 DOM 中剥离——与后端渲染一致，所见即所得；
+ * - 结构是 `<p><img>{width:70%}</p>`，属性块是 img 的直接兄弟文本节点。
+ *
+ * 仅限预览面板内调用：绝不触碰 contenteditable 源区（ir/sv/wysiwyg），
+ * 否则序列化时会丢掉属性（数据丢失，见模块头约束）。
+ */
+export function applyPandocImageAttrsInPreview(root: ParentNode): void {
+  for (const img of root.querySelectorAll('img')) {
+    // IR 区的图片由 applyPandocImageAttrs 负责（属性块是 img 外层 span 的兄弟节点）
+    if (img.closest('.vditor-ir__node')) continue
+    const next = img.nextSibling
+    if (next && next.nodeType === 3) {
+      const match = matchLeadingBlocks(next.textContent || '')
+      if (match) {
+        const remaining = (next.textContent || '').slice(match.consumed)
+        if (remaining !== '') {
+          next.textContent = remaining
+        } else {
+          next.parentNode?.removeChild(next)
+        }
+        applyOne(img, match.attrs)
+        previewApplied.add(img)
+        continue
+      }
+    }
+    // 字面量已被本层剥离：保持已应用状态，不回退
+    if (previewApplied.has(img)) continue
+    revert(img)
   }
 }

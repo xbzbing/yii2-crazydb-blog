@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Spin } from 'antd'
 import { getCsrfToken } from '../api/client'
 import { ADMIN_BASE } from '../config'
-import { applyPandocImageAttrs } from '../lib/pandocImageAttrs'
+import { applyPandocImageAttrs, applyPandocImageAttrsInPreview } from '../lib/pandocImageAttrs'
 
 interface VditorEditorProps {
   value: string
@@ -93,25 +93,34 @@ export default function VditorEditor({
     }
   }, [value, ready])
 
-  // IR 模式下应用 Pandoc 图片属性显示层：Lute 不识别 {width=50%}（渲染为图片
-  // span 后的兄弟文本节点），解析该文本并把尺寸应用到 <img>，编辑器内所见即所得。
-  // 只观察 childList/characterData（不含 attributes）——避免对 <img> 的变异
-  // 触发 observer 死循环；rAF 合并高频编辑重渲染。
+  // 图片属性显示层（两处面板，均由容器级 observer 统一驱动）：
+  // - IR 源区：Lute 不识别 {width=50%}（渲染为 img 外层 span 后的兄弟文本节点），
+  //   解析该文本并把尺寸应用到 <img>，所见即所得（不可删除字面量，否则 IR→MD 丢失内容）；
+  // - 分屏/全屏预览（.vditor-preview）：Lute Md2HTML 把属性块当纯文本渲染，
+  //   解析后套用尺寸并剥离字面量（预览为只读渲染，可安全改写）。
+  // 观察整个编辑器容器（childList/characterData，不含 attributes——避免对 <img>
+  // 的变异触发 observer 死循环），模式切换（ir/sv/预览）动态挂载的面板每帧重新查询；
+  // rAF 合并高频编辑重渲染。所有套用操作幂等，自触发的变更一轮后收敛。
   useEffect(() => {
     if (!ready || !containerRef.current) return
-    const ir = containerRef.current.querySelector('.vditor-ir')
-    if (!ir) return
+    const container = containerRef.current
     let raf = 0
+    const run = () => {
+      const ir = container.querySelector('.vditor-ir')
+      if (ir) applyPandocImageAttrs(ir)
+      const preview = container.querySelector('.vditor-preview')
+      if (preview) applyPandocImageAttrsInPreview(preview)
+    }
+    run()
     const schedule = () => {
       if (raf) return
       raf = requestAnimationFrame(() => {
         raf = 0
-        applyPandocImageAttrs(ir)
+        run()
       })
     }
-    applyPandocImageAttrs(ir)
     const observer = new MutationObserver(schedule)
-    observer.observe(ir, { childList: true, subtree: true, characterData: true })
+    observer.observe(container, { childList: true, subtree: true, characterData: true })
     return () => {
       observer.disconnect()
       if (raf) cancelAnimationFrame(raf)
